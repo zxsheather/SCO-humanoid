@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -12,15 +13,17 @@ if str(SCRIPT_DIR) not in sys.path:
 
 from _common import (  # noqa: E402
     artifact_dir,
+    configure_runtime_env,
     ensure_directory,
     latest_checkpoint,
     load_config,
     read_json,
+    relative_to_repo,
+    repo_root,
     resolve_humanoid_gym_root,
     resolve_run_dir,
     write_json,
 )
-from evaluate_policy import main as evaluate_policy_main  # noqa: E402
 
 
 def parse_checkpoint_list(raw: str | None, run_dir: Path) -> list[int]:
@@ -36,6 +39,43 @@ def composite_score(metrics: dict[str, Any]) -> float:
     return float(metrics["joint_acceleration_l2_mean"]) + 100.0 * float(metrics["velocity_tracking_error_mean"])
 
 
+def build_evaluate_policy_command(
+    *,
+    config_path: str | None,
+    run_name: str,
+    load_run: str,
+    checkpoint: int,
+    num_envs: int | None,
+    episodes: int | None,
+    rl_device: str | None,
+    sim_device: str | None,
+    seed: int | None,
+) -> list[str]:
+    command = [
+        sys.executable,
+        str(SCRIPT_DIR / "evaluate_policy.py"),
+        "--run-name",
+        run_name,
+        "--load-run",
+        load_run,
+        "--checkpoint",
+        str(checkpoint),
+    ]
+    if config_path:
+        command.extend(["--config", config_path])
+    if num_envs is not None:
+        command.extend(["--num-envs", str(num_envs)])
+    if episodes is not None:
+        command.extend(["--episodes", str(episodes)])
+    if rl_device is not None:
+        command.extend(["--rl-device", rl_device])
+    if sim_device is not None:
+        command.extend(["--sim-device", sim_device])
+    if seed is not None:
+        command.extend(["--seed", str(seed)])
+    return command
+
+
 def evaluate_one_checkpoint(
     *,
     config_path: str | None,
@@ -48,33 +88,23 @@ def evaluate_one_checkpoint(
     sim_device: str | None,
     seed: int | None,
 ) -> dict[str, Any]:
-    original_argv = sys.argv[:]
-    try:
-        sys.argv = [
-            "evaluate_policy.py",
-            *(["--config", config_path] if config_path else []),
-            "--run-name",
-            run_name,
-            "--load-run",
-            load_run,
-            "--checkpoint",
-            str(checkpoint),
-        ]
-        if num_envs is not None:
-            sys.argv.extend(["--num-envs", str(num_envs)])
-        if episodes is not None:
-            sys.argv.extend(["--episodes", str(episodes)])
-        if rl_device is not None:
-            sys.argv.extend(["--rl-device", rl_device])
-        if sim_device is not None:
-            sys.argv.extend(["--sim-device", sim_device])
-        if seed is not None:
-            sys.argv.extend(["--seed", str(seed)])
-        rc = evaluate_policy_main()
-        if rc != 0:
-            raise RuntimeError(f"evaluate_policy failed for checkpoint {checkpoint} with exit code {rc}")
-    finally:
-        sys.argv = original_argv
+    # Isaac Gym/PhysX cannot be safely reinitialized repeatedly inside one Python process.
+    # Run each checkpoint evaluation in a fresh subprocess so longer-budget sweeps are stable.
+    configure_runtime_env()
+    command = build_evaluate_policy_command(
+        config_path=config_path,
+        run_name=run_name,
+        load_run=load_run,
+        checkpoint=checkpoint,
+        num_envs=num_envs,
+        episodes=episodes,
+        rl_device=rl_device,
+        sim_device=sim_device,
+        seed=seed,
+    )
+    completed = subprocess.run(command, cwd=str(repo_root()), check=False)
+    if completed.returncode != 0:
+        raise RuntimeError(f"evaluate_policy failed for checkpoint {checkpoint} with exit code {completed.returncode}")
 
     config = load_config(config_path)
     output_dir = artifact_dir(config, run_name)
@@ -83,7 +113,7 @@ def evaluate_one_checkpoint(
     write_json(checkpoint_metrics_path, metrics)
     return {
         "checkpoint": checkpoint,
-        "metrics_path": str(checkpoint_metrics_path),
+        "metrics_path": relative_to_repo(checkpoint_metrics_path),
         "metrics": metrics,
         "composite_score": composite_score(metrics),
     }
@@ -144,6 +174,8 @@ def main() -> int:
         )
 
     best = min(summary_rows, key=lambda row: row["composite_score"])
+    selected_metrics_path = output_dir / "metrics_selected.json"
+    write_json(selected_metrics_path, next(item["metrics"] for item in results if item["checkpoint"] == best["checkpoint"]))
     summary = {
         "run_name": args.run_name,
         "load_run": args.load_run,
@@ -151,12 +183,24 @@ def main() -> int:
         "selection_metric": "joint_acceleration_l2_mean + 100 * velocity_tracking_error_mean",
         "best_checkpoint": best["checkpoint"],
         "best_composite_score": best["composite_score"],
+        "selected_checkpoint_metrics_path": best["metrics_path"],
+        "selected_metrics_path": relative_to_repo(selected_metrics_path),
         "rows": summary_rows,
-        "latest_checkpoint_path": str(latest_checkpoint(run_dir)),
+        "latest_checkpoint_path": relative_to_repo(latest_checkpoint(run_dir)),
     }
     summary_path = output_dir / "checkpoint_sweep_summary.json"
     write_json(summary_path, summary)
-    print(f"Wrote {summary_path}")
+
+    manifest_path = output_dir / "manifest.json"
+    if manifest_path.exists():
+        manifest = read_json(manifest_path)
+        manifest["checkpoint_sweep_summary_path"] = relative_to_repo(summary_path)
+        manifest["selected_checkpoint"] = best["checkpoint"]
+        manifest["selected_checkpoint_metrics_path"] = best["metrics_path"]
+        manifest["selected_metrics_path"] = relative_to_repo(selected_metrics_path)
+        write_json(manifest_path, manifest)
+
+    print(f"Wrote {relative_to_repo(summary_path)}")
     return 0
 
 

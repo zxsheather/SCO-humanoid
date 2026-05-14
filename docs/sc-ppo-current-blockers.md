@@ -386,6 +386,47 @@ Interpretation:
 - compared with the working `dual` branch, it gives a strictly worse tradeoff on the current
   `100 iteration` evidence
 
+### Long-budget checkpoint-selection outcome
+
+Confirmed fact:
+
+`在当前 dual 长预算 run 中，最后一个 checkpoint 不是最佳停止点；如果只看最终 checkpoint，会系统性低估该分支的平滑表现`
+
+Minimal key numbers:
+
+- run budget: `400 iteration`
+- checkpoint `100`:
+  - `velocity_tracking_error_mean = 1.0822`
+  - `joint_acceleration_l2_mean = 93.1729`
+  - `action_jitter_l2_mean = 0.1469`
+- checkpoint `200`:
+  - `velocity_tracking_error_mean = 0.8880`
+  - `joint_acceleration_l2_mean = 171.3763`
+  - `action_jitter_l2_mean = 0.2602`
+- checkpoint `300`:
+  - `velocity_tracking_error_mean = 0.7713`
+  - `joint_acceleration_l2_mean = 203.0927`
+  - `action_jitter_l2_mean = 0.3887`
+- checkpoint `400`:
+  - `velocity_tracking_error_mean = 0.6626`
+  - `joint_acceleration_l2_mean = 227.3379`
+  - `action_jitter_l2_mean = 0.4080`
+
+Interpretation:
+
+- this branch improves the `速度跟踪误差主指标` late in training while steadily sacrificing the
+  `关节震荡主指标` and `动作抖动次级指标`
+- the correct reading of the current `400 iteration` run is therefore `late-stage tradeoff drift`,
+  not “the branch is only as bad as the final checkpoint”
+- the current best checkpoint on the present long-budget run is `100`, not `400`
+
+Protocol consequence:
+
+- every future longer-budget comparison on this branch must be reported through
+  `checkpoint_sweep_summary.json`
+- the selected checkpoint, not the last checkpoint alone, is the valid evidence object for the
+  current long-budget comparison loop
+
 ## Next candidate actions
 
 The next experimental actions should be recorded as:
@@ -486,7 +527,8 @@ Current next-step order:
 
 1. promote the current best working short-run branch:
    `threshold = 4.2`, `lambda_init = 0.5`, `cost_aggregation = quantile(0.90)`, `dual_lr = 0.01`
-2. move this working branch into a longer-budget comparison against the heuristic baseline
+2. any longer-budget comparison on this branch must use `checkpoint sweep + selected checkpoint`
+   rather than the final checkpoint alone
 3. keep `PID` repair as a separate blocker, because the current no-negative-integral patch did not
    resolve the mechanism failure
 

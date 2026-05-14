@@ -16,6 +16,12 @@ This writes:
 
 - `metrics_checkpoint_<N>.json` for each evaluated checkpoint
 - `checkpoint_sweep_summary.json` with a sortable table and selected best checkpoint
+- `metrics_selected.json` for the selected checkpoint metrics snapshot
+
+Long-budget reporting rule:
+
+- cite `checkpoint_sweep_summary.json` and `metrics_selected.json` as the canonical long-budget result
+- do not treat the final checkpoint alone as sufficient evidence for the current `SC-PPO` branch
 
 Current method configs:
 
