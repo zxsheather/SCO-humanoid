@@ -48,3 +48,9 @@ If `constraint_metrics.json` exists under the method artifact directory, the eva
 
 If `lagrange_multiplier_trace.json` exists, the evaluator records its path in
 `constraint_metrics.lagrange_multiplier_trace_path`.
+
+For `SC-PPO`, `scripts/baseline/train_vanilla_ppo.py` now writes these sidecars from training-time
+constraint statistics, so evaluation can keep both:
+
+- rollout-time `policy_local_sensitivity_cost_*`
+- training-time `lagrange_multiplier` and violation trace evidence

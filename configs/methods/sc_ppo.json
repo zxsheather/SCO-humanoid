@@ -17,7 +17,7 @@
   },
   "training": {
     "headless": true,
-    "num_envs": 1024,
+    "num_envs": 512,
     "rl_device": "cuda:0",
     "sim_device": "cuda:0"
   },
@@ -44,6 +44,21 @@
       "rewards.scales.dof_acc": 0.0,
       "rewards.scales.base_acc": 0.0,
       "rewards.scales.dof_vel": 0.0
+    },
+    "train": {
+      "runner.algorithm_class_name": "SCPPO",
+      "algorithm.constraint.enabled": true,
+      "algorithm.constraint.threshold": 5.5,
+      "algorithm.constraint.subsample_obs": 8,
+      "algorithm.constraint.update_mode": "pid",
+      "algorithm.constraint.pid_kp": 0.05,
+      "algorithm.constraint.pid_ki": 0.001,
+      "algorithm.constraint.pid_kd": 0.01,
+      "algorithm.constraint.lambda_init": 0.0,
+      "algorithm.constraint.lambda_min": 0.0,
+      "algorithm.constraint.lambda_max": 5.0,
+      "algorithm.constraint.integral_min": -10.0,
+      "algorithm.constraint.integral_max": 10.0
     }
   }
 }

@@ -18,9 +18,19 @@ It disables the upstream smoothness-oriented reward terms:
 
 `Heuristic smoothing baseline` keeps the upstream smoothness-oriented reward shaping active.
 
-`SC-PPO` currently shares the same smoothness reward disablement as `Vanilla PPO`, because the hard constraint
-mechanism has not yet been implemented. This keeps the method config aligned with the intended
-`完全替换对比` setup.
+`SC-PPO` now keeps the same smoothness reward disablement as `Vanilla PPO` and replaces those heuristic terms
+with a `策略局部敏感度` constraint inside the PPO update.
+The method config therefore matches the intended `完全替换对比` setup:
+
+- smoothness-oriented reward shaping stays disabled in the environment
+- the actor update adds a `policy_local_sensitivity_cost_mean` penalty weighted by a nonnegative
+  Lagrange multiplier
+- the multiplier is updated by the current `PID-Lagrangian正式方案`
+
+Training artifacts for `SC-PPO` additionally export:
+
+- `constraint_metrics.json`
+- `lagrange_multiplier_trace.json`
 
 The heuristic side now has a separate bounded sweep document at
 `docs/baselines/heuristic-action-rate-sweep.md`, so the final heuristic baseline can be selected through

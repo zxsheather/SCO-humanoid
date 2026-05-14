@@ -143,6 +143,18 @@ def main() -> int:
     manifest["checkpoint_path"] = relative_to_repo(checkpoint_path)
 
     output_dir = ensure_directory(artifact_dir(config, run_name))
+    artifact_payload = ppo_runner.alg.get_artifact_payload()
+    constraint_logging = config.get("evaluation", {}).get("constraint_logging", {})
+    sidecar_filename = constraint_logging.get("sidecar_metrics_filename", "constraint_metrics.json")
+    multiplier_trace_filename = constraint_logging.get("multiplier_trace_filename", "lagrange_multiplier_trace.json")
+    constraint_metrics = artifact_payload.get("constraint_metrics")
+    if isinstance(constraint_metrics, dict):
+        write_json(output_dir / sidecar_filename, constraint_metrics)
+        manifest["constraint_metrics_path"] = relative_to_repo(output_dir / sidecar_filename)
+    lagrange_multiplier_trace = artifact_payload.get("lagrange_multiplier_trace")
+    if isinstance(lagrange_multiplier_trace, list) and lagrange_multiplier_trace:
+        write_json(output_dir / multiplier_trace_filename, {"trace": lagrange_multiplier_trace})
+        manifest["lagrange_multiplier_trace_path"] = relative_to_repo(output_dir / multiplier_trace_filename)
     write_json(output_dir / "manifest.json", manifest)
     print(f"Wrote manifest to {relative_to_repo(output_dir / 'manifest.json')}")
     return 0
