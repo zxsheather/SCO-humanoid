@@ -1,0 +1,29 @@
+{
+  "name": "heuristic_action_rate_rough_terrain",
+  "analysis_root": "artifacts/analysis/heuristic_action_rate_rough_terrain",
+  "description": "Bounded action-rate penalty sweep for the heuristic smoothing baseline on rough-terrain velocity-tracking locomotion.",
+  "selection": {
+    "task_reference_metric": "velocity_tracking_error_mean",
+    "tracking_error_relative_tolerance": 0.1,
+    "fall_rate_absolute_tolerance": 0.05,
+    "primary_smoothness_metric": "joint_acceleration_l2_mean",
+    "secondary_smoothness_metric": "action_jitter_l2_mean"
+  },
+  "candidates": [
+    {
+      "id": "action_rate_0005",
+      "label": "PPO + heuristic smoothing (action_rate=-0.0005)",
+      "config": "configs/methods/heuristic_smoothing_action_rate_0005.json"
+    },
+    {
+      "id": "action_rate_0020",
+      "label": "PPO + heuristic smoothing (action_rate=-0.0020)",
+      "config": "configs/methods/heuristic_smoothing.json"
+    },
+    {
+      "id": "action_rate_0050",
+      "label": "PPO + heuristic smoothing (action_rate=-0.0050)",
+      "config": "configs/methods/heuristic_smoothing_action_rate_0050.json"
+    }
+  ]
+}

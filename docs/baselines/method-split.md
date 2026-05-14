@@ -22,6 +22,10 @@ It disables the upstream smoothness-oriented reward terms:
 mechanism has not yet been implemented. This keeps the method config aligned with the intended
 `完全替换对比` setup.
 
+The heuristic side now has a separate bounded sweep document at
+`docs/baselines/heuristic-action-rate-sweep.md`, so the final heuristic baseline can be selected through
+`启发式小范围调参基线` rather than a single fixed weight.
+
 ## Shared entrypoints
 
 Training:
