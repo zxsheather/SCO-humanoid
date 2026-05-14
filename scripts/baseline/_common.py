@@ -196,7 +196,7 @@ def relative_to_repo(path: Path) -> str:
 
 
 def default_manifest(config: dict[str, Any], humanoid_gym_root: Path) -> dict[str, Any]:
-    return {
+    manifest = {
         "baseline": config["name"],
         "task": config["task"],
         "experiment_name": config["experiment_name"],
@@ -207,3 +207,6 @@ def default_manifest(config: dict[str, Any], humanoid_gym_root: Path) -> dict[st
             "checkout_dir": relative_to_repo(humanoid_gym_root),
         },
     }
+    if "method" in config:
+        manifest["method"] = config["method"]
+    return manifest

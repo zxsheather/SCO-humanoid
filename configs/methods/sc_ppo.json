@@ -1,15 +1,15 @@
 {
-  "name": "vanilla_ppo_rough_terrain",
+  "name": "sc_ppo_rough_terrain",
   "method": {
-    "id": "vanilla_ppo",
-    "label": "Vanilla PPO",
-    "family": "vanilla",
-    "smoothness_strategy": "none"
+    "id": "sc_ppo",
+    "label": "SC-PPO",
+    "family": "constraint_method",
+    "smoothness_strategy": "policy_local_sensitivity_constraint"
   },
   "task": "humanoid_ppo",
-  "experiment_name": "ecolab_humanoid_ppo",
-  "run_name": "vanilla_ppo_rough_terrain",
-  "artifacts_root": "artifacts/baselines/vanilla_ppo",
+  "experiment_name": "ecolab_sc_ppo",
+  "run_name": "sc_ppo_rough_terrain",
+  "artifacts_root": "artifacts/methods/sc_ppo",
   "upstream": {
     "repo_url": "https://github.com/roboterax/humanoid-gym",
     "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
@@ -17,7 +17,7 @@
   },
   "training": {
     "headless": true,
-    "num_envs": 4096,
+    "num_envs": 1024,
     "rl_device": "cuda:0",
     "sim_device": "cuda:0"
   },
