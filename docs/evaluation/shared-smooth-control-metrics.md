@@ -6,6 +6,17 @@ Issue `#2` standardizes one evaluation entrypoint for all study methods:
 python scripts/baseline/evaluate_policy.py --config <config-path>
 ```
 
+For longer-budget runs where `最后一个 checkpoint` may not be the best stopping point, use:
+
+```bash
+python scripts/baseline/evaluate_checkpoint_sweep.py --config <config-path> --run-name <artifact-run-name> --load-run <upstream-run-dir>
+```
+
+This writes:
+
+- `metrics_checkpoint_<N>.json` for each evaluated checkpoint
+- `checkpoint_sweep_summary.json` with a sortable table and selected best checkpoint
+
 Current method configs:
 
 - `configs/methods/vanilla_ppo.json`
