@@ -23,6 +23,21 @@ Long-budget reporting rule:
 - cite `checkpoint_sweep_summary.json` and `metrics_selected.json` as the canonical long-budget result
 - do not treat the final checkpoint alone as sufficient evidence for the current `SC-PPO` branch
 
+Current mainline note:
+
+- the current leading `SC-PPO` branch is
+  `configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp.json`
+- its current best evidence is a completed `3-seed, 400 iteration, checkpoint-sweep` batch
+- selected checkpoints are `300`, `300`, and `400` for seeds `11`, `17`, and `23`
+- selected-checkpoint aggregate metrics are:
+  - `velocity_tracking_error_mean = 0.6412 ± 0.0554`
+  - `joint_acceleration_l2_mean = 115.9079 ± 6.9386`
+  - `action_jitter_l2_mean = 0.2205 ± 0.0017`
+  - `episode_return_mean = 100.2838 ± 2.7150`
+  - `fall_rate = 0.1000 ± 0.0000`
+- this currently beats the repo's heuristic anchor under the shared metric schema, but it still
+  depends on `selected checkpoint` reporting rather than the final checkpoint alone
+
 Current method configs:
 
 - `configs/methods/vanilla_ppo.json`

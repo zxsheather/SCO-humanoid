@@ -17,123 +17,123 @@ stable domain language.
 
 The current primary blocker is:
 
-`修复后的 PID 约束机制已经解锁，但行为层收益仍不足以支撑方法优势`
+`当前 repaired PID 主线已经拿到阶段性多种子优势证据，但还缺少邻域稳定性与更高标准验证`
 
 This is the preferred framing over both “`SC-PPO` has not yet beaten the heuristic baseline” and
 the older “`SC-PPO 约束机制尚未真正发力`”.
 
 Reason:
 
-- “not yet beating the baseline” is still only a surface observation
-- the repaired `PID` branch now shows repeated positive multiplier re-entry, so the mechanism is no
-  longer fully dead
-- however, the repaired `200 iteration` run still trails the best current `dual` checkpoint on the
-  smoothness-sensitive metrics
-- this shifts the blocker from “乘子起不来” to “乘子起来了，但起来得太晚且收益不够好”
+- the repaired `PID` branch with `threshold = 3.8` now beats the current heuristic anchor on the
+  shared metrics in a completed `3-seed, 400 iteration, checkpoint-sweep` comparison
+- this means the project is no longer blocked on the old question “can repaired PID become
+  behaviorally competitive at all”
+- however, the current evidence is still narrow: one threshold neighborhood, one task condition,
+  one budget family, and one main random-seed batch
+- the blocker has therefore shifted from `方法完全站不住` to `如何把当前结果整理成更可信的主结论`
 
 ## Secondary blocker
 
 The current secondary blocker is:
 
-`200 iteration 预算只能提供阶段性证据`
+`当前主结果仍然依赖 checkpoint sweep 与单一 threshold 主线`
 
 This should not be promoted to the primary blocker.
 
 Reason:
 
-- the current budget is enough to show whether the `SC-PPO` path is runnable and directionally
-  promising
-- the current budget is not enough to support a final `方法优于启发式` claim
-- however, the stronger blocker remains the weak engagement of the constraint mechanism rather
-  than the budget alone
+- `threshold = 3.8` on the repaired branch is now the clear mainline candidate
+- but the current claim is still stronger than a one-off single-seed win and weaker than a fully
+  settled method result
+- the immediate next need is to verify that the result is not a brittle threshold-local artifact
 
 ## Explicit mechanism blocker
 
 The current explicit mechanism blocker is:
 
-`PID 乘子虽然已能重新抬起，但激活过晚且强度时序仍不够好`
+`checkpoint selection 与 threshold 邻域稳定性现在比“PID 是否苏醒”更关键`
 
 Reason:
 
-- in the repaired `PID` probe, `lagrange_delta` first turns positive at iteration `98`
-- the multiplier then re-enters a positive regime many times and stays positive as late as
-  iteration `193`
-- however, that activation still starts late enough that the branch appears to pay a large
-  smoothness cost after it wakes up
-- this blocker is directly actionable through earlier activation pressure, starting with
-  `threshold` and then `PID` gain tuning if needed
+- the repaired `PID` path at `threshold = 3.8` now enters a positive-update regime much earlier
+  than the repaired `4.2` reference
+- the selected checkpoints for the `3-seed` run are `300`, `300`, and `400`, which means the
+  current branch still cannot be summarized by the final checkpoint alone
+- the next actionable mechanism question is therefore whether the same result survives a nearby
+  threshold such as `4.0`, not whether the multiplier is still completely pinned
 
 ## Newly clarified blocker
 
 The current newly clarified blocker is:
 
-`lower-bound clamp 已修复负积分债锁死，但没有自动转化为更好的平滑指标`
+`repaired PID + tighter threshold 已经转化为实质行为收益，但证据整理尚未完成`
 
 Reason:
 
-- the old `PID` blocker was a negative-integral-debt lock that swallowed late positive constraint
-  error
-- the repaired branch removes that failure mode and proves that repeated positive re-entry is
-  possible in the current code path
-- but the repaired `200 iteration` behavior is still much worse than the best `dual` checkpoint on
-  `joint_acceleration_l2_mean` and `action_jitter_l2_mean`
-- therefore the next question is no longer “can PID wake up at all”, but “how to make repaired PID
-  wake up earlier and more usefully”
+- the old “lower-bound clamp only fixes logic, not behavior” statement is no longer current
+- after tightening `threshold` to `3.8`, the repaired branch now shows both stronger activation and
+  much better selected-checkpoint behavior
+- in the completed `3-seed` batch, the selected metrics average to:
+  - `velocity_tracking_error_mean = 0.6412 ± 0.0554`
+  - `joint_acceleration_l2_mean = 115.9079 ± 6.9386`
+  - `action_jitter_l2_mean = 0.2205 ± 0.0017`
+  - `fall_rate = 0.1000 ± 0.0000`
+- these numbers are materially better than the current heuristic anchor under the same shared
+  metric schema
 
 ## Current leading hypothesis
 
 The current leading hypothesis is:
 
-`修复后的 PID 仍然进入 active regime 太晚，当前 threshold 与 PID 更新强度的组合还不对`
+`threshold = 3.8` is currently inside a robust-enough active regime, but the claim still needs a nearby-control check`
 
 Evidence status:
 
 - this is a `当前主假设`, not a confirmed root cause
-- in the repaired `threshold = 4.2`, `lambda_init = 0.5`, `quantile(0.90)` branch, the first
-  positive `lagrange_delta` still arrives only at iteration `98`
-- once the multiplier becomes active, the branch can re-enter a positive regime repeatedly, so the
-  remaining issue no longer looks like a hard logic bug
-- the late-stage activation coincides with a sharp worsening in `joint_acceleration_l2_mean` and
-  `action_jitter_l2_mean`
-- other factors may still contribute, including the precise `PID` gain mix and the training-time
-  cost summary
+- compared with the repaired `4.2` reference, the repaired `3.8` branch activates earlier and
+  remains competitive through long-budget selected checkpoints
+- the current `3-seed` result suggests that the repaired `PID` branch is no longer sitting on a
+  knife-edge failure mode
+- however, without a nearby `4.0` multi-seed control, the team still cannot say whether `3.8` is
+  uniquely lucky or just the center of a broader good region
 
 ## First-priority remediation target
 
 The current first-priority remediation target is:
 
-`在 repaired PID 分支上优先让乘子更早激活，再考虑细调 PID 系数`
+`先把当前主结果整理为可信证据，再决定是否继续局部调参`
 
 Reason:
 
-- the repaired branch already proves that the multiplier can become active under the current code
-  path
-- the next highest-yield lever is to pull activation earlier in training without losing the repair
+- the repaired branch has already passed the old “make the multiplier active” gate
+- the next highest-yield step is no longer another blind tuning jump
+- the immediate value now comes from:
+  1. documenting the completed `3-seed` result cleanly
+  2. checking the nearest neighbor threshold branch
+  3. then deciding whether more tuning is even necessary
 - the preferred tuning order is:
   1. keep `pid_integral_mode = lower_bound_clamp` fixed
-  2. tighten `threshold` on the repaired branch
-  3. then evaluate whether the `PID` update is too weak, too sharp, or too oscillatory
+  2. keep `threshold = 3.8` as the current mainline result
+  3. use `threshold = 4.0` as the nearest-neighbor validation branch
 
 ## Next short-run success criterion
 
 The next short-run success criterion is:
 
-`优先确认 repaired PID 能更早介入训练，并且不明显破坏平滑指标`
+`优先确认当前主结果不是 threshold-local 偶然，并保持对 heuristic 的优势`
 
 This should be checked before expecting `SC-PPO` to beat the heuristic baseline on short-budget runs.
 
 Reason:
 
-- the repaired branch has already cleared the old “multiplier completely pinned” mechanism gate
-- the new short-run gate is whether earlier positive multiplier activity can coexist with an
-  acceptable `joint_acceleration_l2_mean` and `action_jitter_l2_mean`
-- if the branch only activates late and then overshoots behaviorally, it is still not ready for a
-  stronger long-budget comparison
+- the repaired branch has already cleared the old mechanism gate and the first long-budget
+  behavior gate
+- the new gate is whether a nearby branch such as `threshold = 4.0` produces the same directional
+  advantage with acceptable variance
 - the preferred short-run evidence is:
-  - `lagrange_delta` turns positive earlier than the current repaired reference
-  - `lagrange_multiplier` re-enters a positive regime more than once
-  - `joint_acceleration_l2_mean` and `action_jitter_l2_mean` stay closer to the current `dual`
-    anchor
+  - selected-checkpoint metrics remain clearly better than the heuristic anchor
+  - seed-to-seed variance stays modest
+  - best checkpoint does not collapse to a pathological early-stop artifact
 
 ## Validation order
 
@@ -194,6 +194,45 @@ Compressed interpretation:
 - under the current `200 iteration` budget, `SC-PPO` is already competitive on the
   `动作抖动次级指标`, but it still trails the selected heuristic winner on both the
   `关节震荡主指标` and the `速度跟踪误差主指标`
+
+### Current repaired-PID mainline status
+
+Confirmed fact:
+
+`repaired PID + threshold = 3.8` has now produced a completed `3-seed, 400 iteration, checkpoint-sweep` result that beats the current heuristic anchor on all shared primary metrics`
+
+Evidence scope:
+
+- task condition: `粗糙平面`
+- evidence strength: `3 seeds`
+- budget: `400 iteration`
+- checkpoint rule: `selected checkpoint from checkpoint_sweep_summary.json`
+- comparison target: current heuristic anchor `action_rate = -0.005`
+
+Minimal key numbers:
+
+- selected-checkpoint aggregate over seeds `11`, `17`, `23`:
+  - `velocity_tracking_error_mean = 0.6412 ± 0.0554`
+  - `joint_acceleration_l2_mean = 115.9079 ± 6.9386`
+  - `action_jitter_l2_mean = 0.2205 ± 0.0017`
+  - `episode_return_mean = 100.2838 ± 2.7150`
+  - `fall_rate = 0.1000 ± 0.0000`
+- per-seed selected checkpoints:
+  - `seed11 -> checkpoint 300`
+  - `seed17 -> checkpoint 300`
+  - `seed23 -> checkpoint 400`
+- current heuristic anchor:
+  - `velocity_tracking_error_mean = 1.1381`
+  - `joint_acceleration_l2_mean = 140.6399`
+  - `action_jitter_l2_mean = 0.2457`
+  - `fall_rate = 1.0`
+
+Interpretation:
+
+- this is the first branch in the repo that now has nontrivial multi-seed evidence for
+  `方法优于启发式`
+- however, the branch still requires `checkpoint sweep + selected checkpoint` reporting and should
+  not yet be compressed into “final checkpoint wins by default”
 
 ### Current constraint engagement status
 
@@ -475,6 +514,36 @@ Protocol consequence:
 - the selected checkpoint, not the last checkpoint alone, is the valid evidence object for the
   current long-budget comparison loop
 
+### Repaired PID tightened-threshold outcome
+
+Confirmed fact:
+
+`tightening threshold on the repaired PID branch is what converted the repair from a mechanism-only success into a behavior-level win`
+
+Minimal key numbers:
+
+- repaired `threshold = 4.2`, `200 iteration`:
+  - `velocity_tracking_error_mean = 1.0897`
+  - `joint_acceleration_l2_mean = 172.0236`
+  - `action_jitter_l2_mean = 0.2802`
+- repaired `threshold = 4.0`, selected checkpoint from `400 iteration` sweep:
+  - `velocity_tracking_error_mean = 0.6101`
+  - `joint_acceleration_l2_mean = 119.0045`
+  - `action_jitter_l2_mean = 0.2459`
+  - `fall_rate = 0.1`
+- repaired `threshold = 3.8`, selected checkpoint from `400 iteration` sweep:
+  - `velocity_tracking_error_mean = 0.4916`
+  - `joint_acceleration_l2_mean = 128.4750`
+  - `action_jitter_l2_mean = 0.2434`
+  - `fall_rate = 0.05`
+
+Interpretation:
+
+- the current repo evidence no longer supports the older conclusion that repaired PID is “alive but
+  still not competitive enough”
+- the current stronger conclusion is that repaired PID becomes competitive after threshold
+  tightening, with `3.8` as the current leading branch
+
 ## Next candidate actions
 
 The next experimental actions should be recorded as:
@@ -573,13 +642,12 @@ Current branch after lambda-init probes:
 
 Current next-step order:
 
-1. keep the repaired `PID` base fixed:
-   `threshold = 4.2`, `lambda_init = 0.5`, `cost_aggregation = quantile(0.90)`,
-   `pid_integral_mode = lower_bound_clamp`
-2. probe a tighter `threshold` on the repaired branch before changing more than one variable
-3. any longer-budget comparison on this branch must still use `checkpoint sweep + selected
-   checkpoint` rather than the final checkpoint alone
-4. keep the current best `dual` checkpoint as the behavior anchor, not as the immediate mainline
+1. treat repaired `PID` with `threshold = 3.8` as the current mainline result
+2. keep `checkpoint sweep + selected checkpoint` as the required long-budget reporting rule
+3. run the nearest-neighbor `threshold = 4.0` multi-seed control before opening a wider tuning
+   branch
+4. after the `4.0` control, decide whether the repo should freeze the present result for reporting
+   or reopen PID-coefficient tuning
 
 ## No-longer-primary blockers
 
@@ -618,7 +686,7 @@ Role:
 
 - this is important for the eventual `任务守底线` judgment
 - however, it is not the current primary blocker for the short mechanism-tuning loop
-- the current shortest-path blocker remains the repaired `PID` branch's late and behaviorally costly
-  engagement pattern
+- the current shortest-path blocker is no longer catastrophic falling, but whether the present
+  multi-seed win survives the next credibility checks
 - this is not a `SC-PPO`-only issue in the current `200 iteration` comparison, but a problem shared by
   the current comparison group at this budget level
