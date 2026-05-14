@@ -4,6 +4,7 @@ import json
 import os
 import subprocess
 import sys
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -23,6 +24,53 @@ def load_config(config_path: str | Path | None = None) -> dict[str, Any]:
     path = Path(config_path) if config_path else DEFAULT_CONFIG
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def nested_get(payload: dict[str, Any], dotted_key: str) -> Any:
+    current: Any = payload
+    for part in dotted_key.split("."):
+        if not isinstance(current, dict) or part not in current:
+            raise KeyError(dotted_key)
+        current = current[part]
+    return current
+
+
+def nested_set(payload: dict[str, Any], dotted_key: str, value: Any) -> None:
+    current = payload
+    parts = dotted_key.split(".")
+    for part in parts[:-1]:
+        child = current.get(part)
+        if not isinstance(child, dict):
+            child = {}
+            current[part] = child
+        current = child
+    current[parts[-1]] = value
+
+
+def config_overrides(config: dict[str, Any]) -> dict[str, Any]:
+    return config.get("overrides", {})
+
+
+def apply_overrides_dict(payload: dict[str, Any], overrides: dict[str, Any]) -> dict[str, Any]:
+    result = deepcopy(payload)
+    for dotted_key, value in overrides.items():
+        nested_set(result, dotted_key, value)
+    return result
+
+
+def apply_overrides_object(target: Any, overrides: dict[str, Any]) -> Any:
+    for dotted_key, value in overrides.items():
+        current = target
+        parts = dotted_key.split(".")
+        for part in parts[:-1]:
+            if not hasattr(current, part):
+                raise BaselineError(f"Unknown override path: {dotted_key}")
+            current = getattr(current, part)
+        leaf = parts[-1]
+        if not hasattr(current, leaf):
+            raise BaselineError(f"Unknown override path: {dotted_key}")
+        setattr(current, leaf, value)
+    return target
 
 
 def repo_root() -> Path:
@@ -176,6 +224,16 @@ def run_command(command: list[str], cwd: Path, dry_run: bool = False) -> int:
     return completed.returncode
 
 
+def configure_runtime_env() -> None:
+    os.environ.setdefault("TORCH_EXTENSIONS_DIR", str(DEFAULT_TORCH_EXTENSIONS_DIR))
+    os.environ.setdefault("MPLCONFIGDIR", str(DEFAULT_MPLCONFIGDIR))
+    os.environ.setdefault("XDG_CACHE_HOME", str(DEFAULT_XDG_CACHE_HOME))
+    os.environ.setdefault("WANDB_MODE", "disabled")
+    DEFAULT_TORCH_EXTENSIONS_DIR.mkdir(parents=True, exist_ok=True)
+    DEFAULT_MPLCONFIGDIR.mkdir(parents=True, exist_ok=True)
+    DEFAULT_XDG_CACHE_HOME.mkdir(parents=True, exist_ok=True)
+
+
 def write_json(path: Path, payload: dict[str, Any]) -> None:
     ensure_directory(path.parent)
     with path.open("w", encoding="utf-8") as handle:
@@ -209,4 +267,6 @@ def default_manifest(config: dict[str, Any], humanoid_gym_root: Path) -> dict[st
     }
     if "method" in config:
         manifest["method"] = config["method"]
+    if "overrides" in config:
+        manifest["overrides"] = config["overrides"]
     return manifest

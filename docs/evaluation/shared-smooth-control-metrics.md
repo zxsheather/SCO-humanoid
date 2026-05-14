@@ -8,9 +8,13 @@ python scripts/baseline/evaluate_policy.py --config <config-path>
 
 Current method configs:
 
-- `configs/baselines/vanilla_ppo.json`
+- `configs/methods/vanilla_ppo.json`
 - `configs/methods/heuristic_smoothing.json`
 - `configs/methods/sc_ppo.json`
+
+Legacy note:
+
+- `configs/baselines/vanilla_ppo.json` remains as the original issue `#1` scaffold around the upstream default task setup.
 
 ## Common metric schema
 

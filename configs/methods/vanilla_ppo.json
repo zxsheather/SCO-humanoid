@@ -1,15 +1,15 @@
 {
-  "name": "heuristic_smoothing_rough_terrain",
+  "name": "vanilla_ppo_rough_terrain",
   "method": {
-    "id": "heuristic_smoothing",
-    "label": "PPO + heuristic smoothing",
-    "family": "heuristic_baseline",
-    "smoothness_strategy": "reward_shaping"
+    "id": "vanilla_ppo",
+    "label": "Vanilla PPO",
+    "family": "vanilla",
+    "smoothness_strategy": "none"
   },
   "task": "humanoid_ppo",
-  "experiment_name": "ecolab_heuristic_smoothing",
-  "run_name": "heuristic_smoothing_rough_terrain",
-  "artifacts_root": "artifacts/methods/heuristic_smoothing",
+  "experiment_name": "ecolab_vanilla_ppo",
+  "run_name": "vanilla_ppo_rough_terrain",
+  "artifacts_root": "artifacts/methods/vanilla_ppo",
   "upstream": {
     "repo_url": "https://github.com/roboterax/humanoid-gym",
     "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
@@ -40,10 +40,10 @@
   },
   "overrides": {
     "env": {
-      "rewards.scales.action_smoothness": -0.002,
-      "rewards.scales.dof_acc": -1e-07,
-      "rewards.scales.base_acc": 0.2,
-      "rewards.scales.dof_vel": -0.0005
+      "rewards.scales.action_smoothness": 0.0,
+      "rewards.scales.dof_acc": 0.0,
+      "rewards.scales.base_acc": 0.0,
+      "rewards.scales.dof_vel": 0.0
     }
   }
 }

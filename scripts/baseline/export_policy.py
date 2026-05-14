@@ -13,6 +13,7 @@ if str(SCRIPT_DIR) not in sys.path:
 
 from _common import (  # noqa: E402
     artifact_dir,
+    configure_runtime_env,
     default_manifest,
     ensure_directory,
     ensure_humanoid_gym_checkout,
@@ -25,16 +26,17 @@ from _common import (  # noqa: E402
     resolve_run_dir,
     write_json,
 )
+from _overrides import apply_method_overrides  # noqa: E402
 
 
-def build_args(get_args, config: dict, rl_device: str, sim_device: str, seed: int | None) -> object:
+def build_args(get_args, config: dict, run_name: str, rl_device: str, sim_device: str, seed: int | None) -> object:
     original_argv = sys.argv[:]
     try:
         sys.argv = [
             "export_policy.py",
             f"--task={config['task']}",
             f"--experiment_name={config['experiment_name']}",
-            f"--run_name={config['run_name']}",
+            f"--run_name={run_name}",
             f"--rl_device={rl_device}",
             f"--sim_device={sim_device}",
             "--headless",
@@ -48,7 +50,7 @@ def build_args(get_args, config: dict, rl_device: str, sim_device: str, seed: in
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Export a JIT policy for the issue #1 Vanilla PPO baseline.")
+    parser = argparse.ArgumentParser(description="Export a JIT policy for one smooth-control method config.")
     parser.add_argument("--config", default=None, help="Path to the baseline config JSON.")
     parser.add_argument("--humanoid-gym-root", default=None, help="Path to the Humanoid-Gym checkout.")
     parser.add_argument("--run-name", default=None, help="Override the configured run_name.")
@@ -63,13 +65,7 @@ def main() -> int:
     run_name = args.run_name or config["run_name"]
     humanoid_gym_root = resolve_humanoid_gym_root(config, args.humanoid_gym_root)
     ensure_humanoid_gym_checkout(humanoid_gym_root)
-    os.environ.setdefault("TORCH_EXTENSIONS_DIR", "/tmp/torch_extensions")
-    os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
-    os.environ.setdefault("XDG_CACHE_HOME", "/tmp/xdg-cache")
-    os.environ.setdefault("WANDB_MODE", "disabled")
-    Path(os.environ["TORCH_EXTENSIONS_DIR"]).mkdir(parents=True, exist_ok=True)
-    Path(os.environ["MPLCONFIGDIR"]).mkdir(parents=True, exist_ok=True)
-    Path(os.environ["XDG_CACHE_HOME"]).mkdir(parents=True, exist_ok=True)
+    configure_runtime_env()
     ensure_upstream_on_syspath(humanoid_gym_root)
 
     importlib.import_module("humanoid.envs")
@@ -80,11 +76,12 @@ def main() -> int:
     rl_device = args.rl_device or eval_cfg["rl_device"]
     sim_device = args.sim_device or eval_cfg["sim_device"]
 
-    upstream_args = build_args(get_args, config, rl_device, sim_device, args.seed)
+    upstream_args = build_args(get_args, config, run_name, rl_device, sim_device, args.seed)
     upstream_args.num_envs = 1
 
-    env, env_cfg = task_registry.make_env(name=config["task"], args=upstream_args)
-    train_cfg = task_registry.get_cfgs(name=config["task"])[1]
+    env_cfg, train_cfg = task_registry.get_cfgs(name=config["task"])
+    env_cfg, train_cfg = apply_method_overrides(env_cfg, train_cfg, config)
+    env, env_cfg = task_registry.make_env(name=config["task"], args=upstream_args, env_cfg=env_cfg)
     train_cfg.runner.resume = True
     if args.load_run is not None:
         train_cfg.runner.load_run = args.load_run

@@ -37,5 +37,13 @@
       "sidecar_metrics_filename": "constraint_metrics.json",
       "multiplier_trace_filename": "lagrange_multiplier_trace.json"
     }
+  },
+  "overrides": {
+    "env": {
+      "rewards.scales.action_smoothness": 0.0,
+      "rewards.scales.dof_acc": 0.0,
+      "rewards.scales.base_acc": 0.0,
+      "rewards.scales.dof_vel": 0.0
+    }
   }
 }
