@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+
+.external/
+artifacts/*
+!artifacts/README.md

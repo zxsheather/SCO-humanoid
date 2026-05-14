@@ -1,0 +1,26 @@
+{
+  "name": "vanilla_ppo_rough_terrain",
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_humanoid_ppo",
+  "run_name": "vanilla_ppo_rough_terrain",
+  "artifacts_root": "artifacts/baselines/vanilla_ppo",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "training": {
+    "headless": true,
+    "num_envs": 4096,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0"
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 32,
+    "episodes": 20,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 123145
+  }
+}
