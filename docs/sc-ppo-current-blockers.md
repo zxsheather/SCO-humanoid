@@ -17,17 +17,19 @@ stable domain language.
 
 The current primary blocker is:
 
-`SC-PPO 约束机制尚未真正发力`
+`修复后的 PID 约束机制已经解锁，但行为层收益仍不足以支撑方法优势`
 
-This is the preferred framing over “`SC-PPO` has not yet beaten the heuristic baseline”.
+This is the preferred framing over both “`SC-PPO` has not yet beaten the heuristic baseline” and
+the older “`SC-PPO 约束机制尚未真正发力`”.
 
 Reason:
 
-- “not yet beating the heuristic baseline” is an observed surface result
-- the deeper mechanism-level issue is that the current `PID-Lagrangian正式方案` has not yet
-  produced sustained actor-side pressure from the `策略局部敏感度` constraint
-- this makes the present gap to the heuristic baseline hard to interpret as a pure
-  training-budget issue
+- “not yet beating the baseline” is still only a surface observation
+- the repaired `PID` branch now shows repeated positive multiplier re-entry, so the mechanism is no
+  longer fully dead
+- however, the repaired `200 iteration` run still trails the best current `dual` checkpoint on the
+  smoothness-sensitive metrics
+- this shifts the blocker from “乘子起不来” to “乘子起来了，但起来得太晚且收益不够好”
 
 ## Secondary blocker
 
@@ -49,80 +51,89 @@ Reason:
 
 The current explicit mechanism blocker is:
 
-`拉格朗日乘子长期贴近零，导致约束惩罚几乎没有进入 actor 更新`
+`PID 乘子虽然已能重新抬起，但激活过晚且强度时序仍不够好`
 
 Reason:
 
-- the current `lagrange_multiplier_trace` stays at or extremely near zero for almost the entire
-  `200 iteration` run
-- this means the `策略局部敏感度` constraint is being measured, but it is not yet creating a
-  sustained optimization pressure on the actor loss
-- this blocker is directly actionable through `threshold`, `lambda_init`, and dual-update
-  hyperparameter changes
+- in the repaired `PID` probe, `lagrange_delta` first turns positive at iteration `98`
+- the multiplier then re-enters a positive regime many times and stays positive as late as
+  iteration `193`
+- however, that activation still starts late enough that the branch appears to pay a large
+  smoothness cost after it wakes up
+- this blocker is directly actionable through earlier activation pressure, starting with
+  `threshold` and then `PID` gain tuning if needed
 
 ## Newly clarified blocker
 
 The current newly clarified blocker is:
 
-`训练期约束成本估计偏乐观，可能使乘子更新信号被系统性压低`
+`lower-bound clamp 已修复负积分债锁死，但没有自动转化为更好的平滑指标`
 
 Reason:
 
-- in the completed probe runs, the training-side `policy_local_sensitivity_cost_mean` is
-  consistently lower than the evaluation-side estimate under the same saved policy
-- this gap appears in multiple branches rather than only one specific hyperparameter setting
-- therefore, the next shortest-path question is no longer only whether `PID` is too weak, but
-  whether the current training-time cost summary is under-reporting the tail of `策略局部敏感度`
+- the old `PID` blocker was a negative-integral-debt lock that swallowed late positive constraint
+  error
+- the repaired branch removes that failure mode and proves that repeated positive re-entry is
+  possible in the current code path
+- but the repaired `200 iteration` behavior is still much worse than the best `dual` checkpoint on
+  `joint_acceleration_l2_mean` and `action_jitter_l2_mean`
+- therefore the next question is no longer “can PID wake up at all”, but “how to make repaired PID
+  wake up earlier and more usefully”
 
 ## Current leading hypothesis
 
 The current leading hypothesis is:
 
-`约束阈值与乘子初值的组合过于宽松，使策略在 200 iteration 内大多数时间处于几乎不受约束惩罚的区间`
+`修复后的 PID 仍然进入 active regime 太晚，当前 threshold 与 PID 更新强度的组合还不对`
 
 Evidence status:
 
 - this is a `当前主假设`, not a confirmed root cause
-- the current run uses `threshold = 5.5` and `lambda_init = 0.0`
-- the training-side `policy_local_sensitivity_cost_mean` only approaches the threshold late in the
-  run, which keeps the `lagrange_multiplier` near zero for most of training
-- other factors may still contribute, including the current PID update coefficients and the exact
-  dual-update rule
+- in the repaired `threshold = 4.2`, `lambda_init = 0.5`, `quantile(0.90)` branch, the first
+  positive `lagrange_delta` still arrives only at iteration `98`
+- once the multiplier becomes active, the branch can re-enter a positive regime repeatedly, so the
+  remaining issue no longer looks like a hard logic bug
+- the late-stage activation coincides with a sharp worsening in `joint_acceleration_l2_mean` and
+  `action_jitter_l2_mean`
+- other factors may still contribute, including the precise `PID` gain mix and the training-time
+  cost summary
 
 ## First-priority remediation target
 
 The current first-priority remediation target is:
 
-`优先调整 threshold 与 lambda_init，再考虑 PID 系数`
+`在 repaired PID 分支上优先让乘子更早激活，再考虑细调 PID 系数`
 
 Reason:
 
-- the current strongest evidence points to the constraint spending too much of the run outside the
-  effective penalty regime
-- if the multiplier rarely becomes active, tuning the `PID-Lagrangian正式方案` coefficients first is
-  likely to be low-yield
+- the repaired branch already proves that the multiplier can become active under the current code
+  path
+- the next highest-yield lever is to pull activation earlier in training without losing the repair
 - the preferred tuning order is:
-  1. make the constraint enter an active regime earlier
-  2. then evaluate whether the PID update is stable, too weak, or too oscillatory
+  1. keep `pid_integral_mode = lower_bound_clamp` fixed
+  2. tighten `threshold` on the repaired branch
+  3. then evaluate whether the `PID` update is too weak, too sharp, or too oscillatory
 
 ## Next short-run success criterion
 
 The next short-run success criterion is:
 
-`优先确认拉格朗日乘子是否真正抬起来并持续介入训练`
+`优先确认 repaired PID 能更早介入训练，并且不明显破坏平滑指标`
 
 This should be checked before expecting `SC-PPO` to beat the heuristic baseline on short-budget runs.
 
 Reason:
 
-- the current primary blocker sits in `约束层机制证据`, not yet in the final
-  `行为层平滑指标` ranking
-- if the multiplier still stays near zero, an apparent metric improvement would remain hard to
-  interpret as a true `SC-PPO` mechanism win
+- the repaired branch has already cleared the old “multiplier completely pinned” mechanism gate
+- the new short-run gate is whether earlier positive multiplier activity can coexist with an
+  acceptable `joint_acceleration_l2_mean` and `action_jitter_l2_mean`
+- if the branch only activates late and then overshoots behaviorally, it is still not ready for a
+  stronger long-budget comparison
 - the preferred short-run evidence is:
-  - `lagrange_multiplier` enters a positive regime early enough to matter
-  - `constraint_penalty` becomes visible in training
-  - `constraint_violation_rate` responds rather than remaining structurally unchanged
+  - `lagrange_delta` turns positive earlier than the current repaired reference
+  - `lagrange_multiplier` re-enters a positive regime more than once
+  - `joint_acceleration_l2_mean` and `action_jitter_l2_mean` stay closer to the current `dual`
+    anchor
 
 ## Validation order
 
@@ -386,6 +397,43 @@ Interpretation:
 - compared with the working `dual` branch, it gives a strictly worse tradeoff on the current
   `100 iteration` evidence
 
+### PID lower-bound-clamp repair outcome
+
+Confirmed fact:
+
+`lower-bound clamp 已经修复 PID 的负积分债锁死；当前分支可以反复重新进入正乘子区间，但行为收益仍然弱于最佳 dual 对照`
+
+Minimal key numbers:
+
+- config: `threshold = 4.2`, `lambda_init = 0.5`, `cost_aggregation = quantile(0.90)`,
+  `pid_integral_mode = lower_bound_clamp`
+- repaired `200 iteration` run:
+  - `positive_count(lagrange_multiplier) = 51`
+  - `positive_count(lagrange_delta) = 32`
+  - first positive `lagrange_delta` at iteration `98`
+  - positive `lagrange_multiplier` still appears at iteration `193`
+- representative late-stage re-entry:
+  - iteration `115`: `lagrange_delta = 0.0033`, `lagrange_multiplier = 0.0033`
+  - iteration `116`: `lagrange_delta = 0.0100`, `lagrange_multiplier = 0.0133`
+  - iteration `190`: `lagrange_delta = 0.0047`, `lagrange_multiplier = 0.0118`
+- behavior metrics at repaired `PID 200`:
+  - `velocity_tracking_error_mean = 1.0897`
+  - `joint_acceleration_l2_mean = 172.0236`
+  - `action_jitter_l2_mean = 0.2802`
+- best current `dual` anchor at checkpoint `100` of the `200 iteration` run:
+  - `velocity_tracking_error_mean = 1.0822`
+  - `joint_acceleration_l2_mean = 93.1729`
+  - `action_jitter_l2_mean = 0.1469`
+
+Interpretation:
+
+- the current `PID` branch is no longer dead on the mechanism level
+- the old blocker “positive error arrives but PID still pushes downward” has been repaired
+- however, the repaired branch still does not match the best current `dual` checkpoint on
+  smoothness-sensitive metrics
+- therefore the next shortest-path step is to keep the repair and tune for earlier, less damaging
+  activation rather than reverting to the pre-repair `PID` branch
+
 ### Long-budget checkpoint-selection outcome
 
 Confirmed fact:
@@ -525,12 +573,13 @@ Current branch after lambda-init probes:
 
 Current next-step order:
 
-1. promote the current best working short-run branch:
-   `threshold = 4.2`, `lambda_init = 0.5`, `cost_aggregation = quantile(0.90)`, `dual_lr = 0.01`
-2. any longer-budget comparison on this branch must use `checkpoint sweep + selected checkpoint`
-   rather than the final checkpoint alone
-3. keep `PID` repair as a separate blocker, because the current no-negative-integral patch did not
-   resolve the mechanism failure
+1. keep the repaired `PID` base fixed:
+   `threshold = 4.2`, `lambda_init = 0.5`, `cost_aggregation = quantile(0.90)`,
+   `pid_integral_mode = lower_bound_clamp`
+2. probe a tighter `threshold` on the repaired branch before changing more than one variable
+3. any longer-budget comparison on this branch must still use `checkpoint sweep + selected
+   checkpoint` rather than the final checkpoint alone
+4. keep the current best `dual` checkpoint as the behavior anchor, not as the immediate mainline
 
 ## No-longer-primary blockers
 
@@ -569,6 +618,7 @@ Role:
 
 - this is important for the eventual `任务守底线` judgment
 - however, it is not the current primary blocker for the short mechanism-tuning loop
-- the current shortest-path blocker remains the weak engagement of the constraint mechanism
+- the current shortest-path blocker remains the repaired `PID` branch's late and behaviorally costly
+  engagement pattern
 - this is not a `SC-PPO`-only issue in the current `200 iteration` comparison, but a problem shared by
   the current comparison group at this budget level
