@@ -231,6 +231,8 @@ class LeggedRobotCfgPPO(BaseConfig):
             pid_kp = 0.05
             pid_ki = 0.001
             pid_kd = 0.01
+            pid_integral_mode = "standard"
+            pid_integral_decay = 1.0
             lambda_init = 0.0
             lambda_min = 0.0
             lambda_max = 5.0

@@ -24,6 +24,8 @@ class SCPPO(PPO):
         self.constraint_pid_kp = float(cfg.get("pid_kp", 0.05))
         self.constraint_pid_ki = float(cfg.get("pid_ki", 0.001))
         self.constraint_pid_kd = float(cfg.get("pid_kd", 0.01))
+        self.constraint_pid_integral_mode = str(cfg.get("pid_integral_mode", "standard")).lower()
+        self.constraint_pid_integral_decay = min(max(float(cfg.get("pid_integral_decay", 1.0)), 0.0), 1.0)
         self.constraint_lambda_min = float(cfg.get("lambda_min", 0.0))
         self.constraint_lambda_max = float(cfg.get("lambda_max", 5.0))
         self.constraint_integral_min = float(cfg.get("integral_min", -10.0))
@@ -87,13 +89,33 @@ class SCPPO(PPO):
             return cost_quantile
         raise ValueError(f"Unsupported constraint cost_aggregation: {self.constraint_cost_aggregation}")
 
+    def _integrate_constraint_error(self, error):
+        integral = float(self.constraint_integral_error)
+        lower_bound_active = float(self.lagrange_multiplier.item()) <= (self.constraint_lambda_min + self.constraint_epsilon)
+
+        if self.constraint_pid_integral_mode == "standard":
+            integral += error
+        elif self.constraint_pid_integral_mode == "lower_bound_clamp":
+            if lower_bound_active:
+                integral = max(integral, 0.0)
+            integral += error
+        elif self.constraint_pid_integral_mode == "lower_bound_decay":
+            if lower_bound_active and error < 0.0:
+                integral *= self.constraint_pid_integral_decay
+            else:
+                integral += error
+        else:
+            raise ValueError(f"Unsupported pid_integral_mode: {self.constraint_pid_integral_mode}")
+
+        self.constraint_integral_error = min(
+            max(integral, self.constraint_integral_min),
+            self.constraint_integral_max,
+        )
+
     def _update_lagrange_multiplier(self, constraint_error):
         error = float(constraint_error)
         if self.constraint_update_mode == "pid":
-            self.constraint_integral_error = min(
-                max(self.constraint_integral_error + error, self.constraint_integral_min),
-                self.constraint_integral_max,
-            )
+            self._integrate_constraint_error(error)
             derivative = error - self.previous_constraint_error
             delta = (
                 self.constraint_pid_kp * error
@@ -230,6 +252,9 @@ class SCPPO(PPO):
             "policy_local_sensitivity_cost_update": float(mean_constraint_cost_update),
             "policy_local_sensitivity_cost_max": float(mean_constraint_cost_max),
             "policy_local_sensitivity_cost_quantile": float(mean_constraint_cost_quantile),
+            "pid_integral_mode": self.constraint_pid_integral_mode,
+            "pid_integral_decay": float(self.constraint_pid_integral_decay),
+            "constraint_integral_error": float(self.constraint_integral_error),
             "constraint_violation_rate": float(mean_constraint_violation_rate),
             "constraint_penalty_loss_mean": float(mean_constraint_penalty),
             "constraint_sample_count": int(total_constraint_samples),
@@ -255,6 +280,7 @@ class SCPPO(PPO):
             ],
             "Constraint/constraint_threshold": self.latest_stats["constraint_threshold"],
             "Constraint/constraint_error": self.latest_stats["constraint_error"],
+            "Constraint/constraint_integral_error": self.latest_stats["constraint_integral_error"],
             "Constraint/constraint_violation_rate": self.latest_stats["constraint_violation_rate"],
             "Loss/constraint_penalty": self.latest_stats["constraint_penalty_loss_mean"],
         }
@@ -292,6 +318,8 @@ class SCPPO(PPO):
                 "lagrange_multiplier": self.latest_stats.get("lagrange_multiplier"),
                 "lagrange_multiplier_max": self.constraint_lambda_max,
                 "local_sensitivity_threshold": self.constraint_threshold,
+                "pid_integral_mode": self.constraint_pid_integral_mode,
+                "pid_integral_decay": float(self.constraint_pid_integral_decay),
                 "policy_local_sensitivity_cost_mean": self.latest_stats.get("policy_local_sensitivity_cost_mean"),
                 "policy_local_sensitivity_cost_update": self.latest_stats.get("policy_local_sensitivity_cost_update"),
                 "policy_local_sensitivity_cost_max": self.latest_stats.get("policy_local_sensitivity_cost_max"),
