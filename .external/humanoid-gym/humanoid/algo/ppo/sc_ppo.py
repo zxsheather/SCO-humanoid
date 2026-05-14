@@ -19,6 +19,8 @@ class SCPPO(PPO):
         self.constraint_subsample_obs = max(int(cfg.get("subsample_obs", 8)), 1)
         self.constraint_update_mode = str(cfg.get("update_mode", "pid")).lower()
         self.constraint_dual_lr = float(cfg.get("dual_lr", 0.01))
+        self.constraint_cost_aggregation = str(cfg.get("cost_aggregation", "mean")).lower()
+        self.constraint_cost_quantile = min(max(float(cfg.get("cost_quantile", 0.9)), 0.0), 1.0)
         self.constraint_pid_kp = float(cfg.get("pid_kp", 0.05))
         self.constraint_pid_ki = float(cfg.get("pid_ki", 0.001))
         self.constraint_pid_kd = float(cfg.get("pid_kd", 0.01))
@@ -63,8 +65,27 @@ class SCPPO(PPO):
 
         local_sensitivity = torch.sqrt(torch.clamp(squared_norm, min=self.constraint_epsilon))
         cost_mean = local_sensitivity.mean()
+        cost_max = local_sensitivity.max()
+        cost_quantile = torch.quantile(local_sensitivity, self.constraint_cost_quantile)
+        cost_for_update = self._aggregate_constraint_cost(cost_mean, cost_max, cost_quantile)
         violation_rate = torch.mean((local_sensitivity > self.constraint_threshold).float())
-        return cost_mean, violation_rate, local_sensitivity.shape[0]
+        return {
+            "cost_mean": cost_mean,
+            "cost_max": cost_max,
+            "cost_quantile": cost_quantile,
+            "cost_for_update": cost_for_update,
+            "violation_rate": violation_rate,
+            "sample_count": local_sensitivity.shape[0],
+        }
+
+    def _aggregate_constraint_cost(self, cost_mean, cost_max, cost_quantile):
+        if self.constraint_cost_aggregation == "mean":
+            return cost_mean
+        if self.constraint_cost_aggregation == "max":
+            return cost_max
+        if self.constraint_cost_aggregation == "quantile":
+            return cost_quantile
+        raise ValueError(f"Unsupported constraint cost_aggregation: {self.constraint_cost_aggregation}")
 
     def _update_lagrange_multiplier(self, constraint_error):
         error = float(constraint_error)
@@ -93,6 +114,9 @@ class SCPPO(PPO):
         mean_value_loss = 0
         mean_surrogate_loss = 0
         mean_constraint_cost = 0
+        mean_constraint_cost_update = 0
+        mean_constraint_cost_max = 0
+        mean_constraint_cost_quantile = 0
         mean_constraint_penalty = 0
         mean_constraint_violation_rate = 0
         total_constraint_samples = 0
@@ -141,14 +165,21 @@ class SCPPO(PPO):
                     value_loss = (returns_batch - value_batch).pow(2).mean()
 
                 constraint_cost = torch.tensor(0.0, device=self.device)
+                constraint_cost_update = torch.tensor(0.0, device=self.device)
+                constraint_cost_max = torch.tensor(0.0, device=self.device)
+                constraint_cost_quantile = torch.tensor(0.0, device=self.device)
                 constraint_violation_rate = torch.tensor(0.0, device=self.device)
                 constraint_penalty = torch.tensor(0.0, device=self.device)
                 constraint_sample_count = 0
                 if self.constraint_enabled:
-                    constraint_cost, constraint_violation_rate, constraint_sample_count = self._local_sensitivity_metrics(
-                        obs_batch
-                    )
-                    constraint_error = constraint_cost - self.constraint_threshold
+                    constraint_stats = self._local_sensitivity_metrics(obs_batch)
+                    constraint_cost = constraint_stats["cost_mean"]
+                    constraint_cost_update = constraint_stats["cost_for_update"]
+                    constraint_cost_max = constraint_stats["cost_max"]
+                    constraint_cost_quantile = constraint_stats["cost_quantile"]
+                    constraint_violation_rate = constraint_stats["violation_rate"]
+                    constraint_sample_count = constraint_stats["sample_count"]
+                    constraint_error = constraint_cost_update - self.constraint_threshold
                     constraint_penalty = self.lagrange_multiplier.detach() * constraint_error
 
                 loss = (
@@ -167,6 +198,9 @@ class SCPPO(PPO):
                 mean_value_loss += value_loss.item()
                 mean_surrogate_loss += surrogate_loss.item()
                 mean_constraint_cost += constraint_cost.item()
+                mean_constraint_cost_update += constraint_cost_update.item()
+                mean_constraint_cost_max += constraint_cost_max.item()
+                mean_constraint_cost_quantile += constraint_cost_quantile.item()
                 mean_constraint_penalty += constraint_penalty.item()
                 mean_constraint_violation_rate += constraint_violation_rate.item()
                 total_constraint_samples += constraint_sample_count
@@ -175,26 +209,34 @@ class SCPPO(PPO):
         mean_value_loss /= num_updates
         mean_surrogate_loss /= num_updates
         mean_constraint_cost /= num_updates
+        mean_constraint_cost_update /= num_updates
+        mean_constraint_cost_max /= num_updates
+        mean_constraint_cost_quantile /= num_updates
         mean_constraint_penalty /= num_updates
         mean_constraint_violation_rate /= num_updates
 
         lagrange_delta = 0.0
         if self.constraint_enabled:
-            lagrange_delta = self._update_lagrange_multiplier(mean_constraint_cost - self.constraint_threshold)
+            lagrange_delta = self._update_lagrange_multiplier(mean_constraint_cost_update - self.constraint_threshold)
 
         trace_entry = {
             "iteration": len(self.constraint_trace),
             "lagrange_multiplier": float(self.lagrange_multiplier.item()),
             "lagrange_delta": float(lagrange_delta),
+            "constraint_cost_aggregation": self.constraint_cost_aggregation,
+            "constraint_cost_quantile": float(self.constraint_cost_quantile),
             "constraint_threshold": self.constraint_threshold,
             "policy_local_sensitivity_cost_mean": float(mean_constraint_cost),
+            "policy_local_sensitivity_cost_update": float(mean_constraint_cost_update),
+            "policy_local_sensitivity_cost_max": float(mean_constraint_cost_max),
+            "policy_local_sensitivity_cost_quantile": float(mean_constraint_cost_quantile),
             "constraint_violation_rate": float(mean_constraint_violation_rate),
             "constraint_penalty_loss_mean": float(mean_constraint_penalty),
             "constraint_sample_count": int(total_constraint_samples),
         }
         self.constraint_trace.append(trace_entry)
         self.latest_stats = trace_entry.copy()
-        self.latest_stats["constraint_error"] = float(mean_constraint_cost - self.constraint_threshold)
+        self.latest_stats["constraint_error"] = float(mean_constraint_cost_update - self.constraint_threshold)
 
         self.storage.clear()
         return mean_value_loss, mean_surrogate_loss
@@ -206,6 +248,11 @@ class SCPPO(PPO):
             "Constraint/lagrange_multiplier": self.latest_stats["lagrange_multiplier"],
             "Constraint/lagrange_delta": self.latest_stats["lagrange_delta"],
             "Constraint/policy_local_sensitivity_cost_mean": self.latest_stats["policy_local_sensitivity_cost_mean"],
+            "Constraint/policy_local_sensitivity_cost_update": self.latest_stats["policy_local_sensitivity_cost_update"],
+            "Constraint/policy_local_sensitivity_cost_max": self.latest_stats["policy_local_sensitivity_cost_max"],
+            "Constraint/policy_local_sensitivity_cost_quantile": self.latest_stats[
+                "policy_local_sensitivity_cost_quantile"
+            ],
             "Constraint/constraint_threshold": self.latest_stats["constraint_threshold"],
             "Constraint/constraint_error": self.latest_stats["constraint_error"],
             "Constraint/constraint_violation_rate": self.latest_stats["constraint_violation_rate"],
@@ -238,12 +285,19 @@ class SCPPO(PPO):
         payload = {
             "constraint_metrics": {
                 "constraint_sample_count": int(sum(entry["constraint_sample_count"] for entry in self.constraint_trace)),
+                "constraint_cost_aggregation": self.constraint_cost_aggregation,
+                "constraint_cost_quantile": float(self.constraint_cost_quantile),
                 "constraint_violation_rate": self.latest_stats.get("constraint_violation_rate"),
                 "dual_update_mode": self.constraint_update_mode,
                 "lagrange_multiplier": self.latest_stats.get("lagrange_multiplier"),
                 "lagrange_multiplier_max": self.constraint_lambda_max,
                 "local_sensitivity_threshold": self.constraint_threshold,
                 "policy_local_sensitivity_cost_mean": self.latest_stats.get("policy_local_sensitivity_cost_mean"),
+                "policy_local_sensitivity_cost_update": self.latest_stats.get("policy_local_sensitivity_cost_update"),
+                "policy_local_sensitivity_cost_max": self.latest_stats.get("policy_local_sensitivity_cost_max"),
+                "policy_local_sensitivity_cost_quantile": self.latest_stats.get(
+                    "policy_local_sensitivity_cost_quantile"
+                ),
                 "policy_local_sensitivity_cost_std": (
                     statistics.pstdev(cost_history) if len(cost_history) > 1 else 0.0
                 ),

@@ -226,6 +226,8 @@ class LeggedRobotCfgPPO(BaseConfig):
             subsample_obs = 8
             update_mode = "pid"
             dual_lr = 0.01
+            cost_aggregation = "mean"
+            cost_quantile = 0.9
             pid_kp = 0.05
             pid_ki = 0.001
             pid_kd = 0.01
