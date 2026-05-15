@@ -293,19 +293,33 @@ Interpretation:
 
 Confirmed fact:
 
-`当前新增的 MuJoCo hfield_moderate repair-stage protocol 已经产生了比 hfield_stress 更强的生存判别性，但还没有产生可接受的平滑性表现`
+`当前新增的 MuJoCo hfield_moderate repair-stage protocol 已经在中预算下产生了比 hfield_stress 更可信的生存判别性，但还没有产生可接受的平滑性表现`
 
 Evidence scope:
 
 - backend: `MuJoCo sim2sim`
-- evidence strength: `short probe`
+- evidence strength: `short probe + mid-budget check`
 - protocol:
   `terrain_mode = hfield_moderate`, `hfield_size_override = [50.0, 50.0, 0.06, 0.02]`,
-  `joint_reset_noise = 0.1`, `5 episodes`, `5 seconds`
+  `joint_reset_noise = 0.1`
 - comparison target: heuristic anchor `action_rate = -0.005`
 
 Minimal key numbers:
 
+- mid-budget `20 episodes x 20 seconds` check:
+  - heuristic:
+    - `velocity_tracking_error_mean = 1.0975 ± 0.5454`
+    - `joint_acceleration_l2_mean = 317.0949 ± 312.8321`
+    - `action_jitter_l2_mean = 0.2987 ± 0.1226`
+    - `fall_rate = 1.0000`
+    - `episode_steps_mean = 236.35`
+  - `SC-PPO checkpoint 300`:
+    - `velocity_tracking_error_mean = 1.0210 ± 0.6302`
+    - `joint_acceleration_l2_mean = 383.9330 ± 365.3624`
+    - `action_jitter_l2_mean = 0.3300 ± 0.0734`
+    - `fall_rate = 0.4000`
+    - `episode_steps_mean = 1259.0`
+- original short `5 episodes x 5 seconds` probe:
 - heuristic:
   - `velocity_tracking_error_mean = 1.2872`
   - `joint_acceleration_l2_mean = 407.8357`
@@ -323,6 +337,8 @@ Interpretation:
 
 - compared with `hfield_stress`, this repaired intermediate protocol is no longer a pure
   “both sides immediately collapse” condition
+- the survival distinction also persists under a more credible `20 episodes x 20 seconds`
+  mid-budget check, so this is no longer just a tiny-probe fluke
 - however, its `joint_acceleration_l2_mean` remains too poor to support a clean terrain transfer
   claim
 - the correct reading is therefore:

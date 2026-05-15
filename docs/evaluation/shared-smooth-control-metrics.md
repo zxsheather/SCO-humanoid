@@ -117,7 +117,8 @@ Current terrain repair-stage intermediate protocol:
 - base XML: `terrain`
 - current repair override: `hfield_size_override = [50.0, 50.0, 0.06, 0.02]`
 - reset noise: `joint_reset_noise = 0.1`
-- current use: `5 episodes`, `5 seconds`
+- current short probe: `5 episodes`, `5 seconds`
+- current mid-budget check: `20 episodes`, `20 seconds`
 - purpose: test whether a softened hfield can become a discriminative middle stage between
   `isaac_mainline` and `hfield_stress`
 
@@ -134,11 +135,14 @@ Current result status:
 - however, the current `MuJoCo isaac_mainline` smoothness metrics still favor the heuristic anchor
 - both methods currently fail the short `MuJoCo terrain` probe, and `SC-PPO` does not recover the
   terrain result through the current `200/300/400` checkpoint neighborhood
-- on the current `hfield_moderate` short probe, `SC-PPO` becomes materially more survivable than
-  under `hfield_stress` (`fall_rate = 0.4`, `episode_steps_mean = 345.0`), while the heuristic
-  anchor still fully collapses (`fall_rate = 1.0`, `episode_steps_mean = 134.6`)
-- however, `joint_acceleration_l2_mean` remains very poor for both methods on `hfield_moderate`,
-  so this is only a repair-stage signal, not a solved terrain protocol
+- on the current `hfield_moderate` `20 episodes x 20 seconds` mid-budget check, `SC-PPO` remains
+  materially more survivable than the heuristic anchor:
+  - heuristic: `fall_rate = 1.0`, `episode_steps_mean = 236.35`
+  - `SC-PPO`: `fall_rate = 0.4`, `episode_steps_mean = 1259.0`
+- `velocity_tracking_error_mean` also remains slightly better for `SC-PPO`
+  (`1.0210` vs `1.0975`)
+- however, `joint_acceleration_l2_mean` and `action_jitter_l2_mean` still favor the heuristic
+  anchor, so this remains a repair-stage signal rather than a solved terrain protocol
 
 ## Common metric schema
 

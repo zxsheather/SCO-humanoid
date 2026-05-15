@@ -96,8 +96,25 @@ mismatch.
 ### Terrain repair-stage intermediate status
 
 Under the current `terrain_mode = hfield_moderate`
-(`hfield_size_override = [50.0, 50.0, 0.06, 0.02]`, `joint_reset_noise = 0.1`, `5 episodes`,
-`5 seconds`) probe:
+(`hfield_size_override = [50.0, 50.0, 0.06, 0.02]`, `joint_reset_noise = 0.1`) the repo now has
+both a short probe and a more credible mid-budget check.
+
+Mid-budget `20 episodes x 20 seconds` check:
+
+- heuristic:
+  - `velocity_tracking_error_mean = 1.0975 ± 0.5454`
+  - `joint_acceleration_l2_mean = 317.0949 ± 312.8321`
+  - `action_jitter_l2_mean = 0.2987 ± 0.1226`
+  - `fall_rate = 1.0000`
+  - `episode_steps_mean = 236.35`
+- `SC-PPO checkpoint 300`:
+  - `velocity_tracking_error_mean = 1.0210 ± 0.6302`
+  - `joint_acceleration_l2_mean = 383.9330 ± 365.3624`
+  - `action_jitter_l2_mean = 0.3300 ± 0.0734`
+  - `fall_rate = 0.4000`
+  - `episode_steps_mean = 1259.0`
+
+Original short `5 episodes x 5 seconds` probe:
 
 - heuristic:
   - `velocity_tracking_error_mean = 1.2872`
@@ -114,10 +131,12 @@ Under the current `terrain_mode = hfield_moderate`
 
 Interpretation:
 
-- this is the first repaired terrain-stage protocol in which `SC-PPO` is no longer collapsing as
-  completely as in `hfield_stress`
-- however, the current `行为层平滑指标` remain very poor, so `hfield_moderate` is only a
-  `repair-stage intermediate protocol`, not a report-grade terrain validation line
+- this is now the first repaired terrain-stage protocol with a nontrivial mid-budget distinction:
+  `SC-PPO` no longer collapses as completely as in `hfield_stress`, and the survival gap persists
+  beyond the tiny short probe
+- however, the current `行为层平滑指标` still do not transfer in the desired direction
+- so `hfield_moderate` should still be treated only as a `repair-stage intermediate protocol`, not
+  as a report-grade terrain validation line
 
 Protocol repair note:
 
