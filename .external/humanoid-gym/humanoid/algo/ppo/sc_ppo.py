@@ -16,7 +16,7 @@ class SCPPO(PPO):
         cfg = constraint or {}
         self.constraint_enabled = bool(cfg.get("enabled", True))
         self.constraint_threshold = float(cfg.get("threshold", 5.5))
-        self.constraint_subsample_obs = max(int(cfg.get("subsample_obs", 8)), 1)
+        self.constraint_subsample_obs = self._parse_constraint_subsample_obs(cfg.get("subsample_obs", 8))
         self.constraint_update_mode = str(cfg.get("update_mode", "pid")).lower()
         self.constraint_dual_lr = float(cfg.get("dual_lr", 0.01))
         self.constraint_cost_aggregation = str(cfg.get("cost_aggregation", "mean")).lower()
@@ -41,11 +41,27 @@ class SCPPO(PPO):
         self.constraint_trace = []
         self.latest_stats = {}
 
+    def _parse_constraint_subsample_obs(self, raw_value):
+        if raw_value is None:
+            return 0
+        if isinstance(raw_value, str):
+            normalized = raw_value.strip().lower()
+            if normalized in {"all", "full", "full_batch", "full-batch"}:
+                return 0
+            raw_value = normalized
+        parsed = int(raw_value)
+        return max(parsed, 0)
+
     def _constraint_obs_batch(self, obs_batch):
-        if obs_batch.shape[0] <= self.constraint_subsample_obs:
+        if self.constraint_subsample_obs <= 0 or obs_batch.shape[0] <= self.constraint_subsample_obs:
             return obs_batch
         indices = torch.randperm(obs_batch.shape[0], device=obs_batch.device)[: self.constraint_subsample_obs]
         return obs_batch.index_select(0, indices)
+
+    def _constraint_sampling_mode(self):
+        if self.constraint_subsample_obs <= 0:
+            return "full_batch"
+        return "random_subsample"
 
     def _local_sensitivity_metrics(self, obs_batch):
         sampled_obs = self._constraint_obs_batch(obs_batch).detach().clone().requires_grad_(True)
@@ -247,6 +263,8 @@ class SCPPO(PPO):
             "lagrange_delta": float(lagrange_delta),
             "constraint_cost_aggregation": self.constraint_cost_aggregation,
             "constraint_cost_quantile": float(self.constraint_cost_quantile),
+            "constraint_subsample_obs": int(self.constraint_subsample_obs),
+            "constraint_sampling_mode": self._constraint_sampling_mode(),
             "constraint_threshold": self.constraint_threshold,
             "policy_local_sensitivity_cost_mean": float(mean_constraint_cost),
             "policy_local_sensitivity_cost_update": float(mean_constraint_cost_update),
@@ -313,6 +331,8 @@ class SCPPO(PPO):
                 "constraint_sample_count": int(sum(entry["constraint_sample_count"] for entry in self.constraint_trace)),
                 "constraint_cost_aggregation": self.constraint_cost_aggregation,
                 "constraint_cost_quantile": float(self.constraint_cost_quantile),
+                "constraint_subsample_obs": int(self.constraint_subsample_obs),
+                "constraint_sampling_mode": self._constraint_sampling_mode(),
                 "constraint_violation_rate": self.latest_stats.get("constraint_violation_rate"),
                 "dual_update_mode": self.constraint_update_mode,
                 "lagrange_multiplier": self.latest_stats.get("lagrange_multiplier"),
