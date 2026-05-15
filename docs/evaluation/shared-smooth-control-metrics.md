@@ -12,11 +12,24 @@ For longer-budget runs where `最后一个 checkpoint` may not be the best stopp
 python scripts/baseline/evaluate_checkpoint_sweep.py --config <config-path> --run-name <artifact-run-name> --load-run <upstream-run-dir>
 ```
 
+For the current `MuJoCo关键两组终验`, use:
+
+```bash
+python scripts/baseline/evaluate_mujoco_sim2sim.py --config <config-path> --run-name <artifact-run-name> --load-run <upstream-run-dir> --checkpoint <N>
+```
+
 This writes:
 
 - `metrics_checkpoint_<N>.json` for each evaluated checkpoint
 - `checkpoint_sweep_summary.json` with a sortable table and selected best checkpoint
 - `metrics_selected.json` for the selected checkpoint metrics snapshot
+
+The `MuJoCo` evaluator writes:
+
+- `metrics_mujoco.json` by default
+- or a caller-selected artifact such as `metrics_mujoco_plane_20ep_20s_noise01.json`
+- `manifest.json` keeps the latest result under `mujoco_metrics`
+- `manifest.json` also keeps named result variants under `mujoco_metrics_runs`
 
 Long-budget reporting rule:
 
@@ -60,6 +73,36 @@ Current method configs:
 Legacy note:
 
 - `configs/baselines/vanilla_ppo.json` remains as the original issue `#1` scaffold around the upstream default task setup.
+
+## Current MuJoCo protocol status
+
+The current repo should distinguish between two `MuJoCo` uses:
+
+1. `最小可比 first pass`
+2. `terrain stress probe`
+
+Current preferred first-pass protocol:
+
+- XML: `plane`
+- reset noise: `joint_reset_noise = 0.1`
+- duration: `20 episodes`, `20 seconds`
+- purpose: check whether the selected policy retains a meaningful task-validity advantage across
+  simulators
+
+Current terrain probe protocol:
+
+- XML: `terrain`
+- reset noise: `joint_reset_noise = 0.1`
+- typical short probe: `5 episodes`, `5 seconds`
+- purpose: diagnose transfer fragility rather than serve as the current report-grade external
+  result
+
+Current result status:
+
+- `SC-PPO` now shows a stronger `MuJoCo plane` task-stability result than the heuristic anchor
+- however, the current `MuJoCo plane` smoothness metrics still favor the heuristic anchor
+- both methods currently fail the short `MuJoCo terrain` probe, and `SC-PPO` does not recover the
+  terrain result through the current `200/300/400` checkpoint neighborhood
 
 ## Common metric schema
 

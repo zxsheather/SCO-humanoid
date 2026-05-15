@@ -31,6 +31,58 @@ Heuristic anchor for comparison:
 - `action_jitter_l2_mean = 0.2457`
 - `fall_rate = 1.0`
 
+## Current MuJoCo status
+
+The repo now also has a working `MuJoCo关键两组终验` entrypoint through:
+
+- `scripts/baseline/evaluate_mujoco_sim2sim.py`
+
+Current `MuJoCo` reading should be split into two layers rather than collapsed into one headline.
+
+### Minimal comparable first pass
+
+Under the current `plane + joint_reset_noise = 0.1 + 20 episodes + 20 seconds` protocol:
+
+- heuristic anchor:
+  - `velocity_tracking_error_mean = 0.6811 ± 0.1113`
+  - `joint_acceleration_l2_mean = 110.2715 ± 13.0420`
+  - `action_jitter_l2_mean = 0.2005 ± 0.0158`
+  - `fall_rate = 0.7000`
+  - `episode_steps_mean = 962.9`
+- `SC-PPO threshold = 3.8` mainline:
+  - `velocity_tracking_error_mean = 0.6206 ± 0.0458`
+  - `joint_acceleration_l2_mean = 154.4672 ± 12.0365`
+  - `action_jitter_l2_mean = 0.2785 ± 0.0150`
+  - `fall_rate = 0.0500`
+  - `episode_steps_mean = 1954.35`
+
+Interpretation:
+
+- `SC-PPO` currently shows materially better task stability and velocity tracking in `MuJoCo`
+- however, the current smoothness metrics do not transfer in the same direction
+- at this stage, `MuJoCo` supports `部分迁移`, not a full cross-engine smoothness win
+
+### Terrain stress status
+
+Under the current `terrain + joint_reset_noise = 0.1 + 5 episodes + 5 seconds` probe:
+
+- heuristic:
+  - `velocity_tracking_error_mean = 1.1758 ± 0.3709`
+  - `joint_acceleration_l2_mean = 225.1939 ± 119.3916`
+  - `action_jitter_l2_mean = 0.2921 ± 0.0742`
+  - `fall_rate = 1.0000`
+  - `episode_steps_mean = 123.8`
+- `SC-PPO checkpoint 300`:
+  - `velocity_tracking_error_mean = 1.2795 ± 0.3210`
+  - `joint_acceleration_l2_mean = 296.9754 ± 58.4883`
+  - `action_jitter_l2_mean = 0.3663 ± 0.0538`
+  - `fall_rate = 1.0000`
+  - `episode_steps_mean = 129.0`
+
+Additional `SC-PPO` MuJoCo terrain checkpoint probes at `200`, `300`, and `400` all still fail the
+same way, so the current terrain issue should not be summarized as a simple selected-checkpoint
+mismatch.
+
 ## What this means
 
 - the repo is no longer blocked on the old question “can the repaired PID branch become
@@ -49,16 +101,22 @@ Heuristic anchor for comparison:
 - one `4.0` seed selects `checkpoint 0`
 - repaired-`4.0` aggregate `fall_rate = 0.4667 ± 0.3793`
 - repaired-`4.0` aggregate variance is much larger than the `3.8` mainline
+- current `MuJoCo plane + noise` evidence does not yet support a full smoothness-transfer claim
+- current `MuJoCo terrain` evidence is still too unstable to serve as the repo's main external
+  validation result
 
 So the current evidence supports:
 
 - `3.8` is a meaningful operating point
+- `SC-PPO` can retain a task-stability advantage in a first-pass `MuJoCo` protocol
 
 The current evidence does not yet support:
 
 - any claim that a broad range of nearby thresholds all work equally well
 - any claim that the final checkpoint alone is enough for long-budget reporting
-- any claim yet about harder terrain or MuJoCo transfer
+- any claim that the current smoothness advantage fully transfers to `MuJoCo`
+- any claim that the current `MuJoCo terrain` protocol is ready to stand in for the final
+  cross-engine comparison
 
 ## Recommended next step
 
@@ -66,7 +124,8 @@ The next highest-value step is no longer another tiny local threshold sweep.
 
 The better next move is one of:
 
-1. freeze the current `3.8` result and use it as the repo's current algorithm result for reporting
-2. expand validation outward to a harder task condition or a stronger external check
-3. only reopen local tuning if new evidence shows the current mainline is not stable enough for the
-   intended report claim
+1. freeze the current `Isaac mainline + MuJoCo plane first pass` result for reporting
+2. treat `MuJoCo terrain` as a separate protocol-repair line rather than as the current main
+   external result
+3. only reopen algorithm-side local tuning if new evidence shows that the current `MuJoCo` gap is
+   not mainly a protocol or transfer issue

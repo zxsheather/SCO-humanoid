@@ -17,20 +17,25 @@ stable domain language.
 
 The current primary blocker is:
 
-`当前 repaired PID 主线已经拿到阶段性多种子优势证据，但还缺少跨阈值邻域与更高标准验证`
+`当前 Isaac 主结果已经成立，但 MuJoCo 只支持部分迁移，且 terrain 终验协议仍阻塞`
 
 This is the preferred framing over both “`SC-PPO` has not yet beaten the heuristic baseline” and
-the older “`SC-PPO 约束机制尚未真正发力`”.
+the older threshold-neighborhood-first framing.
 
 Reason:
 
 - the repaired `PID` branch with `threshold = 3.8` now beats the current heuristic anchor on the
   shared metrics in a completed `3-seed, 400 iteration, checkpoint-sweep` comparison
-- this means the project is no longer blocked on the old question “can repaired PID become
-  behaviorally competitive at all”
-- however, the current evidence is still narrow: one winning threshold branch, one task condition,
-  one budget family, and one main random-seed batch
-- the blocker has therefore shifted from `方法完全站不住` to `如何把当前结果整理成更可信的主结论`
+- the repo now also has a working `MuJoCo` evaluator, so the project is no longer blocked on the
+  absence of a cross-engine path
+- however, the current `MuJoCo` picture is mixed:
+  - on `plane + joint_reset_noise = 0.1 + 20 episodes + 20 seconds`, `SC-PPO` shows much better
+    `fall_rate`, longer survival, and better velocity tracking than the heuristic anchor
+  - but on that same first-pass protocol, `SC-PPO` is still worse on
+    `joint_acceleration_l2_mean` and `action_jitter_l2_mean`
+  - on the current `terrain` probe, both methods collapse and `SC-PPO` remains worse overall
+- the blocker has therefore shifted from `Isaac里能不能赢` to
+  `MuJoCo里到底哪一部分结论已经成立、哪一部分还没有成立`
 
 ## Secondary blocker
 
@@ -110,29 +115,26 @@ Evidence status:
 
 The current first-priority remediation target is:
 
-`先冻结并整理 `3.8` 主结果，再决定是否扩展到更强外部验证`
+`先冻结 MuJoCo plane 的最小可比终验，再把 MuJoCo terrain 明确转成协议修复线`
 
 Reason:
 
-- the repaired branch has already passed the old “make the multiplier active” gate
-- the nearest-neighbor `4.0` control has already been completed and does not overturn the current
-  mainline choice
-- the next highest-yield step is no longer another local threshold poke
+- the repo already has enough `Isaac` evidence to support a real mainline algorithm result
+- the current `MuJoCo plane + noise` protocol is now stable enough to support a `最小可比` external
+  validation statement
+- the current `MuJoCo terrain` protocol is not yet discriminative enough for the main report claim:
+  both methods fail and `SC-PPO` checkpoint probes at `200`, `300`, and `400` do not rescue it
+- the highest-yield next step is therefore not another tiny threshold poke
 - the immediate value now comes from:
-  1. documenting the completed `3-seed` result cleanly
-  2. documenting the `4.0` control as a credibility check
-  3. deciding whether the next expansion should be harder terrain, broader seeds, or report freeze
-- the preferred tuning order is:
-  1. keep `pid_integral_mode = lower_bound_clamp` fixed
-  2. keep `threshold = 3.8` as the current mainline result
-  3. treat `threshold = 4.0` as the completed nearest-neighbor control, not as the preferred new
-     mainline
+  1. documenting the partial-transfer `MuJoCo plane` result cleanly
+  2. documenting `MuJoCo terrain` as a current blocker rather than as a silent failure
+  3. deciding whether terrain repair should target protocol alignment or algorithm robustness first
 
 ## Next short-run success criterion
 
 The next short-run success criterion is:
 
-`优先确认当前 `3.8` 主结果在更强验证条件下仍保持对 heuristic 的优势`
+`优先确认当前 threshold = 3.8 主结果在更强验证条件下仍保持对 heuristic 的优势`
 
 This should be checked before expecting `SC-PPO` to beat the heuristic baseline on short-budget runs.
 
@@ -206,6 +208,79 @@ Compressed interpretation:
 - under the current `200 iteration` budget, `SC-PPO` is already competitive on the
   `动作抖动次级指标`, but it still trails the selected heuristic winner on both the
   `关节震荡主指标` and the `速度跟踪误差主指标`
+
+### Current MuJoCo first-pass status
+
+Confirmed fact:
+
+`在当前 MuJoCo plane + joint_reset_noise = 0.1 + 20 episodes + 20 seconds 协议下，SC-PPO 已经显示出更强的任务稳定性与跟踪，但还没有显示出更强的平滑性`
+
+Evidence scope:
+
+- backend: `MuJoCo sim2sim`
+- evidence strength: `single selected checkpoint per method`
+- protocol: `plane`, `joint_reset_noise = 0.1`, `20 episodes`, `20 seconds`
+- comparison target: heuristic anchor `action_rate = -0.005`
+
+Minimal key numbers:
+
+- heuristic anchor:
+  - `velocity_tracking_error_mean = 0.6811 ± 0.1113`
+  - `joint_acceleration_l2_mean = 110.2715 ± 13.0420`
+  - `action_jitter_l2_mean = 0.2005 ± 0.0158`
+  - `fall_rate = 0.7000`
+  - `episode_steps_mean = 962.9`
+- `SC-PPO threshold = 3.8` selected checkpoint:
+  - `velocity_tracking_error_mean = 0.6206 ± 0.0458`
+  - `joint_acceleration_l2_mean = 154.4672 ± 12.0365`
+  - `action_jitter_l2_mean = 0.2785 ± 0.0150`
+  - `fall_rate = 0.0500`
+  - `episode_steps_mean = 1954.35`
+
+Interpretation:
+
+- `SC-PPO` currently transfers a clear `任务稳定性` and `速度跟踪` advantage into `MuJoCo`
+- but the current `行为层平滑指标` do not transfer in the same direction
+- this means the repo now has a real `MuJoCo第一版结果`, but not yet a full cross-engine
+  smoothness victory
+
+### Current MuJoCo terrain blocker status
+
+Confirmed fact:
+
+`在当前 MuJoCo terrain + joint_reset_noise = 0.1 + 5 episodes + 5 seconds 探针下，两组方法都会失败，而 SC-PPO 没有显示出更强表现`
+
+Evidence scope:
+
+- backend: `MuJoCo sim2sim`
+- evidence strength: `short probe`
+- protocol: `terrain`, `joint_reset_noise = 0.1`, `5 episodes`, `5 seconds`
+- comparison target: heuristic anchor `action_rate = -0.005`
+
+Minimal key numbers:
+
+- heuristic:
+  - `velocity_tracking_error_mean = 1.1758 ± 0.3709`
+  - `joint_acceleration_l2_mean = 225.1939 ± 119.3916`
+  - `action_jitter_l2_mean = 0.2921 ± 0.0742`
+  - `fall_rate = 1.0000`
+  - `episode_steps_mean = 123.8`
+- `SC-PPO checkpoint 300`:
+  - `velocity_tracking_error_mean = 1.2795 ± 0.3210`
+  - `joint_acceleration_l2_mean = 296.9754 ± 58.4883`
+  - `action_jitter_l2_mean = 0.3663 ± 0.0538`
+  - `fall_rate = 1.0000`
+  - `episode_steps_mean = 129.0`
+- additional `SC-PPO` checkpoint probes:
+  - `checkpoint 200 -> fall_rate = 1.0000`
+  - `checkpoint 400 -> fall_rate = 1.0000`
+
+Interpretation:
+
+- the current `MuJoCo terrain` issue should not be summarized as a simple selected-checkpoint miss
+- this is currently a `协议阻塞` or stronger transfer-robustness blocker
+- until this is repaired, `MuJoCo terrain` should not be treated as the repo's main external
+  validation result
 
 ### Current repaired-PID mainline status
 
