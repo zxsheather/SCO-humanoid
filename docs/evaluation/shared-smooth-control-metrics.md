@@ -27,7 +27,7 @@ This writes:
 The `MuJoCo` evaluator writes:
 
 - `metrics_mujoco.json` by default
-- or a caller-selected artifact such as `metrics_mujoco_plane_20ep_20s_noise01.json`
+- or a caller-selected artifact such as `metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
 - `manifest.json` keeps the latest result under `mujoco_metrics`
 - `manifest.json` also keeps named result variants under `mujoco_metrics_runs`
 
@@ -92,6 +92,15 @@ Current preferred first-pass protocol:
 - note: this now resolves from the Isaac training config itself, and the evaluator will fail closed
   rather than silently swapping in `hfield` if the training-side terrain semantics change later
 
+Current formal comparable artifacts:
+
+- heuristic:
+  `artifacts/methods/heuristic_smoothing_sweep/heuristic_smoothing_action_rate_0050_rough_terrain/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
+- `SC-PPO threshold = 3.8` representative checkpoint:
+  `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
+- these are the preferred report-grade references over the older `metrics_mujoco_plane_20ep_20s_noise01.json`
+  duplicates
+
 Current terrain probe protocol:
 
 - terrain mode: `hfield_stress`
@@ -108,8 +117,8 @@ Protocol repair note:
 
 Current result status:
 
-- `SC-PPO` now shows a stronger `MuJoCo plane` task-stability result than the heuristic anchor
-- however, the current `MuJoCo plane` smoothness metrics still favor the heuristic anchor
+- `SC-PPO` now shows a stronger `MuJoCo isaac_mainline` task-stability result than the heuristic anchor
+- however, the current `MuJoCo isaac_mainline` smoothness metrics still favor the heuristic anchor
 - both methods currently fail the short `MuJoCo terrain` probe, and `SC-PPO` does not recover the
   terrain result through the current `200/300/400` checkpoint neighborhood
 

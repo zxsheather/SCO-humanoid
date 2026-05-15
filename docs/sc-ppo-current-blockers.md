@@ -29,7 +29,7 @@ Reason:
 - the repo now also has a working `MuJoCo` evaluator, so the project is no longer blocked on the
   absence of a cross-engine path
 - however, the current `MuJoCo` picture is mixed:
-  - on `plane + joint_reset_noise = 0.1 + 20 episodes + 20 seconds`, `SC-PPO` shows much better
+  - on `isaac_mainline + joint_reset_noise = 0.1 + 20 episodes + 20 seconds`, `SC-PPO` shows much better
     `fall_rate`, longer survival, and better velocity tracking than the heuristic anchor
   - but on that same first-pass protocol, `SC-PPO` is still worse on
     `joint_acceleration_l2_mean` and `action_jitter_l2_mean`
@@ -115,13 +115,13 @@ Evidence status:
 
 The current first-priority remediation target is:
 
-`先冻结 MuJoCo plane 的最小可比终验，再把 MuJoCo terrain 明确转成协议修复线`
+`先冻结 MuJoCo isaac_mainline 的最小可比终验，再把 MuJoCo terrain 明确转成协议修复线`
 
 Reason:
 
 - the repo already has enough `Isaac` evidence to support a real mainline algorithm result
-- the current `MuJoCo plane + noise` protocol is now stable enough to support a `最小可比` external
-  validation statement
+- the current `MuJoCo isaac_mainline + noise` protocol is now stable enough to support a
+  `最小可比` external validation statement
 - the current `MuJoCo terrain` protocol is not yet discriminative enough for the main report claim:
   both methods fail and `SC-PPO` checkpoint probes at `200`, `300`, and `400` do not rescue it
 - this split is now explicit in code:
@@ -129,7 +129,7 @@ Reason:
   - `terrain_mode = hfield_stress` means “run the separate MuJoCo terrain pressure test”
 - the highest-yield next step is therefore not another tiny threshold poke
 - the immediate value now comes from:
-  1. documenting the partial-transfer `MuJoCo plane` result cleanly
+  1. documenting the partial-transfer `MuJoCo isaac_mainline` result cleanly
   2. documenting `MuJoCo terrain` as a current blocker rather than as a silent failure
   3. deciding whether terrain repair should target protocol alignment or algorithm robustness first
 
@@ -216,7 +216,7 @@ Compressed interpretation:
 
 Confirmed fact:
 
-`在当前 MuJoCo plane + joint_reset_noise = 0.1 + 20 episodes + 20 seconds 协议下，SC-PPO 已经显示出更强的任务稳定性与跟踪，但还没有显示出更强的平滑性`
+`在当前 MuJoCo isaac_mainline + joint_reset_noise = 0.1 + 20 episodes + 20 seconds 协议下，SC-PPO 已经显示出更强的任务稳定性与跟踪，但还没有显示出更强的平滑性`
 
 Evidence scope:
 
@@ -246,6 +246,9 @@ Interpretation:
 - but the current `行为层平滑指标` do not transfer in the same direction
 - this means the repo now has a real `MuJoCo第一版结果`, but not yet a full cross-engine
   smoothness victory
+- the formal report-grade artifact names for this protocol are now the
+  `metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` outputs rather than the older
+  `metrics_mujoco_plane_20ep_20s_noise01.json` duplicates
 
 ### Current MuJoCo terrain blocker status
 

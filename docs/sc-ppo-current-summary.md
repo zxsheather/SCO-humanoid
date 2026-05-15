@@ -63,6 +63,14 @@ Interpretation:
 - however, the current smoothness metrics do not transfer in the same direction
 - at this stage, `MuJoCo` supports `部分迁移`, not a full cross-engine smoothness win
 
+Canonical formal artifacts for this protocol are now:
+
+- heuristic:
+  `artifacts/methods/heuristic_smoothing_sweep/heuristic_smoothing_action_rate_0050_rough_terrain/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
+- `SC-PPO threshold = 3.8` representative checkpoint:
+  `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
+- these should be cited instead of the older `plane_20ep_20s_noise01`-named duplicates
+
 ### Terrain stress status
 
 Under the current `terrain_mode = hfield_stress`
@@ -111,7 +119,7 @@ Protocol repair note:
 - one `4.0` seed selects `checkpoint 0`
 - repaired-`4.0` aggregate `fall_rate = 0.4667 ± 0.3793`
 - repaired-`4.0` aggregate variance is much larger than the `3.8` mainline
-- current `MuJoCo plane + noise` evidence does not yet support a full smoothness-transfer claim
+- current `MuJoCo isaac_mainline + noise` evidence does not yet support a full smoothness-transfer claim
 - current `MuJoCo terrain` evidence is still too unstable to serve as the repo's main external
   validation result
 
@@ -134,7 +142,7 @@ The next highest-value step is no longer another tiny local threshold sweep.
 
 The better next move is one of:
 
-1. freeze the current `Isaac mainline + MuJoCo plane first pass` result for reporting
+1. freeze the current `Isaac mainline + MuJoCo isaac_mainline first pass` result for reporting
 2. treat `MuJoCo terrain` as a separate protocol-repair line rather than as the current main
    external result
 3. only reopen algorithm-side local tuning if new evidence shows that the current `MuJoCo` gap is
