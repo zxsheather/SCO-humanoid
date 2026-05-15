@@ -36,10 +36,10 @@ Current heuristic anchor:
 
 Canonical supporting artifacts:
 
-- [3.8 seed11 checkpoint sweep](/home/zhuoxiang/ECOLab/artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/checkpoint_sweep_summary.json)
-- [3.8 seed17 checkpoint sweep](/home/zhuoxiang/ECOLab/artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/checkpoint_sweep_summary.json)
-- [3.8 seed23 checkpoint sweep](/home/zhuoxiang/ECOLab/artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/checkpoint_sweep_summary.json)
-- [heuristic anchor MuJoCo isaac_mainline](/home/zhuoxiang/ECOLab/artifacts/methods/heuristic_smoothing_sweep/heuristic_smoothing_action_rate_0050_rough_terrain/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json)
+- [3.8 seed11 checkpoint sweep](../artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/checkpoint_sweep_summary.json)
+- [3.8 seed17 checkpoint sweep](../artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/checkpoint_sweep_summary.json)
+- [3.8 seed23 checkpoint sweep](../artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/checkpoint_sweep_summary.json)
+- [heuristic anchor MuJoCo isaac_mainline](../artifacts/methods/heuristic_smoothing_sweep/heuristic_smoothing_action_rate_0050_rough_terrain/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json)
 
 ## External-validation reading
 
@@ -72,8 +72,8 @@ Current comparable numbers:
 
 Canonical comparable artifacts:
 
-- [heuristic MuJoCo isaac_mainline](/home/zhuoxiang/ECOLab/artifacts/methods/heuristic_smoothing_sweep/heuristic_smoothing_action_rate_0050_rough_terrain/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json)
-- [3.8 MuJoCo isaac_mainline](/home/zhuoxiang/ECOLab/artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json)
+- [heuristic MuJoCo isaac_mainline](../artifacts/methods/heuristic_smoothing_sweep/heuristic_smoothing_action_rate_0050_rough_terrain/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json)
+- [3.8 MuJoCo isaac_mainline](../artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json)
 
 ## What is not report-grade yet
 
@@ -97,7 +97,7 @@ This boundary is reinforced by recent local controls:
 
 Supporting promotion-failure artifact:
 
-- [3.6 full_batch promotion outcome](/home/zhuoxiang/ECOLab/docs/sc-ppo-fullbatch-threshold-promotion.md:1)
+- [3.6 full_batch promotion outcome](./sc-ppo-fullbatch-threshold-promotion.md)
 
 ## Terrain-side status
 

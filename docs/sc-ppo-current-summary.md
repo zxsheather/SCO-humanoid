@@ -1,7 +1,7 @@
 # SC-PPO Current Summary
 
 This note summarizes the current repo state for the `受限优化与平滑性增强` direction in
-[goal.md](/home/zhuoxiang/ECOLab/goal.md:1).
+[goal.md](../goal.md).
 
 ## Current conclusion
 
