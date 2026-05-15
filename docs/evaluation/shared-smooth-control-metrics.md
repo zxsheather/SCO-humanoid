@@ -15,7 +15,7 @@ python scripts/baseline/evaluate_checkpoint_sweep.py --config <config-path> --ru
 For the current `MuJoCo关键两组终验`, use:
 
 ```bash
-python scripts/baseline/evaluate_mujoco_sim2sim.py --config <config-path> --run-name <artifact-run-name> --load-run <upstream-run-dir> --checkpoint <N>
+python scripts/baseline/evaluate_mujoco_sim2sim.py --config <config-path> --run-name <artifact-run-name> --load-run <upstream-run-dir> --checkpoint <N> --terrain-mode <isaac_mainline|plane|hfield_stress>
 ```
 
 This writes:
@@ -83,19 +83,28 @@ The current repo should distinguish between two `MuJoCo` uses:
 
 Current preferred first-pass protocol:
 
-- XML: `plane`
+- terrain mode: `isaac_mainline`
+- current resolved XML: `plane`
 - reset noise: `joint_reset_noise = 0.1`
 - duration: `20 episodes`, `20 seconds`
 - purpose: check whether the selected policy retains a meaningful task-validity advantage across
   simulators
+- note: this now resolves from the Isaac training config itself, and the evaluator will fail closed
+  rather than silently swapping in `hfield` if the training-side terrain semantics change later
 
 Current terrain probe protocol:
 
+- terrain mode: `hfield_stress`
 - XML: `terrain`
 - reset noise: `joint_reset_noise = 0.1`
 - typical short probe: `5 episodes`, `5 seconds`
 - purpose: diagnose transfer fragility rather than serve as the current report-grade external
   result
+
+Protocol repair note:
+
+- the old bare `--terrain` flag is now treated as a deprecated alias for `--terrain-mode=hfield_stress`
+- this prevents `MuJoCo terrain` from being confused with the current Isaac-mainline replay
 
 Current result status:
 

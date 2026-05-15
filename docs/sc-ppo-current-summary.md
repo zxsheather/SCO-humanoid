@@ -41,7 +41,8 @@ Current `MuJoCo` reading should be split into two layers rather than collapsed i
 
 ### Minimal comparable first pass
 
-Under the current `plane + joint_reset_noise = 0.1 + 20 episodes + 20 seconds` protocol:
+Under the current `terrain_mode = isaac_mainline` protocol
+(`plane + joint_reset_noise = 0.1 + 20 episodes + 20 seconds` in the current repo state):
 
 - heuristic anchor:
   - `velocity_tracking_error_mean = 0.6811 ± 0.1113`
@@ -64,7 +65,8 @@ Interpretation:
 
 ### Terrain stress status
 
-Under the current `terrain + joint_reset_noise = 0.1 + 5 episodes + 5 seconds` probe:
+Under the current `terrain_mode = hfield_stress`
+(`terrain + joint_reset_noise = 0.1 + 5 episodes + 5 seconds`) probe:
 
 - heuristic:
   - `velocity_tracking_error_mean = 1.1758 ± 0.3709`
@@ -82,6 +84,14 @@ Under the current `terrain + joint_reset_noise = 0.1 + 5 episodes + 5 seconds` p
 Additional `SC-PPO` MuJoCo terrain checkpoint probes at `200`, `300`, and `400` all still fail the
 same way, so the current terrain issue should not be summarized as a simple selected-checkpoint
 mismatch.
+
+Protocol repair note:
+
+- the repo has now made this split explicit in the evaluator itself
+- `isaac_mainline` is the comparable replay line
+- `hfield_stress` is a separate transfer-pressure line
+- the old boolean `terrain` switch should no longer be read as “the MuJoCo counterpart of the
+  Isaac main task”
 
 ## What this means
 

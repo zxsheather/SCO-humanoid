@@ -124,6 +124,9 @@ Reason:
   validation statement
 - the current `MuJoCo terrain` protocol is not yet discriminative enough for the main report claim:
   both methods fail and `SC-PPO` checkpoint probes at `200`, `300`, and `400` do not rescue it
+- this split is now explicit in code:
+  - `terrain_mode = isaac_mainline` means “follow the Isaac mainline task semantics”
+  - `terrain_mode = hfield_stress` means “run the separate MuJoCo terrain pressure test”
 - the highest-yield next step is therefore not another tiny threshold poke
 - the immediate value now comes from:
   1. documenting the partial-transfer `MuJoCo plane` result cleanly
@@ -219,7 +222,7 @@ Evidence scope:
 
 - backend: `MuJoCo sim2sim`
 - evidence strength: `single selected checkpoint per method`
-- protocol: `plane`, `joint_reset_noise = 0.1`, `20 episodes`, `20 seconds`
+- protocol: `terrain_mode = isaac_mainline`, `joint_reset_noise = 0.1`, `20 episodes`, `20 seconds`
 - comparison target: heuristic anchor `action_rate = -0.005`
 
 Minimal key numbers:
@@ -254,7 +257,7 @@ Evidence scope:
 
 - backend: `MuJoCo sim2sim`
 - evidence strength: `short probe`
-- protocol: `terrain`, `joint_reset_noise = 0.1`, `5 episodes`, `5 seconds`
+- protocol: `terrain_mode = hfield_stress`, `joint_reset_noise = 0.1`, `5 episodes`, `5 seconds`
 - comparison target: heuristic anchor `action_rate = -0.005`
 
 Minimal key numbers:

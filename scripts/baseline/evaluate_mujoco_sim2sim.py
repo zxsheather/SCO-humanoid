@@ -17,6 +17,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from _common import (  # noqa: E402
+    BaselineError,
     artifact_dir,
     configure_runtime_env,
     default_manifest,
@@ -30,6 +31,9 @@ from _common import (  # noqa: E402
     write_json,
 )
 from _overrides import apply_method_overrides  # noqa: E402
+
+
+VALID_TERRAIN_MODES = ("isaac_mainline", "plane", "hfield_stress")
 
 
 def summarize(values: list[float]) -> tuple[float | None, float | None]:
@@ -109,6 +113,79 @@ def actuator_joint_names(model, mujoco) -> list[str]:
     return names
 
 
+def normalize_terrain_mode(terrain_mode: str) -> str:
+    normalized = terrain_mode.strip().lower().replace("-", "_")
+    aliases = {
+        "default": "isaac_mainline",
+        "isaac": "isaac_mainline",
+        "terrain": "hfield_stress",
+        "hfield": "hfield_stress",
+    }
+    return aliases.get(normalized, normalized)
+
+
+def isaac_training_mesh_type(cfg: Any) -> str:
+    terrain_cfg = getattr(cfg, "terrain", None)
+    mesh_type = getattr(terrain_cfg, "mesh_type", None)
+    if not isinstance(mesh_type, str) or not mesh_type.strip():
+        raise BaselineError("Missing cfg.terrain.mesh_type; cannot align MuJoCo protocol to Isaac training condition.")
+    return mesh_type.strip().lower()
+
+
+def resolve_mujoco_protocol(cfg: Any, legged_gym_root_dir: str | Path, *, terrain_mode: str) -> dict[str, Any]:
+    requested_mode = normalize_terrain_mode(terrain_mode)
+    if requested_mode not in VALID_TERRAIN_MODES:
+        raise BaselineError(
+            f"Unsupported terrain_mode={terrain_mode!r}. Expected one of: {', '.join(VALID_TERRAIN_MODES)}."
+        )
+
+    isaac_mesh_type = isaac_training_mesh_type(cfg)
+    root_dir = Path(legged_gym_root_dir)
+    xml_dir = root_dir / "resources" / "robots" / "XBot" / "mjcf"
+
+    if requested_mode == "isaac_mainline":
+        if isaac_mesh_type != "plane":
+            raise BaselineError(
+                "terrain_mode='isaac_mainline' currently has no aligned MuJoCo terrain profile for "
+                f"Isaac mesh_type={isaac_mesh_type!r}. Use an explicit override such as "
+                "'plane' or 'hfield_stress' instead of silently mislabeling the protocol."
+            )
+        resolved_mode = "plane"
+        purpose = "minimal_comparable_first_pass"
+        comparable_to_isaac_mainline = True
+        note = "Matches the current Isaac mainline training condition."
+        model_path = xml_dir / "XBot-L.xml"
+    elif requested_mode == "plane":
+        resolved_mode = "plane"
+        purpose = "minimal_comparable_first_pass" if isaac_mesh_type == "plane" else "manual_plane_override"
+        comparable_to_isaac_mainline = isaac_mesh_type == "plane"
+        note = (
+            "Explicit MuJoCo plane replay."
+            if comparable_to_isaac_mainline
+            else "Explicit plane override; not guaranteed to match the Isaac training condition."
+        )
+        model_path = xml_dir / "XBot-L.xml"
+    else:
+        resolved_mode = "hfield_stress"
+        purpose = "terrain_stress_probe"
+        comparable_to_isaac_mainline = False
+        note = "Aggressive hfield stress test. Treat as transfer-pressure probe, not Isaac-mainline-equivalent replay."
+        model_path = xml_dir / "XBot-L-terrain.xml"
+
+    if not model_path.exists():
+        raise BaselineError(f"Resolved MuJoCo model does not exist: {model_path}")
+
+    return {
+        "terrain_mode_requested": requested_mode,
+        "terrain_mode": resolved_mode,
+        "purpose": purpose,
+        "isaac_training_mesh_type": isaac_mesh_type,
+        "is_isaac_mainline_comparable": comparable_to_isaac_mainline,
+        "note": note,
+        "mujoco_model_path": model_path,
+    }
+
+
 def build_policy_input(
     *,
     count_lowlevel: int,
@@ -170,20 +247,13 @@ def run_episode(
     torch,
     rng: np.random.Generator,
     *,
-    use_terrain: bool,
+    mujoco_model_path: Path,
     command_vx: float,
     command_vy: float,
     command_dyaw: float,
     joint_reset_noise: float,
     base_xy_noise: float,
 ):
-    if use_terrain:
-        mujoco_model_path = (
-            Path(cfg.LEGGED_GYM_ROOT_DIR) / "resources" / "robots" / "XBot" / "mjcf" / "XBot-L-terrain.xml"
-        )
-    else:
-        mujoco_model_path = Path(cfg.LEGGED_GYM_ROOT_DIR) / "resources" / "robots" / "XBot" / "mjcf" / "XBot-L.xml"
-
     model = mujoco.MjModel.from_xml_path(str(mujoco_model_path))
     model.opt.timestep = cfg.sim.dt
     data = mujoco.MjData(model)
@@ -303,7 +373,20 @@ def main() -> int:
     parser.add_argument("--command-vx", type=float, default=0.4, help="Forward velocity command used in MuJoCo rollout.")
     parser.add_argument("--command-vy", type=float, default=0.0, help="Lateral velocity command used in MuJoCo rollout.")
     parser.add_argument("--command-dyaw", type=float, default=0.0, help="Yaw-rate command used in MuJoCo rollout.")
-    parser.add_argument("--terrain", action="store_true", help="Use terrain MuJoCo XML instead of plane XML.")
+    parser.add_argument(
+        "--terrain-mode",
+        default="isaac_mainline",
+        help=(
+            "MuJoCo replay protocol. "
+            "Use 'isaac_mainline' for the current comparable replay, 'plane' for an explicit plane override, "
+            "or 'hfield_stress' for the separate terrain stress probe."
+        ),
+    )
+    parser.add_argument(
+        "--terrain",
+        action="store_true",
+        help="Deprecated alias for --terrain-mode=hfield_stress. Kept only for backward compatibility.",
+    )
     parser.add_argument("--sim-duration", type=float, default=20.0, help="Episode duration in seconds.")
     parser.add_argument("--fall-height-threshold", type=float, default=0.55, help="Base height threshold below which the rollout counts as a fall.")
     parser.add_argument(
@@ -387,6 +470,12 @@ def main() -> int:
     cfg.eval = type("EvalCfg", (), {})()
     cfg.eval.sim_duration = float(args.sim_duration)
     cfg.eval.fall_height_threshold = float(args.fall_height_threshold)
+    requested_terrain_mode = normalize_terrain_mode(args.terrain_mode)
+    if args.terrain:
+        if requested_terrain_mode != "isaac_mainline":
+            raise BaselineError("Do not combine --terrain with an explicit non-default --terrain-mode.")
+        requested_terrain_mode = "hfield_stress"
+    protocol = resolve_mujoco_protocol(cfg, LEGGED_GYM_ROOT_DIR, terrain_mode=requested_terrain_mode)
     rng = np.random.default_rng(int(args.seed))
 
     episode_returns: list[float] = []
@@ -403,7 +492,7 @@ def main() -> int:
             mujoco,
             torch,
             rng,
-            use_terrain=bool(args.terrain),
+            mujoco_model_path=protocol["mujoco_model_path"],
             command_vx=float(args.command_vx),
             command_vy=float(args.command_vy),
             command_dyaw=float(args.command_dyaw),
@@ -441,7 +530,14 @@ def main() -> int:
         "mujoco_eval": {
             "checkpoint": int(args.checkpoint) if args.checkpoint is not None else None,
             "load_run": args.load_run,
-            "terrain": bool(args.terrain),
+            "terrain": protocol["terrain_mode"] == "hfield_stress",
+            "terrain_mode_requested": protocol["terrain_mode_requested"],
+            "terrain_mode": protocol["terrain_mode"],
+            "protocol_purpose": protocol["purpose"],
+            "isaac_training_mesh_type": protocol["isaac_training_mesh_type"],
+            "is_isaac_mainline_comparable": protocol["is_isaac_mainline_comparable"],
+            "protocol_note": protocol["note"],
+            "mujoco_model_path": relative_to_repo(protocol["mujoco_model_path"]),
             "command_vx": float(args.command_vx),
             "command_vy": float(args.command_vy),
             "command_dyaw": float(args.command_dyaw),
@@ -463,6 +559,16 @@ def main() -> int:
     manifest["exported_policy_path"] = relative_to_repo(exported_policy_path)
     manifest["mujoco_metrics_path"] = relative_to_repo(metrics_path)
     manifest["mujoco_metrics"] = metrics
+    manifest["mujoco_protocol"] = {
+        "terrain": protocol["terrain_mode"] == "hfield_stress",
+        "terrain_mode_requested": protocol["terrain_mode_requested"],
+        "terrain_mode": protocol["terrain_mode"],
+        "protocol_purpose": protocol["purpose"],
+        "isaac_training_mesh_type": protocol["isaac_training_mesh_type"],
+        "is_isaac_mainline_comparable": protocol["is_isaac_mainline_comparable"],
+        "protocol_note": protocol["note"],
+        "mujoco_model_path": relative_to_repo(protocol["mujoco_model_path"]),
+    }
     manifest_slot = args.manifest_slot or Path(args.output_name).stem
     mujoco_metrics_runs = manifest.get("mujoco_metrics_runs")
     if not isinstance(mujoco_metrics_runs, dict):
