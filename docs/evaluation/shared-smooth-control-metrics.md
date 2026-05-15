@@ -141,6 +141,11 @@ Current result status:
   - `SC-PPO`: `fall_rate = 0.4`, `episode_steps_mean = 1259.0`
 - `velocity_tracking_error_mean` also remains slightly better for `SC-PPO`
   (`1.0210` vs `1.0975`)
+- under the current `SC-PPO seed11` checkpoint sweep on this same protocol, `checkpoint 400`
+  currently improves over `checkpoint 300`:
+  - `ckpt200 -> fall_rate = 0.70`, `episode_steps_mean = 902.7`
+  - `ckpt300 -> fall_rate = 0.40`, `episode_steps_mean = 1259.0`
+  - `ckpt400 -> fall_rate = 0.35`, `episode_steps_mean = 1331.7`
 - however, `joint_acceleration_l2_mean` and `action_jitter_l2_mean` still favor the heuristic
   anchor, so this remains a repair-stage signal rather than a solved terrain protocol
 
