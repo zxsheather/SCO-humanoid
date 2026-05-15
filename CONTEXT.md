@@ -12,6 +12,26 @@ _Avoid_: 工程产品型交付, 平台化交付
 An outcome whose success is measured by configurability, maintainability, and reuse across robots or constraint types.
 _Avoid_: 科研验证型交付, 一次性实验代码
 
+**诊断支线**:
+A narrowly scoped experiment branch used to answer one local mechanism or threshold question before consuming formal comparison budget.
+_Avoid_: 正式候选线, 主实验结果
+
+**正式候选线**:
+An experiment branch that has earned promotion from a **诊断支线** and is allowed to consume `主实验三种子` and `MuJoCo关键两组终验` budget to challenge the current mainline.
+_Avoid_: 一次性探针, 已定稿主线
+
+**正式候选线升格门槛**:
+The minimum evidence a **诊断支线** must clear before it is allowed to consume formal replication and cross-engine evaluation budget.
+_Avoid_: 单次现象, 最终胜负结论
+
+**逐种子硬门槛**:
+A promotion rule where each seed must first clear non-collapse and task-floor checks before aggregate evidence is allowed to count toward mainline challenge.
+_Avoid_: 只看均值, 坏种子被平均掩盖
+
+**早期checkpoint失效规则**:
+A promotion rule that rejects a candidate line if its selected checkpoint peaks too early in training, even when that early checkpoint looks task-valid.
+_Avoid_: 中途截图升格, 早峰值当正式主线
+
 **方法优于启发式**:
 A research claim that a constrained optimization method outperforms heuristic reward shaping on the target control objective.
 _Avoid_: 全组件独立归因, 全量机制拆分验证
@@ -140,6 +160,11 @@ _Avoid_: 双消融扩张, 全组件独立归因
 
 - A **科研验证型交付** prioritizes baseline reproduction, algorithm validation, and report-ready evidence
 - An **工程产品型交付** prioritizes modular abstractions and long-term extensibility
+- A **诊断支线** answers a local experimental question before the repo spends budget on a broader claim
+- A **正式候选线** is eligible for formal evidence collection but does not automatically become the repo's final mainline
+- A **正式候选线升格门槛** determines when a **诊断支线** may challenge the current mainline with formal budget
+- A **逐种子硬门槛** prevents one attractive average from hiding a collapsed or task-invalid seed
+- A **早期checkpoint失效规则** prevents a fragile early peak from being mistaken for a stable long-budget operating point
 - A **方法优于启发式** claim usually requires a focused comparison against a strong heuristic baseline
 - A **组件消融验证** claim usually requires a larger experiment matrix than a **科研验证型交付** can safely afford
 - A **速度跟踪行走** task can be evaluated under multiple **复杂地形条件**

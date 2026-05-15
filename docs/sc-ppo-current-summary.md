@@ -205,6 +205,22 @@ The current evidence does not yet support:
 
 The next highest-value step is no longer another tiny local threshold sweep.
 
+The recent `3.6 + full_batch` promotion attempt does not change that conclusion.
+
+Promotion-stage Isaac result:
+
+- reused `seed11 -> checkpoint 350`
+- new `seed17 -> checkpoint 350`
+- new `seed23 -> checkpoint 0`
+
+Interpretation:
+
+- `3.6 + full_batch` showed a promising single-seed direction on `seed11`
+- but it failed the repo's promotion protocol on `seed23` because the selected checkpoint collapsed
+  back to `0`
+- so this branch should not consume more mainline replacement budget and should not advance to new
+  `MuJoCo isaac_mainline` evaluation
+
 The better next move is one of:
 
 1. freeze the current `Isaac mainline + MuJoCo isaac_mainline first pass` result for reporting

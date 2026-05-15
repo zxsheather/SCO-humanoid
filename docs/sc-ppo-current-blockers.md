@@ -41,7 +41,7 @@ Reason:
 
 The current secondary blocker is:
 
-`当前主结果仍然依赖 checkpoint sweep，且邻近 threshold 并未同样稳定`
+`当前主结果仍然依赖 checkpoint sweep，而最近一次更紧 threshold 升格尝试已在 Isaac 阶段失败`
 
 This should not be promoted to the primary blocker.
 
@@ -50,14 +50,17 @@ Reason:
 - `threshold = 3.8` on the repaired branch is now the clear mainline candidate
 - but the nearest-neighbor `threshold = 4.0` branch shows much larger seed variance and one
   degenerate `checkpoint 0` selection
+- and the later `threshold = 3.6 + full_batch` promotion attempt also fails the repo's promotion
+  protocol because `seed23` selects `checkpoint 0`
 - the current claim is therefore stronger than a one-off single-seed win and weaker than a fully
-  settled broad-region result
+  settled broad-region result, but the repo no longer has a live reason to keep spending formal
+  budget inside this tiny threshold neighborhood
 
 ## Explicit mechanism blocker
 
 The current explicit mechanism blocker is:
 
-`checkpoint selection 已成常规要求，而 threshold 邻域稳定性成为当前主要可信度问题`
+`checkpoint selection 已成常规要求，而当前更高价值问题已从 threshold 邻域试探转回 MuJoCo 结论边界与 terrain 协议修复`
 
 Reason:
 
@@ -65,9 +68,11 @@ Reason:
   than the repaired `4.2` reference
 - the selected checkpoints for the `3-seed` run are `300`, `300`, and `400`, which means the
   current branch still cannot be summarized by the final checkpoint alone
-- the completed `threshold = 4.0` three-seed control does not provide the same stability, so the
-  next actionable question is no longer “does 4.0 also work”, but how broadly the `3.8` result can
-  be trusted
+- the completed `threshold = 4.0` three-seed control does not provide the same stability
+- the later `3.6 + full_batch` promotion run also fails the repo's `逐种子硬门槛` because
+  `seed23 -> checkpoint 0`
+- so the next actionable question is no longer “does one more nearby threshold also work”, but how
+  the repo should freeze the current `3.8` mainline result and bound its external-validation claims
 
 ## Newly clarified blocker
 
@@ -99,7 +104,7 @@ Reason:
 
 The current leading hypothesis is:
 
-`threshold = 3.8` is currently a genuinely better operating point than `4.0`, but not yet a fully generalized result`
+`threshold = 3.8` is currently the only operating point in this local neighborhood that has survived formal multi-seed credibility checks`
 
 Evidence status:
 
@@ -108,8 +113,11 @@ Evidence status:
   remains competitive through long-budget selected checkpoints
 - the completed `4.0` multi-seed control now shows that the nearby branch is materially less
   stable, so `3.8` is not just an arbitrary representative of a broad flat region
-- however, the repo still lacks evidence about whether `3.8` remains good beyond the immediate
-  local threshold neighborhood or under harder task settings
+- the later `3.6 + full_batch` promotion attempt also fails at the Isaac stage, so the repo now
+  has direct evidence that a tighter neighboring threshold does not automatically produce a better
+  stable replacement
+- however, the repo still lacks evidence about how to phrase the external `MuJoCo` conclusion and
+  how to repair the terrain-side protocol boundary cleanly
 
 ## First-priority remediation target
 
@@ -138,7 +146,7 @@ Reason:
 
 The next short-run success criterion is:
 
-`优先确认当前 threshold = 3.8 主结果在更强验证条件下仍保持对 heuristic 的优势`
+`优先把当前 threshold = 3.8 主结果的 MuJoCo isaac_mainline 与 MuJoCo terrain 口径冻结清楚，而不是继续做局部 threshold 升格尝试`
 
 This should be checked before expecting `SC-PPO` to beat the heuristic baseline on short-budget runs.
 
@@ -146,12 +154,14 @@ Reason:
 
 - the repaired branch has already cleared the old mechanism gate and the first long-budget
   behavior gate
-- the nearby `4.0` branch does not provide the same directional stability, so the next gate should
-  move outward rather than stay in the same tiny neighborhood
-- the preferred short-run evidence is:
-  - selected-checkpoint metrics remain clearly better than the heuristic anchor
-  - seed-to-seed variance stays modest
-  - best checkpoint does not collapse to a pathological early-stop artifact
+- the nearby `4.0` branch does not provide the same directional stability
+- the later `3.6 + full_batch` promotion attempt also terminates on `seed23 -> checkpoint 0`
+- so the next gate should move away from local threshold replacement and toward report-grade
+  evidence hygiene:
+  - freeze the current `3.8` selected-checkpoint result cleanly
+  - make the `MuJoCo isaac_mainline` partial-transfer claim explicit and bounded
+  - keep `MuJoCo terrain` and `hfield_moderate` as separate repair-stage protocols rather than as
+    silent add-ons to the mainline claim
 
 ## Validation order
 

@@ -39,6 +39,25 @@ def composite_score(metrics: dict[str, Any]) -> float:
     return float(metrics["joint_acceleration_l2_mean"]) + 100.0 * float(metrics["velocity_tracking_error_mean"])
 
 
+def manifest_matches_checkpoint(manifest: dict[str, Any], checkpoint: int) -> bool:
+    checkpoint_path = manifest.get("checkpoint_path")
+    if not isinstance(checkpoint_path, str):
+        return False
+    return Path(checkpoint_path).name == f"model_{checkpoint}.pt"
+
+
+def recover_checkpoint_metrics(output_dir: Path, checkpoint: int) -> dict[str, Any] | None:
+    metrics_path = output_dir / "metrics.json"
+    manifest_path = output_dir / "manifest.json"
+    if not metrics_path.exists() or not manifest_path.exists():
+        return None
+
+    manifest = read_json(manifest_path)
+    if not manifest_matches_checkpoint(manifest, checkpoint):
+        return None
+    return read_json(metrics_path)
+
+
 def build_evaluate_policy_command(
     *,
     config_path: str | None,
@@ -91,6 +110,8 @@ def evaluate_one_checkpoint(
     # Isaac Gym/PhysX cannot be safely reinitialized repeatedly inside one Python process.
     # Run each checkpoint evaluation in a fresh subprocess so longer-budget sweeps are stable.
     configure_runtime_env()
+    config = load_config(config_path)
+    output_dir = artifact_dir(config, run_name)
     command = build_evaluate_policy_command(
         config_path=config_path,
         run_name=run_name,
@@ -103,12 +124,18 @@ def evaluate_one_checkpoint(
         seed=seed,
     )
     completed = subprocess.run(command, cwd=str(repo_root()), check=False)
+    recovered_metrics = None
     if completed.returncode != 0:
-        raise RuntimeError(f"evaluate_policy failed for checkpoint {checkpoint} with exit code {completed.returncode}")
+        recovered_metrics = recover_checkpoint_metrics(output_dir, checkpoint)
+        if recovered_metrics is None:
+            raise RuntimeError(f"evaluate_policy failed for checkpoint {checkpoint} with exit code {completed.returncode}")
+        print(
+            f"Checkpoint {checkpoint} exited with code {completed.returncode} after writing artifacts; "
+            "continuing with recovered metrics.",
+            file=sys.stderr,
+        )
 
-    config = load_config(config_path)
-    output_dir = artifact_dir(config, run_name)
-    metrics = read_json(output_dir / "metrics.json")
+    metrics = recovered_metrics if recovered_metrics is not None else read_json(output_dir / "metrics.json")
     checkpoint_metrics_path = output_dir / f"metrics_checkpoint_{checkpoint}.json"
     write_json(checkpoint_metrics_path, metrics)
     return {

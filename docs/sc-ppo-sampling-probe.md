@@ -39,3 +39,8 @@ It does **not** change the repo's current main claim:
 
 - the mainline remains the repaired `3.8` branch under the current `完全替换对比`
 - any positive result here should first be treated as `诊断证据`
+
+Follow-on note:
+
+- the next diagnostic branch after this sampling probe is
+  `docs/sc-ppo-fullbatch-threshold-probe.md`
