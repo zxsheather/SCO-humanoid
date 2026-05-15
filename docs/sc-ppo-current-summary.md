@@ -93,10 +93,37 @@ Additional `SC-PPO` MuJoCo terrain checkpoint probes at `200`, `300`, and `400` 
 same way, so the current terrain issue should not be summarized as a simple selected-checkpoint
 mismatch.
 
+### Terrain repair-stage intermediate status
+
+Under the current `terrain_mode = hfield_moderate`
+(`hfield_size_override = [50.0, 50.0, 0.06, 0.02]`, `joint_reset_noise = 0.1`, `5 episodes`,
+`5 seconds`) probe:
+
+- heuristic:
+  - `velocity_tracking_error_mean = 1.2872`
+  - `joint_acceleration_l2_mean = 407.8357`
+  - `action_jitter_l2_mean = 0.2904`
+  - `fall_rate = 1.0000`
+  - `episode_steps_mean = 134.6`
+- `SC-PPO checkpoint 300`:
+  - `velocity_tracking_error_mean = 1.3863`
+  - `joint_acceleration_l2_mean = 500.5605`
+  - `action_jitter_l2_mean = 0.3388`
+  - `fall_rate = 0.4000`
+  - `episode_steps_mean = 345.0`
+
+Interpretation:
+
+- this is the first repaired terrain-stage protocol in which `SC-PPO` is no longer collapsing as
+  completely as in `hfield_stress`
+- however, the current `行为层平滑指标` remain very poor, so `hfield_moderate` is only a
+  `repair-stage intermediate protocol`, not a report-grade terrain validation line
+
 Protocol repair note:
 
 - the repo has now made this split explicit in the evaluator itself
 - `isaac_mainline` is the comparable replay line
+- `hfield_moderate` is the current repair-stage intermediate line
 - `hfield_stress` is a separate transfer-pressure line
 - the old boolean `terrain` switch should no longer be read as “the MuJoCo counterpart of the
   Isaac main task”
@@ -122,6 +149,8 @@ Protocol repair note:
 - current `MuJoCo isaac_mainline + noise` evidence does not yet support a full smoothness-transfer claim
 - current `MuJoCo terrain` evidence is still too unstable to serve as the repo's main external
   validation result
+- the new `hfield_moderate` line improves failure discrimination but is not yet physically clean
+  enough to replace either `isaac_mainline` or `hfield_stress`
 
 So the current evidence supports:
 
@@ -143,7 +172,7 @@ The next highest-value step is no longer another tiny local threshold sweep.
 The better next move is one of:
 
 1. freeze the current `Isaac mainline + MuJoCo isaac_mainline first pass` result for reporting
-2. treat `MuJoCo terrain` as a separate protocol-repair line rather than as the current main
-   external result
-3. only reopen algorithm-side local tuning if new evidence shows that the current `MuJoCo` gap is
-   not mainly a protocol or transfer issue
+2. continue treating `MuJoCo terrain` as a separate protocol-repair line rather than as the
+   current main external result
+3. use `hfield_moderate` as the current repair-stage intermediate protocol while deciding whether
+   the next move should be terrain-side repair or algorithm-side robustness work

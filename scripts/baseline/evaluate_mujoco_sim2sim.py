@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import argparse
 import math
+import re
 import statistics
 import sys
+import tempfile
 from collections import deque
 from pathlib import Path
 from typing import Any
@@ -33,13 +35,20 @@ from _common import (  # noqa: E402
 from _overrides import apply_method_overrides  # noqa: E402
 
 
-VALID_TERRAIN_MODES = ("isaac_mainline", "plane", "hfield_stress")
+VALID_TERRAIN_MODES = ("isaac_mainline", "plane", "hfield_moderate", "hfield_stress")
+# Keep the original stress footprint and only compress the vertical envelope, so the moderate
+# profile is a true softened variant of the same terrain instead of a slope-amplified rescaling.
+HFIELD_MODERATE_SIZE = (50.0, 50.0, 0.06, 0.02)
 
 
 def summarize(values: list[float]) -> tuple[float | None, float | None]:
     if not values:
         return None, None
     return statistics.fmean(values), statistics.pstdev(values) if len(values) > 1 else 0.0
+
+
+def is_hfield_terrain_mode(terrain_mode: str) -> bool:
+    return terrain_mode in {"hfield_moderate", "hfield_stress"}
 
 
 def quaternion_to_euler_array(quat_xyzw: np.ndarray) -> np.ndarray:
@@ -118,6 +127,9 @@ def normalize_terrain_mode(terrain_mode: str) -> str:
     aliases = {
         "default": "isaac_mainline",
         "isaac": "isaac_mainline",
+        "soft": "hfield_moderate",
+        "moderate": "hfield_moderate",
+        "terrain_moderate": "hfield_moderate",
         "terrain": "hfield_stress",
         "hfield": "hfield_stress",
     }
@@ -130,6 +142,36 @@ def isaac_training_mesh_type(cfg: Any) -> str:
     if not isinstance(mesh_type, str) or not mesh_type.strip():
         raise BaselineError("Missing cfg.terrain.mesh_type; cannot align MuJoCo protocol to Isaac training condition.")
     return mesh_type.strip().lower()
+
+
+def format_hfield_size(size: tuple[float, float, float, float]) -> str:
+    return " ".join(f"{value:g}" for value in size)
+
+
+def materialize_mujoco_model(protocol: dict[str, Any]) -> Path:
+    template_path = protocol["mujoco_model_template_path"]
+    hfield_size_override = protocol.get("hfield_size_override")
+    if hfield_size_override is None:
+        return template_path
+
+    xml_text = template_path.read_text(encoding="utf-8")
+    mesh_dir = (template_path.parent / "../meshes").resolve()
+    terrain_png = (template_path.parent / "../terrain" / "uneven.png").resolve()
+    xml_text = xml_text.replace('meshdir="../meshes/"', f'meshdir="{mesh_dir.as_posix()}/"', 1)
+    xml_text = xml_text.replace('file="../terrain/uneven.png"', f'file="{terrain_png.as_posix()}"', 1)
+    updated_xml_text, replacements = re.subn(
+        r'(<hfield\s+file="[^"]+"\s+name="hf1"\s+ncol="0"\s+nrow="0"\s+size=")([^"]+)(" ?/>)',
+        rf'\g<1>{format_hfield_size(hfield_size_override)}\3',
+        xml_text,
+        count=1,
+    )
+    if replacements != 1:
+        raise BaselineError(f"Failed to rewrite hf1 size in MuJoCo XML template: {template_path}")
+
+    temp_dir = Path(tempfile.mkdtemp(prefix="ecolab_mujoco_terrain_"))
+    output_path = temp_dir / template_path.name
+    output_path.write_text(updated_xml_text, encoding="utf-8")
+    return output_path
 
 
 def resolve_mujoco_protocol(cfg: Any, legged_gym_root_dir: str | Path, *, terrain_mode: str) -> dict[str, Any]:
@@ -154,7 +196,8 @@ def resolve_mujoco_protocol(cfg: Any, legged_gym_root_dir: str | Path, *, terrai
         purpose = "minimal_comparable_first_pass"
         comparable_to_isaac_mainline = True
         note = "Matches the current Isaac mainline training condition."
-        model_path = xml_dir / "XBot-L.xml"
+        model_template_path = xml_dir / "XBot-L.xml"
+        hfield_size_override = None
     elif requested_mode == "plane":
         resolved_mode = "plane"
         purpose = "minimal_comparable_first_pass" if isaac_mesh_type == "plane" else "manual_plane_override"
@@ -164,16 +207,28 @@ def resolve_mujoco_protocol(cfg: Any, legged_gym_root_dir: str | Path, *, terrai
             if comparable_to_isaac_mainline
             else "Explicit plane override; not guaranteed to match the Isaac training condition."
         )
-        model_path = xml_dir / "XBot-L.xml"
+        model_template_path = xml_dir / "XBot-L.xml"
+        hfield_size_override = None
+    elif requested_mode == "hfield_moderate":
+        resolved_mode = "hfield_moderate"
+        purpose = "terrain_repair_probe"
+        comparable_to_isaac_mainline = False
+        note = (
+            "Softened uneven.png hfield probe with reduced footprint and amplitude, intended as a repair-stage "
+            "intermediate between isaac_mainline and hfield_stress."
+        )
+        model_template_path = xml_dir / "XBot-L-terrain.xml"
+        hfield_size_override = HFIELD_MODERATE_SIZE
     else:
         resolved_mode = "hfield_stress"
         purpose = "terrain_stress_probe"
         comparable_to_isaac_mainline = False
         note = "Aggressive hfield stress test. Treat as transfer-pressure probe, not Isaac-mainline-equivalent replay."
-        model_path = xml_dir / "XBot-L-terrain.xml"
+        model_template_path = xml_dir / "XBot-L-terrain.xml"
+        hfield_size_override = None
 
-    if not model_path.exists():
-        raise BaselineError(f"Resolved MuJoCo model does not exist: {model_path}")
+    if not model_template_path.exists():
+        raise BaselineError(f"Resolved MuJoCo model does not exist: {model_template_path}")
 
     return {
         "terrain_mode_requested": requested_mode,
@@ -182,7 +237,8 @@ def resolve_mujoco_protocol(cfg: Any, legged_gym_root_dir: str | Path, *, terrai
         "isaac_training_mesh_type": isaac_mesh_type,
         "is_isaac_mainline_comparable": comparable_to_isaac_mainline,
         "note": note,
-        "mujoco_model_path": model_path,
+        "mujoco_model_template_path": model_template_path,
+        "hfield_size_override": hfield_size_override,
     }
 
 
@@ -476,6 +532,7 @@ def main() -> int:
             raise BaselineError("Do not combine --terrain with an explicit non-default --terrain-mode.")
         requested_terrain_mode = "hfield_stress"
     protocol = resolve_mujoco_protocol(cfg, LEGGED_GYM_ROOT_DIR, terrain_mode=requested_terrain_mode)
+    mujoco_model_path = materialize_mujoco_model(protocol)
     rng = np.random.default_rng(int(args.seed))
 
     episode_returns: list[float] = []
@@ -492,7 +549,7 @@ def main() -> int:
             mujoco,
             torch,
             rng,
-            mujoco_model_path=protocol["mujoco_model_path"],
+            mujoco_model_path=mujoco_model_path,
             command_vx=float(args.command_vx),
             command_vy=float(args.command_vy),
             command_dyaw=float(args.command_dyaw),
@@ -530,14 +587,16 @@ def main() -> int:
         "mujoco_eval": {
             "checkpoint": int(args.checkpoint) if args.checkpoint is not None else None,
             "load_run": args.load_run,
-            "terrain": protocol["terrain_mode"] == "hfield_stress",
+            "terrain": is_hfield_terrain_mode(protocol["terrain_mode"]),
             "terrain_mode_requested": protocol["terrain_mode_requested"],
             "terrain_mode": protocol["terrain_mode"],
             "protocol_purpose": protocol["purpose"],
             "isaac_training_mesh_type": protocol["isaac_training_mesh_type"],
             "is_isaac_mainline_comparable": protocol["is_isaac_mainline_comparable"],
             "protocol_note": protocol["note"],
-            "mujoco_model_path": relative_to_repo(protocol["mujoco_model_path"]),
+            "mujoco_model_template_path": relative_to_repo(protocol["mujoco_model_template_path"]),
+            "materialized_mujoco_model_path": relative_to_repo(mujoco_model_path),
+            "hfield_size_override": list(protocol["hfield_size_override"]) if protocol["hfield_size_override"] else None,
             "command_vx": float(args.command_vx),
             "command_vy": float(args.command_vy),
             "command_dyaw": float(args.command_dyaw),
@@ -560,14 +619,16 @@ def main() -> int:
     manifest["mujoco_metrics_path"] = relative_to_repo(metrics_path)
     manifest["mujoco_metrics"] = metrics
     manifest["mujoco_protocol"] = {
-        "terrain": protocol["terrain_mode"] == "hfield_stress",
+        "terrain": is_hfield_terrain_mode(protocol["terrain_mode"]),
         "terrain_mode_requested": protocol["terrain_mode_requested"],
         "terrain_mode": protocol["terrain_mode"],
         "protocol_purpose": protocol["purpose"],
         "isaac_training_mesh_type": protocol["isaac_training_mesh_type"],
         "is_isaac_mainline_comparable": protocol["is_isaac_mainline_comparable"],
         "protocol_note": protocol["note"],
-        "mujoco_model_path": relative_to_repo(protocol["mujoco_model_path"]),
+        "mujoco_model_template_path": relative_to_repo(protocol["mujoco_model_template_path"]),
+        "materialized_mujoco_model_path": relative_to_repo(mujoco_model_path),
+        "hfield_size_override": list(protocol["hfield_size_override"]) if protocol["hfield_size_override"] else None,
     }
     manifest_slot = args.manifest_slot or Path(args.output_name).stem
     mujoco_metrics_runs = manifest.get("mujoco_metrics_runs")

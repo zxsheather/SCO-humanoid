@@ -126,6 +126,7 @@ Reason:
   both methods fail and `SC-PPO` checkpoint probes at `200`, `300`, and `400` do not rescue it
 - this split is now explicit in code:
   - `terrain_mode = isaac_mainline` means “follow the Isaac mainline task semantics”
+  - `terrain_mode = hfield_moderate` means “run the current repair-stage intermediate hfield”
   - `terrain_mode = hfield_stress` means “run the separate MuJoCo terrain pressure test”
 - the highest-yield next step is therefore not another tiny threshold poke
 - the immediate value now comes from:
@@ -287,6 +288,46 @@ Interpretation:
 - this is currently a `协议阻塞` or stronger transfer-robustness blocker
 - until this is repaired, `MuJoCo terrain` should not be treated as the repo's main external
   validation result
+
+### Current MuJoCo terrain repair-stage status
+
+Confirmed fact:
+
+`当前新增的 MuJoCo hfield_moderate repair-stage protocol 已经产生了比 hfield_stress 更强的生存判别性，但还没有产生可接受的平滑性表现`
+
+Evidence scope:
+
+- backend: `MuJoCo sim2sim`
+- evidence strength: `short probe`
+- protocol:
+  `terrain_mode = hfield_moderate`, `hfield_size_override = [50.0, 50.0, 0.06, 0.02]`,
+  `joint_reset_noise = 0.1`, `5 episodes`, `5 seconds`
+- comparison target: heuristic anchor `action_rate = -0.005`
+
+Minimal key numbers:
+
+- heuristic:
+  - `velocity_tracking_error_mean = 1.2872`
+  - `joint_acceleration_l2_mean = 407.8357`
+  - `action_jitter_l2_mean = 0.2904`
+  - `fall_rate = 1.0000`
+  - `episode_steps_mean = 134.6`
+- `SC-PPO checkpoint 300`:
+  - `velocity_tracking_error_mean = 1.3863`
+  - `joint_acceleration_l2_mean = 500.5605`
+  - `action_jitter_l2_mean = 0.3388`
+  - `fall_rate = 0.4000`
+  - `episode_steps_mean = 345.0`
+
+Interpretation:
+
+- compared with `hfield_stress`, this repaired intermediate protocol is no longer a pure
+  “both sides immediately collapse” condition
+- however, its `joint_acceleration_l2_mean` remains too poor to support a clean terrain transfer
+  claim
+- the correct reading is therefore:
+  `hfield_moderate` is worth keeping as the current repair-stage intermediate protocol, but not yet
+  as a report-grade terrain endpoint
 
 ### Current repaired-PID mainline status
 

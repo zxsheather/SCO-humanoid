@@ -15,7 +15,7 @@ python scripts/baseline/evaluate_checkpoint_sweep.py --config <config-path> --ru
 For the current `MuJoCo关键两组终验`, use:
 
 ```bash
-python scripts/baseline/evaluate_mujoco_sim2sim.py --config <config-path> --run-name <artifact-run-name> --load-run <upstream-run-dir> --checkpoint <N> --terrain-mode <isaac_mainline|plane|hfield_stress>
+python scripts/baseline/evaluate_mujoco_sim2sim.py --config <config-path> --run-name <artifact-run-name> --load-run <upstream-run-dir> --checkpoint <N> --terrain-mode <isaac_mainline|plane|hfield_moderate|hfield_stress>
 ```
 
 This writes:
@@ -80,6 +80,7 @@ The current repo should distinguish between two `MuJoCo` uses:
 
 1. `最小可比 first pass`
 2. `terrain stress probe`
+3. `terrain repair-stage intermediate probe`
 
 Current preferred first-pass protocol:
 
@@ -110,10 +111,22 @@ Current terrain probe protocol:
 - purpose: diagnose transfer fragility rather than serve as the current report-grade external
   result
 
+Current terrain repair-stage intermediate protocol:
+
+- terrain mode: `hfield_moderate`
+- base XML: `terrain`
+- current repair override: `hfield_size_override = [50.0, 50.0, 0.06, 0.02]`
+- reset noise: `joint_reset_noise = 0.1`
+- current use: `5 episodes`, `5 seconds`
+- purpose: test whether a softened hfield can become a discriminative middle stage between
+  `isaac_mainline` and `hfield_stress`
+
 Protocol repair note:
 
 - the old bare `--terrain` flag is now treated as a deprecated alias for `--terrain-mode=hfield_stress`
 - this prevents `MuJoCo terrain` from being confused with the current Isaac-mainline replay
+- `hfield_moderate` is explicitly not a report-grade comparable replay; it is a repair-stage
+  intermediate probe
 
 Current result status:
 
@@ -121,6 +134,11 @@ Current result status:
 - however, the current `MuJoCo isaac_mainline` smoothness metrics still favor the heuristic anchor
 - both methods currently fail the short `MuJoCo terrain` probe, and `SC-PPO` does not recover the
   terrain result through the current `200/300/400` checkpoint neighborhood
+- on the current `hfield_moderate` short probe, `SC-PPO` becomes materially more survivable than
+  under `hfield_stress` (`fall_rate = 0.4`, `episode_steps_mean = 345.0`), while the heuristic
+  anchor still fully collapses (`fall_rate = 1.0`, `episode_steps_mean = 134.6`)
+- however, `joint_acceleration_l2_mean` remains very poor for both methods on `hfield_moderate`,
+  so this is only a repair-stage signal, not a solved terrain protocol
 
 ## Common metric schema
 
