@@ -17,7 +17,7 @@ stable domain language.
 
 The current primary blocker is:
 
-`当前 repaired PID 主线已经拿到阶段性多种子优势证据，但还缺少邻域稳定性与更高标准验证`
+`当前 repaired PID 主线已经拿到阶段性多种子优势证据，但还缺少跨阈值邻域与更高标准验证`
 
 This is the preferred framing over both “`SC-PPO` has not yet beaten the heuristic baseline” and
 the older “`SC-PPO 约束机制尚未真正发力`”.
@@ -28,7 +28,7 @@ Reason:
   shared metrics in a completed `3-seed, 400 iteration, checkpoint-sweep` comparison
 - this means the project is no longer blocked on the old question “can repaired PID become
   behaviorally competitive at all”
-- however, the current evidence is still narrow: one threshold neighborhood, one task condition,
+- however, the current evidence is still narrow: one winning threshold branch, one task condition,
   one budget family, and one main random-seed batch
 - the blocker has therefore shifted from `方法完全站不住` to `如何把当前结果整理成更可信的主结论`
 
@@ -36,22 +36,23 @@ Reason:
 
 The current secondary blocker is:
 
-`当前主结果仍然依赖 checkpoint sweep 与单一 threshold 主线`
+`当前主结果仍然依赖 checkpoint sweep，且邻近 threshold 并未同样稳定`
 
 This should not be promoted to the primary blocker.
 
 Reason:
 
 - `threshold = 3.8` on the repaired branch is now the clear mainline candidate
-- but the current claim is still stronger than a one-off single-seed win and weaker than a fully
-  settled method result
-- the immediate next need is to verify that the result is not a brittle threshold-local artifact
+- but the nearest-neighbor `threshold = 4.0` branch shows much larger seed variance and one
+  degenerate `checkpoint 0` selection
+- the current claim is therefore stronger than a one-off single-seed win and weaker than a fully
+  settled broad-region result
 
 ## Explicit mechanism blocker
 
 The current explicit mechanism blocker is:
 
-`checkpoint selection 与 threshold 邻域稳定性现在比“PID 是否苏醒”更关键`
+`checkpoint selection 已成常规要求，而 threshold 邻域稳定性成为当前主要可信度问题`
 
 Reason:
 
@@ -59,14 +60,15 @@ Reason:
   than the repaired `4.2` reference
 - the selected checkpoints for the `3-seed` run are `300`, `300`, and `400`, which means the
   current branch still cannot be summarized by the final checkpoint alone
-- the next actionable mechanism question is therefore whether the same result survives a nearby
-  threshold such as `4.0`, not whether the multiplier is still completely pinned
+- the completed `threshold = 4.0` three-seed control does not provide the same stability, so the
+  next actionable question is no longer “does 4.0 also work”, but how broadly the `3.8` result can
+  be trusted
 
 ## Newly clarified blocker
 
 The current newly clarified blocker is:
 
-`repaired PID + tighter threshold 已经转化为实质行为收益，但证据整理尚未完成`
+`repaired PID + threshold = 3.8` 已经形成主结果，而 `4.0` 邻域对照反而强化了它的特殊性`
 
 Reason:
 
@@ -80,47 +82,57 @@ Reason:
   - `fall_rate = 0.1000 ± 0.0000`
 - these numbers are materially better than the current heuristic anchor under the same shared
   metric schema
+- by contrast, the completed repaired-`4.0` control gives:
+  - `velocity_tracking_error_mean = 0.8635 ± 0.3367`
+  - `joint_acceleration_l2_mean = 120.1226 ± 26.5838`
+  - `action_jitter_l2_mean = 0.1740 ± 0.1157`
+  - `fall_rate = 0.4667 ± 0.3793`
+- one `4.0` seed selects `checkpoint 0`, so the nearby control is materially less stable than the
+  `3.8` mainline
 
 ## Current leading hypothesis
 
 The current leading hypothesis is:
 
-`threshold = 3.8` is currently inside a robust-enough active regime, but the claim still needs a nearby-control check`
+`threshold = 3.8` is currently a genuinely better operating point than `4.0`, but not yet a fully generalized result`
 
 Evidence status:
 
 - this is a `当前主假设`, not a confirmed root cause
 - compared with the repaired `4.2` reference, the repaired `3.8` branch activates earlier and
   remains competitive through long-budget selected checkpoints
-- the current `3-seed` result suggests that the repaired `PID` branch is no longer sitting on a
-  knife-edge failure mode
-- however, without a nearby `4.0` multi-seed control, the team still cannot say whether `3.8` is
-  uniquely lucky or just the center of a broader good region
+- the completed `4.0` multi-seed control now shows that the nearby branch is materially less
+  stable, so `3.8` is not just an arbitrary representative of a broad flat region
+- however, the repo still lacks evidence about whether `3.8` remains good beyond the immediate
+  local threshold neighborhood or under harder task settings
 
 ## First-priority remediation target
 
 The current first-priority remediation target is:
 
-`先把当前主结果整理为可信证据，再决定是否继续局部调参`
+`先冻结并整理 `3.8` 主结果，再决定是否扩展到更强外部验证`
 
 Reason:
 
 - the repaired branch has already passed the old “make the multiplier active” gate
-- the next highest-yield step is no longer another blind tuning jump
+- the nearest-neighbor `4.0` control has already been completed and does not overturn the current
+  mainline choice
+- the next highest-yield step is no longer another local threshold poke
 - the immediate value now comes from:
   1. documenting the completed `3-seed` result cleanly
-  2. checking the nearest neighbor threshold branch
-  3. then deciding whether more tuning is even necessary
+  2. documenting the `4.0` control as a credibility check
+  3. deciding whether the next expansion should be harder terrain, broader seeds, or report freeze
 - the preferred tuning order is:
   1. keep `pid_integral_mode = lower_bound_clamp` fixed
   2. keep `threshold = 3.8` as the current mainline result
-  3. use `threshold = 4.0` as the nearest-neighbor validation branch
+  3. treat `threshold = 4.0` as the completed nearest-neighbor control, not as the preferred new
+     mainline
 
 ## Next short-run success criterion
 
 The next short-run success criterion is:
 
-`优先确认当前主结果不是 threshold-local 偶然，并保持对 heuristic 的优势`
+`优先确认当前 `3.8` 主结果在更强验证条件下仍保持对 heuristic 的优势`
 
 This should be checked before expecting `SC-PPO` to beat the heuristic baseline on short-budget runs.
 
@@ -128,8 +140,8 @@ Reason:
 
 - the repaired branch has already cleared the old mechanism gate and the first long-budget
   behavior gate
-- the new gate is whether a nearby branch such as `threshold = 4.0` produces the same directional
-  advantage with acceptable variance
+- the nearby `4.0` branch does not provide the same directional stability, so the next gate should
+  move outward rather than stay in the same tiny neighborhood
 - the preferred short-run evidence is:
   - selected-checkpoint metrics remain clearly better than the heuristic anchor
   - seed-to-seed variance stays modest
@@ -233,6 +245,38 @@ Interpretation:
   `方法优于启发式`
 - however, the branch still requires `checkpoint sweep + selected checkpoint` reporting and should
   not yet be compressed into “final checkpoint wins by default”
+
+### Repaired-PID nearest-neighbor control status
+
+Confirmed fact:
+
+`repaired PID + threshold = 4.0` does not match the stability of the `3.8` mainline under the same `3-seed, 400 iteration, checkpoint-sweep` protocol`
+
+Evidence scope:
+
+- task condition: `粗糙平面`
+- evidence strength: `3 seeds`
+- budget: `400 iteration`
+- checkpoint rule: `selected checkpoint from checkpoint_sweep_summary.json`
+
+Minimal key numbers:
+
+- selected-checkpoint aggregate over seeds `11`, `17`, `23`:
+  - `velocity_tracking_error_mean = 0.8635 ± 0.3367`
+  - `joint_acceleration_l2_mean = 120.1226 ± 26.5838`
+  - `action_jitter_l2_mean = 0.1740 ± 0.1157`
+  - `episode_return_mean = 65.5950 ± 43.4320`
+  - `fall_rate = 0.4667 ± 0.3793`
+- per-seed selected checkpoints:
+  - `seed11 -> checkpoint 300`
+  - `seed17 -> checkpoint 400`
+  - `seed23 -> checkpoint 0`
+
+Interpretation:
+
+- this control does not replace the `3.8` mainline
+- instead, it strengthens the reading that `3.8` is a meaningful operating point rather than an
+  arbitrary interchangeable choice in a broad flat neighborhood
 
 ### Current constraint engagement status
 
@@ -644,10 +688,10 @@ Current next-step order:
 
 1. treat repaired `PID` with `threshold = 3.8` as the current mainline result
 2. keep `checkpoint sweep + selected checkpoint` as the required long-budget reporting rule
-3. run the nearest-neighbor `threshold = 4.0` multi-seed control before opening a wider tuning
-   branch
-4. after the `4.0` control, decide whether the repo should freeze the present result for reporting
-   or reopen PID-coefficient tuning
+3. record repaired `threshold = 4.0` as the completed nearest-neighbor control, not as a co-equal
+   winner
+4. decide whether the next expansion should be broader validation or report freeze, not another
+   immediate local threshold sweep
 
 ## No-longer-primary blockers
 
@@ -687,6 +731,6 @@ Role:
 - this is important for the eventual `任务守底线` judgment
 - however, it is not the current primary blocker for the short mechanism-tuning loop
 - the current shortest-path blocker is no longer catastrophic falling, but whether the present
-  multi-seed win survives the next credibility checks
+  `3.8` multi-seed win survives the next credibility checks beyond the local threshold neighborhood
 - this is not a `SC-PPO`-only issue in the current `200 iteration` comparison, but a problem shared by
   the current comparison group at this budget level

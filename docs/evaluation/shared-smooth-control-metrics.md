@@ -34,9 +34,22 @@ Current mainline note:
   - `joint_acceleration_l2_mean = 115.9079 ± 6.9386`
   - `action_jitter_l2_mean = 0.2205 ± 0.0017`
   - `episode_return_mean = 100.2838 ± 2.7150`
-  - `fall_rate = 0.1000 ± 0.0000`
+- `fall_rate = 0.1000 ± 0.0000`
 - this currently beats the repo's heuristic anchor under the shared metric schema, but it still
   depends on `selected checkpoint` reporting rather than the final checkpoint alone
+
+Nearest-neighbor control note:
+
+- the completed repaired-`4.0` three-seed control is materially less stable than the `3.8`
+  mainline
+- its selected-checkpoint aggregate metrics are:
+  - `velocity_tracking_error_mean = 0.8635 ± 0.3367`
+  - `joint_acceleration_l2_mean = 120.1226 ± 26.5838`
+  - `action_jitter_l2_mean = 0.1740 ± 0.1157`
+  - `episode_return_mean = 65.5950 ± 43.4320`
+  - `fall_rate = 0.4667 ± 0.3793`
+- one `4.0` seed selects `checkpoint 0`, so this branch should be treated as a completed control
+  rather than a second mainline candidate
 
 Current method configs:
 
