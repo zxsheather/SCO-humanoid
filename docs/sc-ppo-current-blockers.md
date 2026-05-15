@@ -298,7 +298,7 @@ Confirmed fact:
 Evidence scope:
 
 - backend: `MuJoCo sim2sim`
-- evidence strength: `short probe + mid-budget check`
+- evidence strength: `short probe + mid-budget check + 3-seed checkpoint comparison`
 - protocol:
   `terrain_mode = hfield_moderate`, `hfield_size_override = [50.0, 50.0, 0.06, 0.02]`,
   `joint_reset_noise = 0.1`
@@ -319,6 +319,17 @@ Minimal key numbers:
     - `action_jitter_l2_mean = 0.3300 ± 0.0734`
     - `fall_rate = 0.4000`
     - `episode_steps_mean = 1259.0`
+- repaired-terrain-selected `3-seed` batch:
+  - per-seed repaired-terrain best checkpoints:
+    - `seed11 -> checkpoint 400`
+    - `seed17 -> checkpoint 400`
+    - `seed23 -> checkpoint 300`
+  - aggregate:
+    - `velocity_tracking_error_mean = 0.9622 ± 0.0543`
+    - `joint_acceleration_l2_mean = 352.6293 ± 6.5909`
+    - `action_jitter_l2_mean = 0.3336 ± 0.0236`
+    - `fall_rate = 0.3500 ± 0.0408`
+    - `episode_steps_mean = 1346.03 ± 89.37`
 - original short `5 episodes x 5 seconds` probe:
 - heuristic:
   - `velocity_tracking_error_mean = 1.2872`
@@ -339,6 +350,10 @@ Interpretation:
   “both sides immediately collapse” condition
 - the survival distinction also persists under a more credible `20 episodes x 20 seconds`
   mid-budget check, so this is no longer just a tiny-probe fluke
+- the same repaired-terrain survival distinction now survives a `3-seed` comparison, so the line
+  is worth keeping as a live diagnostic protocol
+- however, the repaired-terrain checkpoint preference is mixed across seeds, so this line still
+  should not be compressed into a fixed `checkpoint 400` reporting rule
 - however, its `joint_acceleration_l2_mean` remains too poor to support a clean terrain transfer
   claim
 - the correct reading is therefore:

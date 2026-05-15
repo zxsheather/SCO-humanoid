@@ -146,6 +146,18 @@ Current result status:
   - `ckpt200 -> fall_rate = 0.70`, `episode_steps_mean = 902.7`
   - `ckpt300 -> fall_rate = 0.40`, `episode_steps_mean = 1259.0`
   - `ckpt400 -> fall_rate = 0.35`, `episode_steps_mean = 1331.7`
+- the current repaired-terrain line now also has a completed `3-seed` MuJoCo batch:
+  - `seed11 -> checkpoint 400`
+  - `seed17 -> checkpoint 400`
+  - `seed23 -> checkpoint 300`
+- over those repaired-terrain-selected checkpoints, `SC-PPO` aggregates to:
+  - `velocity_tracking_error_mean = 0.9622 ± 0.0543`
+  - `joint_acceleration_l2_mean = 352.6293 ± 6.5909`
+  - `action_jitter_l2_mean = 0.3336 ± 0.0236`
+  - `fall_rate = 0.3500 ± 0.0408`
+  - `episode_steps_mean = 1346.03 ± 89.37`
+- so the repaired-terrain survival advantage is no longer a `seed11` fluke, but this line still
+  has checkpoint dependence and still does not beat the heuristic anchor on smoothness
 - however, `joint_acceleration_l2_mean` and `action_jitter_l2_mean` still favor the heuristic
   anchor, so this remains a repair-stage signal rather than a solved terrain protocol
 

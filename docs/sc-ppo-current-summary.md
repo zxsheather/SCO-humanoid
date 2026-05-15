@@ -114,6 +114,19 @@ Mid-budget `20 episodes x 20 seconds` check:
   - `fall_rate = 0.4000`
   - `episode_steps_mean = 1259.0`
 
+Current `3-seed` repaired-terrain batch:
+
+- repaired-terrain-selected checkpoints:
+  - `seed11 -> checkpoint 400`
+  - `seed17 -> checkpoint 400`
+  - `seed23 -> checkpoint 300`
+- aggregate over those checkpoints:
+  - `velocity_tracking_error_mean = 0.9622 ± 0.0543`
+  - `joint_acceleration_l2_mean = 352.6293 ± 6.5909`
+  - `action_jitter_l2_mean = 0.3336 ± 0.0236`
+  - `fall_rate = 0.3500 ± 0.0408`
+  - `episode_steps_mean = 1346.03 ± 89.37`
+
 Original short `5 episodes x 5 seconds` probe:
 
 - heuristic:
@@ -134,6 +147,10 @@ Interpretation:
 - this is now the first repaired terrain-stage protocol with a nontrivial mid-budget distinction:
   `SC-PPO` no longer collapses as completely as in `hfield_stress`, and the survival gap persists
   beyond the tiny short probe
+- that repaired-terrain survival gap is now also confirmed across `3 seeds`, so it should no
+  longer be read as a single-seed artifact
+- however, the best repaired-terrain checkpoint is not the same for every seed, so this line still
+  needs explicit checkpoint reporting rather than a simplified fixed-checkpoint rule
 - however, the current `行为层平滑指标` still do not transfer in the desired direction
 - so `hfield_moderate` should still be treated only as a `repair-stage intermediate protocol`, not
   as a report-grade terrain validation line
