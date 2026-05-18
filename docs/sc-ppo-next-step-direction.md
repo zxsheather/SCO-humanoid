@@ -3,7 +3,7 @@
 This note records the repo's currently agreed next-step direction for the
 `受限优化与平滑性增强` line after the current `threshold = 3.8` result package.
 
-It exists to keep `improve_report.md`-style forward-looking ideas from being
+It exists to keep `docs/sc-ppo-frontier-survey.md`-style forward-looking ideas from being
 mistaken for the repo's immediate execution plan.
 
 ## Current direction
