@@ -46,6 +46,10 @@ It is not yet:
 - `SN` vs Vanilla PPO
 - full formal comparison matrix
 
+Current implementation note:
+
+- [SC-PPO SN Prototype](./sc-ppo-sn-prototype.md)
+
 ## Minimal implementation tasks
 
 1. Add a new method-family path or configuration switch that enables actor-side
