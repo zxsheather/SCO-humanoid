@@ -205,6 +205,12 @@ The current evidence does not yet support:
 
 The next highest-value step is no longer another tiny local threshold sweep.
 
+Execution-facing follow-up notes:
+
+- [SC-PPO Next-Step Direction](./sc-ppo-next-step-direction.md)
+- [SC-PPO SN Feasibility Diagnostic](./sc-ppo-sn-feasibility-diagnostic.md)
+- [SC-PPO MuJoCo Freeze Backlog](./sc-ppo-mujoco-freeze-backlog.md)
+
 The recent `3.6 + full_batch` promotion attempt does not change that conclusion.
 
 Promotion-stage Isaac result:

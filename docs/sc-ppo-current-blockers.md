@@ -125,6 +125,11 @@ The current first-priority remediation target is:
 
 `先冻结 MuJoCo isaac_mainline 的最小可比终验，再把 MuJoCo terrain 明确转成协议修复线`
 
+Execution-facing notes:
+
+- [SC-PPO Next-Step Direction](./sc-ppo-next-step-direction.md)
+- [SC-PPO MuJoCo Freeze Backlog](./sc-ppo-mujoco-freeze-backlog.md)
+
 Reason:
 
 - the repo already has enough `Isaac` evidence to support a real mainline algorithm result

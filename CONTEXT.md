@@ -20,6 +20,34 @@ _Avoid_: 正式候选线, 主实验结果
 An experiment branch that has earned promotion from a **诊断支线** and is allowed to consume `主实验三种子` and `MuJoCo关键两组终验` budget to challenge the current mainline.
 _Avoid_: 一次性探针, 已定稿主线
 
+**主线证据闭环**:
+A planning stage where the repo first freezes the claim boundary, citation set, and external-validation reading of the current mainline before opening a new method branch.
+_Avoid_: 结论未收口就开新坑, 把前沿方向池直接当执行计划
+
+**协议修复线**:
+A bounded workstream that improves evaluation-protocol alignment or discriminative power without treating the effort as a new algorithm mainline.
+_Avoid_: 新方法主线, 静默失败补丁, 结果没收口就混入主报告
+
+**部分迁移结论**:
+A bounded external-validation claim where the current mainline transfers some task-relevant advantages across engines, but not the full smoothness conclusion.
+_Avoid_: 全面跨引擎转优, 附录级边角结果, 把 mixed evidence 写成 complete win
+
+**架构级平滑优化线**:
+A post-mainline diagnostic branch that tests whether an actor-side architectural constraint can replace the current Jacobian-penalty path without expanding the task definition.
+_Avoid_: 直接改成更大研究命题, 把效率优化和能力外扩混成一条线
+
+**替代机制可行性诊断**:
+A diagnostic branch stage that first asks whether a new smoothness mechanism can train, activate, and yield interpretable evidence before it is judged against the current mainline.
+_Avoid_: 零实现就直接打主线, 一上来就烧正式预算
+
+**同尺比较**:
+A comparison rule where a new mechanism is trained differently if needed, but is still evaluated under the repo's existing shared metric and constraint-evidence schema.
+_Avoid_: 机制一换就连评估尺子一起换, 比较关系失真
+
+**远期方向池**:
+A set of plausible future research directions that remain documented but are not yet promoted into execution.
+_Avoid_: 当前执行计划, 默认下一步都要做
+
 **正式候选线升格门槛**:
 The minimum evidence a **诊断支线** must clear before it is allowed to consume formal replication and cross-engine evaluation budget.
 _Avoid_: 单次现象, 最终胜负结论
@@ -162,6 +190,13 @@ _Avoid_: 双消融扩张, 全组件独立归因
 - An **工程产品型交付** prioritizes modular abstractions and long-term extensibility
 - A **诊断支线** answers a local experimental question before the repo spends budget on a broader claim
 - A **正式候选线** is eligible for formal evidence collection but does not automatically become the repo's final mainline
+- A **主线证据闭环** should happen before the repo opens a materially broader post-mainline exploration branch
+- A **协议修复线** exists to fix evaluation semantics or protocol quality without being mistaken for a new algorithm claim
+- A **部分迁移结论** lets the repo include external validation in the main report without overstating mixed evidence
+- A **架构级平滑优化线** should stay inside the current locomotion claim and first test mechanism replacement rather than task expansion
+- A **替代机制可行性诊断** should precede any formal mainline challenge from a zero-implementation method branch
+- A **同尺比较** keeps mechanism replacement interpretable by preserving the repo's existing evidence chain
+- A **远期方向池** records broader ideas such as compliance, sim-to-real, or perception without forcing immediate execution
 - A **正式候选线升格门槛** determines when a **诊断支线** may challenge the current mainline with formal budget
 - A **逐种子硬门槛** prevents one attractive average from hiding a collapsed or task-invalid seed
 - A **早期checkpoint失效规则** prevents a fragile early peak from being mistaken for a stable long-budget operating point
