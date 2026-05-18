@@ -262,6 +262,7 @@ Interpretation:
 - but the current `行为层平滑指标` do not transfer in the same direction
 - this means the repo now has a real `MuJoCo第一版结果`, but not yet a full cross-engine
   smoothness victory
+- the correct report-facing label for this state is `部分迁移结论`, not `完整跨引擎转优`
 - the formal report-grade artifact names for this protocol are now the
   `metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` outputs rather than the older
   `metrics_mujoco_plane_20ep_20s_noise01.json` duplicates

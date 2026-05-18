@@ -119,3 +119,7 @@ So neither terrain protocol should currently be folded into the main report head
 When summarizing the current project state, the safest compact wording is:
 
 `在当前粗糙平面主实验中，repaired PID-Lagrangian SC-PPO（threshold = 3.8）已经通过 3-seed + checkpoint-sweep 结果形成对强启发式基线的主结果；在 MuJoCo isaac_mainline first pass 中，该方法显示出任务稳定性与速度跟踪的部分迁移，但当前行为层平滑指标尚未完成跨引擎转优。`
+
+English-safe wording:
+
+`On the current Isaac rough-terrain main experiment, repaired PID-Lagrangian SC-PPO (threshold = 3.8) supports the repo's main result against the selected heuristic baseline; on MuJoCo isaac_mainline first pass, the method shows bounded partial transfer in task stability and velocity tracking, but not yet in the current behavior-level smoothness metrics.`

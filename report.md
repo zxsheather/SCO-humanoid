@@ -103,6 +103,10 @@ Interpretation:
 
 So the correct reading is `partial transfer`, not full cross-engine smoothness superiority.
 
+Headline-safe wording:
+
+`On the current Isaac rough-terrain main experiment, repaired PID-Lagrangian SC-PPO (threshold = 3.8) supports the repo's main result against the selected heuristic baseline; on MuJoCo isaac_mainline first pass, the method shows bounded partial transfer in task stability and velocity tracking, but not yet in the current behavior-level smoothness metrics.`
+
 ![Figure 2. MuJoCo isaac_mainline representative first pass](artifacts/analysis/sc_ppo_report_figures/figure_mujoco_first_pass.png)
 
 Figure 2. Representative `MuJoCo isaac_mainline` replay. This evidence is intentionally weaker

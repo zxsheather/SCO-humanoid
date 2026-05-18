@@ -97,6 +97,10 @@ selected-checkpoint aggregate。
 
 所以当前正确口径只能是 `partial transfer`，不能写成完整的跨引擎平滑性胜利。
 
+标题级安全表述：
+
+`在当前 Isaac 粗糙平面主实验中，修复后的 PID-Lagrangian SC-PPO（threshold = 3.8）已经形成对已选 heuristic baseline 的主结果；在 MuJoCo isaac_mainline first pass 中，该方法显示出任务稳定性与速度跟踪的有边界 partial transfer，但当前行为层平滑指标尚未完成跨引擎转优。`
+
 ![Figure 2. MuJoCo isaac_mainline representative first pass](artifacts/analysis/sc_ppo_report_figures/figure_mujoco_first_pass.png)
 
 图 2. `MuJoCo isaac_mainline` 的 representative first-pass replay。它的证据强度故意弱于

@@ -63,6 +63,10 @@ Interpretation:
 - however, the current smoothness metrics do not transfer in the same direction
 - at this stage, `MuJoCo` supports `部分迁移`, not a full cross-engine smoothness win
 
+Canonical report-safe reading:
+
+`在当前 Isaac 粗糙平面主实验中，repaired PID-Lagrangian SC-PPO（threshold = 3.8）已经通过 3-seed + checkpoint-sweep 结果形成对强启发式基线的主结果；在 MuJoCo isaac_mainline first pass 中，该方法显示出任务稳定性与速度跟踪的部分迁移，但当前行为层平滑指标尚未完成跨引擎转优。`
+
 Canonical formal artifacts for this protocol are now:
 
 - heuristic:
