@@ -113,6 +113,8 @@ Current reading:
   survival difference, but it still does not support the desired smoothness conclusion
 
 So neither terrain protocol should currently be folded into the main report headline.
+Any further work here should be tracked as terrain-side protocol repair, not as a new algorithm
+promotion line.
 
 ## Recommended citation pattern
 

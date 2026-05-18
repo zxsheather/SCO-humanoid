@@ -45,6 +45,8 @@ Evidence rules:
   not a matched multi-seed aggregate.
 - `hfield_moderate` and `hfield_stress` are excluded from the main result narrative. They remain
   repair-stage protocol lines and current blockers, not report-grade headline evidence.
+- Any follow-up work on `hfield_moderate` or `hfield_stress` belongs to the terrain-side protocol
+  repair backlog, not to a new algorithm-promotion claim.
 
 ## 3. Isaac Rough-Terrain Main Result
 
@@ -164,6 +166,9 @@ Not established:
 - that smoothness superiority currently transfers to `MuJoCo`
 - that `hfield_moderate` or `hfield_stress` are ready to serve as report-grade terrain results
 - that a broader neighborhood of tighter thresholds is interchangeable with the `3.8` mainline
+
+Any remaining terrain-side work should therefore be read as protocol repair for external-validation
+semantics, not as evidence that a different algorithm line is ready to replace the current mainline.
 
 ## 7. Canonical Artifacts
 
