@@ -220,6 +220,17 @@ _Avoid_: 双消融扩张, 全组件独立归因
 - A **跌倒率底线指标** guards against smooth but unusable policies
 - A **复杂地形分层推进** strategy improves failure localization before spending budget on harsher terrain conditions
 - A **三组正式对比** separates raw PPO instability from heuristic smoothing trade-offs and constrained smoothing behavior
+- `Vanilla PPO` inside a **三组正式对比** is a raw reference rather than a **正式候选线**, so its
+  collapse patterns should be recorded rather than filtered away by promotion gates
+- The heuristic row inside a **三组正式对比** is a formal comparison anchor rather than a raw
+  reference, so it should use the same `3-seed + checkpoint-sweep` evidence strength as the current
+  `SC-PPO` mainline
+- If the selected heuristic baseline fails to stay task-valid under that `3-seed + checkpoint-sweep`
+  standard, the repo should reopen heuristic-anchor selection rather than treating the old single-run
+  choice as still report-grade
+- If the bounded heuristic family also fails under that frozen `3-seed + checkpoint-sweep`
+  standard, the repo should shift into a **协议修复线** rather than keep searching the same family as
+  if the missing result were only a candidate-selection problem
 - A **MuJoCo必做终验** checks whether simulator-local smoothness improvements translate into more robust cross-engine behavior
 - A **MuJoCo关键两组终验** keeps the cross-engine stage focused on the comparison that matters most to the final claim
 - A **主实验三种子** standard supports the main claim without exploding the full experiment budget
@@ -323,3 +334,7 @@ _Avoid_: 双消融扩张, 全组件独立归因
 - “速度跟踪退化容忍度” was ambiguous between 5% and **速度误差10%退化上限** — resolved: use **速度误差10%退化上限**
 - “跌倒率底线形式” was ambiguous between an absolute survival gate and **跌倒率5个百分点退化上限** — resolved: use **跌倒率5个百分点退化上限**
 - “有限消融范围” was ambiguous between PID-only and broader component ablations — resolved: use **PID有限消融**
+- “Vanilla PPO 三种子是否适用正式候选线门槛” was ambiguous between promotion-gated filtering and raw-reference recording — resolved: treat `Vanilla PPO` as a raw reference and record collapse rather than rejecting it through candidate-promotion rules
+- “启发式锚点三种子是否只需单次可用结果” was ambiguous between a loose baseline check and formal comparison evidence — resolved: treat the selected heuristic baseline as a formal comparison anchor and require `3-seed + checkpoint-sweep` evidence
+- “启发式锚点三种子失稳后是否仍可直接进入 #5” was ambiguous between accepting the old single-run anchor and reopening baseline selection — resolved: if the selected heuristic baseline fails the formal `3-seed + checkpoint-sweep` standard, reopen heuristic-anchor selection rather than counting `#5` as complete
+- “bounded heuristic family 全失败后下一步是什么” was ambiguous between continuing the same search and starting a **协议修复线** — resolved: if the bounded heuristic family all fails under the frozen `3-seed + checkpoint-sweep` regime, shift the repo to a baseline-side **协议修复线** and make any regime revision explicit

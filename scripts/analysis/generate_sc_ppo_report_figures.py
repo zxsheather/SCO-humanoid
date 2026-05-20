@@ -132,7 +132,13 @@ def annotate_bars(ax: plt.Axes, bars: Any, values: list[float], extra_y: float =
 
 def load_heuristic_metrics() -> tuple[dict[str, Any], dict[str, Any], Path]:
     selection = read_json(HEURISTIC_SELECTION)
-    metrics_rel = selection["selected_candidate"]["metrics_path"]
+    selected_candidate = selection.get("selected_candidate")
+    if not isinstance(selected_candidate, dict):
+        raise RuntimeError(
+            "Heuristic selection does not contain a valid selected_candidate; "
+            f"selection_status={selection.get('selection_status')!r}"
+        )
+    metrics_rel = selected_candidate["metrics_path"]
     metrics_path = REPO_ROOT / metrics_rel
     return selection, read_json(metrics_path), metrics_path
 

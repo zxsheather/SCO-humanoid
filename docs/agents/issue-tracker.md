@@ -15,7 +15,8 @@ Infer the repo from `git remote -v` when available.
 
 ## Note
 
-This workspace currently does not have a usable Git remote configuration, so `gh` commands will only work after the repo is connected to the intended GitHub remote.
+This workspace is currently connected to `zxsheather/SCO-humanoid`, so `gh` commands can infer the
+target repo from `origin`.
 
 ## When a skill says "publish to the issue tracker"
 

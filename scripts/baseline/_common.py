@@ -137,10 +137,27 @@ def resolve_run_dir(
     experiment_name = config["experiment_name"]
     log_root = experiment_root(humanoid_gym_root, experiment_name)
     if load_run:
-        explicit = log_root / load_run
-        if not explicit.exists():
-            raise BaselineError(f"Requested load_run does not exist: {explicit}")
-        return explicit
+        explicit = Path(load_run).expanduser()
+        if explicit.is_absolute() and explicit.exists():
+            return explicit
+        repo_relative = (REPO_ROOT / explicit).resolve()
+        if repo_relative.exists():
+            return repo_relative
+        log_relative = log_root / explicit
+        if log_relative.exists():
+            return log_relative
+        if run_name:
+            manifest_path = artifact_dir(config, run_name) / "manifest.json"
+            if manifest_path.exists():
+                manifest = read_json(manifest_path)
+                manifest_run_dir = manifest.get("run_dir")
+                if isinstance(manifest_run_dir, str):
+                    resolved = Path(manifest_run_dir).expanduser()
+                    if not resolved.is_absolute():
+                        resolved = (REPO_ROOT / resolved).resolve()
+                    if resolved.exists():
+                        return resolved
+        raise BaselineError(f"Requested load_run does not exist: {log_relative}")
 
     candidates = run_dirs_for_name(log_root, run_name or config["run_name"])
     if not candidates:
@@ -213,6 +230,7 @@ def run_command(command: list[str], cwd: Path, dry_run: bool = False) -> int:
     if dry_run:
         return 0
     env = os.environ.copy()
+    env.pop("DISPLAY", None)
     env.setdefault("TORCH_EXTENSIONS_DIR", str(DEFAULT_TORCH_EXTENSIONS_DIR))
     env.setdefault("MPLCONFIGDIR", str(DEFAULT_MPLCONFIGDIR))
     env.setdefault("XDG_CACHE_HOME", str(DEFAULT_XDG_CACHE_HOME))
@@ -225,6 +243,7 @@ def run_command(command: list[str], cwd: Path, dry_run: bool = False) -> int:
 
 
 def configure_runtime_env() -> None:
+    os.environ.pop("DISPLAY", None)
     os.environ.setdefault("TORCH_EXTENSIONS_DIR", str(DEFAULT_TORCH_EXTENSIONS_DIR))
     os.environ.setdefault("MPLCONFIGDIR", str(DEFAULT_MPLCONFIGDIR))
     os.environ.setdefault("XDG_CACHE_HOME", str(DEFAULT_XDG_CACHE_HOME))

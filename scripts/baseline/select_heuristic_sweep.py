@@ -101,6 +101,12 @@ def apply_task_floor(
     return reference, tracking_threshold, fall_threshold
 
 
+def all_candidates_collapsed(records: list[dict[str, Any]], *, collapse_fall_rate: float = 1.0, atol: float = 1e-9) -> bool:
+    fall_rates = [record.get("fall_rate") for record in records if record.get("status") == "complete"]
+    valid = [float(rate) for rate in fall_rates if rate is not None]
+    return bool(valid) and all(rate >= collapse_fall_rate - atol for rate in valid)
+
+
 def selected_candidate(records: list[dict[str, Any]]) -> dict[str, Any]:
     eligible = [record for record in records if record.get("passes_task_floor")]
     if not eligible:
@@ -162,6 +168,36 @@ def main() -> int:
         print("No completed heuristic candidates found.")
         return 2
 
+    target = output_path(sweep_cfg) / "selection.json"
+    if not missing_records and all_candidates_collapsed(complete_records):
+        for record in records:
+            if record["status"] == "complete":
+                record["passes_task_floor"] = False
+        print("Heuristic sweep status")
+        for record in records:
+            print_record(record)
+        print()
+        print(
+            "All completed heuristic candidates have fall_rate = 1.0; "
+            "the bounded heuristic family collapsed and cannot serve as a formal anchor."
+        )
+        summary = {
+            "sweep_name": sweep_cfg["name"],
+            "selection_rule": sweep_cfg["selection"],
+            "selection_complete": True,
+            "selection_status": "all_candidates_collapsed",
+            "failure_reason": "all_completed_candidates_have_fall_rate_1p0",
+            "reference_candidate_id": None,
+            "tracking_threshold": None,
+            "fall_threshold": None,
+            "selected_candidate_id": None,
+            "selected_candidate": None,
+            "candidates": records,
+        }
+        write_json(target, summary)
+        print(f"Wrote {relative_to_repo(target)}")
+        return 3
+
     selection_cfg = sweep_cfg["selection"]
     reference, tracking_threshold, fall_threshold = apply_task_floor(
         complete_records,
@@ -187,6 +223,7 @@ def main() -> int:
         "sweep_name": sweep_cfg["name"],
         "selection_rule": selection_cfg,
         "selection_complete": not missing_records,
+        "selection_status": "selected",
         "reference_candidate_id": reference["id"],
         "tracking_threshold": tracking_threshold,
         "fall_threshold": fall_threshold,
@@ -194,7 +231,6 @@ def main() -> int:
         "selected_candidate": chosen,
         "candidates": records,
     }
-    target = output_path(sweep_cfg) / "selection.json"
     write_json(target, summary)
     print(f"Wrote {relative_to_repo(target)}")
     return 0

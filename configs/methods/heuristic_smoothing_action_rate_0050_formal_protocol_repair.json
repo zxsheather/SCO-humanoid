@@ -1,0 +1,53 @@
+{
+  "name": "heuristic_smoothing_action_rate_0050_formal_protocol_repair_rough_terrain",
+  "method": {
+    "id": "heuristic_smoothing",
+    "label": "PPO + heuristic smoothing (action_rate=-0.0050, formal protocol repair)",
+    "family": "heuristic_baseline",
+    "smoothness_strategy": "reward_shaping"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_heuristic_smoothing_formal_protocol_repair",
+  "run_name": "heuristic_smoothing_action_rate_0050_formal_protocol_repair_rough_terrain",
+  "artifacts_root": "artifacts/methods/heuristic_smoothing_formal_protocol_repair",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "training": {
+    "headless": true,
+    "num_envs": 512,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0"
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 32,
+    "episodes": 20,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 123145,
+    "metric_schema_version": 2,
+    "constraint_logging": {
+      "collect_local_sensitivity": true,
+      "local_sensitivity_threshold": null,
+      "sample_envs": 4,
+      "sample_every_n_steps": 20,
+      "sidecar_metrics_filename": "constraint_metrics.json",
+      "multiplier_trace_filename": "lagrange_multiplier_trace.json"
+    }
+  },
+  "overrides": {
+    "env": {
+      "rewards.scales.action_smoothness": -0.005,
+      "rewards.scales.dof_acc": -1e-07,
+      "rewards.scales.base_acc": 0.2,
+      "rewards.scales.dof_vel": -0.0005
+    },
+    "train": {
+      "runner.max_iterations": 200,
+      "runner.save_interval": 50
+    }
+  }
+}

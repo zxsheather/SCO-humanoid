@@ -1,0 +1,16 @@
+{
+  "name": "rough_terrain_formal_protocol_repair_probe",
+  "analysis_root": "artifacts/analysis/rough_terrain_formal_protocol_repair_probe",
+  "seeds": [11, 17, 23],
+  "train_num_envs": 512,
+  "eval_num_envs": 32,
+  "max_iterations": 200,
+  "episodes": 20,
+  "candidates": [
+    {
+      "id": "heuristic_smoothing_action_rate_0050_formal_protocol_repair",
+      "label": "PPO + heuristic smoothing (action_rate=-0.0050, formal protocol repair)",
+      "config": "configs/methods/heuristic_smoothing_action_rate_0050_formal_protocol_repair.json"
+    }
+  ]
+}
