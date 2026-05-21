@@ -119,6 +119,10 @@ Current selected branch:
 - this does not promote `SN` to a formal candidate line
 - first runner smoke completed, but it is not task-valid:
   `selection_status = all_checkpoints_collapsed`, `fall_rate = 1.0000`
+- `short` also collapsed for both SN and matched non-SN/no-smoothness control, so the next step is
+  a single-seed `medium` SN diagnostic rather than a formal promotion
+- `medium` SN also collapsed, so the next step is SN parameterization or training-recipe tuning, not
+  more seeds or MuJoCo
 
 ## Immediate non-goals
 

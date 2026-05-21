@@ -65,6 +65,18 @@ class SnDiagnosticRunnerTests(unittest.TestCase):
         self.assertIn("--seed=123145", command)
         self.assertIn("--config=configs/methods/sn_ppo_rough_terrain.json", command)
 
+    def test_medium_preset_stays_single_seed_diagnostic(self) -> None:
+        args = self.build_args(preset="medium")
+        command = sn_diagnostic.build_train_command(
+            sn_diagnostic.DEFAULT_CONFIG,
+            "sn_ppo_rough_terrain_medium_seed123145",
+            args,
+        )
+
+        self.assertIn("--num-envs=32", command)
+        self.assertIn("--max-iterations=100", command)
+        self.assertIn("--seed=123145", command)
+
     def test_evaluate_command_uses_run_name_when_manifest_absent(self) -> None:
         args = self.build_args()
         config = sn_diagnostic.load_config(sn_diagnostic.DEFAULT_CONFIG)

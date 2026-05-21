@@ -1,0 +1,53 @@
+{
+  "name": "ppo_no_smoothness_rough_terrain_diagnostic",
+  "method": {
+    "id": "ppo_no_smoothness_diagnostic",
+    "label": "PPO diagnostic (no heuristic smoothness rewards, no actor spectral normalization)",
+    "family": "architecture_smoothing_diagnostic_control",
+    "smoothness_strategy": "none"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_sn_ppo_probe",
+  "run_name": "ppo_no_smoothness_rough_terrain_diagnostic",
+  "artifacts_root": "artifacts/methods/sn_ppo_probe",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "training": {
+    "headless": true,
+    "num_envs": 512,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0"
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 32,
+    "episodes": 20,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 123145,
+    "metric_schema_version": 2,
+    "constraint_logging": {
+      "collect_local_sensitivity": true,
+      "local_sensitivity_threshold": 3.8,
+      "sample_envs": 4,
+      "sample_every_n_steps": 20,
+      "sidecar_metrics_filename": "constraint_metrics.json",
+      "multiplier_trace_filename": "lagrange_multiplier_trace.json"
+    }
+  },
+  "overrides": {
+    "env": {
+      "rewards.scales.action_smoothness": 0.0,
+      "rewards.scales.dof_acc": 0.0,
+      "rewards.scales.base_acc": 0.0,
+      "rewards.scales.dof_vel": 0.0
+    },
+    "train": {
+      "runner.algorithm_class_name": "PPO",
+      "policy.actor_spectral_norm": false
+    }
+  }
+}

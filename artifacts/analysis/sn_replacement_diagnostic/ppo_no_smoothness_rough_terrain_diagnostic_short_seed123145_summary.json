@@ -1,0 +1,34 @@
+{
+  "checkpoint_sweep_summary_path": "artifacts/methods/sn_ppo_probe/ppo_no_smoothness_rough_terrain_diagnostic_short_seed123145/checkpoint_sweep_summary.json",
+  "diagnostic": "sn_replacement_mechanism_feasibility",
+  "episodes": 5,
+  "eval_num_envs": 16,
+  "interpretation_boundary": [
+    "This diagnostic checks SN operational feasibility only.",
+    "It must not be read as SN beating the SC-PPO 3.8 formal mainline.",
+    "It must not consume \u4e3b\u5b9e\u9a8c\u4e09\u79cd\u5b50 or MuJoCo\u5173\u952e\u4e24\u7ec4\u7ec8\u9a8c budget."
+  ],
+  "max_iterations": 20,
+  "preset": "short",
+  "run_name": "ppo_no_smoothness_rough_terrain_diagnostic_short_seed123145",
+  "scope": "\u66ff\u4ee3\u673a\u5236\u53ef\u884c\u6027\u8bca\u65ad",
+  "seed": 123145,
+  "selected_checkpoint": 20,
+  "selected_metrics_path": "artifacts/methods/sn_ppo_probe/ppo_no_smoothness_rough_terrain_diagnostic_short_seed123145/metrics_selected.json",
+  "selected_row": {
+    "action_jitter_l2_mean": 0.07209188640117645,
+    "checkpoint": 20,
+    "composite_score": 242.0077353477478,
+    "constraint_violation_rate": 0.0,
+    "episode_return_mean": 3.012750196456909,
+    "fall_rate": 1.0,
+    "joint_acceleration_l2_mean": 85.39484558105468,
+    "metrics_path": "artifacts/methods/sn_ppo_probe/ppo_no_smoothness_rough_terrain_diagnostic_short_seed123145/metrics_checkpoint_20.json",
+    "policy_local_sensitivity_cost_mean": 1.375967903269662,
+    "velocity_tracking_error_mean": 1.5661288976669312
+  },
+  "selection_status": "all_checkpoints_collapsed",
+  "status": "evaluated",
+  "train_manifest_path": "artifacts/methods/sn_ppo_probe/ppo_no_smoothness_rough_terrain_diagnostic_short_seed123145/manifest.json",
+  "train_num_envs": 32
+}

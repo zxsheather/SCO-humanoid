@@ -114,6 +114,59 @@ Tracked compact summary:
 
 - `artifacts/analysis/sn_replacement_diagnostic/sn_ppo_rough_terrain_smoke_seed123145_summary.json`
 
+The `short` preset has also completed:
+
+- command:
+  `python scripts/baseline/run_sn_diagnostic.py --stage all --preset short --skip-completed --rl-device cuda:0 --sim-device cuda:0`
+- run name: `sn_ppo_rough_terrain_short_seed123145`
+- selected checkpoint: `20`
+- `selection_status = all_checkpoints_collapsed`
+- `velocity_tracking_error_mean = 1.3762`
+- `joint_acceleration_l2_mean = 102.1159`
+- `action_jitter_l2_mean = 0.0630`
+- `episode_return_mean = 3.5570`
+- `fall_rate = 1.0000`
+- `policy_local_sensitivity_cost_mean = 0.9729`
+
+The trained `short` checkpoint contains `actor.*.weight_orig`, `actor.*.weight_u`, and
+`actor.*.weight_v` keys, so actor-side spectral normalization is present in the saved model.
+
+A matched non-SN/no-smoothness control has also completed at the same `short` budget:
+
+- config: `configs/methods/ppo_no_smoothness_rough_terrain_diagnostic.json`
+- selected checkpoint: `20`
+- `selection_status = all_checkpoints_collapsed`
+- `velocity_tracking_error_mean = 1.5661`
+- `joint_acceleration_l2_mean = 85.3948`
+- `action_jitter_l2_mean = 0.0721`
+- `episode_return_mean = 3.0128`
+- `fall_rate = 1.0000`
+- `policy_local_sensitivity_cost_mean = 1.3760`
+
+The `medium` SN preset has also completed:
+
+- command:
+  `python scripts/baseline/run_sn_diagnostic.py --stage all --preset medium --skip-completed --rl-device cuda:0 --sim-device cuda:0`
+- run name: `sn_ppo_rough_terrain_medium_seed123145`
+- selected checkpoint: `100`
+- `selection_status = all_checkpoints_collapsed`
+- `velocity_tracking_error_mean = 1.1948`
+- `joint_acceleration_l2_mean = 107.2924`
+- `action_jitter_l2_mean = 0.0905`
+- `episode_return_mean = 3.0827`
+- `fall_rate = 1.0000`
+- `policy_local_sensitivity_cost_mean = 1.0628`
+
+Current reading:
+
+- the SN path is implemented and operational
+- all reduced-budget SN runs so far are still collapsed
+- the matched non-SN/no-smoothness control also collapses
+- SN is not uniquely responsible for the current collapse and shows lower local sensitivity than the
+  matched control at the same budget
+- the next useful diagnostic is not more seeds or MuJoCo; it is SN parameterization or training
+  recipe tuning
+
 ## Current operational boundary
 
 An attempted larger `SN` smoke at `num_envs = 64` failed with CUDA OOM in the
@@ -133,7 +186,11 @@ python scripts/baseline/run_sn_diagnostic.py --stage all --preset smoke --skip-c
 
 The `smoke` preset uses `16` training envs, `1` iteration, `16` evaluation envs, and `1` episode.
 The `short` preset uses `32` training envs, `20` iterations, `16` evaluation envs, and `5`
-episodes. Both presets intentionally stay below formal-comparison budget.
+episodes. The `medium` preset uses `32` training envs, `100` iterations, `16` evaluation envs, and
+`10` episodes. All presets intentionally stay below formal-comparison budget.
+
+All three SN presets currently collapse at evaluation time, so they establish only operational
+feasibility, not replacement-mechanism feasibility.
 
 ## Current non-goals
 

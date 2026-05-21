@@ -80,7 +80,13 @@ For a slightly larger but still non-formal pass:
 python scripts/baseline/run_sn_diagnostic.py --stage all --preset short --skip-completed
 ```
 
-Both presets remain `替代机制可行性诊断`; neither should be reported as a formal mainline challenge.
+For the next single-seed diagnostic after matched-control isolation:
+
+```bash
+python scripts/baseline/run_sn_diagnostic.py --stage all --preset medium --skip-completed
+```
+
+All presets remain `替代机制可行性诊断`; none should be reported as a formal mainline challenge.
 
 Current runner status:
 
@@ -89,8 +95,39 @@ Current runner status:
   `artifacts/analysis/sn_replacement_diagnostic/sn_ppo_rough_terrain_smoke_seed123145_summary.json`
 - the result is operationally useful but not task-valid:
   `selection_status = all_checkpoints_collapsed`, `fall_rate = 1.0000`
-- the next implementation step should use the `short` preset only as another diagnostic, not as a
-  formal promotion attempt
+- `short` has also completed once with `run_name = sn_ppo_rough_terrain_short_seed123145`
+- `short` remains not task-valid:
+  `selection_status = all_checkpoints_collapsed`, `fall_rate = 1.0000`,
+  `episode_return_mean = 3.5569`
+- `medium` has completed once with `run_name = sn_ppo_rough_terrain_medium_seed123145`
+- `medium` remains not task-valid:
+  `selection_status = all_checkpoints_collapsed`, `fall_rate = 1.0000`,
+  `velocity_tracking_error_mean = 1.1948`, `episode_return_mean = 3.0827`
+
+Mechanism check:
+
+- the `short` checkpoint contains actor spectral-normalization state
+  (`actor.*.weight_orig`, `actor.*.weight_u`, `actor.*.weight_v`)
+- so the current failure is not explained by the SN switch being absent from the training graph
+
+Next isolation control:
+
+- config:
+  `configs/methods/ppo_no_smoothness_rough_terrain_diagnostic.json`
+- purpose: compare the same no-smoothness-reward PPO path without actor-side SN
+- result: the matched `short` control also collapses with `fall_rate = 1.0000`
+- interpretation: the immediate issue is likely the reduced-budget no-Jacobian/no-heuristic path,
+  not SN being uniquely broken
+- next action: do not promote or scale seeds; revise the SN parameterization or training recipe
+  before spending more diagnostic budget
+
+Current decision:
+
+- SN is operational and emits comparable mechanism-side evidence
+- SN is not task-valid under the current reduced-budget diagnostic presets
+- actor-side SN is confirmed present in the checkpoint, so the failure is not a missing-config bug
+- this branch should stay open only for mechanism tuning; it should not consume formal-comparison or
+  MuJoCo budget in the current form
 
 ## Minimal experiment tasks
 

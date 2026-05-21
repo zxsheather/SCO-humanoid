@@ -44,6 +44,13 @@ PRESETS: dict[str, dict[str, int]] = {
         "episodes": 5,
         "seed": 123145,
     },
+    "medium": {
+        "train_num_envs": 32,
+        "max_iterations": 100,
+        "eval_num_envs": 16,
+        "episodes": 10,
+        "seed": 123145,
+    },
 }
 
 
