@@ -1,0 +1,631 @@
+{
+  "candidates": [
+    {
+      "aggregate": {
+        "action_jitter_l2_mean_mean": 0.016726274928078055,
+        "action_jitter_l2_mean_std": 0.00083999817511242,
+        "episode_return_mean_mean": 3.2631099621454873,
+        "episode_return_mean_std": 0.27031302563326515,
+        "fall_rate_mean": 1.0,
+        "fall_rate_std": 0.0,
+        "joint_acceleration_l2_mean_mean": 121.53740259806315,
+        "joint_acceleration_l2_mean_std": 3.419242738714821,
+        "velocity_tracking_error_mean_mean": 1.319297728439172,
+        "velocity_tracking_error_mean_std": 0.03324229900315191
+      },
+      "config_path": "configs/methods/vanilla_ppo_full_compare_random_stairs_eval.json",
+      "id": "vanilla_ppo",
+      "label": "Vanilla PPO raw reference",
+      "missing_seeds": [],
+      "per_seed": {
+        "11": {
+          "checkpoint_sweep_summary_path": "artifacts/methods/random_stairs_stress/vanilla_ppo_random_stairs_stress_seed11/checkpoint_sweep_summary.json",
+          "load_run": ".external/humanoid-gym/logs/ecolab_vanilla_ppo_full_compare/May18_12-49-14_vanilla_ppo_full_compare_rough_terrain_seed11",
+          "run_name": "vanilla_ppo_random_stairs_stress_seed11",
+          "selected_checkpoint": 0,
+          "selected_metrics": {
+            "action_jitter_l2_mean": 0.017559142597019673,
+            "action_jitter_l2_std": 0.0006923424592803441,
+            "constraint_metrics": {
+              "constraint_violation_rate": null,
+              "lagrange_multiplier_trace_path": null,
+              "local_sensitivity_threshold": null,
+              "policy_local_sensitivity_cost_mean": 0.35235242462820476,
+              "policy_local_sensitivity_cost_std": 0.009924867983329155,
+              "policy_local_sensitivity_sample_count": 36,
+              "sidecar_metrics_path": null,
+              "supported": true
+            },
+            "episode_return_mean": 2.8894446551799775,
+            "episode_return_std": 0.8190175937431184,
+            "episodes_evaluated": 20,
+            "evaluation_protocol": {
+              "checkpoint_policy": "selected rough-terrain checkpoint only",
+              "claim_boundary": "stress test only; not retraining or a new headline method line",
+              "id": "random_stairs_selected_checkpoint_stress",
+              "measure_heights": false,
+              "mesh_type": "trimesh",
+              "primary_task": "\u901f\u5ea6\u8ddf\u8e2a\u884c\u8d70",
+              "scope": "\u590d\u6742\u5730\u5f62\u6761\u4ef6 pressure test",
+              "terrain_condition": "random_stairs",
+              "terrain_proportions": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.5,
+                0.5
+              ]
+            },
+            "fall_rate": 1.0,
+            "joint_acceleration_l2_mean": 126.35665397644043,
+            "joint_acceleration_l2_std": 31.486701794524127,
+            "method_id": "vanilla_ppo",
+            "method_label": "Vanilla PPO (formal compare, random-stairs stress eval)",
+            "metric_schema_version": 2,
+            "velocity_tracking_error_mean": 1.2787929028272629,
+            "velocity_tracking_error_std": 0.39296459124080296
+          },
+          "selected_metrics_path": "artifacts/methods/random_stairs_stress/vanilla_ppo_random_stairs_stress_seed11/metrics_selected.json",
+          "selection_status": "all_checkpoints_collapsed"
+        },
+        "17": {
+          "checkpoint_sweep_summary_path": "artifacts/methods/random_stairs_stress/vanilla_ppo_random_stairs_stress_seed17/checkpoint_sweep_summary.json",
+          "load_run": ".external/humanoid-gym/logs/ecolab_vanilla_ppo_full_compare/May19_01-43-24_vanilla_ppo_full_compare_rough_terrain_seed17",
+          "run_name": "vanilla_ppo_random_stairs_stress_seed17",
+          "selected_checkpoint": 0,
+          "selected_metrics": {
+            "action_jitter_l2_mean": 0.01557625811547041,
+            "action_jitter_l2_std": 0.0009896991072242088,
+            "constraint_metrics": {
+              "constraint_violation_rate": null,
+              "lagrange_multiplier_trace_path": null,
+              "local_sensitivity_threshold": null,
+              "policy_local_sensitivity_cost_mean": 0.36291604820224976,
+              "policy_local_sensitivity_cost_std": 0.009460595112141526,
+              "policy_local_sensitivity_sample_count": 36,
+              "sidecar_metrics_path": null,
+              "supported": true
+            },
+            "episode_return_mean": 3.5198309302330015,
+            "episode_return_std": 1.2690462020927553,
+            "episodes_evaluated": 20,
+            "evaluation_protocol": {
+              "checkpoint_policy": "selected rough-terrain checkpoint only",
+              "claim_boundary": "stress test only; not retraining or a new headline method line",
+              "id": "random_stairs_selected_checkpoint_stress",
+              "measure_heights": false,
+              "mesh_type": "trimesh",
+              "primary_task": "\u901f\u5ea6\u8ddf\u8e2a\u884c\u8d70",
+              "scope": "\u590d\u6742\u5730\u5f62\u6761\u4ef6 pressure test",
+              "terrain_condition": "random_stairs",
+              "terrain_proportions": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.5,
+                0.5
+              ]
+            },
+            "fall_rate": 1.0,
+            "joint_acceleration_l2_mean": 119.47120590209961,
+            "joint_acceleration_l2_std": 34.255146839450724,
+            "method_id": "vanilla_ppo",
+            "method_label": "Vanilla PPO (formal compare, random-stairs stress eval)",
+            "metric_schema_version": 2,
+            "velocity_tracking_error_mean": 1.318883864581585,
+            "velocity_tracking_error_std": 0.4232424860199968
+          },
+          "selected_metrics_path": "artifacts/methods/random_stairs_stress/vanilla_ppo_random_stairs_stress_seed17/metrics_selected.json",
+          "selection_status": "all_checkpoints_collapsed"
+        },
+        "23": {
+          "checkpoint_sweep_summary_path": "artifacts/methods/random_stairs_stress/vanilla_ppo_random_stairs_stress_seed23/checkpoint_sweep_summary.json",
+          "load_run": ".external/humanoid-gym/logs/ecolab_vanilla_ppo_full_compare/May19_01-59-26_vanilla_ppo_full_compare_rough_terrain_seed23",
+          "run_name": "vanilla_ppo_random_stairs_stress_seed23",
+          "selected_checkpoint": 0,
+          "selected_metrics": {
+            "action_jitter_l2_mean": 0.017043424071744084,
+            "action_jitter_l2_std": 0.0019411383154164083,
+            "constraint_metrics": {
+              "constraint_violation_rate": null,
+              "lagrange_multiplier_trace_path": null,
+              "local_sensitivity_threshold": null,
+              "policy_local_sensitivity_cost_mean": 0.34915268007251954,
+              "policy_local_sensitivity_cost_std": 0.008612358991335342,
+              "policy_local_sensitivity_sample_count": 36,
+              "sidecar_metrics_path": null,
+              "supported": true
+            },
+            "episode_return_mean": 3.3800543010234834,
+            "episode_return_std": 1.086926391969735,
+            "episodes_evaluated": 20,
+            "evaluation_protocol": {
+              "checkpoint_policy": "selected rough-terrain checkpoint only",
+              "claim_boundary": "stress test only; not retraining or a new headline method line",
+              "id": "random_stairs_selected_checkpoint_stress",
+              "measure_heights": false,
+              "mesh_type": "trimesh",
+              "primary_task": "\u901f\u5ea6\u8ddf\u8e2a\u884c\u8d70",
+              "scope": "\u590d\u6742\u5730\u5f62\u6761\u4ef6 pressure test",
+              "terrain_condition": "random_stairs",
+              "terrain_proportions": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.5,
+                0.5
+              ]
+            },
+            "fall_rate": 1.0,
+            "joint_acceleration_l2_mean": 118.78434791564942,
+            "joint_acceleration_l2_std": 35.756800062764604,
+            "method_id": "vanilla_ppo",
+            "method_label": "Vanilla PPO (formal compare, random-stairs stress eval)",
+            "metric_schema_version": 2,
+            "velocity_tracking_error_mean": 1.3602164179086684,
+            "velocity_tracking_error_std": 0.45811885191754265
+          },
+          "selected_metrics_path": "artifacts/methods/random_stairs_stress/vanilla_ppo_random_stairs_stress_seed23/metrics_selected.json",
+          "selection_status": "all_checkpoints_collapsed"
+        }
+      },
+      "seeds": [
+        11,
+        17,
+        23
+      ],
+      "selection_statuses": {
+        "11": "all_checkpoints_collapsed",
+        "17": "all_checkpoints_collapsed",
+        "23": "all_checkpoints_collapsed"
+      },
+      "status": "collapsed"
+    },
+    {
+      "aggregate": {
+        "action_jitter_l2_mean_mean": 0.37523905436197913,
+        "action_jitter_l2_mean_std": 0.018242822182333338,
+        "episode_return_mean_mean": 5.357986744244894,
+        "episode_return_mean_std": 0.19476157535326727,
+        "fall_rate_mean": 1.0,
+        "fall_rate_std": 0.0,
+        "joint_acceleration_l2_mean_mean": 241.98266042073567,
+        "joint_acceleration_l2_mean_std": 1.2209874510669485,
+        "velocity_tracking_error_mean_mean": 1.3891034960746764,
+        "velocity_tracking_error_mean_std": 0.11100522176138307
+      },
+      "config_path": "configs/methods/heuristic_smoothing_action_rate_0050_random_stairs_eval.json",
+      "id": "heuristic_smoothing",
+      "label": "PPO + heuristic smoothing revised anchor",
+      "missing_seeds": [],
+      "per_seed": {
+        "11": {
+          "checkpoint_sweep_summary_path": "artifacts/methods/random_stairs_stress/heuristic_smoothing_action_rate_0050_random_stairs_stress_seed11/checkpoint_sweep_summary.json",
+          "load_run": ".external/humanoid-gym/logs/ecolab_heuristic_smoothing_formal_protocol_revision_long_budget/May21_03-55-49_heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11",
+          "run_name": "heuristic_smoothing_action_rate_0050_random_stairs_stress_seed11",
+          "selected_checkpoint": 350,
+          "selected_metrics": {
+            "action_jitter_l2_mean": 0.3509393915534019,
+            "action_jitter_l2_std": 0.03390060024805285,
+            "constraint_metrics": {
+              "constraint_violation_rate": null,
+              "lagrange_multiplier_trace_path": null,
+              "local_sensitivity_threshold": null,
+              "policy_local_sensitivity_cost_mean": 6.907557736183035,
+              "policy_local_sensitivity_cost_std": 1.38016062261926,
+              "policy_local_sensitivity_sample_count": 116,
+              "sidecar_metrics_path": null,
+              "supported": true
+            },
+            "episode_return_mean": 5.21979421377182,
+            "episode_return_std": 2.868922150356876,
+            "episodes_evaluated": 20,
+            "evaluation_protocol": {
+              "checkpoint_policy": "selected rough-terrain checkpoint only",
+              "claim_boundary": "stress test only; not retraining or a new headline method line",
+              "id": "random_stairs_selected_checkpoint_stress",
+              "measure_heights": false,
+              "mesh_type": "trimesh",
+              "primary_task": "\u901f\u5ea6\u8ddf\u8e2a\u884c\u8d70",
+              "scope": "\u590d\u6742\u5730\u5f62\u6761\u4ef6 pressure test",
+              "terrain_condition": "random_stairs",
+              "terrain_proportions": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.5,
+                0.5
+              ]
+            },
+            "fall_rate": 1.0,
+            "joint_acceleration_l2_mean": 242.24171295166016,
+            "joint_acceleration_l2_std": 50.02548385159738,
+            "method_id": "heuristic_smoothing",
+            "method_label": "PPO + heuristic smoothing (action_rate=-0.0050, random-stairs stress eval)",
+            "metric_schema_version": 2,
+            "velocity_tracking_error_mean": 1.3899593561887742,
+            "velocity_tracking_error_std": 0.48665918296943894
+          },
+          "selected_metrics_path": "artifacts/methods/random_stairs_stress/heuristic_smoothing_action_rate_0050_random_stairs_stress_seed11/metrics_selected.json",
+          "selection_status": "all_checkpoints_collapsed"
+        },
+        "17": {
+          "checkpoint_sweep_summary_path": "artifacts/methods/random_stairs_stress/heuristic_smoothing_action_rate_0050_random_stairs_stress_seed17/checkpoint_sweep_summary.json",
+          "load_run": ".external/humanoid-gym/logs/ecolab_heuristic_smoothing_formal_protocol_revision_long_budget/May21_04-23-32_heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17",
+          "run_name": "heuristic_smoothing_action_rate_0050_random_stairs_stress_seed17",
+          "selected_checkpoint": 300,
+          "selected_metrics": {
+            "action_jitter_l2_mean": 0.37988251298666,
+            "action_jitter_l2_std": 0.05996538519142313,
+            "constraint_metrics": {
+              "constraint_violation_rate": null,
+              "lagrange_multiplier_trace_path": null,
+              "local_sensitivity_threshold": null,
+              "policy_local_sensitivity_cost_mean": 6.686291351318359,
+              "policy_local_sensitivity_cost_std": 1.2370576553259407,
+              "policy_local_sensitivity_sample_count": 100,
+              "sidecar_metrics_path": null,
+              "supported": true
+            },
+            "episode_return_mean": 5.633420658111572,
+            "episode_return_std": 2.476383189376002,
+            "episodes_evaluated": 20,
+            "evaluation_protocol": {
+              "checkpoint_policy": "selected rough-terrain checkpoint only",
+              "claim_boundary": "stress test only; not retraining or a new headline method line",
+              "id": "random_stairs_selected_checkpoint_stress",
+              "measure_heights": false,
+              "mesh_type": "trimesh",
+              "primary_task": "\u901f\u5ea6\u8ddf\u8e2a\u884c\u8d70",
+              "scope": "\u590d\u6742\u5730\u5f62\u6761\u4ef6 pressure test",
+              "terrain_condition": "random_stairs",
+              "terrain_proportions": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.5,
+                0.5
+              ]
+            },
+            "fall_rate": 1.0,
+            "joint_acceleration_l2_mean": 240.37466049194336,
+            "joint_acceleration_l2_std": 69.6550257129969,
+            "method_id": "heuristic_smoothing",
+            "method_label": "PPO + heuristic smoothing (action_rate=-0.0050, random-stairs stress eval)",
+            "metric_schema_version": 2,
+            "velocity_tracking_error_mean": 1.5246266216039657,
+            "velocity_tracking_error_std": 0.48628810918124427
+          },
+          "selected_metrics_path": "artifacts/methods/random_stairs_stress/heuristic_smoothing_action_rate_0050_random_stairs_stress_seed17/metrics_selected.json",
+          "selection_status": "all_checkpoints_collapsed"
+        },
+        "23": {
+          "checkpoint_sweep_summary_path": "artifacts/methods/random_stairs_stress/heuristic_smoothing_action_rate_0050_random_stairs_stress_seed23/checkpoint_sweep_summary.json",
+          "load_run": ".external/humanoid-gym/logs/ecolab_heuristic_smoothing_formal_protocol_revision_long_budget/May21_04-51-50_heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23",
+          "run_name": "heuristic_smoothing_action_rate_0050_random_stairs_stress_seed23",
+          "selected_checkpoint": 350,
+          "selected_metrics": {
+            "action_jitter_l2_mean": 0.39489525854587554,
+            "action_jitter_l2_std": 0.05295300083455992,
+            "constraint_metrics": {
+              "constraint_violation_rate": null,
+              "lagrange_multiplier_trace_path": null,
+              "local_sensitivity_threshold": null,
+              "policy_local_sensitivity_cost_mean": 6.782718324661255,
+              "policy_local_sensitivity_cost_std": 1.4898424640667782,
+              "policy_local_sensitivity_sample_count": 80,
+              "sidecar_metrics_path": null,
+              "supported": true
+            },
+            "episode_return_mean": 5.2207453608512875,
+            "episode_return_std": 2.584747423585062,
+            "episodes_evaluated": 20,
+            "evaluation_protocol": {
+              "checkpoint_policy": "selected rough-terrain checkpoint only",
+              "claim_boundary": "stress test only; not retraining or a new headline method line",
+              "id": "random_stairs_selected_checkpoint_stress",
+              "measure_heights": false,
+              "mesh_type": "trimesh",
+              "primary_task": "\u901f\u5ea6\u8ddf\u8e2a\u884c\u8d70",
+              "scope": "\u590d\u6742\u5730\u5f62\u6761\u4ef6 pressure test",
+              "terrain_condition": "random_stairs",
+              "terrain_proportions": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.5,
+                0.5
+              ]
+            },
+            "fall_rate": 1.0,
+            "joint_acceleration_l2_mean": 243.33160781860352,
+            "joint_acceleration_l2_std": 43.72579287883347,
+            "method_id": "heuristic_smoothing",
+            "method_label": "PPO + heuristic smoothing (action_rate=-0.0050, random-stairs stress eval)",
+            "metric_schema_version": 2,
+            "velocity_tracking_error_mean": 1.2527245104312896,
+            "velocity_tracking_error_std": 0.37713852238223394
+          },
+          "selected_metrics_path": "artifacts/methods/random_stairs_stress/heuristic_smoothing_action_rate_0050_random_stairs_stress_seed23/metrics_selected.json",
+          "selection_status": "all_checkpoints_collapsed"
+        }
+      },
+      "seeds": [
+        11,
+        17,
+        23
+      ],
+      "selection_statuses": {
+        "11": "all_checkpoints_collapsed",
+        "17": "all_checkpoints_collapsed",
+        "23": "all_checkpoints_collapsed"
+      },
+      "status": "collapsed"
+    },
+    {
+      "aggregate": {
+        "action_jitter_l2_mean_mean": 0.32448376168807347,
+        "action_jitter_l2_mean_std": 0.00737387149930487,
+        "episode_return_mean_mean": 7.156105887889862,
+        "episode_return_mean_std": 1.0129222338732882,
+        "fall_rate_mean": 1.0,
+        "fall_rate_std": 0.0,
+        "joint_acceleration_l2_mean_mean": 238.67992248535157,
+        "joint_acceleration_l2_mean_std": 4.3456907066166375,
+        "velocity_tracking_error_mean_mean": 1.2570210799574852,
+        "velocity_tracking_error_mean_std": 0.0630803234486336
+      },
+      "config_path": "configs/methods/sc_ppo_threshold_38_pid_random_stairs_eval.json",
+      "id": "sc_ppo",
+      "label": "SC-PPO threshold=3.8 PID mainline",
+      "missing_seeds": [],
+      "per_seed": {
+        "11": {
+          "checkpoint_sweep_summary_path": "artifacts/methods/random_stairs_stress/sc_ppo_threshold_38_pid_random_stairs_stress_seed11/checkpoint_sweep_summary.json",
+          "load_run": ".external/humanoid-gym/logs/ecolab_sc_ppo_pid_probe/May14_13-38-03_sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11",
+          "run_name": "sc_ppo_threshold_38_pid_random_stairs_stress_seed11",
+          "selected_checkpoint": 300,
+          "selected_metrics": {
+            "action_jitter_l2_mean": 0.31509949192404746,
+            "action_jitter_l2_std": 0.05393750066284598,
+            "constraint_metrics": {
+              "constraint_violation_rate": 0.2222222222222222,
+              "lagrange_multiplier_trace_path": null,
+              "local_sensitivity_threshold": 3.8,
+              "policy_local_sensitivity_cost_mean": 3.5517361892594232,
+              "policy_local_sensitivity_cost_std": 0.6417968513490666,
+              "policy_local_sensitivity_sample_count": 144,
+              "sidecar_metrics_path": null,
+              "supported": true
+            },
+            "episode_return_mean": 7.990093994140625,
+            "episode_return_std": 4.800275639557208,
+            "episodes_evaluated": 20,
+            "evaluation_protocol": {
+              "checkpoint_policy": "selected rough-terrain checkpoint only",
+              "claim_boundary": "stress test only; not retraining or a new headline method line",
+              "id": "random_stairs_selected_checkpoint_stress",
+              "measure_heights": false,
+              "mesh_type": "trimesh",
+              "primary_task": "\u901f\u5ea6\u8ddf\u8e2a\u884c\u8d70",
+              "scope": "\u590d\u6742\u5730\u5f62\u6761\u4ef6 pressure test",
+              "terrain_condition": "random_stairs",
+              "terrain_proportions": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.5,
+                0.5
+              ]
+            },
+            "fall_rate": 1.0,
+            "joint_acceleration_l2_mean": 240.89931640625,
+            "joint_acceleration_l2_std": 67.05878803415222,
+            "method_id": "sc_ppo",
+            "method_label": "SC-PPO PID repair (threshold=3.8, random-stairs stress eval)",
+            "metric_schema_version": 2,
+            "velocity_tracking_error_mean": 1.340992021560669,
+            "velocity_tracking_error_std": 0.42442198450062246
+          },
+          "selected_metrics_path": "artifacts/methods/random_stairs_stress/sc_ppo_threshold_38_pid_random_stairs_stress_seed11/metrics_selected.json",
+          "selection_status": "all_checkpoints_collapsed"
+        },
+        "17": {
+          "checkpoint_sweep_summary_path": "artifacts/methods/random_stairs_stress/sc_ppo_threshold_38_pid_random_stairs_stress_seed17/checkpoint_sweep_summary.json",
+          "load_run": ".external/humanoid-gym/logs/ecolab_sc_ppo_pid_probe/May14_13-38-38_sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17",
+          "run_name": "sc_ppo_threshold_38_pid_random_stairs_stress_seed17",
+          "selected_checkpoint": 300,
+          "selected_metrics": {
+            "action_jitter_l2_mean": 0.3252372950315475,
+            "action_jitter_l2_std": 0.04069745387015756,
+            "constraint_metrics": {
+              "constraint_violation_rate": 0.19,
+              "lagrange_multiplier_trace_path": null,
+              "local_sensitivity_threshold": 3.8,
+              "policy_local_sensitivity_cost_mean": 3.5738641810417175,
+              "policy_local_sensitivity_cost_std": 0.7459886923489342,
+              "policy_local_sensitivity_sample_count": 100,
+              "sidecar_metrics_path": null,
+              "supported": true
+            },
+            "episode_return_mean": 5.730466675758362,
+            "episode_return_std": 3.1371642342283192,
+            "episodes_evaluated": 20,
+            "evaluation_protocol": {
+              "checkpoint_policy": "selected rough-terrain checkpoint only",
+              "claim_boundary": "stress test only; not retraining or a new headline method line",
+              "id": "random_stairs_selected_checkpoint_stress",
+              "measure_heights": false,
+              "mesh_type": "trimesh",
+              "primary_task": "\u901f\u5ea6\u8ddf\u8e2a\u884c\u8d70",
+              "scope": "\u590d\u6742\u5730\u5f62\u6761\u4ef6 pressure test",
+              "terrain_condition": "random_stairs",
+              "terrain_proportions": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.5,
+                0.5
+              ]
+            },
+            "fall_rate": 1.0,
+            "joint_acceleration_l2_mean": 232.60703506469727,
+            "joint_acceleration_l2_std": 44.05547597062655,
+            "method_id": "sc_ppo",
+            "method_label": "SC-PPO PID repair (threshold=3.8, random-stairs stress eval)",
+            "metric_schema_version": 2,
+            "velocity_tracking_error_mean": 1.2411191582679748,
+            "velocity_tracking_error_std": 0.502120627516619
+          },
+          "selected_metrics_path": "artifacts/methods/random_stairs_stress/sc_ppo_threshold_38_pid_random_stairs_stress_seed17/metrics_selected.json",
+          "selection_status": "all_checkpoints_collapsed"
+        },
+        "23": {
+          "checkpoint_sweep_summary_path": "artifacts/methods/random_stairs_stress/sc_ppo_threshold_38_pid_random_stairs_stress_seed23/checkpoint_sweep_summary.json",
+          "load_run": ".external/humanoid-gym/logs/ecolab_sc_ppo_pid_probe/May14_13-40-42_sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23",
+          "run_name": "sc_ppo_threshold_38_pid_random_stairs_stress_seed23",
+          "selected_checkpoint": 400,
+          "selected_metrics": {
+            "action_jitter_l2_mean": 0.3331144981086254,
+            "action_jitter_l2_std": 0.07124912206706911,
+            "constraint_metrics": {
+              "constraint_violation_rate": 0.078125,
+              "lagrange_multiplier_trace_path": null,
+              "local_sensitivity_threshold": 3.8,
+              "policy_local_sensitivity_cost_mean": 3.2955988068133593,
+              "policy_local_sensitivity_cost_std": 0.5939734909111842,
+              "policy_local_sensitivity_sample_count": 128,
+              "sidecar_metrics_path": null,
+              "supported": true
+            },
+            "episode_return_mean": 7.747756993770599,
+            "episode_return_std": 5.052605891957937,
+            "episodes_evaluated": 20,
+            "evaluation_protocol": {
+              "checkpoint_policy": "selected rough-terrain checkpoint only",
+              "claim_boundary": "stress test only; not retraining or a new headline method line",
+              "id": "random_stairs_selected_checkpoint_stress",
+              "measure_heights": false,
+              "mesh_type": "trimesh",
+              "primary_task": "\u901f\u5ea6\u8ddf\u8e2a\u884c\u8d70",
+              "scope": "\u590d\u6742\u5730\u5f62\u6761\u4ef6 pressure test",
+              "terrain_condition": "random_stairs",
+              "terrain_proportions": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.5,
+                0.5
+              ]
+            },
+            "fall_rate": 1.0,
+            "joint_acceleration_l2_mean": 242.5334159851074,
+            "joint_acceleration_l2_std": 64.9454202272187,
+            "method_id": "sc_ppo",
+            "method_label": "SC-PPO PID repair (threshold=3.8, random-stairs stress eval)",
+            "metric_schema_version": 2,
+            "velocity_tracking_error_mean": 1.1889520600438117,
+            "velocity_tracking_error_std": 0.35038742619948376
+          },
+          "selected_metrics_path": "artifacts/methods/random_stairs_stress/sc_ppo_threshold_38_pid_random_stairs_stress_seed23/metrics_selected.json",
+          "selection_status": "all_checkpoints_collapsed"
+        }
+      },
+      "seeds": [
+        11,
+        17,
+        23
+      ],
+      "selection_statuses": {
+        "11": "all_checkpoints_collapsed",
+        "17": "all_checkpoints_collapsed",
+        "23": "all_checkpoints_collapsed"
+      },
+      "status": "collapsed"
+    }
+  ],
+  "comparison_name": "random_stairs_selected_checkpoint_stress",
+  "episodes": 20,
+  "eval_num_envs": 32,
+  "interpretation": {
+    "claim_boundary": "Random stairs is a \u590d\u6742\u5730\u5f62\u6761\u4ef6 pressure test of selected rough-terrain checkpoints; it does not rewrite the Isaac rough-terrain main claim.",
+    "claim_reading": "No task-valid random-stairs method advantage is supported because every evaluated candidate collapsed.",
+    "collapsed_candidate_ids": [
+      "vanilla_ppo",
+      "heuristic_smoothing",
+      "sc_ppo"
+    ],
+    "metric_ordering_note": "Per-metric SC-PPO vs heuristic ordering is descriptive only when either side has fall_rate = 1.0; collapsed policies are not task-valid smooth-control wins.",
+    "sc_ppo_vs_revised_heuristic": {
+      "action_jitter_l2_mean": {
+        "heuristic": 0.37523905436197913,
+        "ordering": "sc_ppo_better",
+        "sc_ppo": 0.32448376168807347
+      },
+      "episode_return_mean": {
+        "heuristic": 5.357986744244894,
+        "ordering": "sc_ppo_better",
+        "sc_ppo": 7.156105887889862
+      },
+      "fall_rate": {
+        "heuristic": 1.0,
+        "ordering": "tie",
+        "sc_ppo": 1.0
+      },
+      "joint_acceleration_l2_mean": {
+        "heuristic": 241.98266042073567,
+        "ordering": "sc_ppo_better",
+        "sc_ppo": 238.67992248535157
+      },
+      "velocity_tracking_error_mean": {
+        "heuristic": 1.3891034960746764,
+        "ordering": "sc_ppo_better",
+        "sc_ppo": 1.2570210799574852
+      }
+    },
+    "status": "complete",
+    "task_validity_outcome": "all_methods_collapsed"
+  },
+  "scope": "\u590d\u6742\u5730\u5f62\u6761\u4ef6 pressure test",
+  "seeds": [
+    11,
+    17,
+    23
+  ],
+  "terrain_protocol": {
+    "claim_boundary": "evaluation-only stress test of selected rough-terrain checkpoints",
+    "measure_heights": false,
+    "mesh_type": "trimesh",
+    "policy_input_compatibility": "height measurements disabled to preserve the existing 705-dim actor observation contract",
+    "primary_task": "\u901f\u5ea6\u8ddf\u8e2a\u884c\u8d70",
+    "scope": "\u590d\u6742\u5730\u5f62\u6761\u4ef6 pressure test",
+    "terrain_condition": "random_stairs",
+    "terrain_proportions": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.5,
+      0.5
+    ]
+  }
+}

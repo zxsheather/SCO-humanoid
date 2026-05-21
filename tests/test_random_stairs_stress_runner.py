@@ -79,6 +79,7 @@ class RandomStairsStressRunnerTests(unittest.TestCase):
             [
                 {
                     "id": "heuristic_smoothing",
+                    "status": "complete",
                     "aggregate": {
                         "velocity_tracking_error_mean_mean": 0.7,
                         "episode_return_mean_mean": 100.0,
@@ -86,6 +87,7 @@ class RandomStairsStressRunnerTests(unittest.TestCase):
                 },
                 {
                     "id": "sc_ppo",
+                    "status": "complete",
                     "aggregate": {
                         "velocity_tracking_error_mean_mean": 0.6,
                         "episode_return_mean_mean": 90.0,
@@ -97,6 +99,26 @@ class RandomStairsStressRunnerTests(unittest.TestCase):
         comparison = interpretation["sc_ppo_vs_revised_heuristic"]
         self.assertEqual(comparison["velocity_tracking_error_mean"]["ordering"], "sc_ppo_better")
         self.assertEqual(comparison["episode_return_mean"]["ordering"], "heuristic_better")
+        self.assertEqual(interpretation["task_validity_outcome"], "mixed_or_incomplete")
+
+    def test_interpretation_flags_all_methods_collapsed(self) -> None:
+        interpretation = random_stairs.build_interpretation(
+            [
+                {
+                    "id": "heuristic_smoothing",
+                    "status": "collapsed",
+                    "aggregate": {"fall_rate_mean": 1.0},
+                },
+                {
+                    "id": "sc_ppo",
+                    "status": "collapsed",
+                    "aggregate": {"fall_rate_mean": 1.0},
+                },
+            ]
+        )
+
+        self.assertEqual(interpretation["task_validity_outcome"], "all_methods_collapsed")
+        self.assertEqual(interpretation["collapsed_candidate_ids"], ["heuristic_smoothing", "sc_ppo"])
 
 
 if __name__ == "__main__":

@@ -156,6 +156,14 @@ Protocol note:
 
 - [Random-stairs selected-checkpoint stress test](./random-stairs-selected-checkpoint-stress.md)
 
+Completed first-pass result:
+
+- all selected rough-terrain checkpoints collapse under the first stairs-only random-stairs protocol
+- `fall_rate = 1.0` for Vanilla PPO, the revised heuristic anchor, and `SC-PPO threshold = 3.8`
+- the result is direct selected-checkpoint transfer failure, not a task-valid `SC-PPO` random-stairs
+  advantage
+- the next useful #7 step is protocol repair or moderation, not retraining a new method line
+
 ## Immediate non-goals
 
 The repo should not treat the following as the immediate next step:

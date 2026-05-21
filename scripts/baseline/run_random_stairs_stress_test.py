@@ -208,10 +208,24 @@ def build_interpretation(candidate_summaries: list[dict[str, Any]]) -> dict[str,
     by_id = {summary["id"]: summary for summary in candidate_summaries}
     sc = by_id.get("sc_ppo", {}).get("aggregate")
     heuristic = by_id.get("heuristic_smoothing", {}).get("aggregate")
+    collapsed_ids = [summary["id"] for summary in candidate_summaries if summary.get("status") == "collapsed"]
+    all_methods_collapsed = bool(candidate_summaries) and len(collapsed_ids) == len(candidate_summaries)
     interpretation: dict[str, Any] = {
         "claim_boundary": (
             "Random stairs is a 复杂地形条件 pressure test of selected rough-terrain checkpoints; "
             "it does not rewrite the Isaac rough-terrain main claim."
+        ),
+        "task_validity_outcome": "all_methods_collapsed" if all_methods_collapsed else "mixed_or_incomplete",
+        "collapsed_candidate_ids": collapsed_ids,
+        "claim_reading": (
+            "No task-valid random-stairs method advantage is supported because every evaluated "
+            "candidate collapsed."
+            if all_methods_collapsed
+            else "Check per-candidate task validity before reading metric orderings as method evidence."
+        ),
+        "metric_ordering_note": (
+            "Per-metric SC-PPO vs heuristic ordering is descriptive only when either side has "
+            "fall_rate = 1.0; collapsed policies are not task-valid smooth-control wins."
         ),
         "status": "incomplete",
     }

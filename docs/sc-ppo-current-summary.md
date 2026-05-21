@@ -104,6 +104,14 @@ The immediate execution order is now:
 3. advance `#7 随机阶梯` only as a bounded `复杂地形条件` stress test, not as a new headline method
    line or a rewrite of the rough-terrain main claim
 
+The first #7 stairs-only selected-checkpoint stress test is now complete:
+
+- Vanilla PPO, the revised heuristic anchor, and `SC-PPO threshold = 3.8` all have `fall_rate = 1.0`
+  across seeds `11`, `17`, and `23`
+- this is direct selected-checkpoint transfer failure, not a task-valid random-stairs method
+  ranking
+- the next useful #7 step is protocol repair or moderation before spending more comparison budget
+
 ## Detailed references
 
 - [SC-PPO report-grade status](./sc-ppo-report-status.md)
@@ -116,3 +124,4 @@ The immediate execution order is now:
 - [SC-PPO next-step direction](./sc-ppo-next-step-direction.md)
 - [SC-PPO PID-limited ablation](./sc-ppo-pid-limited-ablation.md)
 - [SC-PPO SN feasibility diagnostic](./sc-ppo-sn-feasibility-diagnostic.md)
+- [Random-stairs selected-checkpoint stress test](./random-stairs-selected-checkpoint-stress.md)
