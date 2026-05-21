@@ -1,0 +1,77 @@
+{
+  "name": "vanilla_ppo_full_compare_random_stairs_structured_stairs_eval",
+  "method": {
+    "id": "vanilla_ppo",
+    "label": "Vanilla PPO (formal compare, structured-stairs random-stairs redesign eval)",
+    "family": "vanilla",
+    "smoothness_strategy": "none"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_vanilla_ppo_full_compare",
+  "run_name": "vanilla_ppo_full_compare_random_stairs_structured_stairs_eval",
+  "artifacts_root": "artifacts/methods/random_stairs_structured_stairs_stress",
+  "runtime_env": {
+    "SCO_HUMANOID_STAIR_DIFFICULTY_MIN": "0.0",
+    "SCO_HUMANOID_STAIR_DIFFICULTY_MAX": "0.35",
+    "SCO_HUMANOID_STRUCTURED_STAIR_STEP_COUNT": "4",
+    "SCO_HUMANOID_STRUCTURED_STAIR_RUNWAY_M": "1.0",
+    "SCO_HUMANOID_STRUCTURED_STAIR_LANDING_M": "1.0"
+  },
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 32,
+    "episodes": 20,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 123145,
+    "metric_schema_version": 2,
+    "constraint_logging": {
+      "collect_local_sensitivity": true,
+      "local_sensitivity_threshold": null,
+      "sample_envs": 4,
+      "sample_every_n_steps": 20,
+      "sidecar_metrics_filename": "constraint_metrics.json",
+      "multiplier_trace_filename": "lagrange_multiplier_trace.json"
+    }
+  },
+  "evaluation_protocol": {
+    "id": "random_stairs_structured_stairs_selected_checkpoint_stress",
+    "scope": "复杂地形条件 terrain-generator redesign probe",
+    "terrain_condition": "random_stairs_structured_stairs",
+    "primary_task": "速度跟踪行走",
+    "mesh_type": "trimesh",
+    "measure_heights": false,
+    "terrain_proportions": [0.0, 0.0, 0.5, 0.0, 0.0, 0.25, 0.25],
+    "stair_difficulty_band": [0.0, 0.35],
+    "structured_stair_step_count": 4,
+    "structured_stair_runway_m": 1.0,
+    "structured_stair_landing_m": 1.0,
+    "moderation_strategy": "keep the mixed rough/stairs composition and moderate independent stair band, but replace pyramid stairs with a forward structured staircase segment that preserves a flat spawn runway and explicit landing",
+    "local_patch_dependency": "scripts/baseline/patch_humanoid_gym_structured_stairs_env.py",
+    "checkpoint_policy": "selected rough-terrain checkpoint only",
+    "claim_boundary": "terrain-generator redesign probe only; evaluation-only selected-checkpoint stress test, not retraining or a new headline method line"
+  },
+  "overrides": {
+    "env": {
+      "terrain.mesh_type": "trimesh",
+      "terrain.curriculum": false,
+      "terrain.measure_heights": false,
+      "terrain.num_rows": 4,
+      "terrain.num_cols": 8,
+      "terrain.terrain_proportions": [0.0, 0.0, 0.5, 0.0, 0.0, 0.25, 0.25],
+      "rewards.scales.action_smoothness": 0.0,
+      "rewards.scales.dof_acc": 0.0,
+      "rewards.scales.base_acc": 0.0,
+      "rewards.scales.dof_vel": 0.0
+    },
+    "train": {
+      "runner.max_iterations": 400,
+      "runner.save_interval": 50
+    }
+  }
+}
