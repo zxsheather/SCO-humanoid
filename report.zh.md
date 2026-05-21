@@ -206,3 +206,31 @@ PID 有限机制诊断:
 - `artifacts/analysis/sc_ppo_report_figures/figure_mujoco_aligned_replay.png`
 - `artifacts/analysis/sc_ppo_report_figures/figure_threshold36_promotion_failure.png`
 - `artifacts/analysis/sc_ppo_report_figures/manifest.json`
+
+## 8. 主线后诊断与冻结边界
+
+主线 `粗糙平面` 结果固定后，仓库又完成了三个有界诊断。它们用于明确交付边界，不新增标题级主结果：
+
+- `PID有限消融` 支持继续把 `PID-Lagrangian` 作为正式 `SC-PPO` 更新方式。matched
+  `普通对偶上升` probe collapse，因此这个结果只能作为机制支持，不能扩展成全组件归因。
+- `SN-only` 替代机制诊断已经证明实现可运行，但结论是负向的。full-actor、hidden-layer-only、
+  `coeff = 2.0` 和 first-hidden-only reduced-budget variants 全部 collapse，因此不应继续盲目
+  做 SN-only 架构开关。
+- `随机阶梯` selected-checkpoint stress test 作为直接迁移失败关闭。Vanilla PPO、revised
+  heuristic anchor 和 `SC-PPO 3.8` 在第一版 stairs-only protocol 下全部 `fall_rate = 1.0`，
+  所以它不是 task-valid 的随机阶梯方法排序。
+
+因此仓库进入 `科研交付冻结`：当前产物是 `仓库内科研交付包`，目标是让报告、tracker、artifact
+指针和复现入口一致。冻结期只做 `冻结期轻量验证`，包括 tests、JSON/path sanity、Markdown
+一致性和 git hygiene。新的 moderated stairs protocol、task-stabilized SN recipe 或 terrain
+repair 都应作为 post-freeze branch 单独打开，不能混入本报告。
+
+冻结参考：
+
+- `artifacts/analysis/final_research_delivery_freeze/summary.json`
+- `docs/reproduction/final-research-delivery-checklist.md`
+- `docs/adr/0001-freeze-research-delivery-before-new-protocol-repair.md`
+- `docs/sc-ppo-sn-feasibility-diagnostic.md`
+- `docs/random-stairs-selected-checkpoint-stress.md`
+- `artifacts/analysis/sn_replacement_diagnostic/sn_ppo_first_hidden_rough_terrain_medium_seed123145_summary.json`
+- `artifacts/analysis/random_stairs_selected_checkpoint_stress/comparison_summary.json`

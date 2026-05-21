@@ -45,7 +45,8 @@ The rough-terrain frozen baseline refresh for issue `#5` is complete across `Van
 bounded heuristic action-rate family:
 
 - [rough-terrain formal comparison note](./baselines/rough-terrain-formal-comparison.md)
-- [comparison_summary.json](../artifacts/analysis/rough_terrain_formal_comparison/comparison_summary.json)
+- frozen formal comparison summary:
+  `artifacts/analysis/rough_terrain_formal_comparison/comparison_summary.json`
 
 Selected-checkpoint aggregate over seeds `11`, `17`, and `23`:
 
@@ -206,6 +207,70 @@ Canonical artifact:
 
 - [SC-PPO PID-limited ablation](./sc-ppo-pid-limited-ablation.md)
 
+## SN-Only Replacement Diagnostic Reading
+
+The `SN-only` replacement-mechanism branch is closed as a negative feasibility diagnostic.
+
+Completed reduced-budget variants:
+
+- full-actor `smoke`
+- full-actor `short`
+- full-actor `medium`
+- hidden-layer-only `medium`
+- hidden-layer-only `coeff = 2.0`
+- first-hidden-only `medium`
+
+Current reading:
+
+- the implementation is operational and the checkpoints contain the expected spectral-normalization
+  state
+- every completed SN-only variant remains not task-valid under the diagnostic protocol
+- first-hidden-only selectivity and coefficient loosening do not recover stable locomotion
+- no `主实验三种子` or `MuJoCo关键两组终验` budget should be spent on this SN-only branch
+
+Canonical artifacts:
+
+- [SC-PPO SN feasibility diagnostic](./sc-ppo-sn-feasibility-diagnostic.md)
+- `artifacts/analysis/sn_replacement_diagnostic/sn_ppo_first_hidden_rough_terrain_medium_seed123145_summary.json`
+
+## Random-Stairs Stress Reading
+
+Issue `#7` is closed as a selected-checkpoint stress test, not as a new method-ranking result.
+
+Completed result:
+
+- Vanilla PPO, the revised heuristic anchor, and `SC-PPO threshold = 3.8` were replayed from their
+  selected rough-terrain checkpoints under the first stairs-only random-stairs protocol
+- all three methods collapsed with `fall_rate = 1.0`
+- the result is direct selected-checkpoint transfer failure, not a task-valid random-stairs
+  advantage for any method
+
+Canonical artifacts:
+
+- [Random-stairs selected-checkpoint stress test](./random-stairs-selected-checkpoint-stress.md)
+- `artifacts/analysis/random_stairs_selected_checkpoint_stress/comparison_summary.json`
+
+## Freeze Boundary
+
+The active stage is now `科研交付冻结`. The repo should be delivered as a
+`仓库内科研交付包` with aligned reports, status docs, tracker state, artifact pointers, and a final
+reproduction checklist.
+
+Freeze validation should stay lightweight:
+
+- unit tests
+- JSON/path sanity
+- Markdown consistency
+- `git diff --check`
+
+The freeze should not rerun Isaac training, MuJoCo replay, random-stairs evaluation, or SN
+diagnostics.
+
+Canonical freeze references:
+
+- [Final research delivery checklist](./reproduction/final-research-delivery-checklist.md)
+- [ADR 0001: freeze research delivery before new protocol repair](./adr/0001-freeze-research-delivery-before-new-protocol-repair.md)
+
 ## What Is Not Supported
 
 The repo still does not support the following claims:
@@ -216,6 +281,8 @@ The repo still does not support the following claims:
 - that the final checkpoint alone is sufficient for long-budget reporting
 - that a broad neighborhood of tighter thresholds is interchangeable with the `3.8` mainline
 - that the `PID有限消融` proves every PID term is independently necessary
+- that the current `SN-only` branch is a task-valid replacement mechanism
+- that the first stairs-only random-stairs protocol supports a task-valid method ranking
 
 The completed local controls still reinforce that boundary:
 

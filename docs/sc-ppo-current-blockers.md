@@ -19,8 +19,9 @@ Reason:
   - the revised heuristic anchor
   - `SC-PPO 3.8`
 
-So the repo is no longer blocked by evidence-boundary closure. The remaining work is report,
-README, `CONTEXT.md`, and issue-tracker reconciliation.
+So the repo is no longer blocked by evidence-boundary closure. The remaining active work is
+`科研交付冻结`: align reports, README, `CONTEXT.md`, status docs, issue tracker, artifact pointers,
+and final reproduction entrypoints.
 
 The `PID有限消融` follow-up is also now closed as a limited mechanism diagnostic. A matched
 `普通对偶上升` probe at `threshold = 3.8` collapses under the minimal Isaac evaluation, so it
@@ -150,7 +151,7 @@ Completed `PID有限消融` mechanism diagnostic:
 
 The current first-priority remediation target is:
 
-`同步 README、CONTEXT、GitHub Issues 和报告草稿，使它们都反映已完成的主线证据闭环、PID有限消融闭合和 SN-only 负向诊断闭合`
+`完成仓库内科研交付包，使 README、CONTEXT、GitHub Issues、报告草稿、状态文档和最终复现清单都反映已完成的主线证据闭环、PID有限消融闭合、SN-only 负向诊断闭合和 #7 随机阶梯迁移失败`
 
 Execution-facing notes:
 
@@ -158,7 +159,9 @@ Execution-facing notes:
 - do not spend new budget on `Vanilla PPO` repair; keep its collapse as raw-reference evidence
 - do not describe aligned `MuJoCo isaac_mainline` as an `SC-PPO` win
 - do not continue blind `SN-only` layer or coefficient toggles under the failed reduced-budget recipe
-- promote `#7 随机阶梯` only as a bounded `复杂地形条件` pressure test of selected checkpoints
+- keep `#7 随机阶梯` closed as selected-checkpoint transfer failure during the freeze
+- run only `冻结期轻量验证`; do not rerun Isaac training, MuJoCo replay, random-stairs evaluation,
+  or SN diagnostics as part of this target
 - keep terrain-side `MuJoCo` separate unless it is explicitly promoted later through
   `闭环后支线选择`
 
@@ -172,3 +175,6 @@ Execution-facing notes:
 - [SC-PPO MuJoCo revised-anchor aligned comparison](./sc-ppo-mujoco-revised-anchor-aligned-comparison.md)
 - [SC-PPO next-step direction](./sc-ppo-next-step-direction.md)
 - [SC-PPO PID-limited ablation](./sc-ppo-pid-limited-ablation.md)
+- [SC-PPO SN feasibility diagnostic](./sc-ppo-sn-feasibility-diagnostic.md)
+- [Random-stairs selected-checkpoint stress test](./random-stairs-selected-checkpoint-stress.md)
+- [Final research delivery checklist](./reproduction/final-research-delivery-checklist.md)

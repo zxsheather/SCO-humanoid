@@ -1,0 +1,174 @@
+{
+  "artifact_schema_version": 1,
+  "analysis": "final_research_delivery_freeze",
+  "status": "frozen_internal_research_delivery_package",
+  "scope": "科研交付冻结",
+  "generated_from": [
+    "docs/sc-ppo-report-status.md",
+    "docs/sc-ppo-current-summary.md",
+    "docs/sc-ppo-sn-feasibility-diagnostic.md",
+    "docs/random-stairs-selected-checkpoint-stress.md",
+    "report.md",
+    "report.zh.md"
+  ],
+  "note": "This freeze summary indexes completed evidence and tracked report-grade metrics. It does not contain newly generated experiment evidence.",
+  "claim_boundary": {
+    "delivery_type": "仓库内科研交付包",
+    "primary_claim": "Isaac rough-terrain SC-PPO threshold=3.8 with PID-Lagrangian supports method-over-heuristic against the revised heuristic anchor.",
+    "external_validation": "MuJoCo isaac_mainline aligned replay is mixed evidence, not a cross-engine SC-PPO win.",
+    "freeze_validation": "冻结期轻量验证 only; no Isaac or MuJoCo reruns during the freeze."
+  },
+  "evidence_layers": {
+    "isaac_rough_terrain_mainline": {
+      "status": "closed_report_grade",
+      "methods": {
+        "vanilla_ppo_raw_reference": {
+          "selected_checkpoints": [0, 0, 0],
+          "velocity_tracking_error_mean": "1.3321 +- 0.1181",
+          "joint_acceleration_l2_mean": "83.7179 +- 13.3692",
+          "action_jitter_l2_mean": "0.0161 +- 0.0008",
+          "episode_return_mean": "4.0002 +- 0.4323",
+          "fall_rate": "1.0000 +- 0.0000",
+          "reading": "collapsed raw reference"
+        },
+        "revised_heuristic_anchor": {
+          "config": "configs/methods/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget.json",
+          "selected_checkpoints": [350, 300, 350],
+          "velocity_tracking_error_mean": "0.7549 +- 0.1068",
+          "joint_acceleration_l2_mean": "119.8639 +- 2.1966",
+          "action_jitter_l2_mean": "0.2711 +- 0.0084",
+          "episode_return_mean": "100.9327 +- 11.2711",
+          "fall_rate": "0.1500 +- 0.0816",
+          "tracked_summary": "docs/sc-ppo-report-status.md",
+          "local_raw_summary": "artifacts/analysis/rough_terrain_formal_protocol_revision_long_budget/comparison_summary.json"
+        },
+        "sc_ppo_38_pid_mainline": {
+          "config": "configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp.json",
+          "selected_checkpoints": [300, 300, 400],
+          "velocity_tracking_error_mean": "0.6412 +- 0.0554",
+          "joint_acceleration_l2_mean": "115.9079 +- 6.9386",
+          "action_jitter_l2_mean": "0.2205 +- 0.0017",
+          "episode_return_mean": "100.2838 +- 2.7150",
+          "fall_rate": "0.1000 +- 0.0000",
+          "tracked_summary": "docs/sc-ppo-report-status.md"
+        }
+      },
+      "tracked_artifacts": [
+        "artifacts/analysis/sc_ppo_report_figures/figure_isaac_main_result.png",
+        "artifacts/analysis/sc_ppo_report_figures/manifest.json"
+      ]
+    },
+    "mujoco_isaac_mainline_aligned_replay": {
+      "status": "closed_mixed_external_validation",
+      "revised_heuristic_anchor": {
+        "selected_checkpoints": [350, 300, 350],
+        "velocity_tracking_error_mean": "0.4188 +- 0.0398",
+        "joint_acceleration_l2_mean": "120.7339 +- 2.6413",
+        "action_jitter_l2_mean": "0.2452 +- 0.0288",
+        "fall_rate": "0.0000 +- 0.0000",
+        "episode_steps_mean": "2000.0 +- 0.0"
+      },
+      "sc_ppo_38_pid_mainline": {
+        "selected_checkpoints": [300, 300, 400],
+        "velocity_tracking_error_mean": "0.4910 +- 0.0944",
+        "joint_acceleration_l2_mean": "125.5411 +- 21.1683",
+        "action_jitter_l2_mean": "0.2313 +- 0.0351",
+        "fall_rate": "0.0167 +- 0.0236",
+        "episode_steps_mean": "1984.7833 +- 21.5196"
+      },
+      "tracked_artifacts": [
+        "docs/sc-ppo-mujoco-revised-anchor-aligned-comparison.md",
+        "artifacts/analysis/sc_ppo_report_figures/figure_mujoco_aligned_replay.png",
+        "artifacts/analysis/sc_ppo_report_figures/manifest.json"
+      ]
+    },
+    "threshold36_full_batch_promotion": {
+      "status": "closed_failed_promotion",
+      "selected_checkpoints": {
+        "seed11": 350,
+        "seed17": 350,
+        "seed23": 0
+      },
+      "failure_reason": "seed23 selected checkpoint 0 and triggered the early/null checkpoint failure rule",
+      "tracked_artifact": "artifacts/analysis/sc_ppo_report_figures/figure_threshold36_promotion_failure.png"
+    },
+    "pid_limited_ablation": {
+      "status": "closed_limited_mechanism_diagnostic",
+      "plain_dual_probe": {
+        "config": "configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_dual_001.json",
+        "checkpoint": 100,
+        "selection_status": "all_checkpoints_collapsed",
+        "velocity_tracking_error_mean": 1.1646,
+        "joint_acceleration_l2_mean": 121.3371,
+        "action_jitter_l2_mean": 0.1661,
+        "episode_return_mean": 4.7101,
+        "fall_rate": 1.0
+      },
+      "tracked_artifact": "artifacts/analysis/sc_ppo_pid_limited_ablation/summary.json"
+    },
+    "sn_only_replacement_diagnostic": {
+      "status": "closed_negative_feasibility_diagnostic",
+      "completed_variants": [
+        "full_actor_smoke",
+        "full_actor_short",
+        "full_actor_medium",
+        "hidden_layer_only_medium",
+        "hidden_layer_only_coeff_2_medium",
+        "first_hidden_only_medium"
+      ],
+      "final_probe": {
+        "config": "configs/methods/sn_ppo_first_hidden_rough_terrain.json",
+        "selected_checkpoint": 100,
+        "selection_status": "all_checkpoints_collapsed",
+        "velocity_tracking_error_mean": 1.2858,
+        "joint_acceleration_l2_mean": 121.5766,
+        "action_jitter_l2_mean": 0.1180,
+        "episode_return_mean": 3.2625,
+        "fall_rate": 1.0
+      },
+      "tracked_artifacts": [
+        "artifacts/analysis/sn_replacement_diagnostic/sn_ppo_rough_terrain_smoke_seed123145_summary.json",
+        "artifacts/analysis/sn_replacement_diagnostic/sn_ppo_rough_terrain_short_seed123145_summary.json",
+        "artifacts/analysis/sn_replacement_diagnostic/sn_ppo_rough_terrain_medium_seed123145_summary.json",
+        "artifacts/analysis/sn_replacement_diagnostic/sn_ppo_hidden_only_rough_terrain_medium_seed123145_summary.json",
+        "artifacts/analysis/sn_replacement_diagnostic/sn_ppo_hidden_only_coeff_2_rough_terrain_medium_seed123145_summary.json",
+        "artifacts/analysis/sn_replacement_diagnostic/sn_ppo_first_hidden_rough_terrain_medium_seed123145_summary.json"
+      ]
+    },
+    "random_stairs_selected_checkpoint_stress": {
+      "status": "closed_direct_selected_checkpoint_transfer_failure",
+      "methods": {
+        "vanilla_ppo_raw_reference": {
+          "velocity_tracking_error_mean": "1.3193 +- 0.0332",
+          "joint_acceleration_l2_mean": "121.5374 +- 3.4192",
+          "action_jitter_l2_mean": "0.0167 +- 0.0008",
+          "episode_return_mean": "3.2631 +- 0.2703",
+          "fall_rate": "1.0000 +- 0.0000"
+        },
+        "revised_heuristic_anchor": {
+          "velocity_tracking_error_mean": "1.3891 +- 0.1110",
+          "joint_acceleration_l2_mean": "241.9827 +- 1.2210",
+          "action_jitter_l2_mean": "0.3752 +- 0.0182",
+          "episode_return_mean": "5.3580 +- 0.1948",
+          "fall_rate": "1.0000 +- 0.0000"
+        },
+        "sc_ppo_38_pid_mainline": {
+          "velocity_tracking_error_mean": "1.2570 +- 0.0631",
+          "joint_acceleration_l2_mean": "238.6799 +- 4.3457",
+          "action_jitter_l2_mean": "0.3245 +- 0.0074",
+          "episode_return_mean": "7.1561 +- 1.0129",
+          "fall_rate": "1.0000 +- 0.0000"
+        }
+      },
+      "tracked_artifact": "artifacts/analysis/random_stairs_selected_checkpoint_stress/comparison_summary.json"
+    }
+  },
+  "freeze_references": [
+    "README.md",
+    "CONTEXT.md",
+    "report.md",
+    "report.zh.md",
+    "docs/reproduction/final-research-delivery-checklist.md",
+    "docs/adr/0001-freeze-research-delivery-before-new-protocol-repair.md"
+  ]
+}

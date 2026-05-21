@@ -241,6 +241,7 @@ Current status and next step:
 - [docs/sc-ppo-current-summary.md](docs/sc-ppo-current-summary.md)
 - [docs/sc-ppo-current-blockers.md](docs/sc-ppo-current-blockers.md)
 - [docs/sc-ppo-next-step-direction.md](docs/sc-ppo-next-step-direction.md)
+- [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
 
 ## Reproducibility notes
 
@@ -262,15 +263,18 @@ If you are new to the repo, the fastest way to build context is:
 6. [docs/sc-ppo-pid-limited-ablation.md](docs/sc-ppo-pid-limited-ablation.md)
 7. [docs/sc-ppo-sn-feasibility-diagnostic.md](docs/sc-ppo-sn-feasibility-diagnostic.md)
 8. [docs/sc-ppo-sn-prototype.md](docs/sc-ppo-sn-prototype.md)
+9. [docs/random-stairs-selected-checkpoint-stress.md](docs/random-stairs-selected-checkpoint-stress.md)
+10. [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
+11. [docs/adr/0001-freeze-research-delivery-before-new-protocol-repair.md](docs/adr/0001-freeze-research-delivery-before-new-protocol-repair.md)
 
 ## Current next step
 
 The immediate next task in this repo is:
 
-`advance #7 as a bounded random-stairs stress test`
+`科研交付冻结 / 仓库内科研交付包`
 
-Concretely, that means keeping the completed mainline boundary fixed while testing whether the
-already-selected rough-terrain policies survive a harsher `复杂地形条件`:
+Concretely, that means freezing the completed evidence map, reports, tracker state, and
+reproduction entrypoints without generating new experiment evidence:
 
 - Isaac rough-terrain: `SC-PPO 3.8` supports the current `方法优于启发式` claim against the revised
   heuristic anchor
@@ -280,11 +284,12 @@ already-selected rough-terrain policies survive a harsher `复杂地形条件`:
   `medium`, hidden-layer-only `medium`, hidden-layer-only `coeff = 2.0`, and first-hidden-only
   `medium` reduced-budget runs completed but collapsed, so the repo should not continue blind
   SN-only architecture toggles
-- `#7 随机阶梯`: now the selected bounded follow-up; start as an evaluation stress test of the
-  selected rough-terrain checkpoints under the same metric schema, not as retraining, a new
-  headline method line, or a rewrite of the rough-terrain claim. The launcher is
-  `python scripts/baseline/run_random_stairs_stress_test.py --stage plan`; the first stairs-only
-  pass is complete and all selected checkpoints collapsed, so the next useful #7 step is protocol
-  repair or moderation rather than a method-ranking claim
-- `MuJoCo terrain`: remains a separate non-blocking protocol-repair line unless explicitly promoted
-  later through `闭环后支线选择`
+- `#7 随机阶梯`: closed as a selected-checkpoint stress test; all three methods collapse under the
+  first stairs-only random-stairs protocol, so it records direct transfer failure rather than a
+  task-valid method ranking
+- future moderated random-stairs, terrain protocol repair, or task-stabilized SN work should be
+  opened as a separate post-freeze branch
+
+Use the final reproduction checklist as the operational handoff index:
+
+- [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)

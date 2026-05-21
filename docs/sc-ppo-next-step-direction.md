@@ -12,13 +12,15 @@ The repo has completed the previous closure layers:
 2. `把 MuJoCo关键两组终验 写成 mixed evidence`
 3. `PID有限消融`
 4. `SN-only 替代机制可行性诊断`
+5. `#7 随机阶梯 selected-checkpoint stress test`
 
 The current next step is:
 
-`推进 #7 随机阶梯有界压力测试`
+`科研交付冻结 / 仓库内科研交付包`
 
-This means the repo should not immediately expand into `ALCP`, `SysID`, `Residual RL`,
-visual distillation, or `VLA` work.
+This means the repo should freeze reports, tracker state, artifact pointers, and reproduction
+entrypoints before opening more protocol repair. It should not immediately expand into moderated
+stairs, `SN` recipe redesign, `ALCP`, `SysID`, `Residual RL`, visual distillation, or `VLA` work.
 
 ## Completed Layer 1: 重冻结 rough-terrain 三组正式对比
 
@@ -78,6 +80,10 @@ The documentation and tracker consistency pass has one current rule:
 
 - keep `CONTEXT.md` terminology aligned with `混合外部验证结论`
 - keep `README.md`, `report.md`, `report.zh.md`, and status docs on the same claim boundary
+- keep `docs/reproduction/final-research-delivery-checklist.md` as the operational reproduction
+  handoff
+- keep `docs/adr/0001-freeze-research-delivery-before-new-protocol-repair.md` as the freeze
+  decision record
 - close or update GitHub Issues whose original wording is now superseded by the completed evidence
   closure
 - keep `PID有限消融` closed as mechanism support rather than reopening it as broad component
@@ -102,7 +108,7 @@ Reading:
 - `PID-Lagrangian正式方案` remains the formal SC-PPO algorithm choice
 - this is not a full component-attribution study
 
-## Completed Layer 5: SN-only replacement-mechanism diagnostic
+## Completed Layer 4: SN-only replacement-mechanism diagnostic
 
 The repo selected `SN` as a bounded `替代机制可行性诊断` and ran the reduced-budget sequence.
 
@@ -130,7 +136,7 @@ Canonical notes:
 - [SC-PPO SN feasibility diagnostic](./sc-ppo-sn-feasibility-diagnostic.md)
 - [SC-PPO SN prototype](./sc-ppo-sn-prototype.md)
 
-## Active Follow-Up: #7 随机阶梯
+## Completed Layer 5: #7 随机阶梯
 
 After the SN-only branch closed negative, the selected bounded follow-up is:
 
@@ -146,7 +152,7 @@ Scope:
 - do not retrain, open MuJoCo, or promote a new method line until the stress-test protocol itself is
   shown to be runnable and interpretable
 
-Current launcher:
+Historical launcher:
 
 ```bash
 python scripts/baseline/run_random_stairs_stress_test.py --stage plan
@@ -162,12 +168,29 @@ Completed first-pass result:
 - `fall_rate = 1.0` for Vanilla PPO, the revised heuristic anchor, and `SC-PPO threshold = 3.8`
 - the result is direct selected-checkpoint transfer failure, not a task-valid `SC-PPO` random-stairs
   advantage
-- the next useful #7 step is protocol repair or moderation, not retraining a new method line
+- the next useful random-stairs step is protocol repair or moderation, but it belongs after the
+  current freeze as a separate post-freeze issue
+
+## Active Stage: 科研交付冻结
+
+The active stage is now:
+
+`freeze the internal research delivery package`
+
+Scope:
+
+- align `README.md`, `CONTEXT.md`, reports, status docs, and GitHub tracker wording
+- create a standalone final reproduction checklist with canonical commands and artifact paths
+- run only `冻结期轻量验证`: unit tests, JSON validity, path/link sanity, and `git diff --check`
+- do not rerun Isaac training, MuJoCo replay, random-stairs evaluation, or SN diagnostics as part
+  of the freeze
+- close the freeze issue once the documentation and lightweight validation agree
 
 ## Immediate non-goals
 
 The repo should not treat the following as the immediate next step:
 
+- reopening #7 as active work during the freeze
 - reopening tiny local `SC-PPO` threshold-neighborhood promotion attempts
 - reopening `PID有限消融` as a broad component-attribution matrix
 - rerunning the same bounded heuristic weights under unchanged assumptions as if the failure were
@@ -182,7 +205,7 @@ The repo should not treat the following as the immediate next step:
 
 When summarizing the agreed direction, the safest compact wording is:
 
-`当前仓库的主线证据闭环已经完成到可报告边界：Isaac 粗糙平面三组正式对比围绕 Vanilla PPO raw reference、revised heuristic anchor 和 SC-PPO 3.8 收口；对齐后的 MuJoCo isaac_mainline 不支持 SC-PPO 跨引擎胜利，应写成混合外部验证结论。下一步不是继续跑新实验，而是完成报告、README、CONTEXT 和 GitHub Issues 的口径收口。`
+`当前仓库的主线证据闭环已经完成到可报告边界：Isaac 粗糙平面三组正式对比围绕 Vanilla PPO raw reference、revised heuristic anchor 和 SC-PPO 3.8 收口；对齐后的 MuJoCo isaac_mainline 不支持 SC-PPO 跨引擎胜利，应写成混合外部验证结论。PID有限消融、SN-only 负向诊断和 #7 随机阶梯 selected-checkpoint transfer failure 都已经闭合。当前下一步是科研交付冻结：完成仓库内科研交付包、最终复现清单和轻量验证，而不是继续跑新实验。`
 
 Updated after `PID有限消融` closure:
 
@@ -190,4 +213,4 @@ Updated after `PID有限消融` closure:
 
 Updated after `SN-only` diagnostic closure:
 
-`SN-only 替代机制可行性诊断 已作为负向结果闭合：full-actor、hidden-layer-only、coeff = 2.0 和 first-hidden-only reduced-budget runs 都未恢复 task-valid 行为，因此不继续消耗 seeds 或 MuJoCo 预算。当前应推进 #7 随机阶梯，但只作为已选 rough-terrain checkpoints 的 复杂地形条件 压力测试，不能改写 Isaac rough-terrain 主结论。`
+`SN-only 替代机制可行性诊断 已作为负向结果闭合：full-actor、hidden-layer-only、coeff = 2.0 和 first-hidden-only reduced-budget runs 都未恢复 task-valid 行为，因此不继续消耗 seeds 或 MuJoCo 预算。#7 随机阶梯也已闭合作为 selected-checkpoint transfer failure；当前应完成科研交付冻结，未来 moderated stairs 或 task-stabilized SN recipe 应作为 post-freeze branch 单独打开。`

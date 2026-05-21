@@ -37,7 +37,7 @@ The frozen formal compare covers `Vanilla PPO` and the bounded heuristic action-
 
 Canonical summary artifact:
 
-- [comparison_summary.json](../../artifacts/analysis/rough_terrain_formal_comparison/comparison_summary.json)
+- `artifacts/analysis/rough_terrain_formal_comparison/comparison_summary.json`
 
 Selected-checkpoint aggregate over seeds `11`, `17`, and `23`:
 
@@ -157,30 +157,43 @@ protocol, while the revised long-budget heuristic note provides the current form
 
 ## Canonical artifacts
 
-- [frozen formal comparison summary](../../artifacts/analysis/rough_terrain_formal_comparison/comparison_summary.json)
+- frozen formal comparison summary:
+  `artifacts/analysis/rough_terrain_formal_comparison/comparison_summary.json`
 - [repaired-budget probe summary](../../artifacts/analysis/rough_terrain_formal_protocol_repair_probe/comparison_summary.json)
 - [revised long-budget summary](../../artifacts/analysis/rough_terrain_formal_protocol_revision_long_budget/comparison_summary.json)
-- [vanilla seed11 checkpoint sweep](../../artifacts/methods/vanilla_ppo_full_compare/vanilla_ppo_full_compare_rough_terrain_seed11/checkpoint_sweep_summary.json)
-- [vanilla seed17 checkpoint sweep](../../artifacts/methods/vanilla_ppo_full_compare/vanilla_ppo_full_compare_rough_terrain_seed17/checkpoint_sweep_summary.json)
-- [vanilla seed23 checkpoint sweep](../../artifacts/methods/vanilla_ppo_full_compare/vanilla_ppo_full_compare_rough_terrain_seed23/checkpoint_sweep_summary.json)
-- [heuristic 0005 seed11 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0005_full_compare_rough_terrain_seed11/checkpoint_sweep_summary.json)
-- [heuristic 0005 seed17 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0005_full_compare_rough_terrain_seed17/checkpoint_sweep_summary.json)
-- [heuristic 0005 seed23 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0005_full_compare_rough_terrain_seed23/checkpoint_sweep_summary.json)
-- [heuristic 0020 seed11 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0020_full_compare_rough_terrain_seed11/checkpoint_sweep_summary.json)
-- [heuristic 0020 seed17 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0020_full_compare_rough_terrain_seed17/checkpoint_sweep_summary.json)
-- [heuristic 0020 seed23 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0020_full_compare_rough_terrain_seed23/checkpoint_sweep_summary.json)
-- [heuristic 0050 frozen seed11 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0050_full_compare_rough_terrain_seed11/checkpoint_sweep_summary.json)
-- [heuristic 0050 frozen seed17 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0050_full_compare_rough_terrain_seed17/checkpoint_sweep_summary.json)
-- [heuristic 0050 frozen seed23 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0050_full_compare_rough_terrain_seed23/checkpoint_sweep_summary.json)
+- vanilla seed11 checkpoint sweep:
+  `artifacts/methods/vanilla_ppo_full_compare/vanilla_ppo_full_compare_rough_terrain_seed11/checkpoint_sweep_summary.json`
+- vanilla seed17 checkpoint sweep:
+  `artifacts/methods/vanilla_ppo_full_compare/vanilla_ppo_full_compare_rough_terrain_seed17/checkpoint_sweep_summary.json`
+- vanilla seed23 checkpoint sweep:
+  `artifacts/methods/vanilla_ppo_full_compare/vanilla_ppo_full_compare_rough_terrain_seed23/checkpoint_sweep_summary.json`
+- heuristic 0005 seed11 checkpoint sweep:
+  `artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0005_full_compare_rough_terrain_seed11/checkpoint_sweep_summary.json`
+- heuristic 0005 seed17 checkpoint sweep:
+  `artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0005_full_compare_rough_terrain_seed17/checkpoint_sweep_summary.json`
+- heuristic 0005 seed23 checkpoint sweep:
+  `artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0005_full_compare_rough_terrain_seed23/checkpoint_sweep_summary.json`
+- heuristic 0020 seed11 checkpoint sweep:
+  `artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0020_full_compare_rough_terrain_seed11/checkpoint_sweep_summary.json`
+- heuristic 0020 seed17 checkpoint sweep:
+  `artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0020_full_compare_rough_terrain_seed17/checkpoint_sweep_summary.json`
+- heuristic 0020 seed23 checkpoint sweep:
+  `artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0020_full_compare_rough_terrain_seed23/checkpoint_sweep_summary.json`
+- heuristic 0050 frozen seed11 checkpoint sweep:
+  `artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0050_full_compare_rough_terrain_seed11/checkpoint_sweep_summary.json`
+- heuristic 0050 frozen seed17 checkpoint sweep:
+  `artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0050_full_compare_rough_terrain_seed17/checkpoint_sweep_summary.json`
+- heuristic 0050 frozen seed23 checkpoint sweep:
+  `artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0050_full_compare_rough_terrain_seed23/checkpoint_sweep_summary.json`
 
-## Immediate next step
+## Current closure
 
-The immediate next step is no longer to decide whether protocol revision is necessary.
-It is:
-
-`re-freeze the rough-terrain three-way comparison around Vanilla PPO raw reference, the revised heuristic anchor, and SC-PPO 3.8`
+The historical next step from this note was to re-freeze the rough-terrain three-way comparison
+around `Vanilla PPO` raw reference, the revised heuristic anchor, and `SC-PPO 3.8`. That closure is
+now complete; the active stage is `科研交付冻结`.
 
 Canonical follow-up notes:
 
 - [rough-terrain formal protocol revision decision](./rough-terrain-formal-protocol-revision-decision.md)
 - [rough-terrain formal protocol revision long-budget test](./rough-terrain-formal-protocol-revision-long-budget.md)
+- [final research delivery checklist](../reproduction/final-research-delivery-checklist.md)

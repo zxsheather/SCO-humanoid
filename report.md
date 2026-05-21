@@ -217,3 +217,34 @@ Generated figures:
 - `artifacts/analysis/sc_ppo_report_figures/figure_mujoco_aligned_replay.png`
 - `artifacts/analysis/sc_ppo_report_figures/figure_threshold36_promotion_failure.png`
 - `artifacts/analysis/sc_ppo_report_figures/manifest.json`
+
+## 8. Post-Mainline Diagnostics and Freeze Boundary
+
+After the mainline rough-terrain result was fixed, the repo completed three bounded diagnostics.
+They clarify the delivery boundary but do not create new headline results:
+
+- The `PID有限消融` supports keeping `PID-Lagrangian` as the formal `SC-PPO` update. The matched
+  plain-dual probe collapses, so the result is mechanism support rather than full component
+  attribution.
+- The `SN-only` replacement diagnostic is operational but negative. Full-actor, hidden-layer-only,
+  `coeff = 2.0`, and first-hidden-only reduced-budget variants all collapse, so blind SN-only
+  toggles should stop.
+- The random-stairs selected-checkpoint stress test is closed as direct transfer failure. Vanilla
+  PPO, the revised heuristic anchor, and `SC-PPO 3.8` all have `fall_rate = 1.0` under the first
+  stairs-only protocol, so the result is not a task-valid random-stairs method ranking.
+
+The repo therefore enters `科研交付冻结`: the output is a `仓库内科研交付包` with aligned reports,
+tracker state, artifact pointers, and reproduction entrypoints. Freeze validation is limited to
+tests, JSON/path sanity, Markdown consistency, and git hygiene. New moderated-stairs protocols,
+task-stabilized SN recipes, or additional terrain repair should be opened as post-freeze branches
+rather than folded into this report.
+
+Freeze references:
+
+- `artifacts/analysis/final_research_delivery_freeze/summary.json`
+- `docs/reproduction/final-research-delivery-checklist.md`
+- `docs/adr/0001-freeze-research-delivery-before-new-protocol-repair.md`
+- `docs/sc-ppo-sn-feasibility-diagnostic.md`
+- `docs/random-stairs-selected-checkpoint-stress.md`
+- `artifacts/analysis/sn_replacement_diagnostic/sn_ppo_first_hidden_rough_terrain_medium_seed123145_summary.json`
+- `artifacts/analysis/random_stairs_selected_checkpoint_stress/comparison_summary.json`

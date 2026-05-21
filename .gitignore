@@ -15,5 +15,8 @@ artifacts/analysis/sc_ppo_pid_limited_ablation/*
 !artifacts/analysis/sn_replacement_diagnostic/
 artifacts/analysis/sn_replacement_diagnostic/*
 !artifacts/analysis/sn_replacement_diagnostic/*_summary.json
+!artifacts/analysis/final_research_delivery_freeze/
+artifacts/analysis/final_research_delivery_freeze/*
+!artifacts/analysis/final_research_delivery_freeze/summary.json
 
 .vscode/

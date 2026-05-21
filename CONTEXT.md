@@ -24,6 +24,26 @@ _Avoid_: 一次性探针, 已定稿主线
 A planning stage where the repo first freezes the claim boundary, citation set, and external-validation reading of the current mainline before opening a new method branch.
 _Avoid_: 结论未收口就开新坑, 把前沿方向池直接当执行计划
 
+**科研交付冻结**:
+A project stage where the completed evidence, claim boundary, reports, tracker state, and reproduction entrypoints are made consistent for delivery.
+_Avoid_: 协议继续搜索, 新实验支线, 框架产品化
+
+**仓库内科研交付包**:
+A delivery package that freezes the repo's internal evidence map, reports, reproduction commands, artifact pointers, and tracker state without preparing a submission-specific paper package or reusable product.
+_Avoid_: 论文投稿包, 工程产品包, 平台发布包
+
+**冻结期轻量验证**:
+Validation performed during **科研交付冻结** that checks tests, artifact pointers, JSON/Markdown consistency, and report reproducibility without generating new experimental evidence.
+_Avoid_: 重跑训练, 新增正式评估, 新seed, 协议修复实验
+
+**最终复现清单**:
+An operational index inside a **仓库内科研交付包** that lists canonical commands, artifact paths, and validation checks for each completed evidence layer.
+_Avoid_: README长命令堆积, 报告正文操作手册, 新实验计划
+
+**冻结边界章节**:
+A short report section that records completed post-mainline diagnostics and delivery boundaries without rewriting the main research narrative.
+_Avoid_: 重写主报告, 新主结果章节, 实验计划章节
+
 **闭环后支线选择**:
 A post-mainline decision point where the repo chooses one bounded follow-up branch after the current claim boundary is frozen.
 _Avoid_: 多支线同时展开, 用新支线重写已冻结主结论
@@ -199,6 +219,11 @@ _Avoid_: 双消融扩张, 全组件独立归因
 - A **诊断支线** answers a local experimental question before the repo spends budget on a broader claim
 - A **正式候选线** is eligible for formal evidence collection but does not automatically become the repo's final mainline
 - A **主线证据闭环** should happen before the repo opens a materially broader post-mainline exploration branch
+- A **科研交付冻结** follows **主线证据闭环** and prioritizes report, tracker, artifact, and reproduction consistency over new experiments
+- A **仓库内科研交付包** is the concrete output of **科研交付冻结** when the repo is being frozen for internal research handoff rather than submission or product release
+- **冻结期轻量验证** is the only validation style appropriate during **科研交付冻结** unless the maintainer explicitly reopens a new experiment branch
+- A **最终复现清单** belongs to a **仓库内科研交付包** and keeps operational reproduction details out of README and report narrative
+- A **冻结边界章节** updates reports with post-mainline diagnostic outcomes without reopening the main result structure
 - A **闭环后支线选择** should choose one bounded **诊断支线** without reopening the frozen mainline claim
 - A **协议修复线** exists to fix evaluation semantics or protocol quality without being mistaken for a new algorithm claim
 - A **部分迁移结论** lets the repo include external validation in the main report without overstating mixed evidence
@@ -327,7 +352,22 @@ _Avoid_: 双消融扩张, 全组件独立归因
 > **Domain expert:** "当前 **替代机制可行性诊断** 已经是负向结果，不再继续盲目 SN-only 架构开关；未来 SN 必须作为新的 task-stabilized recipe 重新立项。"
 
 > **Dev:** "SN-only 关闭后，随机阶梯能不能接上？"
-> **Domain expert:** "可以，但只作为 **复杂地形条件** 压力测试推进 #7，不能把它写成新主线或反向改写粗糙平面主结论。"
+> **Domain expert:** "可以；它已经作为 **复杂地形条件** 压力测试完成 #7，不能把它写成新主线或反向改写粗糙平面主结论。"
+
+> **Dev:** "随机阶梯压力测试也 collapse 之后，是继续修协议还是先交付？"
+> **Domain expert:** "进入 **科研交付冻结**，先把已完成证据、报告、tracker 和复现入口收口；新的 terrain protocol repair 另起支线。"
+
+> **Dev:** "这次冻结要做到论文投稿还是工程发布？"
+> **Domain expert:** "都不是；冻结成 **仓库内科研交付包**，把内部证据链、报告、复现命令和 artifact 指针对齐即可。"
+
+> **Dev:** "冻结时要不要把 Isaac/MuJoCo 都重跑一遍？"
+> **Domain expert:** "不要；采用 **冻结期轻量验证**。冻结阶段检查测试、路径、JSON 和报告一致性，不生成新实验结果。"
+
+> **Dev:** "复现命令放 README 还是 report？"
+> **Domain expert:** "放独立的 **最终复现清单**。README 保持入口简洁，report 保持研究叙事，操作型索引单独维护。"
+
+> **Dev:** "报告要不要按 SN 和随机阶梯重写一遍？"
+> **Domain expert:** "不要；新增 **冻结边界章节**，记录 post-mainline diagnostics 和交付边界，不改写主结果叙事。"
 
 ## Flagged ambiguities
 
@@ -360,4 +400,9 @@ _Avoid_: 双消融扩张, 全组件独立归因
 - “bounded heuristic family 全失败后下一步是什么” was ambiguous between continuing the same search and starting a **协议修复线** — resolved: if the bounded heuristic family all fails under the frozen `3-seed + checkpoint-sweep` regime, shift the repo to a baseline-side **协议修复线** and make any regime revision explicit
 - “MuJoCo 对齐 revised heuristic anchor 后怎么写” was ambiguous between **部分迁移结论** and **混合外部验证结论** — resolved: use **混合外部验证结论** when aligned replay does not preserve the Isaac-side `SC-PPO` over heuristic ordering
 - “SN-only 替代机制诊断失败后是否继续扩大结构开关” was ambiguous between more blind SN variants and closing the current diagnostic — resolved: close the current SN-only branch as a negative **替代机制可行性诊断**; future SN work needs a separate task-stabilized recipe
-- “SN-only 关闭后的下一条支线” was ambiguous between reopening method work and terrain stress testing — resolved: promote #7 as the active bounded `随机阶梯` **复杂地形条件** stress test while preserving the rough-terrain main claim
+- “SN-only 关闭后的下一条支线” was ambiguous between reopening method work and terrain stress testing — resolved: select #7 as a bounded `随机阶梯` **复杂地形条件** stress test while preserving the rough-terrain main claim; that stress test is now closed as selected-checkpoint transfer failure
+- “随机阶梯 selected-checkpoint transfer 失败后下一步是什么” was ambiguous between more protocol repair and delivery closure — resolved: enter **科研交付冻结** before opening any new terrain-side **协议修复线**
+- “科研交付冻结 的交付对象是什么” was ambiguous between a paper-submission package, an engineering product release, and an internal research handoff — resolved: produce a **仓库内科研交付包**
+- “科研交付冻结 是否需要重跑实验” was ambiguous between re-validation by recomputation and consistency checking — resolved: use **冻结期轻量验证** and do not generate new formal evidence
+- “复现命令放在哪里” was ambiguous between README, report body, and an independent operational index — resolved: create a standalone **最终复现清单**
+- “冻结时 report 是否需要重写” was ambiguous between rewriting the research narrative and appending delivery boundaries — resolved: add a **冻结边界章节** only
