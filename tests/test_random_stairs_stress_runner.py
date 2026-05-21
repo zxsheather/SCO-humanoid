@@ -293,6 +293,45 @@ class RandomStairsStressRunnerTests(unittest.TestCase):
         self.assertEqual(sc_candidate["selected_checkpoints"], {"11": 300, "17": 300, "23": 400})
         self.assertIn("structured_stairs", sc_candidate["run_name_template"])
 
+    def test_stair_gate_protocol_declares_patch_dependency_and_runtime_env(self) -> None:
+        config_path = (
+            REPO_ROOT / "configs" / "methods" / "sc_ppo_threshold_38_pid_random_stairs_stair_gate_eval.json"
+        )
+        with config_path.open("r", encoding="utf-8") as handle:
+            config = json.load(handle)
+
+        runtime_env = config["runtime_env"]
+        self.assertEqual(runtime_env["SCO_HUMANOID_STAIR_DIFFICULTY_MIN"], "0.0")
+        self.assertEqual(runtime_env["SCO_HUMANOID_STAIR_DIFFICULTY_MAX"], "0.35")
+        self.assertEqual(runtime_env["SCO_HUMANOID_STAIR_GATE_STEP_COUNT"], "3")
+        self.assertEqual(runtime_env["SCO_HUMANOID_STAIR_GATE_RUNWAY_M"], "1.0")
+        self.assertEqual(runtime_env["SCO_HUMANOID_STAIR_GATE_PLATFORM_M"], "0.6")
+        self.assertEqual(runtime_env["SCO_HUMANOID_STAIR_GATE_EXIT_M"], "1.0")
+        protocol = config["evaluation_protocol"]
+        self.assertEqual(protocol["terrain_condition"], "random_stairs_stair_gate")
+        self.assertEqual(protocol["stair_gate_step_count"], 3)
+        self.assertEqual(protocol["stair_gate_runway_m"], 1.0)
+        self.assertEqual(protocol["stair_gate_platform_m"], 0.6)
+        self.assertEqual(protocol["stair_gate_exit_m"], 1.0)
+        self.assertEqual(
+            protocol["local_patch_dependency"],
+            "scripts/baseline/patch_humanoid_gym_stair_gate_env.py",
+        )
+
+    def test_stair_gate_sweep_reuses_selected_checkpoints(self) -> None:
+        sweep_cfg = random_stairs.load_sweep_config(
+            REPO_ROOT / "configs" / "sweeps" / "random_stairs_stair_gate_selected_checkpoint_stress.json"
+        )
+        protocol = sweep_cfg["terrain_protocol"]
+        self.assertEqual(protocol["stair_difficulty_band"], [0.0, 0.35])
+        self.assertEqual(protocol["stair_gate_step_count"], 3)
+        self.assertEqual(protocol["stair_gate_runway_m"], 1.0)
+        self.assertEqual(protocol["stair_gate_platform_m"], 0.6)
+        self.assertEqual(protocol["stair_gate_exit_m"], 1.0)
+        sc_candidate = next(item for item in sweep_cfg["candidates"] if item["id"] == "sc_ppo")
+        self.assertEqual(sc_candidate["selected_checkpoints"], {"11": 300, "17": 300, "23": 400})
+        self.assertIn("stair_gate", sc_candidate["run_name_template"])
+
 
 if __name__ == "__main__":
     unittest.main()

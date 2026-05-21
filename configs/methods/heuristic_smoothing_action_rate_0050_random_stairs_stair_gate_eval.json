@@ -1,0 +1,79 @@
+{
+  "name": "heuristic_smoothing_action_rate_0050_random_stairs_stair_gate_eval",
+  "method": {
+    "id": "heuristic_smoothing",
+    "label": "PPO + heuristic smoothing (action_rate=-0.0050, stair-gate random-stairs redesign eval)",
+    "family": "heuristic_baseline",
+    "smoothness_strategy": "reward_shaping"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_heuristic_smoothing_formal_protocol_revision_long_budget",
+  "run_name": "heuristic_smoothing_action_rate_0050_random_stairs_stair_gate_eval",
+  "artifacts_root": "artifacts/methods/random_stairs_stair_gate_stress",
+  "runtime_env": {
+    "SCO_HUMANOID_STAIR_DIFFICULTY_MIN": "0.0",
+    "SCO_HUMANOID_STAIR_DIFFICULTY_MAX": "0.35",
+    "SCO_HUMANOID_STAIR_GATE_STEP_COUNT": "3",
+    "SCO_HUMANOID_STAIR_GATE_RUNWAY_M": "1.0",
+    "SCO_HUMANOID_STAIR_GATE_PLATFORM_M": "0.6",
+    "SCO_HUMANOID_STAIR_GATE_EXIT_M": "1.0"
+  },
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 32,
+    "episodes": 20,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 123145,
+    "metric_schema_version": 2,
+    "constraint_logging": {
+      "collect_local_sensitivity": true,
+      "local_sensitivity_threshold": null,
+      "sample_envs": 4,
+      "sample_every_n_steps": 20,
+      "sidecar_metrics_filename": "constraint_metrics.json",
+      "multiplier_trace_filename": "lagrange_multiplier_trace.json"
+    }
+  },
+  "evaluation_protocol": {
+    "id": "random_stairs_stair_gate_selected_checkpoint_stress",
+    "scope": "复杂地形条件 terrain-generator redesign probe",
+    "terrain_condition": "random_stairs_stair_gate",
+    "primary_task": "速度跟踪行走",
+    "mesh_type": "trimesh",
+    "measure_heights": false,
+    "terrain_proportions": [0.0, 0.0, 0.5, 0.0, 0.0, 0.25, 0.25],
+    "stair_difficulty_band": [0.0, 0.35],
+    "stair_gate_step_count": 3,
+    "stair_gate_runway_m": 1.0,
+    "stair_gate_platform_m": 0.6,
+    "stair_gate_exit_m": 1.0,
+    "moderation_strategy": "keep the mixed rough/stairs composition and moderate independent stair band, but replace each stair tile with a bounded stair gate that returns to flat ground before tile exit",
+    "local_patch_dependency": "scripts/baseline/patch_humanoid_gym_stair_gate_env.py",
+    "checkpoint_policy": "selected rough-terrain checkpoint only",
+    "claim_boundary": "terrain-generator redesign probe only; evaluation-only selected-checkpoint stress test, not retraining or a new headline method line"
+  },
+  "overrides": {
+    "env": {
+      "terrain.mesh_type": "trimesh",
+      "terrain.curriculum": false,
+      "terrain.measure_heights": false,
+      "terrain.num_rows": 4,
+      "terrain.num_cols": 8,
+      "terrain.terrain_proportions": [0.0, 0.0, 0.5, 0.0, 0.0, 0.25, 0.25],
+      "rewards.scales.action_smoothness": -0.005,
+      "rewards.scales.dof_acc": -1e-07,
+      "rewards.scales.base_acc": 0.2,
+      "rewards.scales.dof_vel": -0.0005
+    },
+    "train": {
+      "runner.max_iterations": 400,
+      "runner.save_interval": 50
+    }
+  }
+}
