@@ -11,6 +11,10 @@ The repo now has a dedicated diagnostic config:
 
 - `configs/methods/sn_ppo_rough_terrain.json`
 
+The repo also has a dedicated reduced-budget diagnostic launcher:
+
+- `scripts/baseline/run_sn_diagnostic.py`
+
 This branch currently means:
 
 - same `速度跟踪行走` task
@@ -47,7 +51,7 @@ So the branch can still participate in `同尺比较`.
 
 ## Smoke status
 
-The branch has now cleared a minimal local smoke path:
+The branch has cleared a minimal local smoke path before this runner was added:
 
 - `1 iteration`
 - reduced `num_envs = 16`
@@ -89,6 +93,27 @@ evaluation surface:
   - `action_jitter_l2_mean = 0.0129`
   - `policy_local_sensitivity_cost_mean = 0.2974`
 
+The repeatable runner has also completed its first `smoke` pass:
+
+- command:
+  `python scripts/baseline/run_sn_diagnostic.py --stage all --preset smoke --skip-completed --rl-device cuda:0 --sim-device cuda:0`
+- run name: `sn_ppo_rough_terrain_smoke_seed123145`
+- selected checkpoint: `1`
+- `selection_status = all_checkpoints_collapsed`
+- `velocity_tracking_error_mean = 1.1467`
+- `joint_acceleration_l2_mean = 61.0134`
+- `action_jitter_l2_mean = 0.0249`
+- `episode_return_mean = 4.1629`
+- `fall_rate = 1.0000`
+- `policy_local_sensitivity_cost_mean = 0.5163`
+
+This confirms the new runner can train, evaluate, recover post-metrics segfaults, and write a
+compact diagnostic summary. It also confirms that the current `smoke` result is not task-valid.
+
+Tracked compact summary:
+
+- `artifacts/analysis/sn_replacement_diagnostic/sn_ppo_rough_terrain_smoke_seed123145_summary.json`
+
 ## Current operational boundary
 
 An attempted larger `SN` smoke at `num_envs = 64` failed with CUDA OOM in the
@@ -99,6 +124,16 @@ So the current correct reading is:
 - the branch is operational as a reduced-budget diagnostic path
 - the branch is not yet validated as a drop-in high-parallel replacement for the
   current training budget
+
+The repeatable command is now:
+
+```bash
+python scripts/baseline/run_sn_diagnostic.py --stage all --preset smoke --skip-completed
+```
+
+The `smoke` preset uses `16` training envs, `1` iteration, `16` evaluation envs, and `1` episode.
+The `short` preset uses `32` training envs, `20` iterations, `16` evaluation envs, and `5`
+episodes. Both presets intentionally stay below formal-comparison budget.
 
 ## Current non-goals
 

@@ -224,21 +224,37 @@ def build_upstream_command(
     return command
 
 
-def run_command(command: list[str], cwd: Path, dry_run: bool = False) -> int:
-    rendered = " ".join(command)
-    print(rendered)
-    if dry_run:
-        return 0
+def current_python_bin() -> str:
+    return str(Path(sys.executable).resolve().parent)
+
+
+def prepend_path_entry(path_value: str, entry: str) -> str:
+    parts = [part for part in path_value.split(os.pathsep) if part]
+    if entry in parts:
+        parts.remove(entry)
+    return os.pathsep.join([entry, *parts])
+
+
+def runtime_env() -> dict[str, str]:
     env = os.environ.copy()
     env.pop("DISPLAY", None)
     env.setdefault("TORCH_EXTENSIONS_DIR", str(DEFAULT_TORCH_EXTENSIONS_DIR))
     env.setdefault("MPLCONFIGDIR", str(DEFAULT_MPLCONFIGDIR))
     env.setdefault("XDG_CACHE_HOME", str(DEFAULT_XDG_CACHE_HOME))
     env.setdefault("WANDB_MODE", "disabled")
+    env["PATH"] = prepend_path_entry(env.get("PATH", ""), current_python_bin())
     DEFAULT_TORCH_EXTENSIONS_DIR.mkdir(parents=True, exist_ok=True)
     DEFAULT_MPLCONFIGDIR.mkdir(parents=True, exist_ok=True)
     DEFAULT_XDG_CACHE_HOME.mkdir(parents=True, exist_ok=True)
-    completed = subprocess.run(command, cwd=str(cwd), env=env, check=False)
+    return env
+
+
+def run_command(command: list[str], cwd: Path, dry_run: bool = False) -> int:
+    rendered = " ".join(command)
+    print(rendered)
+    if dry_run:
+        return 0
+    completed = subprocess.run(command, cwd=str(cwd), env=runtime_env(), check=False)
     return completed.returncode
 
 
@@ -248,6 +264,7 @@ def configure_runtime_env() -> None:
     os.environ.setdefault("MPLCONFIGDIR", str(DEFAULT_MPLCONFIGDIR))
     os.environ.setdefault("XDG_CACHE_HOME", str(DEFAULT_XDG_CACHE_HOME))
     os.environ.setdefault("WANDB_MODE", "disabled")
+    os.environ["PATH"] = prepend_path_entry(os.environ.get("PATH", ""), current_python_bin())
     DEFAULT_TORCH_EXTENSIONS_DIR.mkdir(parents=True, exist_ok=True)
     DEFAULT_MPLCONFIGDIR.mkdir(parents=True, exist_ok=True)
     DEFAULT_XDG_CACHE_HOME.mkdir(parents=True, exist_ok=True)

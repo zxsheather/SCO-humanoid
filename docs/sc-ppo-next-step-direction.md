@@ -110,6 +110,16 @@ After the report/tracker closure is finished, the next decision should be made t
 Do not run both by default. The repo should choose one bounded branch and keep the current
 report-grade claim unchanged.
 
+Current selected branch:
+
+- `SN` has been selected for the next bounded `替代机制可行性诊断`
+- the repeatable launcher is `scripts/baseline/run_sn_diagnostic.py`
+- the first valid command is
+  `python scripts/baseline/run_sn_diagnostic.py --stage all --preset smoke --skip-completed`
+- this does not promote `SN` to a formal candidate line
+- first runner smoke completed, but it is not task-valid:
+  `selection_status = all_checkpoints_collapsed`, `fall_rate = 1.0000`
+
 ## Immediate non-goals
 
 The repo should not treat the following as the immediate next step:

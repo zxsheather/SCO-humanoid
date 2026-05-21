@@ -54,17 +54,43 @@ Current implementation note:
 
 1. Add a new method-family path or configuration switch that enables actor-side
    `Spectral Normalization` without mutating the current `SC-PPO` mainline path.
-2. Keep the existing evaluation entrypoints usable:
+2. Add a repeatable reduced-budget diagnostic launcher:
+   - `scripts/baseline/run_sn_diagnostic.py`
+3. Keep the existing evaluation entrypoints usable:
    - `scripts/baseline/train_vanilla_ppo.py`
    - `scripts/baseline/evaluate_policy.py`
    - `scripts/baseline/evaluate_checkpoint_sweep.py`
-3. Preserve current artifact hygiene:
+4. Preserve current artifact hygiene:
    - `manifest.json`
    - evaluation metrics JSON
    - reportable config identity
-4. Keep current `policy_local_sensitivity_cost_*` evaluation available wherever
+5. Keep current `policy_local_sensitivity_cost_*` evaluation available wherever
    feasible so the replacement branch still emits comparable mechanism-side
    evidence.
+
+Current one-command diagnostic entry:
+
+```bash
+python scripts/baseline/run_sn_diagnostic.py --stage all --preset smoke --skip-completed
+```
+
+For a slightly larger but still non-formal pass:
+
+```bash
+python scripts/baseline/run_sn_diagnostic.py --stage all --preset short --skip-completed
+```
+
+Both presets remain `替代机制可行性诊断`; neither should be reported as a formal mainline challenge.
+
+Current runner status:
+
+- `smoke` has completed once with `run_name = sn_ppo_rough_terrain_smoke_seed123145`
+- the run wrote a compact summary to
+  `artifacts/analysis/sn_replacement_diagnostic/sn_ppo_rough_terrain_smoke_seed123145_summary.json`
+- the result is operationally useful but not task-valid:
+  `selection_status = all_checkpoints_collapsed`, `fall_rate = 1.0000`
+- the next implementation step should use the `short` preset only as another diagnostic, not as a
+  formal promotion attempt
 
 ## Minimal experiment tasks
 

@@ -260,6 +260,8 @@ If you are new to the repo, the fastest way to build context is:
 4. [docs/baselines/rough-terrain-formal-comparison.md](docs/baselines/rough-terrain-formal-comparison.md)
 5. [docs/sc-ppo-next-step-direction.md](docs/sc-ppo-next-step-direction.md)
 6. [docs/sc-ppo-pid-limited-ablation.md](docs/sc-ppo-pid-limited-ablation.md)
+7. [docs/sc-ppo-sn-feasibility-diagnostic.md](docs/sc-ppo-sn-feasibility-diagnostic.md)
+8. [docs/sc-ppo-sn-prototype.md](docs/sc-ppo-sn-prototype.md)
 
 ## Current next step
 
@@ -274,5 +276,9 @@ aligned on the same boundary:
   heuristic anchor
 - `MuJoCo isaac_mainline`: aligned replay is `混合外部验证结论`
 - `PID有限消融`: closed as limited mechanism support for `PID-Lagrangian正式方案`, not a new mainline
-- `MuJoCo terrain`, `随机阶梯`, and `SN` remain separate non-blocking follow-up lines unless they are
+- `SN`: selected as the next bounded `替代机制可行性诊断`, with
+  `scripts/baseline/run_sn_diagnostic.py --stage all --preset smoke --skip-completed` as the first
+  repeatable command; the first runner smoke completed but collapsed, so it is operational evidence
+  only
+- `MuJoCo terrain` and `随机阶梯` remain separate non-blocking follow-up lines unless they are
   explicitly promoted later through `闭环后支线选择`
