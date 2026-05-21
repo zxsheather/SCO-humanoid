@@ -25,48 +25,52 @@ Selected-checkpoint aggregate over seeds `11`, `17`, and `23`:
 - `episode_return_mean = 100.2838 +- 2.7150`
 - `fall_rate = 0.1000 +- 0.0000`
 
-What this still supports:
+What this currently supports:
 
 - `SC-PPO 3.8` remains the strongest completed rough-terrain method line in the repo
 - the method-side evidence for this line is already at the intended `3-seed + checkpoint-sweep`
   strength
+- after the completed revised-protocol long-budget heuristic run, the repo again has a task-valid
+  heuristic formal anchor at the same evidence strength
+- on the shared Isaac rough-terrain metric schema, `SC-PPO 3.8` now beats that revised anchor on
+  velocity tracking, fall rate, joint acceleration, and action jitter
 
-What this no longer supports by itself:
+What this does not support by itself:
 
-- a closed report-grade `方法优于启发式` claim against a refreshed formal heuristic anchor
+- a full cross-engine smoothness-transfer claim
 
-## Formal baseline refresh outcome
+## Frozen baseline refresh outcome
 
-The rough-terrain formal baseline refresh for issue `#5` is now complete across `Vanilla PPO` and
-the bounded heuristic action-rate family:
+The rough-terrain frozen baseline refresh for issue `#5` is complete across `Vanilla PPO` and the
+bounded heuristic action-rate family:
 
 - [rough-terrain formal comparison note](./baselines/rough-terrain-formal-comparison.md)
 - [comparison_summary.json](../artifacts/analysis/rough_terrain_formal_comparison/comparison_summary.json)
 
 Selected-checkpoint aggregate over seeds `11`, `17`, and `23`:
 
-- `Vanilla PPO (formal compare)`:
+- `Vanilla PPO (frozen formal compare)`:
   - `selected checkpoints = 0 / 0 / 0`
   - `velocity_tracking_error_mean = 1.3321 +- 0.1181`
   - `joint_acceleration_l2_mean = 83.7179 +- 13.3692`
   - `action_jitter_l2_mean = 0.0161 +- 0.0008`
   - `episode_return_mean = 4.0002 +- 0.4323`
   - `fall_rate = 1.0000 +- 0.0000`
-- `PPO + heuristic smoothing (action_rate = -0.0005, formal compare)`:
+- `PPO + heuristic smoothing (action_rate = -0.0005, frozen formal compare)`:
   - `selected checkpoints = 0 / 0 / 0`
   - `velocity_tracking_error_mean = 1.3451 +- 0.1269`
   - `joint_acceleration_l2_mean = 83.7119 +- 14.9052`
   - `action_jitter_l2_mean = 0.0161 +- 0.0009`
   - `episode_return_mean = 4.1998 +- 0.4037`
   - `fall_rate = 1.0000 +- 0.0000`
-- `PPO + heuristic smoothing (action_rate = -0.0020, formal compare)`:
+- `PPO + heuristic smoothing (action_rate = -0.0020, frozen formal compare)`:
   - `selected checkpoints = 0 / 0 / 0`
   - `velocity_tracking_error_mean = 1.3436 +- 0.1232`
   - `joint_acceleration_l2_mean = 85.5995 +- 13.7253`
   - `action_jitter_l2_mean = 0.0161 +- 0.0009`
   - `episode_return_mean = 4.1811 +- 0.3680`
   - `fall_rate = 1.0000 +- 0.0000`
-- `PPO + heuristic smoothing (action_rate = -0.0050, formal compare)`:
+- `PPO + heuristic smoothing (action_rate = -0.0050, frozen formal compare)`:
   - `selected checkpoints = 0 / 0 / 0`
   - `velocity_tracking_error_mean = 1.3359 +- 0.1232`
   - `joint_acceleration_l2_mean = 80.5803 +- 14.6031`
@@ -78,15 +82,67 @@ Interpretation:
 
 - all twelve selected checkpoints are `checkpoint 0`
 - every evaluated checkpoint inside every completed baseline sweep still has `fall_rate = 1.0`
-- so this is not a narrow selector mismatch or a single bad heuristic weight; the whole baseline
-  side is task-invalid under the completed frozen formal-compare regime
-- under the current rule in `CONTEXT.md`, the repo should now treat issue `#5` as a baseline-side
-  `协议修复线` rather than as a still-open heuristic-anchor pick
+- so this frozen regime should now be treated as the baseline-side failure record rather than as
+  the current heuristic formal anchor
 
-## External-validation reading
+## Protocol repair probe outcome
 
-The current `MuJoCo` reading remains useful, but it is now a provisional external read against the
-previous single-run heuristic comparator rather than against a refreshed report-grade formal anchor.
+The prepared repaired-budget follow-up is complete:
+
+- [rough-terrain formal protocol repair probe](./baselines/rough-terrain-formal-protocol-repair-probe.md)
+- [rough-terrain formal protocol revision decision](./baselines/rough-terrain-formal-protocol-revision-decision.md)
+- [probe comparison_summary.json](../artifacts/analysis/rough_terrain_formal_protocol_repair_probe/comparison_summary.json)
+
+Selected-checkpoint aggregate over seeds `11`, `17`, and `23`:
+
+- `selected checkpoints = 0 / 0 / 200`
+- `velocity_tracking_error_mean = 1.1558 +- 0.1545`
+- `joint_acceleration_l2_mean = 111.5311 +- 25.5306`
+- `action_jitter_l2_mean = 0.1023 +- 0.1211`
+- `episode_return_mean = 22.3952 +- 26.3617`
+- `fall_rate = 0.9167 +- 0.1179`
+
+Interpretation:
+
+- this probe broke the strongest `universal collapse` reading from the frozen `64 envs x 400`
+  regime
+- the old heuristic winner was therefore not identically doomed under every repaired protocol
+  variant
+- but the probe still did not produce a report-grade formal anchor
+- so this probe should be read as the transition evidence that justified explicit protocol
+  revision, not as the final anchor itself
+
+## Revised heuristic anchor outcome
+
+The prepared revised-protocol long-budget run is now complete:
+
+- [rough-terrain formal protocol revision long-budget test](./baselines/rough-terrain-formal-protocol-revision-long-budget.md)
+- [comparison_summary.json](../artifacts/analysis/rough_terrain_formal_protocol_revision_long_budget/comparison_summary.json)
+
+Selected-checkpoint aggregate over seeds `11`, `17`, and `23`:
+
+- `selected checkpoints = 350 / 300 / 350`
+- `velocity_tracking_error_mean = 0.7549 +- 0.1068`
+- `joint_acceleration_l2_mean = 119.8639 +- 2.1966`
+- `action_jitter_l2_mean = 0.2711 +- 0.0084`
+- `episode_return_mean = 100.9327 +- 11.2711`
+- `fall_rate = 0.1500 +- 0.0816`
+
+Interpretation:
+
+- this revised row satisfies the repo's `3-seed + checkpoint-sweep` heuristic-anchor requirement
+- none of the selected seeds survives through `checkpoint 0`
+- `SC-PPO 3.8` remains better on the `速度跟踪误差主指标`, `跌倒率底线指标`,
+  `关节震荡主指标`, and `动作抖动次级指标`
+- `episode_return_mean` is effectively tied and remains only a `总回报补充指标`
+
+So the repo can now defend an Isaac-side `方法优于启发式` reading again, but the external-
+validation side is still not closed.
+
+## External-Validation Reading
+
+The current `MuJoCo isaac_mainline` reading is now aligned against the refreshed revised heuristic
+formal anchor.
 
 Current comparable first-pass protocol:
 
@@ -96,37 +152,38 @@ Current comparable first-pass protocol:
 - `20 episodes`
 - `20 seconds`
 
-Current comparable numbers:
+Aligned comparable numbers over seeds `11`, `17`, and `23`:
 
-- previous single-run heuristic comparator:
-  - `velocity_tracking_error_mean = 0.6811 +- 0.1113`
-  - `joint_acceleration_l2_mean = 110.2715 +- 13.0420`
-  - `action_jitter_l2_mean = 0.2005 +- 0.0158`
-  - `fall_rate = 0.7000`
-- `SC-PPO threshold = 3.8` representative checkpoint:
-  - `velocity_tracking_error_mean = 0.6206 +- 0.0458`
-  - `joint_acceleration_l2_mean = 154.4672 +- 12.0365`
-  - `action_jitter_l2_mean = 0.2785 +- 0.0150`
-  - `fall_rate = 0.0500`
+- revised heuristic anchor:
+  - `velocity_tracking_error_mean = 0.4188 +- 0.0398`
+  - `joint_acceleration_l2_mean = 120.7339 +- 2.6413`
+  - `action_jitter_l2_mean = 0.2452 +- 0.0288`
+  - `fall_rate = 0.0000 +- 0.0000`
+  - `episode_steps_mean = 2000.0 +- 0.0`
+- `SC-PPO threshold = 3.8`:
+  - `velocity_tracking_error_mean = 0.4910 +- 0.0944`
+  - `joint_acceleration_l2_mean = 125.5411 +- 21.1683`
+  - `action_jitter_l2_mean = 0.2313 +- 0.0351`
+  - `fall_rate = 0.0167 +- 0.0236`
+  - `episode_steps_mean = 1984.7833 +- 21.5196`
 
-This still supports only a bounded `部分迁移` reading:
+This supports a mixed external-validation reading:
 
-- stronger task stability than the previous single-run heuristic comparator
-- stronger velocity tracking than the previous single-run heuristic comparator
-- but not stronger behavior-level smoothness on the current `MuJoCo` metrics
+- `SC-PPO 3.8` remains stronger in the Isaac rough-terrain main comparison
+- revised heuristic is better on `MuJoCo isaac_mainline` task stability, velocity tracking, episode
+  length, and joint acceleration
+- `SC-PPO 3.8` is only better on `MuJoCo isaac_mainline` action jitter
 
 Canonical comparable artifacts:
 
-- [previous heuristic MuJoCo isaac_mainline](../artifacts/methods/heuristic_smoothing_sweep/heuristic_smoothing_action_rate_0050_rough_terrain/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json)
-- [SC-PPO 3.8 MuJoCo isaac_mainline](../artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json)
+- [SC-PPO MuJoCo revised-anchor aligned comparison](./sc-ppo-mujoco-revised-anchor-aligned-comparison.md)
 
 ## What is not report-grade yet
 
 The repo still does not support the following claims:
 
-- that the rough-terrain three-way formal comparison is closed
-- that the current heuristic baseline is a report-grade formal anchor
 - that current smoothness gains fully transfer to `MuJoCo`
+- that `SC-PPO 3.8` beats the revised heuristic anchor on `MuJoCo isaac_mainline`
 - that `MuJoCo terrain` is ready to serve as the main external validation result
 - that the final checkpoint alone is sufficient for long-budget reporting
 - that a broad neighborhood of tighter thresholds is interchangeable with the `3.8` mainline
@@ -144,8 +201,8 @@ The completed local controls still reinforce that boundary:
 
 When summarizing the current project state, the safest compact wording is:
 
-`在当前粗糙平面主实验中，repaired PID-Lagrangian SC-PPO（threshold = 3.8）仍然是仓库里最强的已完成方法线；但在 issue #5 的正式基线刷新中，Vanilla PPO 与 bounded heuristic action-rate 家族（-0.0005 / -0.0020 / -0.0050）都在 3-seed + checkpoint-sweep 下退化到 checkpoint 0，因此当前 blocker 已从“启发式锚点未选定”转成“baseline 侧 formal-compare 协议需要修复”。MuJoCo isaac_mainline first pass 仍然只支持相对于旧单次 heuristic comparator 的部分迁移结论，而不支持当前 smoothness 指标上的跨引擎转优。`
+`在当前粗糙平面主实验中，repaired PID-Lagrangian SC-PPO（threshold = 3.8）仍然是仓库里最强的已完成方法线。冻结 formal-compare 曾经让 Vanilla PPO 与 bounded heuristic action-rate 家族全部塌到 checkpoint 0，而完成的 repaired-budget probe 先把旧 heuristic winner 收缩为 0 / 0 / 200，随后完成的 revised long-budget protocol 又把它修到 350 / 300 / 350。由此，仓库现在重新拥有了可防守的 3-seed heuristic formal anchor；相对于这条 revised heuristic anchor，SC-PPO 3.8 在 Isaac 粗糙平面共享指标上仍然同时更优于速度跟踪误差、跌倒率、关节震荡和动作抖动。但对齐后的 MuJoCo isaac_mainline replay 没有保持这个排序：revised heuristic 在任务稳定性、速度跟踪、episode length 和 joint acceleration 上更强，SC-PPO 3.8 只在 action jitter 上略强。因此当前外部验证应写成 mixed evidence，而不是 SC-PPO 的跨引擎优势。`
 
 English-safe wording:
 
-`On the current Isaac rough-terrain task, repaired PID-Lagrangian SC-PPO (threshold = 3.8) remains the strongest completed method line in the repo. However, the issue #5 formal baseline refresh caused Vanilla PPO and the bounded heuristic action-rate family (-0.0005 / -0.0020 / -0.0050) to collapse to checkpoint 0 under the 3-seed checkpoint-sweep protocol, so the blocker is now baseline-side formal-compare protocol repair rather than an unresolved heuristic-anchor pick. The MuJoCo isaac_mainline first pass still supports only a bounded partial-transfer reading against the previous single-run heuristic comparator, not a cross-engine smoothness win under the current metrics.`
+`On the current Isaac rough-terrain task, repaired PID-Lagrangian SC-PPO (threshold = 3.8) remains the strongest completed method line in the repo. The frozen baseline refresh first collapsed Vanilla PPO and the bounded heuristic action-rate family to checkpoint 0, the repaired-budget follow-up then narrowed the old heuristic winner to 0 / 0 / 200, and the completed revised long-budget protocol finally repaired that heuristic row to 350 / 300 / 350. So the repo now again has a defensible 3-seed heuristic formal anchor, and SC-PPO 3.8 remains better than that anchor on velocity tracking, fall rate, joint acceleration, and action jitter under the shared Isaac metric schema. However, the aligned MuJoCo isaac_mainline replay does not preserve that ordering: the revised heuristic anchor is better on task stability, velocity tracking, episode length, and joint acceleration, while SC-PPO 3.8 is only slightly better on action jitter. The external-validation reading should therefore be reported as mixed evidence rather than as a cross-engine SC-PPO advantage.`

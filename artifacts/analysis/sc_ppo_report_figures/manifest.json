@@ -1,27 +1,21 @@
 {
   "figure_paths": {
     "isaac_main_result": "artifacts/analysis/sc_ppo_report_figures/figure_isaac_main_result.png",
-    "mujoco_first_pass": "artifacts/analysis/sc_ppo_report_figures/figure_mujoco_first_pass.png",
+    "mujoco_aligned_replay": "artifacts/analysis/sc_ppo_report_figures/figure_mujoco_aligned_replay.png",
     "threshold36_promotion_failure": "artifacts/analysis/sc_ppo_report_figures/figure_threshold36_promotion_failure.png"
   },
   "source_artifacts": {
-    "heuristic_selection": "artifacts/analysis/heuristic_action_rate_rough_terrain/selection.json",
-    "promotion_sweeps": {
-      "11": "artifacts/methods/sc_ppo_fullbatch_threshold_probe/sc_ppo_fullbatch_threshold_36_iter400_seed11/checkpoint_sweep_summary.json",
-      "17": "artifacts/methods/sc_ppo_fullbatch_threshold_probe/sc_ppo_fullbatch_threshold_36_iter400_seed17/checkpoint_sweep_summary.json",
-      "23": "artifacts/methods/sc_ppo_fullbatch_threshold_probe/sc_ppo_fullbatch_threshold_36_iter400_seed23/checkpoint_sweep_summary.json"
-    },
-    "sc_mainline_seed_metrics": {
-      "11": "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_selected.json",
-      "17": "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_selected.json",
-      "23": "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_selected.json"
-    },
-    "sc_mainline_seed_sweeps": {
-      "11": "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/checkpoint_sweep_summary.json",
-      "17": "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/checkpoint_sweep_summary.json",
-      "23": "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/checkpoint_sweep_summary.json"
-    },
-    "sc_mujoco_representative": "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
-    "vanilla_metrics": "artifacts/methods/vanilla_ppo/vanilla_ppo_rough_terrain/metrics.json"
+    "heuristic_mujoco": [
+      "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+      "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+      "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json"
+    ],
+    "isaac_rows_source": "docs/sc-ppo-report-status.md",
+    "promotion_rows_source": "docs/sc-ppo-report-status.md",
+    "sc_mujoco": [
+      "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+      "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+      "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json"
+    ]
   }
 }

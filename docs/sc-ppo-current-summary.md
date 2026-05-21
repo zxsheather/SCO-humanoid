@@ -21,46 +21,65 @@ Its selected-checkpoint aggregate over seeds `11`, `17`, and `23` remains:
 - `episode_return_mean = 100.2838 +- 2.7150`
 - `fall_rate = 0.1000 +- 0.0000`
 
-However, the completed issue `#5` rough-terrain formal baseline refresh changed the baseline-side
-reading:
+The baseline-side reading is now different from the earlier repair phase:
 
-- `Vanilla PPO` formal compare selects `checkpoint 0` on all three seeds
-- `heuristic smoothing action_rate = -0.0005 / -0.0020 / -0.0050` formal compare also selects
-  `checkpoint 0` on all three seeds
-- every evaluated checkpoint inside every completed baseline sweep still has `fall_rate = 1.0`
+- the frozen formal compare under `64 envs x 400 iterations` still records universal collapse for
+  `Vanilla PPO` and the bounded heuristic family
+- the repaired-budget probe under `512 envs x 200 iterations` narrowed the old heuristic winner to
+  `0 / 0 / 200` and justified explicit protocol revision
+- the completed revised-protocol long-budget run under `512 envs x 400 iterations` on
+  `action_rate = -0.0050` now yields `selected checkpoints = 350 / 300 / 350`
 
-So the repo's current state is:
+So the repo is no longer blocked by `whether any heuristic formal anchor exists at all`.
+It now has a usable revised heuristic formal anchor for the rough-terrain `三组正式对比`.
 
-- `SC-PPO 3.8` is still the strongest completed rough-terrain line
-- but the rough-terrain formal baseline side is now a protocol-repair problem, not just an
-  unresolved heuristic-anchor pick
-- per `CONTEXT.md`, the repo cannot treat the three-way rough-terrain comparison as report-grade
-  complete until that baseline protocol is repaired
+Current revised heuristic anchor aggregate over seeds `11`, `17`, and `23`:
+
+- `velocity_tracking_error_mean = 0.7549 +- 0.1068`
+- `joint_acceleration_l2_mean = 119.8639 +- 2.1966`
+- `action_jitter_l2_mean = 0.2711 +- 0.0084`
+- `episode_return_mean = 100.9327 +- 11.2711`
+- `fall_rate = 0.1500 +- 0.0816`
+
+Compared against that revised anchor, `SC-PPO 3.8` remains stronger on the shared Isaac rough-
+terrain schema:
+
+- better `velocity_tracking_error_mean` (`0.6412` vs `0.7549`)
+- better `fall_rate` (`0.1000` vs `0.1500`)
+- better `joint_acceleration_l2_mean` (`115.9079` vs `119.8639`)
+- better `action_jitter_l2_mean` (`0.2205` vs `0.2711`)
+- `episode_return_mean` is effectively tied (`100.2838` vs `100.9327`) and remains only a
+  `总回报补充指标`
+
+This is enough to restore a defendable Isaac-side `方法优于启发式` reading.
 
 ## Current MuJoCo status
 
-The current `MuJoCo isaac_mainline` first-pass read is still useful, but it should now be read as
-a provisional comparison against the previous single-run heuristic comparator.
+The current `MuJoCo isaac_mainline` read is now aligned with the refreshed revised heuristic formal
+anchor.
 
-Current comparable numbers:
+Aligned `MuJoCo isaac_mainline` aggregate over seeds `11`, `17`, and `23`:
 
-- previous single-run heuristic comparator:
-  - `velocity_tracking_error_mean = 0.6811 +- 0.1113`
-  - `joint_acceleration_l2_mean = 110.2715 +- 13.0420`
-  - `action_jitter_l2_mean = 0.2005 +- 0.0158`
-  - `fall_rate = 0.7000`
-- `SC-PPO threshold = 3.8` representative checkpoint:
-  - `velocity_tracking_error_mean = 0.6206 +- 0.0458`
-  - `joint_acceleration_l2_mean = 154.4672 +- 12.0365`
-  - `action_jitter_l2_mean = 0.2785 +- 0.0150`
-  - `fall_rate = 0.0500`
+- revised heuristic anchor:
+  - `velocity_tracking_error_mean = 0.4188 +- 0.0398`
+  - `joint_acceleration_l2_mean = 120.7339 +- 2.6413`
+  - `action_jitter_l2_mean = 0.2452 +- 0.0288`
+  - `fall_rate = 0.0000 +- 0.0000`
+  - `episode_steps_mean = 2000.0 +- 0.0`
+- `SC-PPO threshold = 3.8`:
+  - `velocity_tracking_error_mean = 0.4910 +- 0.0944`
+  - `joint_acceleration_l2_mean = 125.5411 +- 21.1683`
+  - `action_jitter_l2_mean = 0.2313 +- 0.0351`
+  - `fall_rate = 0.0167 +- 0.0236`
+  - `episode_steps_mean = 1984.7833 +- 21.5196`
 
 Interpretation:
 
-- `SC-PPO` still shows materially better task stability and velocity tracking in this first-pass
-  cross-engine protocol
-- the current smoothness metrics still do not transfer in the same direction
-- and the baseline side is still provisional until the rough-terrain formal protocol is repaired
+- the revised heuristic anchor is better on task stability, velocity tracking, episode length, and
+  joint acceleration in this aligned replay
+- `SC-PPO 3.8` is only better on `action_jitter_l2_mean`
+- so the previous `SC-PPO has partial-transfer advantage in MuJoCo isaac_mainline` wording should
+  be retired
 
 ## What this means
 
@@ -70,14 +89,20 @@ immediate action.
 
 The immediate execution order should now be:
 
-1. repair the rough-terrain formal-compare protocol / baseline-side regime
-2. re-freeze the rough-terrain report boundary only after a task-valid formal anchor exists
-3. keep `MuJoCo isaac_mainline` as a bounded partial-transfer read, not a final smoothness-transfer headline
+1. re-freeze the rough-terrain Isaac `三组正式对比` around `Vanilla PPO` raw reference, the revised
+   heuristic anchor, and `SC-PPO 3.8`
+2. update the report boundary so `MuJoCo isaac_mainline` is reported as mixed aligned evidence, not
+   as an `SC-PPO` transfer advantage
+3. keep `MuJoCo terrain` as a separate protocol-repair line
 4. only then return to post-mainline branches such as `SN`
 
 ## Detailed references
 
 - [SC-PPO report-grade status](./sc-ppo-report-status.md)
 - [rough-terrain formal comparison](./baselines/rough-terrain-formal-comparison.md)
+- [rough-terrain formal protocol repair probe](./baselines/rough-terrain-formal-protocol-repair-probe.md)
+- [rough-terrain formal protocol revision decision](./baselines/rough-terrain-formal-protocol-revision-decision.md)
+- [rough-terrain formal protocol revision long-budget test](./baselines/rough-terrain-formal-protocol-revision-long-budget.md)
+- [SC-PPO MuJoCo revised-anchor aligned comparison](./sc-ppo-mujoco-revised-anchor-aligned-comparison.md)
 - [SC-PPO current blockers](./sc-ppo-current-blockers.md)
 - [SC-PPO next-step direction](./sc-ppo-next-step-direction.md)

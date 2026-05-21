@@ -76,31 +76,33 @@ Legacy note:
 
 ## Current MuJoCo protocol status
 
-The current repo should distinguish between two `MuJoCo` uses:
+The current repo should distinguish between three `MuJoCo` uses:
 
-1. `最小可比 first pass`
+1. `isaac_mainline` aligned replay
 2. `terrain stress probe`
 3. `terrain repair-stage intermediate probe`
 
-Current preferred first-pass protocol:
+Current preferred aligned replay protocol:
 
 - terrain mode: `isaac_mainline`
 - current resolved XML: `plane`
 - reset noise: `joint_reset_noise = 0.1`
 - duration: `20 episodes`, `20 seconds`
-- purpose: check whether the selected policy retains a meaningful task-validity advantage across
-  simulators
+- purpose: check whether selected policies retain task validity across simulators and whether the
+  Isaac main-comparison ordering transfers
 - note: this now resolves from the Isaac training config itself, and the evaluator will fail closed
   rather than silently swapping in `hfield` if the training-side terrain semantics change later
 
 Current formal comparable artifacts:
 
-- heuristic:
-  `artifacts/methods/heuristic_smoothing_sweep/heuristic_smoothing_action_rate_0050_rough_terrain/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
-- `SC-PPO threshold = 3.8` representative checkpoint:
-  `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
-- these are the preferred report-grade references over the older `metrics_mujoco_plane_20ep_20s_noise01.json`
-  duplicates
+- revised long-budget heuristic anchor:
+  `artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/*/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
+- `SC-PPO threshold = 3.8` anchor:
+  `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed*/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
+- canonical comparison note:
+  `docs/sc-ppo-mujoco-revised-anchor-aligned-comparison.md`
+- these aligned three-seed artifacts replace the older single-run heuristic and single representative
+  checkpoint references for report wording
 
 Current terrain probe protocol:
 
@@ -131,12 +133,28 @@ Protocol repair note:
 
 Current result status:
 
-- `SC-PPO` now shows a stronger `MuJoCo isaac_mainline` task-stability result than the heuristic anchor
-- however, the current `MuJoCo isaac_mainline` smoothness metrics still favor the heuristic anchor
-- both methods currently fail the short `MuJoCo terrain` probe, and `SC-PPO` does not recover the
-  terrain result through the current `200/300/400` checkpoint neighborhood
+- report-grade `MuJoCo isaac_mainline` aligned replay now uses the revised long-budget heuristic
+  anchor and `SC-PPO 3.8` over seeds `11`, `17`, and `23`
+- revised heuristic aligned replay:
+  - `velocity_tracking_error_mean = 0.4188 ± 0.0398`
+  - `joint_acceleration_l2_mean = 120.7339 ± 2.6413`
+  - `action_jitter_l2_mean = 0.2452 ± 0.0288`
+  - `fall_rate = 0.0000 ± 0.0000`
+  - `episode_steps_mean = 2000.0 ± 0.0`
+- `SC-PPO 3.8` aligned replay:
+  - `velocity_tracking_error_mean = 0.4910 ± 0.0944`
+  - `joint_acceleration_l2_mean = 125.5411 ± 21.1683`
+  - `action_jitter_l2_mean = 0.2313 ± 0.0351`
+  - `fall_rate = 0.0167 ± 0.0236`
+  - `episode_steps_mean = 1984.7833 ± 21.5196`
+- the aligned replay is mixed evidence: the revised heuristic is better on task stability, velocity
+  tracking, episode length, and joint acceleration, while `SC-PPO 3.8` is only slightly better on
+  action jitter
+- separate terrain repair-stage checks remain non-report-grade; both methods currently fail the
+  short `MuJoCo terrain` probe, and `SC-PPO` does not recover the terrain result through the current
+  `200/300/400` checkpoint neighborhood
 - on the current `hfield_moderate` `20 episodes x 20 seconds` mid-budget check, `SC-PPO` remains
-  materially more survivable than the heuristic anchor:
+  materially more survivable than the terrain-repair heuristic comparator:
   - heuristic: `fall_rate = 1.0`, `episode_steps_mean = 236.35`
   - `SC-PPO`: `fall_rate = 0.4`, `episode_steps_mean = 1259.0`
 - `velocity_tracking_error_mean` also remains slightly better for `SC-PPO`
@@ -157,9 +175,11 @@ Current result status:
   - `fall_rate = 0.3500 ± 0.0408`
   - `episode_steps_mean = 1346.03 ± 89.37`
 - so the repaired-terrain survival advantage is no longer a `seed11` fluke, but this line still
-  has checkpoint dependence and still does not beat the heuristic anchor on smoothness
-- however, `joint_acceleration_l2_mean` and `action_jitter_l2_mean` still favor the heuristic
-  anchor, so this remains a repair-stage signal rather than a solved terrain protocol
+  has checkpoint dependence and still does not beat the terrain-repair heuristic comparator on
+  smoothness
+- however, `joint_acceleration_l2_mean` and `action_jitter_l2_mean` still favor the
+  terrain-repair heuristic comparator, so this remains a repair-stage signal rather than a solved
+  terrain protocol
 
 ## Common metric schema
 

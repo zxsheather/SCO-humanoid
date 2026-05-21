@@ -11,7 +11,7 @@ Issue `#5` upgrades the rough-terrain main comparison from single-run baselines 
 
 ## Frozen formal-compare setup
 
-The completed formal-compare batch used:
+The completed frozen formal-compare batch used:
 
 - `configs/methods/vanilla_ppo_full_compare.json`
 - `configs/methods/heuristic_smoothing_action_rate_0005_full_compare.json`
@@ -22,8 +22,8 @@ The completed formal-compare batch used:
 - `max_iterations = 400`
 - `runner.save_interval = 50`
 
-This lower `num_envs` freeze was chosen because the shared machine state could not reliably support
-the older `512 envs` baseline setting during the formal comparison window.
+This lower `num_envs` freeze was chosen because the shared machine state could not reliably
+support the older `512 envs` baseline setting during the formal comparison window.
 
 Run it with:
 
@@ -31,9 +31,9 @@ Run it with:
 env -u DISPLAY CUDA_VISIBLE_DEVICES=1 /home/zhuoxiang/miniconda3/envs/ecolab-isaacgym/bin/python -u scripts/baseline/run_formal_comparison.py --stage all --skip-completed
 ```
 
-## Completed failure record
+## Completed frozen failure record
 
-The formal compare now covers Vanilla PPO and the bounded heuristic action-rate family.
+The frozen formal compare covers `Vanilla PPO` and the bounded heuristic action-rate family.
 
 Canonical summary artifact:
 
@@ -48,20 +48,19 @@ Selected-checkpoint aggregate over seeds `11`, `17`, and `23`:
 | `Heuristic smoothing action_rate = -0.0020` | `0 / 0 / 0` | `1.3436 +- 0.1232` | `85.5995 +- 13.7253` | `0.0161 +- 0.0009` | `4.1811 +- 0.3680` | `1.0000 +- 0.0000` |
 | `Heuristic smoothing action_rate = -0.0050` | `0 / 0 / 0` | `1.3359 +- 0.1232` | `80.5803 +- 14.6031` | `0.0160 +- 0.0009` | `4.1769 +- 0.4080` | `1.0000 +- 0.0000` |
 
-## Reading
+Reading:
 
-- All twelve selected checkpoints are `checkpoint 0`.
-- This is not just a selector quirk. In every completed sweep under the full candidate set, every
-  evaluated checkpoint still has `fall_rate = 1.0`, so the whole baseline side stays task-invalid
-  through the full `0 -> 400` checkpoint range.
+- all twelve selected checkpoints are `checkpoint 0`
+- this is not just a selector quirk: every evaluated checkpoint inside every completed baseline
+  sweep still has `fall_rate = 1.0`
 - `Vanilla PPO` collapse should be recorded as raw-reference evidence, which is the intended role
-  of the raw reference row in this matrix.
-- The selected heuristic family does not survive the formal `3-seed + checkpoint-sweep` anchor
-  standard and therefore does not remain a report-grade heuristic anchor.
+  of the raw reference row in this matrix
+- the selected heuristic family did not survive the frozen formal `3-seed + checkpoint-sweep`
+  anchor standard
 
 ## Selector repair follow-up
 
-The repo has now repaired one protocol bug in the checkpoint selector:
+The repo repaired one checkpoint-selector bug after the frozen run:
 
 - `evaluate_checkpoint_sweep.py` no longer selects checkpoints by smoothness score alone
 - it now applies `先过底线再取最平滑` inside one run:
@@ -72,36 +71,95 @@ The repo has now repaired one protocol bug in the checkpoint selector:
   `all_checkpoints_collapsed` rather than silently pretending that `checkpoint 0` is a valid
   report-grade choice
 
-This repair changes one important historical read:
+This repair changed one historical read:
 
 - on the previous single-run `action_rate = -0.0050` heuristic artifact trained under
-  `512 envs x 200 iterations`, a retro sweep with the repaired selector now picks
-  `checkpoint 200` rather than `checkpoint 0`
-- that retro result means the old heuristic line was not universally collapsed; part of the issue
-  was the selector itself
+  `512 envs x 200 iterations`, a retro sweep with the repaired selector picks `checkpoint 200`
+  rather than `checkpoint 0`
 
-However, after regenerating all existing `64 envs x 400 iterations` formal-compare sweeps under
-the repaired selector, the full bounded heuristic family still remains `all_checkpoints_collapsed`.
+However, after regenerating the completed `64 envs x 400 iterations` formal-compare sweeps under
+the repaired selector, the full bounded heuristic family still remained `all_checkpoints_collapsed`.
 
-So the remaining blocker is no longer selector semantics alone. It is now the baseline-side formal
-training regime itself.
+So the remaining blocker was no longer selector semantics alone.
+It was the frozen baseline-side formal training regime itself.
+
+## Repaired-budget probe outcome
+
+The prepared repaired-budget tracer bullet is complete:
+
+- [rough-terrain formal protocol repair probe](./rough-terrain-formal-protocol-repair-probe.md)
+- [probe summary artifact](../../artifacts/analysis/rough_terrain_formal_protocol_repair_probe/comparison_summary.json)
+
+Outcome:
+
+- `selected checkpoints = 0 / 0 / 200`
+- `seed11 -> all_checkpoints_collapsed`
+- `seed17 -> all_checkpoints_collapsed`
+- `seed23 -> checkpoint 200`
+
+This changed the interpretation in one important way:
+
+- the previous heuristic winner was not universally collapsed once both the selector repair and the
+  repaired `512 envs x 200 iterations` budget were applied
+
+But it still did not close the report-grade blocker:
+
+- the repaired-budget probe did not produce a defensible `3-seed` formal heuristic anchor
+- `2 / 3` seeds remained collapsed
+- and the surviving seed still recorded `fall_rate = 0.75`
+
+So the repo had to treat the baseline blocker as:
+
+`explicit protocol diagnosis / possible protocol revision`
+
+## Revised protocol replacement outcome
+
+The prepared first revised-protocol long-budget run is now complete:
+
+- [rough-terrain formal protocol revision decision](./rough-terrain-formal-protocol-revision-decision.md)
+- [rough-terrain formal protocol revision long-budget test](./rough-terrain-formal-protocol-revision-long-budget.md)
+- [revision summary artifact](../../artifacts/analysis/rough_terrain_formal_protocol_revision_long_budget/comparison_summary.json)
+
+Outcome:
+
+- `selected checkpoints = 350 / 300 / 350`
+- all three seeds are `selected`
+- aggregate metrics:
+  - `velocity_tracking_error_mean = 0.7549 +- 0.1068`
+  - `joint_acceleration_l2_mean = 119.8639 +- 2.1966`
+  - `action_jitter_l2_mean = 0.2711 +- 0.0084`
+  - `episode_return_mean = 100.9327 +- 11.2711`
+  - `fall_rate = 0.1500 +- 0.0816`
+
+Interpretation:
+
+- the frozen `64 envs x 400 iterations` heuristic rows in this note remain the historical failure
+  record that triggered the baseline-side `协议修复线`
+- they are no longer the current heuristic formal anchor
+- per `CONTEXT.md`, `Vanilla PPO` still remains the raw-reference collapse record
+- the current heuristic anchor should now come from the revised `512 envs x 400 iterations`
+  long-budget regime rather than from the frozen regime shown above
 
 ## Consequence for Issue #5
 
-Per the current rule in `CONTEXT.md`, this outcome means:
+Per the current rule in `CONTEXT.md`, this outcome now means:
 
-- do not treat the old single-run heuristic winner as if it had passed the refreshed formal-anchor
-  standard
-- do not count `#5` as closed
-- treat the baseline side as a protocol-repair problem before claiming a closed report-grade
-  three-way comparison
+- do not treat the frozen `64 envs x 400 iterations` heuristic row as if it had passed the
+  refreshed formal-anchor standard
+- use the revised long-budget heuristic row, not the frozen row, when restating the current
+  rough-terrain formal anchor
+- keep `Vanilla PPO` collapse as raw-reference evidence
+- do not reopen bounded heuristic search as if the remaining problem were still weight choice
+- move to re-freezing the rough-terrain three-way comparison wording
 
-So this note now serves as a completed failure record for the baseline side, and the next step is
-protocol repair rather than another heuristic-anchor search.
+So this note now serves primarily as the completed failure record for the original frozen baseline
+protocol, while the revised long-budget heuristic note provides the current formal anchor.
 
 ## Canonical artifacts
 
-- [formal comparison summary](../../artifacts/analysis/rough_terrain_formal_comparison/comparison_summary.json)
+- [frozen formal comparison summary](../../artifacts/analysis/rough_terrain_formal_comparison/comparison_summary.json)
+- [repaired-budget probe summary](../../artifacts/analysis/rough_terrain_formal_protocol_repair_probe/comparison_summary.json)
+- [revised long-budget summary](../../artifacts/analysis/rough_terrain_formal_protocol_revision_long_budget/comparison_summary.json)
 - [vanilla seed11 checkpoint sweep](../../artifacts/methods/vanilla_ppo_full_compare/vanilla_ppo_full_compare_rough_terrain_seed11/checkpoint_sweep_summary.json)
 - [vanilla seed17 checkpoint sweep](../../artifacts/methods/vanilla_ppo_full_compare/vanilla_ppo_full_compare_rough_terrain_seed17/checkpoint_sweep_summary.json)
 - [vanilla seed23 checkpoint sweep](../../artifacts/methods/vanilla_ppo_full_compare/vanilla_ppo_full_compare_rough_terrain_seed23/checkpoint_sweep_summary.json)
@@ -111,31 +169,18 @@ protocol repair rather than another heuristic-anchor search.
 - [heuristic 0020 seed11 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0020_full_compare_rough_terrain_seed11/checkpoint_sweep_summary.json)
 - [heuristic 0020 seed17 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0020_full_compare_rough_terrain_seed17/checkpoint_sweep_summary.json)
 - [heuristic 0020 seed23 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0020_full_compare_rough_terrain_seed23/checkpoint_sweep_summary.json)
-- [heuristic seed11 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0050_full_compare_rough_terrain_seed11/checkpoint_sweep_summary.json)
-- [heuristic seed17 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0050_full_compare_rough_terrain_seed17/checkpoint_sweep_summary.json)
-- [heuristic seed23 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0050_full_compare_rough_terrain_seed23/checkpoint_sweep_summary.json)
+- [heuristic 0050 frozen seed11 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0050_full_compare_rough_terrain_seed11/checkpoint_sweep_summary.json)
+- [heuristic 0050 frozen seed17 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0050_full_compare_rough_terrain_seed17/checkpoint_sweep_summary.json)
+- [heuristic 0050 frozen seed23 checkpoint sweep](../../artifacts/methods/heuristic_smoothing_full_compare/heuristic_smoothing_action_rate_0050_full_compare_rough_terrain_seed23/checkpoint_sweep_summary.json)
 
 ## Immediate next step
 
-The next baseline-side step is not another SC-PPO threshold promotion. It is:
+The immediate next step is no longer to decide whether protocol revision is necessary.
+It is:
 
-`repair the formal-compare protocol before spending more report-grade budget downstream`
+`re-freeze the rough-terrain three-way comparison around Vanilla PPO raw reference, the revised heuristic anchor, and SC-PPO 3.8`
 
-The current tracer-bullet repair run is:
+Canonical follow-up notes:
 
-`rerun only the old heuristic winner (action_rate = -0.0050) under a repaired formal budget: 512 envs, 200 iterations, save_interval = 50, 3 seeds, repaired checkpoint selector`
-
-Prepared sweep config:
-
-- `configs/sweeps/rough_terrain_formal_protocol_repair_probe.json`
-
-Prepared command:
-
-```bash
-env -u DISPLAY CUDA_VISIBLE_DEVICES=1 \
-  /home/zhuoxiang/miniconda3/envs/ecolab-isaacgym/bin/python -u \
-  scripts/baseline/run_formal_comparison.py \
-  --sweep-config configs/sweeps/rough_terrain_formal_protocol_repair_probe.json \
-  --stage all \
-  --skip-completed
-```
+- [rough-terrain formal protocol revision decision](./rough-terrain-formal-protocol-revision-decision.md)
+- [rough-terrain formal protocol revision long-budget test](./rough-terrain-formal-protocol-revision-long-budget.md)

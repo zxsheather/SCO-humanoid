@@ -7,73 +7,63 @@ This note records the repo's currently agreed next-step direction for the
 
 The repo's next step now has three ordered layers:
 
-1. `修复 rough-terrain formal-compare protocol`
-2. `重新冻结主线证据边界`
+1. `重冻结 rough-terrain 三组正式对比`
+2. `把 MuJoCo关键两组终验 写成 mixed evidence`
 3. one bounded post-mainline `架构级平滑优化线`
 
 This means the repo should not immediately expand into `ALCP`, `SysID`, `Residual RL`,
 visual distillation, or `VLA` work.
 
-## Layer 1: 修复 rough-terrain formal-compare protocol
+## Layer 1: 重冻结 rough-terrain 三组正式对比
 
-The immediate step is no longer `MuJoCo` wording cleanup alone.
+The protocol-revision line has now already done the repair-stage work for the heuristic row.
+The sequence is:
+
+- frozen `64 envs x 400 iterations -> 0 / 0 / 0`
+- repaired-budget `512 envs x 200 iterations -> 0 / 0 / 200`
+- revised long-budget `512 envs x 400 iterations -> 350 / 300 / 350`
+
+So the immediate step is no longer to ask whether protocol revision is necessary.
 It is:
 
-`repair the baseline-side formal-compare regime until it can produce a task-valid report-grade anchor, or explicitly revise that regime if the current freeze cannot do so`
+`freeze the Isaac-side three-way claim boundary around Vanilla PPO raw reference, the revised heuristic anchor, and SC-PPO 3.8`
 
-The previously reopened heuristic family has now already been exhausted under the frozen regime:
+The historical baseline-side steps remain important context:
 
-- `action_rate = -0.0005 -> checkpoint 0 / 0 / 0`
-- `action_rate = -0.0020 -> checkpoint 0 / 0 / 0`
-- `action_rate = -0.0050 -> checkpoint 0 / 0 / 0`
-
-One protocol bug has since been repaired:
-
-- checkpoint sweep selection is no longer allowed to ignore task-validity and simply pick the
-  smoothest early checkpoint
-
-But that repair does not close `#5` by itself:
-
-- after fast-regenerating the completed `64 envs x 400 iterations` formal-compare sweeps under the
-  repaired selector, the bounded heuristic family still remains fully collapsed
-- by contrast, the previous single-run `action_rate = -0.0050` artifact trained under
-  `512 envs x 200 iterations` now selects `checkpoint 200` under the repaired selector
-
-So the next tracer bullet is no longer another heuristic weight.
-It is a repaired-budget rerun of the previous heuristic winner.
-
-Required reading behind this shift:
-
-- [rough-terrain formal comparison](./baselines/rough-terrain-formal-comparison.md)
-- [SC-PPO report-grade status](./sc-ppo-report-status.md)
+- the bounded heuristic family was already exhausted under the frozen regime
+- one selector bug was repaired so sweeps now obey `先过底线再取最平滑`
+- the repaired-budget probe justified explicit protocol revision
+- the long-budget revision run produced the first surviving `3-seed` heuristic anchor again
 
 Execution rule:
 
-- treat this as a `协议修复线`, not as another algorithm branch
-- do not keep spending search budget inside the same bounded heuristic family until the protocol
-  question is answered
+- treat `Vanilla PPO` as a raw reference rather than a promotion-gated candidate
+- do not reopen bounded heuristic search
+- cite selected-checkpoint artifacts rather than `manifest.json` latest-checkpoint metrics
 - treat `Vanilla PPO` collapse as recorded raw-reference evidence, not as a repair target
 
 Success criterion for this layer:
 
-- the repo has an explicit repaired or revised baseline protocol that can produce a task-valid
-  formal anchor
-- or the repo has an explicit documented decision that the current freeze is not report-grade and
-  has been replaced
+- the repo has a stable rough-terrain Isaac wording that uses the revised heuristic anchor as the
+  baseline-side formal row
+- the `SC-PPO vs heuristic` claim boundary and citation set are explicit
 
-Current prepared tracer bullet:
+Canonical notes for this layer:
 
-- `configs/sweeps/rough_terrain_formal_protocol_repair_probe.json`
-- candidate: `action_rate = -0.0050`
-- regime: `512 envs x 200 iterations x save_interval 50`
-- seeds: `11 / 17 / 23`
+- [rough-terrain formal comparison](./baselines/rough-terrain-formal-comparison.md)
+- [rough-terrain formal protocol revision decision](./baselines/rough-terrain-formal-protocol-revision-decision.md)
+- [rough-terrain formal protocol revision long-budget test](./baselines/rough-terrain-formal-protocol-revision-long-budget.md)
 
-## Layer 2: 重新冻结主线证据边界
+## Layer 2: 把 MuJoCo关键两组终验 写成 mixed evidence
 
-Only after the baseline protocol is repaired should the repo return to report-facing closure work:
+The `MuJoCo isaac_mainline` replay is now aligned to the revised heuristic anchor:
 
-- freeze the rough-terrain three-way comparison wording
-- keep `MuJoCo isaac_mainline` as the bounded `部分迁移` line unless new evidence changes that
+- revised heuristic and `SC-PPO 3.8` both have `3-seed` selected-checkpoint replays
+- revised heuristic is better on task stability, velocity tracking, episode length, and joint
+  acceleration
+- `SC-PPO 3.8` is only better on action jitter
+- the report should therefore use mixed-evidence wording rather than a `部分迁移` advantage for
+  `SC-PPO`
 - keep `MuJoCo terrain` as a protocol-repair line rather than a headline result
 
 ## Layer 3: 闭环后的第一条新线
@@ -93,7 +83,7 @@ The repo should not treat the following as the immediate next step:
 
 - reopening tiny local `SC-PPO` threshold-neighborhood promotion attempts
 - rerunning the same bounded heuristic weights under unchanged assumptions as if the failure were
-  only candidate choice
+  still only candidate choice
 - promoting new `MuJoCo terrain` runs as if they solved the current blocker
 - launching `ALCP` as the first implementation branch
 - starting `SysID` or `Residual RL` work before the current baseline-side repair is done
@@ -103,4 +93,4 @@ The repo should not treat the following as the immediate next step:
 
 When summarizing the agreed direction, the safest compact wording is:
 
-`当前仓库的下一步不是继续扩张研究命题，也不是继续在现有 heuristic action-rate 家族里找一个幸存者，而是先修复粗糙平面的 formal-compare 协议：先解释为什么冻结的 baseline 侧 budget 会让整组 bounded heuristic family 全部塌到 checkpoint 0，并在必要时显式修订该协议。只有在这一步完成之后，仓库才应重新冻结主线证据边界，并在更后面再进入基于 Spectral Normalization 的架构级平滑优化线。`
+`当前仓库的下一步不是继续扩张研究命题，也不是继续在现有 heuristic action-rate 家族里找一个幸存者。冻结 formal-compare 先给出 0 / 0 / 0，repaired-budget probe 再给出 0 / 0 / 200，而完成的 revised long-budget protocol 已经把旧 heuristic winner 修到 350 / 300 / 350。Isaac 粗糙平面三组正式对比可以围绕 Vanilla PPO raw reference、revised heuristic anchor 和 SC-PPO 3.8 重冻结；但对齐后的 MuJoCo isaac_mainline 不再支持 SC-PPO 的跨引擎优势，应写成 mixed evidence。`

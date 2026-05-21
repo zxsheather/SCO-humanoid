@@ -4,5 +4,10 @@ __pycache__/
 .external/
 artifacts/*
 !artifacts/README.md
+!artifacts/analysis/
+artifacts/analysis/*
+!artifacts/analysis/sc_ppo_report_figures/
+artifacts/analysis/sc_ppo_report_figures/*
+!artifacts/analysis/sc_ppo_report_figures/figure_mujoco_aligned_replay.png
 
 .vscode/

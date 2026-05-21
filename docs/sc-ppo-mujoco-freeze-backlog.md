@@ -15,8 +15,9 @@ These items belong to the current mainline closure work.
 The repo's current main report must align on:
 
 - Isaac `粗糙平面` as the main result
-- `MuJoCo isaac_mainline` as a bounded `部分迁移结论`
+- `MuJoCo isaac_mainline` as a bounded aligned replay with mixed evidence
 - no claim that smoothness fully transfers across engines
+- no claim that the Isaac method ordering is preserved in `MuJoCo isaac_mainline`
 - no claim that current `MuJoCo terrain` is report-grade
 
 ### Required document checks
@@ -33,18 +34,19 @@ The following documents should agree on the same wording boundary:
 
 The frozen citation set should continue to point at:
 
-- heuristic `metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
-- `SC-PPO threshold = 3.8` representative
-  `metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
+- revised long-budget heuristic three-seed
+  `metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` artifacts
+- `SC-PPO threshold = 3.8` three-seed
+  `metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` artifacts
 - current `3-seed` Isaac checkpoint-sweep summaries
 
 ### Completion condition
 
 This report-freeze segment is complete when a reader cannot plausibly confuse:
 
-- `部分迁移结论`
+- aligned `MuJoCo isaac_mainline` mixed evidence
 with
-- `全面跨引擎转优`
+- `SC-PPO 全面跨引擎转优`
 
 ## Part 2: MuJoCo terrain 协议修复线
 
@@ -87,7 +89,7 @@ headline as if it were already report-grade external validation.
 The recommended order is:
 
 1. freeze `MuJoCo isaac_mainline` wording and citations
-2. lock the report boundary around `部分迁移结论`
+2. lock the report boundary around aligned mixed evidence
 3. keep `hfield_moderate` and `hfield_stress` visible as blocked or repair-stage
    protocol lines
 4. only then decide whether to spend additional budget on terrain protocol
