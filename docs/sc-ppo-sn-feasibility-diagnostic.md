@@ -96,6 +96,16 @@ python scripts/baseline/run_sn_diagnostic.py \
   --skip-completed
 ```
 
+For the first coefficient-loosening diagnostic:
+
+```bash
+python scripts/baseline/run_sn_diagnostic.py \
+  --config configs/methods/sn_ppo_hidden_only_coeff_2_rough_terrain.json \
+  --stage all \
+  --preset medium \
+  --skip-completed
+```
+
 All presets remain `替代机制可行性诊断`; none should be reported as a formal mainline challenge.
 
 Current runner status:
@@ -148,6 +158,22 @@ Output-layer isolation:
 - interpretation: output-layer SN is not the blocker; hidden-only SN is operational but still not
   task-valid
 
+Coefficient loosening:
+
+- config:
+  `configs/methods/sn_ppo_hidden_only_coeff_2_rough_terrain.json`
+- purpose: test whether the `coeff = 1.0` SN bound is too restrictive for task recovery
+- result: hidden-layer-only `coeff = 2.0` medium also collapses with `fall_rate = 1.0000`
+- selected checkpoint: `100`
+- `velocity_tracking_error_mean = 1.4700`
+- `joint_acceleration_l2_mean = 161.1313`
+- `action_jitter_l2_mean = 0.2064`
+- `episode_return_mean = 2.8030`
+- `policy_local_sensitivity_cost_mean = 2.9346`
+- `constraint_violation_rate = 0.1250`
+- interpretation: loosening the SN bound increases sensitivity and smoothness costs without
+  restoring task validity; do not run a wider blind coefficient sweep yet
+
 Current decision:
 
 - SN is operational and emits comparable mechanism-side evidence
@@ -155,6 +181,7 @@ Current decision:
 - actor-side SN is confirmed present in the checkpoint, so the failure is not a missing-config bug
 - hidden-layer-only SN is also confirmed active, so the failure is not explained by the output layer
   being SN-constrained
+- `coeff = 2.0` is also not enough to recover task validity and worsens smoothness-side metrics
 - this branch should stay open only for mechanism tuning; it should not consume formal-comparison or
   MuJoCo budget in the current form
 

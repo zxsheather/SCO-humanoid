@@ -126,6 +126,9 @@ Current selected branch:
 - hidden-layer-only `medium` SN also collapsed, so constraining the actor output layer is not the
   decisive blocker; the next useful implementation step is coefficient or selective-layer tuning
   under the same diagnostic budget
+- hidden-layer-only `coeff = 2.0` also collapsed and worsened smoothness-side metrics, so a wider
+  blind coefficient sweep is not the next best use of budget; prefer a selective-layer or
+  task-stabilized recipe hypothesis if this branch continues
 
 ## Immediate non-goals
 

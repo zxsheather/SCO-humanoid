@@ -11,6 +11,7 @@ The repo now has dedicated diagnostic configs:
 
 - `configs/methods/sn_ppo_rough_terrain.json`
 - `configs/methods/sn_ppo_hidden_only_rough_terrain.json`
+- `configs/methods/sn_ppo_hidden_only_coeff_2_rough_terrain.json`
 
 The repo also has a dedicated reduced-budget diagnostic launcher:
 
@@ -196,8 +197,31 @@ Current hidden-only reading:
 - it lowers `joint_acceleration_l2_mean` relative to full-actor SN medium but worsens
   velocity-tracking error, action jitter, and local sensitivity
 - this is still a collapsed diagnostic, not a candidate promotion
-- the next useful mechanism change is a real coefficient sweep such as
-  `actor_spectral_norm_coeff > 1` or a narrower selective-layer SN variant, not more seeds
+- the next useful mechanism change is coefficient or selective-layer tuning, not more seeds
+
+A hidden-layer-only `actor_spectral_norm_coeff = 2.0` medium diagnostic has also completed:
+
+- config: `configs/methods/sn_ppo_hidden_only_coeff_2_rough_terrain.json`
+- run name: `sn_ppo_hidden_only_coeff_2_rough_terrain_medium_seed123145`
+- selected checkpoint: `100`
+- `selection_status = all_checkpoints_collapsed`
+- `velocity_tracking_error_mean = 1.4700`
+- `joint_acceleration_l2_mean = 161.1313`
+- `action_jitter_l2_mean = 0.2064`
+- `episode_return_mean = 2.8030`
+- `fall_rate = 1.0000`
+- `policy_local_sensitivity_cost_mean = 2.9346`
+- `constraint_violation_rate = 0.1250`
+
+Current coefficient reading:
+
+- loosening hidden-layer SN from `coeff = 1.0` to `coeff = 2.0` does not recover task validity
+- it slightly improves velocity-tracking error but substantially worsens joint acceleration, action
+  jitter, return, and local sensitivity
+- a wider blind coefficient sweep is therefore not justified under the current reduced-budget
+  diagnostic policy
+- if this branch continues, prefer a narrower selective-layer hypothesis or a task-stabilized
+  training recipe rather than more SN-only budget
 
 ## Current operational boundary
 
@@ -221,8 +245,8 @@ The `short` preset uses `32` training envs, `20` iterations, `16` evaluation env
 episodes. The `medium` preset uses `32` training envs, `100` iterations, `16` evaluation envs, and
 `10` episodes. All presets intentionally stay below formal-comparison budget.
 
-All current SN diagnostics, including hidden-layer-only medium, collapse at evaluation time. They
-establish only operational feasibility, not replacement-mechanism feasibility.
+All current SN diagnostics, including hidden-layer-only and `coeff = 2.0` medium, collapse at
+evaluation time. They establish only operational feasibility, not replacement-mechanism feasibility.
 
 ## Current non-goals
 
