@@ -323,6 +323,12 @@ _Avoid_: 双消融扩张, 全组件独立归因
 > **Dev:** "有限消融到底做多少？"
 > **Domain expert:** "只做 **PID有限消融**，不要把项目扩成全组件归因研究。"
 
+> **Dev:** "SN-only 诊断连续 collapse 后要不要继续换层、换系数、加种子？"
+> **Domain expert:** "当前 **替代机制可行性诊断** 已经是负向结果，不再继续盲目 SN-only 架构开关；未来 SN 必须作为新的 task-stabilized recipe 重新立项。"
+
+> **Dev:** "SN-only 关闭后，随机阶梯能不能接上？"
+> **Domain expert:** "可以，但只作为 **复杂地形条件** 压力测试推进 #7，不能把它写成新主线或反向改写粗糙平面主结论。"
+
 ## Flagged ambiguities
 
 - “实施计划” was ambiguous between **科研验证型交付** and **工程产品型交付** — resolved: this project uses **科研验证型交付**
@@ -353,3 +359,5 @@ _Avoid_: 双消融扩张, 全组件独立归因
 - “启发式锚点三种子失稳后是否仍可直接进入 #5” was ambiguous between accepting the old single-run anchor and reopening baseline selection — resolved: if the selected heuristic baseline fails the formal `3-seed + checkpoint-sweep` standard, reopen heuristic-anchor selection rather than counting `#5` as complete
 - “bounded heuristic family 全失败后下一步是什么” was ambiguous between continuing the same search and starting a **协议修复线** — resolved: if the bounded heuristic family all fails under the frozen `3-seed + checkpoint-sweep` regime, shift the repo to a baseline-side **协议修复线** and make any regime revision explicit
 - “MuJoCo 对齐 revised heuristic anchor 后怎么写” was ambiguous between **部分迁移结论** and **混合外部验证结论** — resolved: use **混合外部验证结论** when aligned replay does not preserve the Isaac-side `SC-PPO` over heuristic ordering
+- “SN-only 替代机制诊断失败后是否继续扩大结构开关” was ambiguous between more blind SN variants and closing the current diagnostic — resolved: close the current SN-only branch as a negative **替代机制可行性诊断**; future SN work needs a separate task-stabilized recipe
+- “SN-only 关闭后的下一条支线” was ambiguous between reopening method work and terrain stress testing — resolved: promote #7 as the active bounded `随机阶梯` **复杂地形条件** stress test while preserving the rough-terrain main claim

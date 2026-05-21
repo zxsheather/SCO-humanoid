@@ -267,19 +267,21 @@ If you are new to the repo, the fastest way to build context is:
 
 The immediate next task in this repo is:
 
-`finish tracker reconciliation, then choose the next bounded post-closure branch`
+`advance #7 as a bounded random-stairs stress test`
 
-Concretely, that means keeping `README.md`, `CONTEXT.md`, GitHub Issues, and the report drafts
-aligned on the same boundary:
+Concretely, that means keeping the completed mainline boundary fixed while testing whether the
+already-selected rough-terrain policies survive a harsher `复杂地形条件`:
 
 - Isaac rough-terrain: `SC-PPO 3.8` supports the current `方法优于启发式` claim against the revised
   heuristic anchor
 - `MuJoCo isaac_mainline`: aligned replay is `混合外部验证结论`
 - `PID有限消融`: closed as limited mechanism support for `PID-Lagrangian正式方案`, not a new mainline
-- `SN`: selected as the next bounded `替代机制可行性诊断`, with
-  `scripts/baseline/run_sn_diagnostic.py --stage all --preset smoke --skip-completed` as the first
-  repeatable command; full-actor `smoke`, `short`, `medium`, hidden-layer-only `medium`, and
-  hidden-layer-only `coeff = 2.0`, and first-hidden-only `medium` reduced-budget runs completed but
-  collapsed, so the current SN-only replacement-mechanism diagnostic is negative
-- `MuJoCo terrain` and `随机阶梯` remain separate non-blocking follow-up lines unless they are
-  explicitly promoted later through `闭环后支线选择`
+- `SN`: the bounded `替代机制可行性诊断` is closed negative; full-actor `smoke`, `short`,
+  `medium`, hidden-layer-only `medium`, hidden-layer-only `coeff = 2.0`, and first-hidden-only
+  `medium` reduced-budget runs completed but collapsed, so the repo should not continue blind
+  SN-only architecture toggles
+- `#7 随机阶梯`: now the selected bounded follow-up; start as an evaluation stress test of the
+  selected rough-terrain checkpoints under the same metric schema, not as retraining, a new
+  headline method line, or a rewrite of the rough-terrain claim
+- `MuJoCo terrain`: remains a separate non-blocking protocol-repair line unless explicitly promoted
+  later through `闭环后支线选择`

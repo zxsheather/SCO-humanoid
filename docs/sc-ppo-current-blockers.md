@@ -150,15 +150,17 @@ Completed `PID有限消融` mechanism diagnostic:
 
 The current first-priority remediation target is:
 
-`同步 README、CONTEXT、GitHub Issues 和报告草稿，使它们都反映已完成的主线证据闭环和 PID有限消融闭合`
+`同步 README、CONTEXT、GitHub Issues 和报告草稿，使它们都反映已完成的主线证据闭环、PID有限消融闭合和 SN-only 负向诊断闭合`
 
 Execution-facing notes:
 
 - do not reopen the same bounded action-rate search as if the issue were still only anchor selection
 - do not spend new budget on `Vanilla PPO` repair; keep its collapse as raw-reference evidence
 - do not describe aligned `MuJoCo isaac_mainline` as an `SC-PPO` win
-- keep terrain-side `MuJoCo`, `随机阶梯`, and `SN` as separate follow-up lines unless they are
-  explicitly promoted later through `闭环后支线选择`
+- do not continue blind `SN-only` layer or coefficient toggles under the failed reduced-budget recipe
+- promote `#7 随机阶梯` only as a bounded `复杂地形条件` pressure test of selected checkpoints
+- keep terrain-side `MuJoCo` separate unless it is explicitly promoted later through
+  `闭环后支线选择`
 
 ## Canonical references
 

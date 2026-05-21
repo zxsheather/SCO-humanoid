@@ -6,14 +6,16 @@ This note records the repo's currently agreed next-step direction for the
 
 ## Current direction
 
-The repo has completed the previous two closure layers:
+The repo has completed the previous closure layers:
 
 1. `重冻结 rough-terrain 三组正式对比`
 2. `把 MuJoCo关键两组终验 写成 mixed evidence`
+3. `PID有限消融`
+4. `SN-only 替代机制可行性诊断`
 
 The current next step is:
 
-`报告 / tracker / README 口径收口，然后进入闭环后支线选择`
+`推进 #7 随机阶梯有界压力测试`
 
 This means the repo should not immediately expand into `ALCP`, `SysID`, `Residual RL`,
 visual distillation, or `VLA` work.
@@ -70,9 +72,9 @@ The `MuJoCo isaac_mainline` replay is now aligned to the revised heuristic ancho
   `SC-PPO`
 - keep `MuJoCo terrain` as a protocol-repair line rather than a headline result
 
-## Current Layer: 报告 / tracker / README 口径收口
+## Documentation / tracker reconciliation rule
 
-The immediate work is documentation and tracker consistency:
+The documentation and tracker consistency pass has one current rule:
 
 - keep `CONTEXT.md` terminology aligned with `混合外部验证结论`
 - keep `README.md`, `report.md`, `report.zh.md`, and status docs on the same claim boundary
@@ -80,6 +82,7 @@ The immediate work is documentation and tracker consistency:
   closure
 - keep `PID有限消融` closed as mechanism support rather than reopening it as broad component
   attribution
+- keep the current `SN-only` replacement branch closed as a negative feasibility diagnostic
 
 ## Completed Layer 3: PID有限消融 mechanism diagnostic
 
@@ -99,38 +102,49 @@ Reading:
 - `PID-Lagrangian正式方案` remains the formal SC-PPO algorithm choice
 - this is not a full component-attribution study
 
-## Next Optional Research Line
+## Completed Layer 5: SN-only replacement-mechanism diagnostic
 
-After the report/tracker closure is finished, the next decision should be made through
-`闭环后支线选择`. The two most plausible branches are:
+The repo selected `SN` as a bounded `替代机制可行性诊断` and ran the reduced-budget sequence.
 
-- `随机阶梯` as a stress-test / protocol-repair branch for the current result
-- `SN`-based `架构级平滑优化线` as an `替代机制可行性诊断`
+Completed diagnostics:
 
-Do not run both by default. The repo should choose one bounded branch and keep the current
-report-grade claim unchanged.
+- full-actor `smoke`
+- full-actor `short`
+- full-actor `medium`
+- hidden-layer-only `medium`
+- hidden-layer-only `coeff = 2.0`
+- first-hidden-only `medium`
 
-Current selected branch:
+Current decision:
 
-- `SN` has been selected for the next bounded `替代机制可行性诊断`
-- the repeatable launcher is `scripts/baseline/run_sn_diagnostic.py`
-- the first valid command is
-  `python scripts/baseline/run_sn_diagnostic.py --stage all --preset smoke --skip-completed`
-- this does not promote `SN` to a formal candidate line
-- first runner smoke completed, but it is not task-valid:
-  `selection_status = all_checkpoints_collapsed`, `fall_rate = 1.0000`
-- `short` also collapsed for both SN and matched non-SN/no-smoothness control, so the next step is
-  a single-seed `medium` SN diagnostic rather than a formal promotion
-- `medium` SN also collapsed, so the next step is SN parameterization or training-recipe tuning, not
-  more seeds or MuJoCo
-- hidden-layer-only `medium` SN also collapsed, so constraining the actor output layer is not the
-  decisive blocker; the next useful implementation step is coefficient or selective-layer tuning
-  under the same diagnostic budget
-- hidden-layer-only `coeff = 2.0` also collapsed and worsened smoothness-side metrics, so a wider
-  blind coefficient sweep is not the next best use of budget; prefer a selective-layer or
-  task-stabilized recipe hypothesis if this branch continues
-- first-hidden-only `medium` SN also collapsed, so the current SN-only replacement-mechanism
-  diagnostic is negative; do not continue with more SN-only architecture toggles
+- the SN switches are operational and visible in checkpoints
+- every current SN-only reduced-budget run is not task-valid
+- output-layer SN, coefficient tightness at `1.0`, and first-hidden-only selectivity are not enough
+  to explain or fix the collapse
+- do not spend `主实验三种子` or `MuJoCo关键两组终验` budget on this SN-only branch
+- future SN work should be opened as a separate task-stabilized recipe, not continued as blind
+  architecture toggles
+
+Canonical notes:
+
+- [SC-PPO SN feasibility diagnostic](./sc-ppo-sn-feasibility-diagnostic.md)
+- [SC-PPO SN prototype](./sc-ppo-sn-prototype.md)
+
+## Active Follow-Up: #7 随机阶梯
+
+After the SN-only branch closed negative, the selected bounded follow-up is:
+
+`#7 随机阶梯 = selected rough-terrain checkpoints under a harsher 复杂地形条件`
+
+Scope:
+
+- keep the primary task as `速度跟踪行走`
+- treat `随机阶梯` as a `复杂地形条件`, not a new task definition
+- start with evaluation-only stress testing of selected rough-terrain checkpoints
+- use the same shared metrics: velocity tracking error, fall rate, joint acceleration, action
+  jitter, return, and any available constraint-side diagnostics
+- do not retrain, open MuJoCo, or promote a new method line until the stress-test protocol itself is
+  shown to be runnable and interpretable
 
 ## Immediate non-goals
 
@@ -141,6 +155,7 @@ The repo should not treat the following as the immediate next step:
 - rerunning the same bounded heuristic weights under unchanged assumptions as if the failure were
   still only candidate choice
 - promoting new `MuJoCo terrain` runs as if they solved the current blocker
+- continuing blind `SN-only` layer or coefficient toggles under the failed reduced-budget recipe
 - launching `ALCP` as the first implementation branch
 - starting `SysID` or `Residual RL` work before the current baseline-side repair is done
 - adding perception or `VLA` as if they were a direct continuation of the current locomotion line
@@ -153,4 +168,8 @@ When summarizing the agreed direction, the safest compact wording is:
 
 Updated after `PID有限消融` closure:
 
-`PID有限消融 已作为有限机制诊断闭合：matched 普通对偶上升在 threshold = 3.8 的 checkpoint 100 评估中 fall_rate = 1.0，不能作为 task-valid 平滑方案；它只支持 PID-Lagrangian正式方案 的算法选择，不扩展成全组件归因研究。后续新工作应通过 闭环后支线选择 在 随机阶梯 和 SN 等候选支线中选一条推进。`
+`PID有限消融 已作为有限机制诊断闭合：matched 普通对偶上升在 threshold = 3.8 的 checkpoint 100 评估中 fall_rate = 1.0，不能作为 task-valid 平滑方案；它只支持 PID-Lagrangian正式方案 的算法选择，不扩展成全组件归因研究。`
+
+Updated after `SN-only` diagnostic closure:
+
+`SN-only 替代机制可行性诊断 已作为负向结果闭合：full-actor、hidden-layer-only、coeff = 2.0 和 first-hidden-only reduced-budget runs 都未恢复 task-valid 行为，因此不继续消耗 seeds 或 MuJoCo 预算。当前应推进 #7 随机阶梯，但只作为已选 rough-terrain checkpoints 的 复杂地形条件 压力测试，不能改写 Isaac rough-terrain 主结论。`

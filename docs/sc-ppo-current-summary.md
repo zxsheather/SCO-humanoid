@@ -99,9 +99,10 @@ The immediate execution order is now:
 
 1. keep `README.md`, `CONTEXT.md`, GitHub Issues, and the report drafts aligned on the completed
    claim boundary
-2. finish report polish and submission formatting
-3. treat `PID有限消融` as closed mechanism support, then decide through `闭环后支线选择` whether the
-   next bounded branch should be `随机阶梯` or post-mainline `SN`
+2. keep `PID有限消融` closed as mechanism support and keep the `SN-only` replacement branch closed
+   as a negative feasibility diagnostic
+3. advance `#7 随机阶梯` only as a bounded `复杂地形条件` stress test, not as a new headline method
+   line or a rewrite of the rough-terrain main claim
 
 ## Detailed references
 
@@ -114,3 +115,4 @@ The immediate execution order is now:
 - [SC-PPO current blockers](./sc-ppo-current-blockers.md)
 - [SC-PPO next-step direction](./sc-ppo-next-step-direction.md)
 - [SC-PPO PID-limited ablation](./sc-ppo-pid-limited-ablation.md)
+- [SC-PPO SN feasibility diagnostic](./sc-ppo-sn-feasibility-diagnostic.md)
