@@ -178,6 +178,34 @@ Canonical comparable artifacts:
 
 - [SC-PPO MuJoCo revised-anchor aligned comparison](./sc-ppo-mujoco-revised-anchor-aligned-comparison.md)
 
+## PID有限消融 Reading
+
+The limited PID ablation for issue `#6` is closed as mechanism support, not as a new headline
+result.
+
+Matched plain-dual diagnostic:
+
+- config: `configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_dual_001.json`
+- checkpoint: `100`
+- `selection_status = all_checkpoints_collapsed`
+- `velocity_tracking_error_mean = 1.1646`
+- `joint_acceleration_l2_mean = 121.3371`
+- `action_jitter_l2_mean = 0.1661`
+- `episode_return_mean = 4.7101`
+- `fall_rate = 1.0000`
+- `constraint_violation_rate = 0.4091`
+
+Interpretation:
+
+- `普通对偶上升` does not clear the task floor in the available matched diagnostic
+- its lower action jitter is not a usable smooth-control win because the policy collapses
+- this supports keeping `PID-Lagrangian正式方案` as the formal `SC-PPO` line
+- this does not support broad component attribution
+
+Canonical artifact:
+
+- [SC-PPO PID-limited ablation](./sc-ppo-pid-limited-ablation.md)
+
 ## What Is Not Supported
 
 The repo still does not support the following claims:
@@ -187,6 +215,7 @@ The repo still does not support the following claims:
 - that `MuJoCo terrain` is ready to serve as the main external validation result
 - that the final checkpoint alone is sufficient for long-budget reporting
 - that a broad neighborhood of tighter thresholds is interchangeable with the `3.8` mainline
+- that the `PID有限消融` proves every PID term is independently necessary
 
 The completed local controls still reinforce that boundary:
 

@@ -134,6 +134,15 @@ selected-checkpoint aggregate。
 因此这条线在 Isaac 阶段就停止，不能再消费新的 `MuJoCo isaac_mainline` 预算。
 `3.6 + full_batch` 应回读为已完成的 `诊断支线`，而不是新的正式主线。
 
+PID 有限机制消融备注：
+
+- matched `普通对偶上升` 诊断在 `threshold = 3.8`、checkpoint `100` 下完成评估。
+- 该诊断在最小 Isaac 评估中 collapse：`fall_rate = 1.0000`，`episode_return_mean = 4.7101`，
+  `velocity_tracking_error_mean = 1.1646`。
+- 它的 `action_jitter_l2_mean = 0.1661` 更低，但因为策略不 task-valid，不能当作可用的平滑胜利。
+- 这只支持继续把 `PID-Lagrangian` 作为正式 `SC-PPO` 更新方式；它是 `PID有限消融`，
+  不是全组件归因研究。
+
 ![Figure 3. Failed promotion of 3.6 plus full batch](artifacts/analysis/sc_ppo_report_figures/figure_threshold36_promotion_failure.png)
 
 图 3. 正式 `3.6 + full_batch` 升格线在 Isaac 阶段失败，核心原因是 `seed23`
@@ -148,6 +157,8 @@ selected-checkpoint aggregate。
 - 这个主结果经过了 `3 seeds`，并且显式依赖 checkpoint sweep selection。
 - 最近的更紧候选线 `3.6 + full_batch` 没能取代当前主线。
 - `MuJoCo isaac_mainline` 已经对齐 revised heuristic anchor，但结论是 `混合外部验证结论`。
+- matched `普通对偶上升` 诊断 collapse，因此 PID 有限消融只支持当前
+  `PID-Lagrangian` 算法边界，不新增主线结果。
 
 当前还不能成立：
 
@@ -156,6 +167,7 @@ selected-checkpoint aggregate。
 - 平滑性优势已经完整迁移到 `MuJoCo`
 - `hfield_moderate` 或 `hfield_stress` 已经可以当作 report-grade terrain 结果
 - 一整片更紧 threshold 邻域都能等价替代当前 `3.8` 主线
+- PID 有限诊断已经证明每个 PID 子项都独立必要
 
 因此后续任何 terrain-side 工作都应被理解为 external-validation semantics 上的 protocol repair，
 而不是说明有另一条算法线已经准备好取代当前主线。
@@ -181,6 +193,11 @@ Isaac 主结果:
 升格失败候选线:
 
 - `artifacts/methods/sc_ppo_fullbatch_threshold_probe/sc_ppo_fullbatch_threshold_36_iter400_seed*/checkpoint_sweep_summary.json`
+
+PID 有限机制诊断:
+
+- `docs/sc-ppo-pid-limited-ablation.md`
+- `artifacts/analysis/sc_ppo_pid_limited_ablation/summary.json`
 
 生成图表:
 

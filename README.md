@@ -68,6 +68,9 @@ Important boundary:
 - the aligned `MuJoCo isaac_mainline` replay is mixed external-validation evidence rather than an
   `SC-PPO` cross-engine win: the revised heuristic is better on task-side metrics, while `SC-PPO
   3.8` is only slightly better on action jitter
+- the `PID有限消融` follow-up is now closed as a limited mechanism diagnostic: a matched
+  `普通对偶上升` probe at `threshold = 3.8` collapses (`fall_rate = 1.0`), so it supports keeping
+  `PID-Lagrangian` as the formal `SC-PPO` line without expanding into full component attribution
 
 So the repo currently supports an Isaac-side `方法优于启发式` result, with `MuJoCo` reported as a
 `混合外部验证结论`.
@@ -77,6 +80,7 @@ For the most current interpretation, read:
 - [docs/sc-ppo-report-status.md](docs/sc-ppo-report-status.md)
 - [docs/sc-ppo-current-summary.md](docs/sc-ppo-current-summary.md)
 - [docs/baselines/rough-terrain-formal-comparison.md](docs/baselines/rough-terrain-formal-comparison.md)
+- [docs/sc-ppo-pid-limited-ablation.md](docs/sc-ppo-pid-limited-ablation.md)
 
 ## Quick start
 
@@ -255,12 +259,13 @@ If you are new to the repo, the fastest way to build context is:
 3. [docs/sc-ppo-report-status.md](docs/sc-ppo-report-status.md)
 4. [docs/baselines/rough-terrain-formal-comparison.md](docs/baselines/rough-terrain-formal-comparison.md)
 5. [docs/sc-ppo-next-step-direction.md](docs/sc-ppo-next-step-direction.md)
+6. [docs/sc-ppo-pid-limited-ablation.md](docs/sc-ppo-pid-limited-ablation.md)
 
 ## Current next step
 
 The immediate next task in this repo is:
 
-`finish report and issue-tracker reconciliation around the completed mainline evidence closure`
+`finish tracker reconciliation, then choose the next bounded post-closure branch`
 
 Concretely, that means keeping `README.md`, `CONTEXT.md`, GitHub Issues, and the report drafts
 aligned on the same boundary:
@@ -268,5 +273,6 @@ aligned on the same boundary:
 - Isaac rough-terrain: `SC-PPO 3.8` supports the current `方法优于启发式` claim against the revised
   heuristic anchor
 - `MuJoCo isaac_mainline`: aligned replay is `混合外部验证结论`
-- `MuJoCo terrain`, `PID有限消融`, and `SN` remain separate non-blocking follow-up lines unless they
-  are explicitly promoted later
+- `PID有限消融`: closed as limited mechanism support for `PID-Lagrangian正式方案`, not a new mainline
+- `MuJoCo terrain`, `随机阶梯`, and `SN` remain separate non-blocking follow-up lines unless they are
+  explicitly promoted later through `闭环后支线选择`

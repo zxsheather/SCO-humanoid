@@ -9,5 +9,8 @@ artifacts/analysis/*
 !artifacts/analysis/sc_ppo_report_figures/
 artifacts/analysis/sc_ppo_report_figures/*
 !artifacts/analysis/sc_ppo_report_figures/figure_mujoco_aligned_replay.png
+!artifacts/analysis/sc_ppo_pid_limited_ablation/
+artifacts/analysis/sc_ppo_pid_limited_ablation/*
+!artifacts/analysis/sc_ppo_pid_limited_ablation/summary.json
 
 .vscode/

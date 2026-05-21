@@ -22,6 +22,10 @@ Reason:
 So the repo is no longer blocked by evidence-boundary closure. The remaining work is report,
 README, `CONTEXT.md`, and issue-tracker reconciliation.
 
+The `PID有限消融` follow-up is also now closed as a limited mechanism diagnostic. A matched
+`普通对偶上升` probe at `threshold = 3.8` collapses under the minimal Isaac evaluation, so it
+supports the `PID-Lagrangian正式方案` choice without becoming a broader component-attribution claim.
+
 ## External-Validation Boundary
 
 The current external-validation boundary is:
@@ -129,19 +133,32 @@ Completed aligned `MuJoCo isaac_mainline` comparison:
   - `fall_rate = 0.0167 +- 0.0236`
   - `episode_steps_mean = 1984.7833 +- 21.5196`
 
+Completed `PID有限消融` mechanism diagnostic:
+
+- `普通对偶上升`, `threshold = 3.8`, checkpoint `100`
+- `selection_status = all_checkpoints_collapsed`
+- `velocity_tracking_error_mean = 1.1646`
+- `joint_acceleration_l2_mean = 121.3371`
+- `action_jitter_l2_mean = 0.1661`
+- `episode_return_mean = 4.7101`
+- `fall_rate = 1.0000`
+- `constraint_violation_rate = 0.4091`
+- reading: lower action jitter does not count as a smooth-control win because the policy is not
+  task-valid
+
 ## Immediate Reconciliation Target
 
 The current first-priority remediation target is:
 
-`同步 README、CONTEXT、GitHub Issues 和报告草稿，使它们都反映已完成的主线证据闭环`
+`同步 README、CONTEXT、GitHub Issues 和报告草稿，使它们都反映已完成的主线证据闭环和 PID有限消融闭合`
 
 Execution-facing notes:
 
 - do not reopen the same bounded action-rate search as if the issue were still only anchor selection
 - do not spend new budget on `Vanilla PPO` repair; keep its collapse as raw-reference evidence
 - do not describe aligned `MuJoCo isaac_mainline` as an `SC-PPO` win
-- keep terrain-side `MuJoCo`, `PID有限消融`, and `SN` as separate follow-up lines unless they are
-  explicitly promoted later
+- keep terrain-side `MuJoCo`, `随机阶梯`, and `SN` as separate follow-up lines unless they are
+  explicitly promoted later through `闭环后支线选择`
 
 ## Canonical references
 
@@ -152,3 +169,4 @@ Execution-facing notes:
 - [rough-terrain formal protocol revision long-budget test](./baselines/rough-terrain-formal-protocol-revision-long-budget.md)
 - [SC-PPO MuJoCo revised-anchor aligned comparison](./sc-ppo-mujoco-revised-anchor-aligned-comparison.md)
 - [SC-PPO next-step direction](./sc-ppo-next-step-direction.md)
+- [SC-PPO PID-limited ablation](./sc-ppo-pid-limited-ablation.md)

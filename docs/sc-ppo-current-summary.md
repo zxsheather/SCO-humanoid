@@ -100,7 +100,8 @@ The immediate execution order is now:
 1. keep `README.md`, `CONTEXT.md`, GitHub Issues, and the report drafts aligned on the completed
    claim boundary
 2. finish report polish and submission formatting
-3. only then decide whether to spend more budget on `PID有限消融`, `随机阶梯`, or post-mainline `SN`
+3. treat `PID有限消融` as closed mechanism support, then decide through `闭环后支线选择` whether the
+   next bounded branch should be `随机阶梯` or post-mainline `SN`
 
 ## Detailed references
 
@@ -112,3 +113,4 @@ The immediate execution order is now:
 - [SC-PPO MuJoCo revised-anchor aligned comparison](./sc-ppo-mujoco-revised-anchor-aligned-comparison.md)
 - [SC-PPO current blockers](./sc-ppo-current-blockers.md)
 - [SC-PPO next-step direction](./sc-ppo-next-step-direction.md)
+- [SC-PPO PID-limited ablation](./sc-ppo-pid-limited-ablation.md)

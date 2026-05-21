@@ -13,7 +13,7 @@ The repo has completed the previous two closure layers:
 
 The current next step is:
 
-`报告 / tracker / README 口径收口`
+`报告 / tracker / README 口径收口，然后进入闭环后支线选择`
 
 This means the repo should not immediately expand into `ALCP`, `SysID`, `Residual RL`,
 visual distillation, or `VLA` work.
@@ -78,22 +78,44 @@ The immediate work is documentation and tracker consistency:
 - keep `README.md`, `report.md`, `report.zh.md`, and status docs on the same claim boundary
 - close or update GitHub Issues whose original wording is now superseded by the completed evidence
   closure
+- keep `PID有限消融` closed as mechanism support rather than reopening it as broad component
+  attribution
+
+## Completed Layer 3: PID有限消融 mechanism diagnostic
+
+Issue `#6` is now closed as a bounded mechanism diagnostic:
+
+- matched `普通对偶上升`, `threshold = 3.8`, checkpoint `100`
+- `selection_status = all_checkpoints_collapsed`
+- `velocity_tracking_error_mean = 1.1646`
+- `action_jitter_l2_mean = 0.1661`
+- `episode_return_mean = 4.7101`
+- `fall_rate = 1.0000`
+
+Reading:
+
+- plain dual ascent does not clear the task floor in the available matched diagnostic
+- lower action jitter is not a usable headline result when the policy collapses
+- `PID-Lagrangian正式方案` remains the formal SC-PPO algorithm choice
+- this is not a full component-attribution study
 
 ## Next Optional Research Line
 
-After the report/tracker closure is finished, the first new research branch should still be:
+After the report/tracker closure is finished, the next decision should be made through
+`闭环后支线选择`. The two most plausible branches are:
 
-`SN`-based `架构级平滑优化线`
+- `随机阶梯` as a stress-test / protocol-repair branch for the current result
+- `SN`-based `架构级平滑优化线` as an `替代机制可行性诊断`
 
-Its first stage remains:
-
-`替代机制可行性诊断`
+Do not run both by default. The repo should choose one bounded branch and keep the current
+report-grade claim unchanged.
 
 ## Immediate non-goals
 
 The repo should not treat the following as the immediate next step:
 
 - reopening tiny local `SC-PPO` threshold-neighborhood promotion attempts
+- reopening `PID有限消融` as a broad component-attribution matrix
 - rerunning the same bounded heuristic weights under unchanged assumptions as if the failure were
   still only candidate choice
 - promoting new `MuJoCo terrain` runs as if they solved the current blocker
@@ -106,3 +128,7 @@ The repo should not treat the following as the immediate next step:
 When summarizing the agreed direction, the safest compact wording is:
 
 `当前仓库的主线证据闭环已经完成到可报告边界：Isaac 粗糙平面三组正式对比围绕 Vanilla PPO raw reference、revised heuristic anchor 和 SC-PPO 3.8 收口；对齐后的 MuJoCo isaac_mainline 不支持 SC-PPO 跨引擎胜利，应写成混合外部验证结论。下一步不是继续跑新实验，而是完成报告、README、CONTEXT 和 GitHub Issues 的口径收口。`
+
+Updated after `PID有限消融` closure:
+
+`PID有限消融 已作为有限机制诊断闭合：matched 普通对偶上升在 threshold = 3.8 的 checkpoint 100 评估中 fall_rate = 1.0，不能作为 task-valid 平滑方案；它只支持 PID-Lagrangian正式方案 的算法选择，不扩展成全组件归因研究。后续新工作应通过 闭环后支线选择 在 随机阶梯 和 SN 等候选支线中选一条推进。`

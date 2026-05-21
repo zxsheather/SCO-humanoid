@@ -1,0 +1,41 @@
+{
+  "artifact_schema_version": 1,
+  "analysis": "sc_ppo_pid_limited_ablation",
+  "issue": 6,
+  "status": "closed_as_limited_mechanism_diagnostic",
+  "scope": "PID有限消融",
+  "formal_mainline": {
+    "config": "configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp.json",
+    "method": "PID-Lagrangian正式方案",
+    "aggregate_over_seeds": [11, 17, 23],
+    "selected_checkpoints": [300, 300, 400],
+    "velocity_tracking_error_mean": "0.6412 +- 0.0554",
+    "joint_acceleration_l2_mean": "115.9079 +- 6.9386",
+    "action_jitter_l2_mean": "0.2205 +- 0.0017",
+    "episode_return_mean": "100.2838 +- 2.7150",
+    "fall_rate": "0.1000 +- 0.0000"
+  },
+  "plain_dual_probe": {
+    "config": "configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_dual_001.json",
+    "load_run": "May14_10-44-08_sc_ppo_threshold_38_lambda_05_quantile_090_dual_001_rough_terrain_iter100",
+    "artifact_run_name": "sc_ppo_threshold_38_lambda_05_quantile_090_dual_001_rough_terrain_iter100",
+    "checkpoint": 100,
+    "num_envs": 32,
+    "episodes": 20,
+    "selection_status": "all_checkpoints_collapsed",
+    "velocity_tracking_error_mean": 1.1645791351795196,
+    "joint_acceleration_l2_mean": 121.33711280822754,
+    "action_jitter_l2_mean": 0.1661422312259674,
+    "episode_return_mean": 4.710131597518921,
+    "fall_rate": 1.0,
+    "policy_local_sensitivity_cost_mean": 3.8059319853782654,
+    "constraint_violation_rate": 0.4090909090909091,
+    "source_metrics_path": "artifacts/methods/sc_ppo_dual_probe/sc_ppo_threshold_38_lambda_05_quantile_090_dual_001_rough_terrain_iter100/metrics.json",
+    "source_checkpoint_sweep_summary_path": "artifacts/methods/sc_ppo_dual_probe/sc_ppo_threshold_38_lambda_05_quantile_090_dual_001_rough_terrain_iter100/checkpoint_sweep_summary.json"
+  },
+  "interpretation": [
+    "Plain dual ascent at the matched threshold does not clear the task floor in the evaluated diagnostic checkpoint.",
+    "The lower action-jitter number is not useful as a headline smoothness win because the policy collapses with fall_rate = 1.0.",
+    "This supports the PID-Lagrangian正式方案 as the formal SC-PPO line, but it is not a broad component-attribution study."
+  ]
+}

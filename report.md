@@ -143,6 +143,16 @@ So the promotion stops at the Isaac stage. No new `MuJoCo isaac_mainline` budget
 for this line, and `3.6 + full_batch` returns to a completed diagnostic branch rather than a new
 formal mainline.
 
+PID-limited mechanism note:
+
+- A matched plain-dual diagnostic at `threshold = 3.8` was evaluated at checkpoint `100`.
+- It collapsed under the minimal Isaac evaluation: `fall_rate = 1.0000`,
+  `episode_return_mean = 4.7101`, and `velocity_tracking_error_mean = 1.1646`.
+- Its lower `action_jitter_l2_mean = 0.1661` is not a usable smooth-control win because the policy
+  is not task-valid.
+- This supports keeping `PID-Lagrangian` as the formal `SC-PPO` update, but it is only a
+  `PID有限消融`, not a full component-attribution study.
+
 ![Figure 3. Failed promotion of 3.6 plus full batch](artifacts/analysis/sc_ppo_report_figures/figure_threshold36_promotion_failure.png)
 
 Figure 3. The formal `3.6 + full_batch` promotion line fails at the Isaac stage because `seed23`
@@ -158,6 +168,8 @@ Established:
 - The nearest tighter challenger `3.6 + full_batch` does not replace the current mainline.
 - `MuJoCo isaac_mainline` is now aligned to the revised heuristic anchor and supports mixed
   external-validation evidence.
+- The matched plain-dual diagnostic collapses, so the limited PID ablation supports the current
+  `PID-Lagrangian` algorithm boundary without adding a new mainline result.
 
 Not established:
 
@@ -166,6 +178,7 @@ Not established:
 - that smoothness superiority fully transfers to `MuJoCo`
 - that `hfield_moderate` or `hfield_stress` are ready to serve as report-grade terrain results
 - that a broader neighborhood of tighter thresholds is interchangeable with the `3.8` mainline
+- that the PID-limited diagnostic proves independent necessity of every PID term
 
 Any remaining terrain-side work should therefore be read as protocol repair for external-validation
 semantics, not as evidence that a different algorithm line is ready to replace the current mainline.
@@ -191,6 +204,11 @@ Isaac main result:
 Failed promotion line:
 
 - `artifacts/methods/sc_ppo_fullbatch_threshold_probe/sc_ppo_fullbatch_threshold_36_iter400_seed*/checkpoint_sweep_summary.json`
+
+PID-limited mechanism diagnostic:
+
+- `docs/sc-ppo-pid-limited-ablation.md`
+- `artifacts/analysis/sc_ppo_pid_limited_ablation/summary.json`
 
 Generated figures:
 

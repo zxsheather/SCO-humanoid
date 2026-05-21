@@ -24,6 +24,10 @@ _Avoid_: 一次性探针, 已定稿主线
 A planning stage where the repo first freezes the claim boundary, citation set, and external-validation reading of the current mainline before opening a new method branch.
 _Avoid_: 结论未收口就开新坑, 把前沿方向池直接当执行计划
 
+**闭环后支线选择**:
+A post-mainline decision point where the repo chooses one bounded follow-up branch after the current claim boundary is frozen.
+_Avoid_: 多支线同时展开, 用新支线重写已冻结主结论
+
 **协议修复线**:
 A bounded workstream that improves evaluation-protocol alignment or discriminative power without treating the effort as a new algorithm mainline.
 _Avoid_: 新方法主线, 静默失败补丁, 结果没收口就混入主报告
@@ -195,6 +199,7 @@ _Avoid_: 双消融扩张, 全组件独立归因
 - A **诊断支线** answers a local experimental question before the repo spends budget on a broader claim
 - A **正式候选线** is eligible for formal evidence collection but does not automatically become the repo's final mainline
 - A **主线证据闭环** should happen before the repo opens a materially broader post-mainline exploration branch
+- A **闭环后支线选择** should choose one bounded **诊断支线** without reopening the frozen mainline claim
 - A **协议修复线** exists to fix evaluation semantics or protocol quality without being mistaken for a new algorithm claim
 - A **部分迁移结论** lets the repo include external validation in the main report without overstating mixed evidence
 - A **混合外部验证结论** should replace a **部分迁移结论** when aligned cross-engine replay does not preserve the Isaac-side method ordering
@@ -254,6 +259,9 @@ _Avoid_: 双消融扩张, 全组件独立归因
 
 > **Dev:** "主结论要证明每个组件都有效，还是先证明新方法整体强于启发式？"
 > **Domain expert:** "主命题是 **方法优于启发式**，组件层面只做有限消融。"
+
+> **Dev:** "主线证据闭环完成后，能不能同时开 PID、随机阶梯和 SN 三条线？"
+> **Domain expert:** "这是 **闭环后支线选择**，一次只推进一条有边界的 **诊断支线**，不能让新支线反向改写主结论。"
 
 > **Dev:** "随机阶梯和粗糙平面是主任务本身，还是同一个任务下的环境条件？"
 > **Domain expert:** "主任务是 **速度跟踪行走**，随机阶梯和粗糙平面只是 **复杂地形条件**。"
@@ -319,6 +327,7 @@ _Avoid_: 双消融扩张, 全组件独立归因
 
 - “实施计划” was ambiguous between **科研验证型交付** and **工程产品型交付** — resolved: this project uses **科研验证型交付**
 - “核心命题” was ambiguous between **方法优于启发式** and **组件消融验证** — resolved: the primary claim is **方法优于启发式**
+- “主线闭环后先做什么” was ambiguous between multi-branch expansion and **闭环后支线选择** — resolved: choose one bounded follow-up branch at a time
 - “主任务” was ambiguous between **速度跟踪行走** and **复杂地形通用运动** — resolved: the primary task is **速度跟踪行走**
 - “平滑性约束对象” was ambiguous between **策略局部敏感度** and **动作时间变化率** — resolved: the hard constraint targets **策略局部敏感度**
 - “SC-PPO 是否保留动作差分惩罚” was ambiguous between mixed shaping and **完全替换对比** — resolved: use **完全替换对比**
