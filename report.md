@@ -2,12 +2,12 @@
 
 ## Abstract
 
-This report records the current report-grade result for the repo's smooth-control study. On the
-Isaac rough-terrain main experiment, repaired PID-Lagrangian `SC-PPO` with `threshold = 3.8`
-beats the revised heuristic smoothing baseline under a `3-seed + checkpoint-sweep` protocol. On
-`MuJoCo isaac_mainline`, the aligned replay against that revised heuristic anchor is mixed rather
-than a cross-engine `SC-PPO` win. A tighter `3.6 + full_batch` challenger does not replace the
-`3.8` mainline because its formal promotion attempt fails at the Isaac stage.
+This report fixes the current report-grade claim for the repo's smooth-control study. On the Isaac
+rough-terrain main experiment, repaired PID-Lagrangian `SC-PPO` with `threshold = 3.8` beats the
+revised heuristic smoothing baseline under a `3-seed + checkpoint-sweep` protocol. On `MuJoCo
+isaac_mainline`, the aligned replay is mixed external-validation evidence rather than a
+cross-engine `SC-PPO` win. A tighter `3.6 + full_batch` challenger does not replace the `3.8`
+mainline because its formal promotion attempt fails at the Isaac stage.
 
 ## 1. Research Question and Current Claim
 
@@ -15,12 +15,13 @@ This project is a research-validation delivery rather than a framework productiz
 current question is whether repaired PID-Lagrangian `SC-PPO` can beat a strong heuristic
 smoothness baseline on the repo's rough-terrain humanoid velocity-tracking task.
 
-The current report-grade claim is narrow and explicit:
+The current report-grade claim is narrow:
 
 1. On the Isaac rough-terrain main experiment, repaired PID-Lagrangian `SC-PPO` with
-   `threshold = 3.8` now supports a real `method beats heuristic` result.
-2. On `MuJoCo isaac_mainline`, the aligned replay is mixed: the revised heuristic anchor is
-   stronger on task-side metrics, while `SC-PPO 3.8` is only slightly stronger on action jitter.
+   `threshold = 3.8` supports a defensible method-over-heuristic result.
+2. On `MuJoCo isaac_mainline`, the aligned replay supports mixed external-validation evidence: the
+   revised heuristic anchor is stronger on task-side metrics, while `SC-PPO 3.8` is only slightly
+   stronger on action jitter.
 3. The tighter `3.6 + full_batch` line does not replace the `3.8` mainline, because its formal
    promotion attempt failed at the Isaac stage.
 
@@ -43,7 +44,7 @@ Evidence rules:
 - The `MuJoCo isaac_mainline` result is now aligned to the revised heuristic anchor with a
   `3-seed` selected-checkpoint replay for both key methods.
 - `hfield_moderate` and `hfield_stress` are excluded from the main result narrative. They remain
-  repair-stage protocol lines and current blockers, not report-grade headline evidence.
+  repair-stage protocol lines, not report-grade headline evidence.
 - Any follow-up work on `hfield_moderate` or `hfield_stress` belongs to the terrain-side protocol
   repair backlog, not to a new algorithm-promotion claim.
 
@@ -106,7 +107,7 @@ So the correct reading is mixed external-validation evidence, not an `SC-PPO` cr
 
 Headline-safe wording:
 
-`On the current Isaac rough-terrain main experiment, repaired PID-Lagrangian SC-PPO (threshold = 3.8) supports the repo's main result against the revised heuristic baseline; on the aligned MuJoCo isaac_mainline replay, that ordering does not transfer, so the external-validation result should be reported as mixed evidence.`
+`On the current Isaac rough-terrain main experiment, repaired PID-Lagrangian SC-PPO (threshold = 3.8) supports the repo's main result against the revised heuristic baseline; on the aligned MuJoCo isaac_mainline replay, that ordering does not transfer, so the external-validation result should be reported as mixed external-validation evidence rather than as a cross-engine SC-PPO win.`
 
 ![Figure 2. MuJoCo isaac_mainline aligned replay](artifacts/analysis/sc_ppo_report_figures/figure_mujoco_aligned_replay.png)
 
@@ -152,7 +153,7 @@ selects `checkpoint 0`.
 Established:
 
 - Repaired PID-Lagrangian `SC-PPO` with `threshold = 3.8` is now the formal mainline.
-- On Isaac rough terrain, that line supports a defensible `method beats heuristic` claim.
+- On Isaac rough terrain, that line supports a defensible method-over-heuristic claim.
 - The result survives `3 seeds` and explicitly depends on checkpoint sweep selection.
 - The nearest tighter challenger `3.6 + full_batch` does not replace the current mainline.
 - `MuJoCo isaac_mainline` is now aligned to the revised heuristic anchor and supports mixed
@@ -175,30 +176,21 @@ Isaac main result:
 
 - `artifacts/analysis/rough_terrain_formal_comparison/comparison_summary.json`
 - `artifacts/analysis/rough_terrain_formal_protocol_revision_long_budget/comparison_summary.json`
-- `artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/metrics_selected.json`
-- `artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/metrics_selected.json`
-- `artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/metrics_selected.json`
-- `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/checkpoint_sweep_summary.json`
-- `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/checkpoint_sweep_summary.json`
-- `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/checkpoint_sweep_summary.json`
-- `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_selected.json`
-- `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_selected.json`
-- `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_selected.json`
+- heuristic selected metrics:
+  `artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/*/metrics_selected.json`
+- `SC-PPO 3.8` selected metrics and checkpoint sweeps:
+  `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed*/`
 
 `MuJoCo isaac_mainline` aligned replay:
 
-- `artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
-- `artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
-- `artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
-- `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
-- `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
-- `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
+- heuristic:
+  `artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/*/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
+- `SC-PPO 3.8`:
+  `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed*/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
 
 Failed promotion line:
 
-- `artifacts/methods/sc_ppo_fullbatch_threshold_probe/sc_ppo_fullbatch_threshold_36_iter400_seed11/checkpoint_sweep_summary.json`
-- `artifacts/methods/sc_ppo_fullbatch_threshold_probe/sc_ppo_fullbatch_threshold_36_iter400_seed17/checkpoint_sweep_summary.json`
-- `artifacts/methods/sc_ppo_fullbatch_threshold_probe/sc_ppo_fullbatch_threshold_36_iter400_seed23/checkpoint_sweep_summary.json`
+- `artifacts/methods/sc_ppo_fullbatch_threshold_probe/sc_ppo_fullbatch_threshold_36_iter400_seed*/checkpoint_sweep_summary.json`
 
 Generated figures:
 
