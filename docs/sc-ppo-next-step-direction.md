@@ -146,6 +146,16 @@ Scope:
 - do not retrain, open MuJoCo, or promote a new method line until the stress-test protocol itself is
   shown to be runnable and interpretable
 
+Current launcher:
+
+```bash
+python scripts/baseline/run_random_stairs_stress_test.py --stage plan
+```
+
+Protocol note:
+
+- [Random-stairs selected-checkpoint stress test](./random-stairs-selected-checkpoint-stress.md)
+
 ## Immediate non-goals
 
 The repo should not treat the following as the immediate next step:

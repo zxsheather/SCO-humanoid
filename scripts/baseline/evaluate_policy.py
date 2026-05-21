@@ -292,6 +292,7 @@ def main() -> int:
         "metric_schema_version": int(eval_cfg.get("metric_schema_version", 1)),
         "method_id": method_cfg.get("id"),
         "method_label": method_cfg.get("label"),
+        "evaluation_protocol": config.get("evaluation_protocol"),
         "episodes_evaluated": completed_episodes,
         "velocity_tracking_error_mean": tracking_mean,
         "velocity_tracking_error_std": tracking_std,
@@ -313,6 +314,8 @@ def main() -> int:
     manifest = read_json(manifest_path) if manifest_path.exists() else default_manifest(config, humanoid_gym_root)
     if method_cfg:
         manifest["method"] = method_cfg
+    if config.get("evaluation_protocol"):
+        manifest["evaluation_protocol"] = config["evaluation_protocol"]
     manifest["run_name"] = run_name
     manifest["run_dir"] = relative_to_repo(run_dir)
     manifest["checkpoint_path"] = relative_to_repo(checkpoint_path)

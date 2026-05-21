@@ -282,6 +282,7 @@ already-selected rough-terrain policies survive a harsher `复杂地形条件`:
   SN-only architecture toggles
 - `#7 随机阶梯`: now the selected bounded follow-up; start as an evaluation stress test of the
   selected rough-terrain checkpoints under the same metric schema, not as retraining, a new
-  headline method line, or a rewrite of the rough-terrain claim
+  headline method line, or a rewrite of the rough-terrain claim. The launcher is
+  `python scripts/baseline/run_random_stairs_stress_test.py --stage plan`
 - `MuJoCo terrain`: remains a separate non-blocking protocol-repair line unless explicitly promoted
   later through `闭环后支线选择`
