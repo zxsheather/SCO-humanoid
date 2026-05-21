@@ -14,6 +14,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from _common import (  # noqa: E402
+    apply_config_runtime_env,
     artifact_dir,
     configure_runtime_env,
     default_manifest,
@@ -26,6 +27,7 @@ from _common import (  # noqa: E402
     relative_to_repo,
     resolve_humanoid_gym_root,
     resolve_run_dir,
+    verify_required_local_patches,
     write_json,
 )
 from _overrides import apply_method_overrides  # noqa: E402
@@ -124,7 +126,9 @@ def main() -> int:
     run_name = args.run_name or config["run_name"]
     humanoid_gym_root = resolve_humanoid_gym_root(config, args.humanoid_gym_root)
     ensure_humanoid_gym_checkout(humanoid_gym_root)
+    verify_required_local_patches(config, humanoid_gym_root)
     configure_runtime_env()
+    apply_config_runtime_env(config)
     ensure_upstream_on_syspath(humanoid_gym_root)
 
     importlib.import_module("humanoid.envs")

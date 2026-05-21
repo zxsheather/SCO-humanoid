@@ -152,6 +152,111 @@ class RandomStairsStressRunnerTests(unittest.TestCase):
         self.assertEqual(sc_candidate["selected_checkpoints"], {"11": 300, "17": 300, "23": 400})
         self.assertIn("moderated", sc_candidate["run_name_template"])
 
+    def test_halfheight_protocol_declares_patch_dependency_and_runtime_env(self) -> None:
+        config_path = (
+            REPO_ROOT / "configs" / "methods" / "sc_ppo_threshold_38_pid_random_stairs_moderated_halfheight_eval.json"
+        )
+        with config_path.open("r", encoding="utf-8") as handle:
+            config = json.load(handle)
+
+        self.assertEqual(config["runtime_env"]["SCO_HUMANOID_STAIR_HEIGHT_SCALE"], "0.5")
+        protocol = config["evaluation_protocol"]
+        self.assertEqual(protocol["terrain_condition"], "random_stairs_moderated_halfheight")
+        self.assertEqual(protocol["stair_height_scale"], 0.5)
+        self.assertEqual(
+            protocol["local_patch_dependency"],
+            "scripts/baseline/patch_humanoid_gym_stair_height_scale.py",
+        )
+
+    def test_halfheight_sweep_reuses_selected_checkpoints(self) -> None:
+        sweep_cfg = random_stairs.load_sweep_config(
+            REPO_ROOT / "configs" / "sweeps" / "random_stairs_moderated_halfheight_selected_checkpoint_stress.json"
+        )
+        protocol = sweep_cfg["terrain_protocol"]
+        self.assertEqual(protocol["stair_height_scale"], 0.5)
+        sc_candidate = next(item for item in sweep_cfg["candidates"] if item["id"] == "sc_ppo")
+        self.assertEqual(sc_candidate["selected_checkpoints"], {"11": 300, "17": 300, "23": 400})
+        self.assertIn("halfheight", sc_candidate["run_name_template"])
+
+    def test_widestep_protocol_declares_patch_dependency_and_runtime_env(self) -> None:
+        config_path = (
+            REPO_ROOT / "configs" / "methods" / "sc_ppo_threshold_38_pid_random_stairs_moderated_widestep_eval.json"
+        )
+        with config_path.open("r", encoding="utf-8") as handle:
+            config = json.load(handle)
+
+        self.assertEqual(config["runtime_env"]["SCO_HUMANOID_STAIR_WIDTH_SCALE"], "2.0")
+        protocol = config["evaluation_protocol"]
+        self.assertEqual(protocol["terrain_condition"], "random_stairs_moderated_widestep")
+        self.assertEqual(protocol["stair_width_scale"], 2.0)
+        self.assertEqual(
+            protocol["local_patch_dependency"],
+            "scripts/baseline/patch_humanoid_gym_stair_geometry_env.py",
+        )
+
+    def test_widestep_sweep_reuses_selected_checkpoints(self) -> None:
+        sweep_cfg = random_stairs.load_sweep_config(
+            REPO_ROOT / "configs" / "sweeps" / "random_stairs_moderated_widestep_selected_checkpoint_stress.json"
+        )
+        protocol = sweep_cfg["terrain_protocol"]
+        self.assertEqual(protocol["stair_width_scale"], 2.0)
+        sc_candidate = next(item for item in sweep_cfg["candidates"] if item["id"] == "sc_ppo")
+        self.assertEqual(sc_candidate["selected_checkpoints"], {"11": 300, "17": 300, "23": 400})
+        self.assertIn("widestep", sc_candidate["run_name_template"])
+
+    def test_difficultycap_protocol_declares_patch_dependency_and_runtime_env(self) -> None:
+        config_path = (
+            REPO_ROOT / "configs" / "methods" / "sc_ppo_threshold_38_pid_random_stairs_moderated_difficultycap_eval.json"
+        )
+        with config_path.open("r", encoding="utf-8") as handle:
+            config = json.load(handle)
+
+        self.assertEqual(config["runtime_env"]["SCO_HUMANOID_STAIR_DIFFICULTY_CAP"], "0.5")
+        protocol = config["evaluation_protocol"]
+        self.assertEqual(protocol["terrain_condition"], "random_stairs_moderated_difficultycap")
+        self.assertEqual(protocol["stair_difficulty_cap"], 0.5)
+        self.assertEqual(
+            protocol["local_patch_dependency"],
+            "scripts/baseline/patch_humanoid_gym_stair_difficulty_env.py",
+        )
+
+    def test_difficultycap_sweep_reuses_selected_checkpoints(self) -> None:
+        sweep_cfg = random_stairs.load_sweep_config(
+            REPO_ROOT / "configs" / "sweeps" / "random_stairs_moderated_difficultycap_selected_checkpoint_stress.json"
+        )
+        protocol = sweep_cfg["terrain_protocol"]
+        self.assertEqual(protocol["stair_difficulty_cap"], 0.5)
+        sc_candidate = next(item for item in sweep_cfg["candidates"] if item["id"] == "sc_ppo")
+        self.assertEqual(sc_candidate["selected_checkpoints"], {"11": 300, "17": 300, "23": 400})
+        self.assertIn("difficultycap", sc_candidate["run_name_template"])
+
+    def test_decoupled_stairband_protocol_declares_patch_dependency_and_runtime_env(self) -> None:
+        config_path = (
+            REPO_ROOT / "configs" / "methods" / "sc_ppo_threshold_38_pid_random_stairs_decoupled_stairband_eval.json"
+        )
+        with config_path.open("r", encoding="utf-8") as handle:
+            config = json.load(handle)
+
+        self.assertEqual(config["runtime_env"]["SCO_HUMANOID_STAIR_DIFFICULTY_MIN"], "0.0")
+        self.assertEqual(config["runtime_env"]["SCO_HUMANOID_STAIR_DIFFICULTY_MAX"], "0.35")
+        protocol = config["evaluation_protocol"]
+        self.assertEqual(protocol["terrain_condition"], "random_stairs_decoupled_stairband")
+        self.assertEqual(protocol["stair_difficulty_band"], [0.0, 0.35])
+        self.assertEqual(
+            protocol["local_patch_dependency"],
+            "scripts/baseline/patch_humanoid_gym_stair_difficulty_band_env.py",
+        )
+
+    def test_decoupled_stairband_sweep_reuses_selected_checkpoints(self) -> None:
+        sweep_cfg = random_stairs.load_sweep_config(
+            REPO_ROOT / "configs" / "sweeps" / "random_stairs_decoupled_stairband_selected_checkpoint_stress.json"
+        )
+        protocol = sweep_cfg["terrain_protocol"]
+        self.assertEqual(protocol["stair_difficulty_band"], [0.0, 0.35])
+        sc_candidate = next(item for item in sweep_cfg["candidates"] if item["id"] == "sc_ppo")
+        self.assertEqual(sc_candidate["selected_checkpoints"], {"11": 300, "17": 300, "23": 400})
+        self.assertIn("stairband", sc_candidate["run_name_template"])
+
 
 if __name__ == "__main__":
     unittest.main()

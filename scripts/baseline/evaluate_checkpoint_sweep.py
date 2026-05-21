@@ -22,6 +22,7 @@ from _common import (  # noqa: E402
     repo_root,
     resolve_humanoid_gym_root,
     resolve_run_dir,
+    verify_required_local_patches,
     write_json,
 )
 
@@ -257,6 +258,7 @@ def main() -> int:
 
     config = load_config(args.config)
     humanoid_gym_root = resolve_humanoid_gym_root(config, args.humanoid_gym_root)
+    verify_required_local_patches(config, humanoid_gym_root)
     run_dir = resolve_run_dir(humanoid_gym_root, config, run_name=args.run_name, load_run=args.load_run)
     checkpoints = parse_checkpoint_list(args.checkpoints, run_dir)
 

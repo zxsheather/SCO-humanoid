@@ -14,6 +14,12 @@ DEFAULT_CONFIG = REPO_ROOT / "configs" / "baselines" / "vanilla_ppo.json"
 DEFAULT_TORCH_EXTENSIONS_DIR = Path("/tmp/torch_extensions")
 DEFAULT_MPLCONFIGDIR = Path("/tmp/matplotlib")
 DEFAULT_XDG_CACHE_HOME = Path("/tmp/xdg-cache")
+STAIR_HEIGHT_SCALE_ENV = "SCO_HUMANOID_STAIR_HEIGHT_SCALE"
+STAIR_WIDTH_SCALE_ENV = "SCO_HUMANOID_STAIR_WIDTH_SCALE"
+STAIR_DIFFICULTY_CAP_ENV = "SCO_HUMANOID_STAIR_DIFFICULTY_CAP"
+STAIR_DIFFICULTY_MIN_ENV = "SCO_HUMANOID_STAIR_DIFFICULTY_MIN"
+STAIR_DIFFICULTY_MAX_ENV = "SCO_HUMANOID_STAIR_DIFFICULTY_MAX"
+STAIR_HEIGHT_SCALE_PATCH_MARKER = "SCO-humanoid local patch: configurable HumanoidTerrain stair height scale."
 
 
 class BaselineError(RuntimeError):
@@ -49,6 +55,49 @@ def nested_set(payload: dict[str, Any], dotted_key: str, value: Any) -> None:
 
 def config_overrides(config: dict[str, Any]) -> dict[str, Any]:
     return config.get("overrides", {})
+
+
+def runtime_env_overrides(config: dict[str, Any]) -> dict[str, str]:
+    raw = config.get("runtime_env", {})
+    if raw is None:
+        return {}
+    if not isinstance(raw, dict):
+        raise BaselineError("Config field runtime_env must be a mapping when present")
+    return {str(key): str(value) for key, value in raw.items()}
+
+
+def apply_config_runtime_env(config: dict[str, Any]) -> None:
+    for key, value in runtime_env_overrides(config).items():
+        os.environ[key] = value
+
+
+def verify_required_local_patches(config: dict[str, Any], humanoid_gym_root: Path) -> None:
+    runtime_env = runtime_env_overrides(config)
+    required_keys = [
+        key
+        for key in (
+            STAIR_HEIGHT_SCALE_ENV,
+            STAIR_WIDTH_SCALE_ENV,
+            STAIR_DIFFICULTY_CAP_ENV,
+            STAIR_DIFFICULTY_MIN_ENV,
+            STAIR_DIFFICULTY_MAX_ENV,
+        )
+        if key in runtime_env
+    ]
+    if not required_keys:
+        return
+    terrain_path = humanoid_gym_root / "humanoid" / "utils" / "terrain.py"
+    if not terrain_path.exists():
+        raise BaselineError(f"Required terrain source not found: {terrain_path}")
+    source = terrain_path.read_text(encoding="utf-8")
+    missing = [key for key in required_keys if key not in source]
+    if not missing:
+        return
+    raise BaselineError(
+        f"Config requests local terrain runtime env {missing}, but {relative_to_repo(terrain_path)} "
+        "is missing the required local patch support. Run the appropriate patch script under "
+        "`scripts/baseline/` first."
+    )
 
 
 def apply_overrides_dict(payload: dict[str, Any], overrides: dict[str, Any]) -> dict[str, Any]:
@@ -305,4 +354,7 @@ def default_manifest(config: dict[str, Any], humanoid_gym_root: Path) -> dict[st
         manifest["method"] = config["method"]
     if "overrides" in config:
         manifest["overrides"] = config["overrides"]
+    runtime_env = runtime_env_overrides(config)
+    if runtime_env:
+        manifest["runtime_env"] = runtime_env
     return manifest
