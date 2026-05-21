@@ -19,9 +19,10 @@ Reason:
   - the revised heuristic anchor
   - `SC-PPO 3.8`
 
-So the repo is no longer blocked by evidence-boundary closure. The remaining active work is
-`科研交付冻结`: align reports, README, `CONTEXT.md`, status docs, issue tracker, artifact pointers,
-and final reproduction entrypoints.
+So the repo is no longer blocked by evidence-boundary closure. The resulting
+`科研交付冻结 / 仓库内科研交付包` pass is also complete, so `main` no longer carries active closure
+work; further motion belongs to post-freeze branch selection rather than more reconciliation on the
+frozen package.
 
 The `PID有限消融` follow-up is also now closed as a limited mechanism diagnostic. A matched
 `普通对偶上升` probe at `threshold = 3.8` collapses under the minimal Isaac evaluation, so it
@@ -147,11 +148,11 @@ Completed `PID有限消融` mechanism diagnostic:
 - reading: lower action jitter does not count as a smooth-control win because the policy is not
   task-valid
 
-## Immediate Reconciliation Target
+## Current Post-Freeze Rule
 
-The current first-priority remediation target is:
+The previous first-priority remediation target has been completed:
 
-`完成仓库内科研交付包，使 README、CONTEXT、GitHub Issues、报告草稿、状态文档和最终复现清单都反映已完成的主线证据闭环、PID有限消融闭合、SN-only 负向诊断闭合和 #7 随机阶梯迁移失败`
+`README、CONTEXT、GitHub Issues、报告草稿、状态文档和最终复现清单都已经反映已完成的主线证据闭环、PID有限消融闭合、SN-only 负向诊断闭合和 #7 随机阶梯迁移失败`
 
 Execution-facing notes:
 
@@ -159,9 +160,9 @@ Execution-facing notes:
 - do not spend new budget on `Vanilla PPO` repair; keep its collapse as raw-reference evidence
 - do not describe aligned `MuJoCo isaac_mainline` as an `SC-PPO` win
 - do not continue blind `SN-only` layer or coefficient toggles under the failed reduced-budget recipe
-- keep `#7 随机阶梯` closed as selected-checkpoint transfer failure during the freeze
-- run only `冻结期轻量验证`; do not rerun Isaac training, MuJoCo replay, random-stairs evaluation,
-  or SN diagnostics as part of this target
+- keep `#7 随机阶梯` closed as selected-checkpoint transfer failure on `main`
+- preserve the completed `冻结期轻量验证` boundary; do not rerun Isaac training, MuJoCo replay,
+  random-stairs evaluation, or SN diagnostics as part of frozen-package maintenance
 - keep terrain-side `MuJoCo` separate unless it is explicitly promoted later through
   `闭环后支线选择`
 

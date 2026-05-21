@@ -220,10 +220,10 @@ PID 有限机制诊断:
   heuristic anchor 和 `SC-PPO 3.8` 在第一版 stairs-only protocol 下全部 `fall_rate = 1.0`，
   所以它不是 task-valid 的随机阶梯方法排序。
 
-因此仓库进入 `科研交付冻结`：当前产物是 `仓库内科研交付包`，目标是让报告、tracker、artifact
-指针和复现入口一致。冻结期只做 `冻结期轻量验证`，包括 tests、JSON/path sanity、Markdown
+因此仓库已经完成 `科研交付冻结`：当前产物就是 `仓库内科研交付包`，报告、tracker、artifact
+指针和复现入口已经对齐。冻结阶段只做过 `冻结期轻量验证`，包括 tests、JSON/path sanity、Markdown
 一致性和 git hygiene。新的 moderated stairs protocol、task-stabilized SN recipe 或 terrain
-repair 都应作为 post-freeze branch 单独打开，不能混入本报告。
+repair 都应作为 post-freeze branch 单独打开，不能混入这个已冻结的报告包。
 
 冻结参考：
 

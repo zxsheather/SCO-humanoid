@@ -267,14 +267,12 @@ If you are new to the repo, the fastest way to build context is:
 10. [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
 11. [docs/adr/0001-freeze-research-delivery-before-new-protocol-repair.md](docs/adr/0001-freeze-research-delivery-before-new-protocol-repair.md)
 
-## Current next step
+## Current repo state
 
-The immediate next task in this repo is:
+The repo has completed `科研交付冻结 / 仓库内科研交付包`.
 
-`科研交付冻结 / 仓库内科研交付包`
-
-Concretely, that means freezing the completed evidence map, reports, tracker state, and
-reproduction entrypoints without generating new experiment evidence:
+`main` should now be read as the frozen internal research delivery package rather than as an active
+experiment branch:
 
 - Isaac rough-terrain: `SC-PPO 3.8` supports the current `方法优于启发式` claim against the revised
   heuristic anchor
@@ -288,8 +286,9 @@ reproduction entrypoints without generating new experiment evidence:
   first stairs-only random-stairs protocol, so it records direct transfer failure rather than a
   task-valid method ranking
 - future moderated random-stairs, terrain protocol repair, or task-stabilized SN work should be
-  opened as a separate post-freeze branch
+  opened as separate post-freeze branches rather than modifying the frozen package on `main`
 
-Use the final reproduction checklist as the operational handoff index:
+Tracked freeze references:
 
+- [artifacts/analysis/final_research_delivery_freeze/summary.json](artifacts/analysis/final_research_delivery_freeze/summary.json)
 - [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)

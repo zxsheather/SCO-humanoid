@@ -106,8 +106,9 @@ Important reporting nuance:
   protocol revision, not as the final anchor itself
 - the earlier frozen `64 envs x 400 iterations` regime remains the historical failure record for
   the baseline-side formal refresh
-- this does not by itself close the whole report: the repo still needs to re-freeze the Isaac-side
-  three-way wording and decide how to align `MuJoCo关键两组终验` with this revised anchor
+- historically this result triggered the Isaac-side re-freeze and the aligned `MuJoCo关键两组终验`
+  wording update; both that report-side closure and the later research-delivery freeze are now
+  complete
 
 ## Command
 

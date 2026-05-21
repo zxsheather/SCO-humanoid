@@ -233,11 +233,11 @@ They clarify the delivery boundary but do not create new headline results:
   PPO, the revised heuristic anchor, and `SC-PPO 3.8` all have `fall_rate = 1.0` under the first
   stairs-only protocol, so the result is not a task-valid random-stairs method ranking.
 
-The repo therefore enters `科研交付冻结`: the output is a `仓库内科研交付包` with aligned reports,
-tracker state, artifact pointers, and reproduction entrypoints. Freeze validation is limited to
+The repo has now completed `科研交付冻结`: the resulting `仓库内科研交付包` aligns reports,
+tracker state, artifact pointers, and reproduction entrypoints. Freeze validation stayed limited to
 tests, JSON/path sanity, Markdown consistency, and git hygiene. New moderated-stairs protocols,
 task-stabilized SN recipes, or additional terrain repair should be opened as post-freeze branches
-rather than folded into this report.
+rather than folded into this frozen report package.
 
 Freeze references:
 

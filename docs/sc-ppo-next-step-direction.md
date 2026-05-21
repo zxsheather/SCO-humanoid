@@ -13,14 +13,16 @@ The repo has completed the previous closure layers:
 3. `PID有限消融`
 4. `SN-only 替代机制可行性诊断`
 5. `#7 随机阶梯 selected-checkpoint stress test`
+6. `科研交付冻结 / 仓库内科研交付包`
 
-The current next step is:
+The repo no longer has an unfinished closure step on `main`. The current operating rule is:
 
-`科研交付冻结 / 仓库内科研交付包`
+`keep main frozen and open any additional work as a post-freeze branch`
 
-This means the repo should freeze reports, tracker state, artifact pointers, and reproduction
-entrypoints before opening more protocol repair. It should not immediately expand into moderated
-stairs, `SN` recipe redesign, `ALCP`, `SysID`, `Residual RL`, visual distillation, or `VLA` work.
+This means the repo should preserve the completed reports, tracker state, artifact pointers, and
+reproduction entrypoints on `main` rather than reopening the frozen package. It should not
+immediately expand into moderated stairs, `SN` recipe redesign, `ALCP`, `SysID`, `Residual RL`,
+visual distillation, or `VLA` work on the frozen branch.
 
 ## Completed Layer 1: 重冻结 rough-terrain 三组正式对比
 
@@ -168,29 +170,34 @@ Completed first-pass result:
 - `fall_rate = 1.0` for Vanilla PPO, the revised heuristic anchor, and `SC-PPO threshold = 3.8`
 - the result is direct selected-checkpoint transfer failure, not a task-valid `SC-PPO` random-stairs
   advantage
-- the next useful random-stairs step is protocol repair or moderation, but it belongs after the
-  current freeze as a separate post-freeze issue
+- the next useful random-stairs step is protocol repair or moderation, but it should be opened as a
+  separate post-freeze issue or branch rather than folded into `main`
 
-## Active Stage: 科研交付冻结
+## Completed Stage: 科研交付冻结
 
-The active stage is now:
+The repo has completed:
 
 `freeze the internal research delivery package`
 
-Scope:
+Completed outputs:
 
 - align `README.md`, `CONTEXT.md`, reports, status docs, and GitHub tracker wording
 - create a standalone final reproduction checklist with canonical commands and artifact paths
 - run only `冻结期轻量验证`: unit tests, JSON validity, path/link sanity, and `git diff --check`
-- do not rerun Isaac training, MuJoCo replay, random-stairs evaluation, or SN diagnostics as part
-  of the freeze
-- close the freeze issue once the documentation and lightweight validation agree
 
-## Immediate non-goals
+Operating rule after completion:
+
+- do not rerun Isaac training, MuJoCo replay, random-stairs evaluation, or SN diagnostics on
+  `main`
+- keep the frozen package stable and use the final reproduction checklist plus freeze summary as the
+  canonical handoff index
+- if new work is opened, do it as a separate post-freeze issue or branch
+
+## Immediate non-goals on `main`
 
 The repo should not treat the following as the immediate next step:
 
-- reopening #7 as active work during the freeze
+- reopening #7 as active work by undoing the frozen-package boundary on `main`
 - reopening tiny local `SC-PPO` threshold-neighborhood promotion attempts
 - reopening `PID有限消融` as a broad component-attribution matrix
 - rerunning the same bounded heuristic weights under unchanged assumptions as if the failure were
@@ -201,11 +208,11 @@ The repo should not treat the following as the immediate next step:
 - starting `SysID` or `Residual RL` work before the current baseline-side repair is done
 - adding perception or `VLA` as if they were a direct continuation of the current locomotion line
 
-## Canonical next-step sentence
+## Canonical current-state sentence
 
-When summarizing the agreed direction, the safest compact wording is:
+When summarizing the agreed repo state, the safest compact wording is:
 
-`当前仓库的主线证据闭环已经完成到可报告边界：Isaac 粗糙平面三组正式对比围绕 Vanilla PPO raw reference、revised heuristic anchor 和 SC-PPO 3.8 收口；对齐后的 MuJoCo isaac_mainline 不支持 SC-PPO 跨引擎胜利，应写成混合外部验证结论。PID有限消融、SN-only 负向诊断和 #7 随机阶梯 selected-checkpoint transfer failure 都已经闭合。当前下一步是科研交付冻结：完成仓库内科研交付包、最终复现清单和轻量验证，而不是继续跑新实验。`
+`当前仓库的主线证据闭环和科研交付冻结都已经完成：Isaac 粗糙平面三组正式对比围绕 Vanilla PPO raw reference、revised heuristic anchor 和 SC-PPO 3.8 收口；对齐后的 MuJoCo isaac_mainline 不支持 SC-PPO 跨引擎胜利，应写成混合外部验证结论。PID有限消融、SN-only 负向诊断和 #7 随机阶梯 selected-checkpoint transfer failure 都已经闭合。main 分支承载的是仓库内科研交付包；任何 moderated stairs、task-stabilized SN recipe 或其他新方向都应作为 post-freeze branch 单独打开。`
 
 Updated after `PID有限消融` closure:
 
@@ -213,4 +220,4 @@ Updated after `PID有限消融` closure:
 
 Updated after `SN-only` diagnostic closure:
 
-`SN-only 替代机制可行性诊断 已作为负向结果闭合：full-actor、hidden-layer-only、coeff = 2.0 和 first-hidden-only reduced-budget runs 都未恢复 task-valid 行为，因此不继续消耗 seeds 或 MuJoCo 预算。#7 随机阶梯也已闭合作为 selected-checkpoint transfer failure；当前应完成科研交付冻结，未来 moderated stairs 或 task-stabilized SN recipe 应作为 post-freeze branch 单独打开。`
+`SN-only 替代机制可行性诊断 已作为负向结果闭合：full-actor、hidden-layer-only、coeff = 2.0 和 first-hidden-only reduced-budget runs 都未恢复 task-valid 行为，因此不继续消耗 seeds 或 MuJoCo 预算。#7 随机阶梯也已闭合作为 selected-checkpoint transfer failure；未来 moderated stairs 或 task-stabilized SN recipe 应作为 post-freeze branch 单独打开，而不是回到 main 上改写冻结包。`

@@ -95,14 +95,16 @@ The mainline evidence closure is now complete at the current claim boundary:
   advantage
 - `MuJoCo terrain` remains a separate protocol-repair line
 
-The immediate execution order is now `科研交付冻结`, not another experiment branch:
+That mainline closure and the resulting `仓库内科研交付包` freeze are now complete. The current
+execution rule on `main` is:
 
-1. freeze `README.md`, `CONTEXT.md`, GitHub Issues, report drafts, and reproduction entrypoints on
-   the completed claim boundary
+1. keep `README.md`, `CONTEXT.md`, GitHub Issues, report drafts, and reproduction entrypoints
+   aligned on the completed claim boundary
 2. keep `PID有限消融` closed as mechanism support and keep the `SN-only` replacement branch closed
    as a negative feasibility diagnostic
 3. keep `#7 随机阶梯` closed as selected-checkpoint transfer failure, not as a task-valid method
-   ranking or a request for more immediate experiment budget
+   ranking or a request for more immediate experiment budget, and open any further terrain-side or
+   mechanism-side work as separate post-freeze branches
 
 The first #7 stairs-only selected-checkpoint stress test is now complete:
 
@@ -110,8 +112,8 @@ The first #7 stairs-only selected-checkpoint stress test is now complete:
   across seeds `11`, `17`, and `23`
 - this is direct selected-checkpoint transfer failure, not a task-valid random-stairs method
   ranking
-- the next useful random-stairs step is protocol repair or moderation, but it belongs after the
-  current `仓库内科研交付包` freeze and should be opened as a separate post-freeze branch
+- the next useful random-stairs step is protocol repair or moderation, but it should be opened as a
+  separate post-freeze branch rather than folded back into `main`
 
 ## Detailed references
 

@@ -250,21 +250,21 @@ Canonical artifacts:
 - [Random-stairs selected-checkpoint stress test](./random-stairs-selected-checkpoint-stress.md)
 - `artifacts/analysis/random_stairs_selected_checkpoint_stress/comparison_summary.json`
 
-## Freeze Boundary
+## Freeze Package Status
 
-The active stage is now `科研交付冻结`. The repo should be delivered as a
-`仓库内科研交付包` with aligned reports, status docs, tracker state, artifact pointers, and a final
-reproduction checklist.
+The `科研交付冻结` pass is complete. The repo is already delivered as a `仓库内科研交付包` with
+aligned reports, status docs, tracker state, artifact pointers, and a final reproduction checklist.
 
-Freeze validation should stay lightweight:
+Freeze validation stayed lightweight:
 
 - unit tests
 - JSON/path sanity
 - Markdown consistency
 - `git diff --check`
 
-The freeze should not rerun Isaac training, MuJoCo replay, random-stairs evaluation, or SN
-diagnostics.
+The frozen package on `main` should not rerun Isaac training, MuJoCo replay, random-stairs
+evaluation, or SN diagnostics. Any further work in those areas should start from a separate
+post-freeze branch or issue.
 
 Canonical freeze references:
 

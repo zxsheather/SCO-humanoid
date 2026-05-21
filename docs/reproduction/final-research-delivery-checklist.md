@@ -1,7 +1,7 @@
 # Final Research Delivery Checklist
 
-This checklist freezes the repo as a `仓库内科研交付包`. It is an operational handoff index for the
-completed evidence, not a request to generate new results during the freeze.
+This checklist defines the already completed `仓库内科研交付包`. It is an operational handoff index
+for the completed evidence, not a request to generate new results on `main`.
 
 ## Scope
 
@@ -14,7 +14,7 @@ Freeze target:
 - `SN-only`: replacement-mechanism diagnostic is operational but negative.
 - `随机阶梯`: selected rough-terrain checkpoints collapse under the first stairs-only stress test.
 
-Out of scope during freeze:
+Out of scope for this frozen package:
 
 - rerunning Isaac training
 - rerunning MuJoCo replay

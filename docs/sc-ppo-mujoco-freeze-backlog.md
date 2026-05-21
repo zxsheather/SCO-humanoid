@@ -1,10 +1,12 @@
 # SC-PPO MuJoCo Freeze Backlog
 
-This note records the concrete work needed to finish the current
-`主线证据闭环` for the repo's `MuJoCo` reading.
+This note records the historical work that was needed to finish the repo's
+`MuJoCo` side of `主线证据闭环`.
 
-It separates report-freeze work from the separate `MuJoCo terrain`
-`协议修复线`.
+The report-freeze segment described here is now complete. Keep this file as historical backlog
+context, and use the current summary/status docs for the live repo state.
+
+It separates the completed report-freeze work from the separate `MuJoCo terrain` `协议修复线`.
 
 ## Part 1: Report-freeze items
 

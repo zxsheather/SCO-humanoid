@@ -189,8 +189,9 @@ protocol, while the revised long-budget heuristic note provides the current form
 ## Current closure
 
 The historical next step from this note was to re-freeze the rough-terrain three-way comparison
-around `Vanilla PPO` raw reference, the revised heuristic anchor, and `SC-PPO 3.8`. That closure is
-now complete; the active stage is `科研交付冻结`.
+around `Vanilla PPO` raw reference, the revised heuristic anchor, and `SC-PPO 3.8`. That closure
+and the subsequent `科研交付冻结` are now complete; use the final checklist and freeze summary for
+the live repo state.
 
 Canonical follow-up notes:
 
