@@ -7,9 +7,10 @@ It only creates the minimal path required for a `替代机制可行性诊断`.
 
 ## Current implementation scope
 
-The repo now has a dedicated diagnostic config:
+The repo now has dedicated diagnostic configs:
 
 - `configs/methods/sn_ppo_rough_terrain.json`
+- `configs/methods/sn_ppo_hidden_only_rough_terrain.json`
 
 The repo also has a dedicated reduced-budget diagnostic launcher:
 
@@ -21,6 +22,8 @@ This branch currently means:
 - same `粗糙平面` training condition
 - same smoothness-oriented reward disablement as the current `SC-PPO` path
 - actor-side `Spectral Normalization`
+- optional hidden-layer-only actor `Spectral Normalization`
+- configurable actor SN output scale via `policy.actor_spectral_norm_coeff`
 - standard `PPO` training path rather than the current Jacobian-penalty
   `SCPPO` training path
 
@@ -167,6 +170,35 @@ Current reading:
 - the next useful diagnostic is not more seeds or MuJoCo; it is SN parameterization or training
   recipe tuning
 
+A hidden-layer-only SN medium diagnostic has now also completed:
+
+- config: `configs/methods/sn_ppo_hidden_only_rough_terrain.json`
+- run name: `sn_ppo_hidden_only_rough_terrain_medium_seed123145`
+- selected checkpoint: `100`
+- `selection_status = all_checkpoints_collapsed`
+- `velocity_tracking_error_mean = 1.4903`
+- `joint_acceleration_l2_mean = 90.0006`
+- `action_jitter_l2_mean = 0.1019`
+- `episode_return_mean = 3.4648`
+- `fall_rate = 1.0000`
+- `policy_local_sensitivity_cost_mean = 1.3343`
+
+Mechanism check:
+
+- checkpoint `model_100.pt` contains SN state for hidden actor layers `actor.0`, `actor.2`, and
+  `actor.4`
+- the output layer `actor.6` contains normal `weight` and `bias` keys only
+- so the hidden-only switch is active and correctly excludes the output layer
+
+Current hidden-only reading:
+
+- removing SN from the actor output layer does not clear the task floor
+- it lowers `joint_acceleration_l2_mean` relative to full-actor SN medium but worsens
+  velocity-tracking error, action jitter, and local sensitivity
+- this is still a collapsed diagnostic, not a candidate promotion
+- the next useful mechanism change is a real coefficient sweep such as
+  `actor_spectral_norm_coeff > 1` or a narrower selective-layer SN variant, not more seeds
+
 ## Current operational boundary
 
 An attempted larger `SN` smoke at `num_envs = 64` failed with CUDA OOM in the
@@ -189,8 +221,8 @@ The `short` preset uses `32` training envs, `20` iterations, `16` evaluation env
 episodes. The `medium` preset uses `32` training envs, `100` iterations, `16` evaluation envs, and
 `10` episodes. All presets intentionally stay below formal-comparison budget.
 
-All three SN presets currently collapse at evaluation time, so they establish only operational
-feasibility, not replacement-mechanism feasibility.
+All current SN diagnostics, including hidden-layer-only medium, collapse at evaluation time. They
+establish only operational feasibility, not replacement-mechanism feasibility.
 
 ## Current non-goals
 

@@ -278,7 +278,8 @@ aligned on the same boundary:
 - `PID有限消融`: closed as limited mechanism support for `PID-Lagrangian正式方案`, not a new mainline
 - `SN`: selected as the next bounded `替代机制可行性诊断`, with
   `scripts/baseline/run_sn_diagnostic.py --stage all --preset smoke --skip-completed` as the first
-  repeatable command; `smoke`, `short`, and `medium` reduced-budget runs completed but collapsed,
-  so this branch is operational evidence only until the SN parameterization is revised
+  repeatable command; full-actor `smoke`, `short`, `medium`, and hidden-layer-only `medium`
+  reduced-budget runs completed but collapsed, so this branch is operational evidence only until
+  the SN parameterization is revised
 - `MuJoCo terrain` and `随机阶梯` remain separate non-blocking follow-up lines unless they are
   explicitly promoted later through `闭环后支线选择`

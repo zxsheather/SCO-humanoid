@@ -86,6 +86,16 @@ For the next single-seed diagnostic after matched-control isolation:
 python scripts/baseline/run_sn_diagnostic.py --stage all --preset medium --skip-completed
 ```
 
+For the output-layer isolation diagnostic:
+
+```bash
+python scripts/baseline/run_sn_diagnostic.py \
+  --config configs/methods/sn_ppo_hidden_only_rough_terrain.json \
+  --stage all \
+  --preset medium \
+  --skip-completed
+```
+
 All presets remain `替代机制可行性诊断`; none should be reported as a formal mainline challenge.
 
 Current runner status:
@@ -121,11 +131,30 @@ Next isolation control:
 - next action: do not promote or scale seeds; revise the SN parameterization or training recipe
   before spending more diagnostic budget
 
+Output-layer isolation:
+
+- config:
+  `configs/methods/sn_ppo_hidden_only_rough_terrain.json`
+- purpose: test whether full-actor SN collapse is caused by constraining the actor output layer
+- result: hidden-layer-only `medium` also collapses with `fall_rate = 1.0000`
+- selected checkpoint: `100`
+- `velocity_tracking_error_mean = 1.4903`
+- `joint_acceleration_l2_mean = 90.0006`
+- `action_jitter_l2_mean = 0.1019`
+- `episode_return_mean = 3.4648`
+- `policy_local_sensitivity_cost_mean = 1.3343`
+- mechanism check: `actor.0`, `actor.2`, and `actor.4` contain SN state, while output layer
+  `actor.6` contains normal `weight` and `bias`
+- interpretation: output-layer SN is not the blocker; hidden-only SN is operational but still not
+  task-valid
+
 Current decision:
 
 - SN is operational and emits comparable mechanism-side evidence
 - SN is not task-valid under the current reduced-budget diagnostic presets
 - actor-side SN is confirmed present in the checkpoint, so the failure is not a missing-config bug
+- hidden-layer-only SN is also confirmed active, so the failure is not explained by the output layer
+  being SN-constrained
 - this branch should stay open only for mechanism tuning; it should not consume formal-comparison or
   MuJoCo budget in the current form
 

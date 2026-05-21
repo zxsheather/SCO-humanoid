@@ -123,6 +123,9 @@ Current selected branch:
   a single-seed `medium` SN diagnostic rather than a formal promotion
 - `medium` SN also collapsed, so the next step is SN parameterization or training-recipe tuning, not
   more seeds or MuJoCo
+- hidden-layer-only `medium` SN also collapsed, so constraining the actor output layer is not the
+  decisive blocker; the next useful implementation step is coefficient or selective-layer tuning
+  under the same diagnostic budget
 
 ## Immediate non-goals
 

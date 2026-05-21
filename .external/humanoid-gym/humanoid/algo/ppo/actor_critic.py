@@ -34,6 +34,19 @@ import torch.nn as nn
 from torch.distributions import Normal
 from torch.nn.utils import spectral_norm
 
+
+class ScaledLinear(nn.Linear):
+    def __init__(self, in_features, out_features, output_scale=1.0):
+        super().__init__(in_features, out_features)
+        self.output_scale = float(output_scale)
+
+    def forward(self, input):
+        output = super().forward(input)
+        if self.output_scale == 1.0:
+            return output
+        return output * self.output_scale
+
+
 class ActorCritic(nn.Module):
     def __init__(self,  num_actor_obs,
                         num_critic_obs,
@@ -43,6 +56,8 @@ class ActorCritic(nn.Module):
                         init_noise_std=1.0,
                         activation = nn.ELU(),
                         actor_spectral_norm=False,
+                        actor_spectral_norm_output_layer=True,
+                        actor_spectral_norm_coeff=1.0,
                         **kwargs):
         if kwargs:
             print("ActorCritic.__init__ got unexpected arguments, which will be ignored: " + str([key for key in kwargs.keys()]))
@@ -52,19 +67,38 @@ class ActorCritic(nn.Module):
         mlp_input_dim_a = num_actor_obs
         mlp_input_dim_c = num_critic_obs
         actor_spectral_norm = bool(actor_spectral_norm)
+        actor_spectral_norm_output_layer = bool(actor_spectral_norm_output_layer)
+        actor_spectral_norm_coeff = float(actor_spectral_norm_coeff)
+        if actor_spectral_norm_coeff <= 0:
+            raise ValueError("actor_spectral_norm_coeff must be positive")
         # Policy
         actor_layers = []
-        actor_layers.append(self._build_linear(mlp_input_dim_a, actor_hidden_dims[0], use_spectral_norm=actor_spectral_norm))
+        actor_layers.append(
+            self._build_linear(
+                mlp_input_dim_a,
+                actor_hidden_dims[0],
+                use_spectral_norm=actor_spectral_norm,
+                spectral_norm_coeff=actor_spectral_norm_coeff,
+            )
+        )
         actor_layers.append(activation)
         for l in range(len(actor_hidden_dims)):
             if l == len(actor_hidden_dims) - 1:
                 actor_layers.append(
-                    self._build_linear(actor_hidden_dims[l], num_actions, use_spectral_norm=actor_spectral_norm)
+                    self._build_linear(
+                        actor_hidden_dims[l],
+                        num_actions,
+                        use_spectral_norm=actor_spectral_norm and actor_spectral_norm_output_layer,
+                        spectral_norm_coeff=actor_spectral_norm_coeff,
+                    )
                 )
             else:
                 actor_layers.append(
                     self._build_linear(
-                        actor_hidden_dims[l], actor_hidden_dims[l + 1], use_spectral_norm=actor_spectral_norm
+                        actor_hidden_dims[l],
+                        actor_hidden_dims[l + 1],
+                        use_spectral_norm=actor_spectral_norm,
+                        spectral_norm_coeff=actor_spectral_norm_coeff,
                     )
                 )
                 actor_layers.append(activation)
@@ -89,14 +123,17 @@ class ActorCritic(nn.Module):
         self.std = nn.Parameter(init_noise_std * torch.ones(num_actions))
         self.distribution = None
         self.actor_spectral_norm = actor_spectral_norm
+        self.actor_spectral_norm_output_layer = actor_spectral_norm_output_layer
+        self.actor_spectral_norm_coeff = actor_spectral_norm_coeff
         # disable args validation for speedup
         Normal.set_default_validate_args = False
         
     @staticmethod
-    def _build_linear(in_features, out_features, use_spectral_norm=False):
-        layer = nn.Linear(in_features, out_features)
+    def _build_linear(in_features, out_features, use_spectral_norm=False, spectral_norm_coeff=1.0):
+        output_scale = spectral_norm_coeff if use_spectral_norm else 1.0
+        layer = ScaledLinear(in_features, out_features, output_scale=output_scale)
         if use_spectral_norm:
-            return spectral_norm(layer)
+            layer = spectral_norm(layer)
         return layer
 
     @staticmethod

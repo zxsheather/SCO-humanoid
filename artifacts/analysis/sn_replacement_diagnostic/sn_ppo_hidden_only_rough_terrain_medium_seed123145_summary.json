@@ -1,0 +1,34 @@
+{
+  "checkpoint_sweep_summary_path": "artifacts/methods/sn_ppo_probe/sn_ppo_hidden_only_rough_terrain_medium_seed123145/checkpoint_sweep_summary.json",
+  "diagnostic": "sn_replacement_mechanism_feasibility",
+  "episodes": 10,
+  "eval_num_envs": 16,
+  "interpretation_boundary": [
+    "This diagnostic checks SN operational feasibility only.",
+    "It must not be read as SN beating the SC-PPO 3.8 formal mainline.",
+    "It must not consume \u4e3b\u5b9e\u9a8c\u4e09\u79cd\u5b50 or MuJoCo\u5173\u952e\u4e24\u7ec4\u7ec8\u9a8c budget."
+  ],
+  "max_iterations": 100,
+  "preset": "medium",
+  "run_name": "sn_ppo_hidden_only_rough_terrain_medium_seed123145",
+  "scope": "\u66ff\u4ee3\u673a\u5236\u53ef\u884c\u6027\u8bca\u65ad",
+  "seed": 123145,
+  "selected_checkpoint": 100,
+  "selected_metrics_path": "artifacts/methods/sn_ppo_probe/sn_ppo_hidden_only_rough_terrain_medium_seed123145/metrics_selected.json",
+  "selected_row": {
+    "action_jitter_l2_mean": 0.10191030725836754,
+    "checkpoint": 100,
+    "composite_score": 239.0302472114563,
+    "constraint_violation_rate": 0.0,
+    "episode_return_mean": 3.4648434638977053,
+    "fall_rate": 1.0,
+    "joint_acceleration_l2_mean": 90.00063705444336,
+    "metrics_path": "artifacts/methods/sn_ppo_probe/sn_ppo_hidden_only_rough_terrain_medium_seed123145/metrics_checkpoint_100.json",
+    "policy_local_sensitivity_cost_mean": 1.3342639088630677,
+    "velocity_tracking_error_mean": 1.4902961015701295
+  },
+  "selection_status": "all_checkpoints_collapsed",
+  "status": "evaluated",
+  "train_manifest_path": "artifacts/methods/sn_ppo_probe/sn_ppo_hidden_only_rough_terrain_medium_seed123145/manifest.json",
+  "train_num_envs": 32
+}
