@@ -102,6 +102,19 @@ def analysis_root(sweep_cfg: dict[str, Any], args: argparse.Namespace) -> Path:
     return root
 
 
+def terrain_protocol(sweep_cfg: dict[str, Any]) -> dict[str, Any]:
+    return dict(sweep_cfg.get("terrain_protocol", {}))
+
+
+def protocol_scope(sweep_cfg: dict[str, Any]) -> str:
+    return str(terrain_protocol(sweep_cfg).get("scope", "evaluation-only selected-checkpoint pressure test"))
+
+
+def protocol_condition(sweep_cfg: dict[str, Any]) -> str:
+    raw = terrain_protocol(sweep_cfg).get("terrain_condition", sweep_cfg.get("name", "terrain_stress_protocol"))
+    return str(raw)
+
+
 def build_evaluate_command(
     *,
     sweep_cfg: dict[str, Any],
@@ -204,22 +217,28 @@ def compare_metric(sc_value: float, heuristic_value: float, *, higher_is_better:
     return "sc_ppo_better" if sc_value < heuristic_value else "heuristic_better"
 
 
-def build_interpretation(candidate_summaries: list[dict[str, Any]]) -> dict[str, Any]:
+def build_interpretation(sweep_cfg: dict[str, Any], candidate_summaries: list[dict[str, Any]]) -> dict[str, Any]:
     by_id = {summary["id"]: summary for summary in candidate_summaries}
     sc = by_id.get("sc_ppo", {}).get("aggregate")
     heuristic = by_id.get("heuristic_smoothing", {}).get("aggregate")
     collapsed_ids = [summary["id"] for summary in candidate_summaries if summary.get("status") == "collapsed"]
     all_methods_collapsed = bool(candidate_summaries) and len(collapsed_ids) == len(candidate_summaries)
+    terrain_cfg = terrain_protocol(sweep_cfg)
+    claim_boundary = str(
+        terrain_cfg.get(
+            "claim_boundary",
+            "evaluation-only selected-checkpoint pressure test; not retraining or a new headline method line",
+        )
+    )
     interpretation: dict[str, Any] = {
-        "claim_boundary": (
-            "Random stairs is a 复杂地形条件 pressure test of selected rough-terrain checkpoints; "
-            "it does not rewrite the Isaac rough-terrain main claim."
-        ),
+        "terrain_condition": protocol_condition(sweep_cfg),
+        "scope": protocol_scope(sweep_cfg),
+        "claim_boundary": claim_boundary,
         "task_validity_outcome": "all_methods_collapsed" if all_methods_collapsed else "mixed_or_incomplete",
         "collapsed_candidate_ids": collapsed_ids,
         "claim_reading": (
-            "No task-valid random-stairs method advantage is supported because every evaluated "
-            "candidate collapsed."
+            "No task-valid method advantage is supported because every evaluated candidate "
+            "collapsed under this terrain-stress protocol."
             if all_methods_collapsed
             else "Check per-candidate task validity before reading metric orderings as method evidence."
         ),
@@ -259,13 +278,13 @@ def write_summary(
     output_root = ensure_directory(analysis_root(sweep_cfg, args).resolve())
     payload = {
         "comparison_name": sweep_cfg["name"],
-        "scope": "复杂地形条件 pressure test",
+        "scope": protocol_scope(sweep_cfg),
         "seeds": seeds,
         "eval_num_envs": arg_or_sweep(args, sweep_cfg, "eval_num_envs"),
         "episodes": arg_or_sweep(args, sweep_cfg, "episodes"),
         "terrain_protocol": sweep_cfg.get("terrain_protocol", {}),
         "candidates": candidate_summaries,
-        "interpretation": build_interpretation(candidate_summaries),
+        "interpretation": build_interpretation(sweep_cfg, candidate_summaries),
     }
     output_path = output_root / "comparison_summary.json"
     write_json(output_path, payload)
@@ -296,8 +315,9 @@ def selected_seeds(sweep_cfg: dict[str, Any], requested: list[int] | None) -> li
 
 
 def print_plan(sweep_cfg: dict[str, Any], candidates: list[dict[str, Any]], seeds: list[int], args: argparse.Namespace) -> None:
-    print(f"Random-stairs stress test: {sweep_cfg['name']}")
-    print("scope: evaluation-only selected-checkpoint pressure test")
+    print(f"Terrain-stress protocol: {sweep_cfg['name']}")
+    print(f"scope: {protocol_scope(sweep_cfg)}")
+    print(f"terrain_condition: {protocol_condition(sweep_cfg)}")
     print(f"eval_num_envs: {arg_or_sweep(args, sweep_cfg, 'eval_num_envs')}")
     print(f"episodes: {arg_or_sweep(args, sweep_cfg, 'episodes')}")
     print(f"analysis summary: {relative_to_repo(analysis_root(sweep_cfg, args) / 'comparison_summary.json')}")
@@ -321,8 +341,10 @@ def print_plan(sweep_cfg: dict[str, Any], candidates: list[dict[str, Any]], seed
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Evaluate selected rough-terrain checkpoints on random stairs.")
-    parser.add_argument("--sweep-config", default=None, help="Path to the random-stairs stress sweep JSON.")
+    parser = argparse.ArgumentParser(
+        description="Evaluate selected rough-terrain checkpoints under a bounded terrain-stress protocol."
+    )
+    parser.add_argument("--sweep-config", default=None, help="Path to the terrain-stress sweep JSON.")
     parser.add_argument("--candidate", action="append", default=None, help="Optional candidate id filter.")
     parser.add_argument("--seed", action="append", type=int, default=None, help="Optional training/evaluation seed filter.")
     parser.add_argument("--stage", choices=("plan", "evaluate", "summarize", "all"), default="plan")

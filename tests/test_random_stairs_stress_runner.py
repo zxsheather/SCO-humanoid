@@ -16,6 +16,15 @@ import run_random_stairs_stress_test as random_stairs  # noqa: E402
 
 
 class RandomStairsStressRunnerTests(unittest.TestCase):
+    def protocol_stub(self, **overrides):
+        terrain_protocol = {
+            "terrain_condition": "random_stairs",
+            "scope": "复杂地形条件 pressure test",
+            "claim_boundary": "stress test only; not retraining or a new headline method line",
+        }
+        terrain_protocol.update(overrides)
+        return {"name": "test_protocol", "terrain_protocol": terrain_protocol}
+
     def build_args(self, **overrides):
         defaults = {
             "reuse_existing_metrics": False,
@@ -76,6 +85,7 @@ class RandomStairsStressRunnerTests(unittest.TestCase):
 
     def test_interpretation_compares_scppo_against_heuristic(self) -> None:
         interpretation = random_stairs.build_interpretation(
+            self.protocol_stub(terrain_condition="random_stairs_moderated"),
             [
                 {
                     "id": "heuristic_smoothing",
@@ -100,9 +110,11 @@ class RandomStairsStressRunnerTests(unittest.TestCase):
         self.assertEqual(comparison["velocity_tracking_error_mean"]["ordering"], "sc_ppo_better")
         self.assertEqual(comparison["episode_return_mean"]["ordering"], "heuristic_better")
         self.assertEqual(interpretation["task_validity_outcome"], "mixed_or_incomplete")
+        self.assertEqual(interpretation["terrain_condition"], "random_stairs_moderated")
 
     def test_interpretation_flags_all_methods_collapsed(self) -> None:
         interpretation = random_stairs.build_interpretation(
+            self.protocol_stub(),
             [
                 {
                     "id": "heuristic_smoothing",
@@ -119,6 +131,26 @@ class RandomStairsStressRunnerTests(unittest.TestCase):
 
         self.assertEqual(interpretation["task_validity_outcome"], "all_methods_collapsed")
         self.assertEqual(interpretation["collapsed_candidate_ids"], ["heuristic_smoothing", "sc_ppo"])
+
+    def test_moderated_random_stairs_protocol_preserves_actor_observation_contract(self) -> None:
+        config_path = REPO_ROOT / "configs" / "methods" / "sc_ppo_threshold_38_pid_random_stairs_moderated_eval.json"
+        with config_path.open("r", encoding="utf-8") as handle:
+            config = json.load(handle)
+
+        env_overrides = config["overrides"]["env"]
+        protocol = config["evaluation_protocol"]
+        self.assertEqual(protocol["id"], "random_stairs_moderated_selected_checkpoint_stress")
+        self.assertEqual(protocol["terrain_condition"], "random_stairs_moderated")
+        self.assertFalse(env_overrides["terrain.measure_heights"])
+        self.assertEqual(env_overrides["terrain.terrain_proportions"], [0.0, 0.0, 0.5, 0.0, 0.0, 0.25, 0.25])
+
+    def test_moderated_sweep_reuses_selected_checkpoints_with_new_run_names(self) -> None:
+        sweep_cfg = random_stairs.load_sweep_config(
+            REPO_ROOT / "configs" / "sweeps" / "random_stairs_moderated_selected_checkpoint_stress.json"
+        )
+        sc_candidate = next(item for item in sweep_cfg["candidates"] if item["id"] == "sc_ppo")
+        self.assertEqual(sc_candidate["selected_checkpoints"], {"11": 300, "17": 300, "23": 400})
+        self.assertIn("moderated", sc_candidate["run_name_template"])
 
 
 if __name__ == "__main__":
