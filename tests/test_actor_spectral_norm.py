@@ -79,6 +79,36 @@ class ActorSpectralNormTests(unittest.TestCase):
         self.assertTrue(all(hasattr(layer, "weight_orig") for layer in actor_linears))
         self.assertTrue(all(layer.output_scale == 2.0 for layer in actor_linears))
 
+    def test_actor_spectral_norm_can_wrap_first_hidden_layer_only(self):
+        model = self.actor_critic_module.ActorCritic(
+            num_actor_obs=8,
+            num_critic_obs=8,
+            num_actions=4,
+            actor_hidden_dims=[16, 16, 16],
+            critic_hidden_dims=[16, 16],
+            actor_spectral_norm=True,
+            actor_spectral_norm_layer_scope="first_hidden",
+        )
+
+        actor_linears = [module for module in model.actor if isinstance(module, nn.Linear)]
+
+        self.assertEqual(len(actor_linears), 4)
+        self.assertTrue(hasattr(actor_linears[0], "weight_orig"))
+        self.assertTrue(all(not hasattr(layer, "weight_orig") for layer in actor_linears[1:]))
+        self.assertEqual(model.actor_spectral_norm_layer_scope, "first_hidden")
+
+    def test_actor_spectral_norm_rejects_unknown_layer_scope(self):
+        with self.assertRaises(ValueError):
+            self.actor_critic_module.ActorCritic(
+                num_actor_obs=8,
+                num_critic_obs=8,
+                num_actions=4,
+                actor_hidden_dims=[16, 16],
+                critic_hidden_dims=[16, 16],
+                actor_spectral_norm=True,
+                actor_spectral_norm_layer_scope="middle",
+            )
+
     def test_actor_spectral_norm_rejects_non_positive_coeff(self):
         with self.assertRaises(ValueError):
             self.actor_critic_module.ActorCritic(

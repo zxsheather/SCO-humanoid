@@ -57,6 +57,7 @@ class ActorCritic(nn.Module):
                         activation = nn.ELU(),
                         actor_spectral_norm=False,
                         actor_spectral_norm_output_layer=True,
+                        actor_spectral_norm_layer_scope="all",
                         actor_spectral_norm_coeff=1.0,
                         **kwargs):
         if kwargs:
@@ -68,16 +69,30 @@ class ActorCritic(nn.Module):
         mlp_input_dim_c = num_critic_obs
         actor_spectral_norm = bool(actor_spectral_norm)
         actor_spectral_norm_output_layer = bool(actor_spectral_norm_output_layer)
+        actor_spectral_norm_layer_scope = str(actor_spectral_norm_layer_scope).lower()
         actor_spectral_norm_coeff = float(actor_spectral_norm_coeff)
         if actor_spectral_norm_coeff <= 0:
             raise ValueError("actor_spectral_norm_coeff must be positive")
+        valid_layer_scopes = {"all", "hidden", "first_hidden"}
+        if actor_spectral_norm_layer_scope not in valid_layer_scopes:
+            raise ValueError(f"actor_spectral_norm_layer_scope must be one of {sorted(valid_layer_scopes)}")
+
+        def use_actor_spectral_norm(hidden_layer_index=None, is_output_layer=False):
+            if not actor_spectral_norm:
+                return False
+            if is_output_layer:
+                return actor_spectral_norm_output_layer and actor_spectral_norm_layer_scope == "all"
+            if actor_spectral_norm_layer_scope in {"all", "hidden"}:
+                return True
+            return hidden_layer_index == 0
+
         # Policy
         actor_layers = []
         actor_layers.append(
             self._build_linear(
                 mlp_input_dim_a,
                 actor_hidden_dims[0],
-                use_spectral_norm=actor_spectral_norm,
+                use_spectral_norm=use_actor_spectral_norm(hidden_layer_index=0),
                 spectral_norm_coeff=actor_spectral_norm_coeff,
             )
         )
@@ -88,7 +103,7 @@ class ActorCritic(nn.Module):
                     self._build_linear(
                         actor_hidden_dims[l],
                         num_actions,
-                        use_spectral_norm=actor_spectral_norm and actor_spectral_norm_output_layer,
+                        use_spectral_norm=use_actor_spectral_norm(is_output_layer=True),
                         spectral_norm_coeff=actor_spectral_norm_coeff,
                     )
                 )
@@ -97,7 +112,7 @@ class ActorCritic(nn.Module):
                     self._build_linear(
                         actor_hidden_dims[l],
                         actor_hidden_dims[l + 1],
-                        use_spectral_norm=actor_spectral_norm,
+                        use_spectral_norm=use_actor_spectral_norm(hidden_layer_index=l + 1),
                         spectral_norm_coeff=actor_spectral_norm_coeff,
                     )
                 )
@@ -124,6 +139,7 @@ class ActorCritic(nn.Module):
         self.distribution = None
         self.actor_spectral_norm = actor_spectral_norm
         self.actor_spectral_norm_output_layer = actor_spectral_norm_output_layer
+        self.actor_spectral_norm_layer_scope = actor_spectral_norm_layer_scope
         self.actor_spectral_norm_coeff = actor_spectral_norm_coeff
         # disable args validation for speedup
         Normal.set_default_validate_args = False

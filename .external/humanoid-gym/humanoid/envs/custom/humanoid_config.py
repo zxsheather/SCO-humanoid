@@ -237,6 +237,7 @@ class XBotLCfgPPO(LeggedRobotCfgPPO):
         critic_hidden_dims = [768, 256, 128]
         actor_spectral_norm = False
         actor_spectral_norm_output_layer = True
+        actor_spectral_norm_layer_scope = "all"
         actor_spectral_norm_coeff = 1.0
 
     class algorithm(LeggedRobotCfgPPO.algorithm):

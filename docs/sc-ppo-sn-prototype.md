@@ -12,6 +12,7 @@ The repo now has dedicated diagnostic configs:
 - `configs/methods/sn_ppo_rough_terrain.json`
 - `configs/methods/sn_ppo_hidden_only_rough_terrain.json`
 - `configs/methods/sn_ppo_hidden_only_coeff_2_rough_terrain.json`
+- `configs/methods/sn_ppo_first_hidden_rough_terrain.json`
 
 The repo also has a dedicated reduced-budget diagnostic launcher:
 
@@ -24,6 +25,7 @@ This branch currently means:
 - same smoothness-oriented reward disablement as the current `SC-PPO` path
 - actor-side `Spectral Normalization`
 - optional hidden-layer-only actor `Spectral Normalization`
+- optional selective actor-layer `Spectral Normalization`
 - configurable actor SN output scale via `policy.actor_spectral_norm_coeff`
 - standard `PPO` training path rather than the current Jacobian-penalty
   `SCPPO` training path
@@ -223,6 +225,34 @@ Current coefficient reading:
 - if this branch continues, prefer a narrower selective-layer hypothesis or a task-stabilized
   training recipe rather than more SN-only budget
 
+A first-hidden-layer-only SN medium diagnostic has also completed:
+
+- config: `configs/methods/sn_ppo_first_hidden_rough_terrain.json`
+- run name: `sn_ppo_first_hidden_rough_terrain_medium_seed123145`
+- selected checkpoint: `100`
+- `selection_status = all_checkpoints_collapsed`
+- `velocity_tracking_error_mean = 1.2858`
+- `joint_acceleration_l2_mean = 121.5766`
+- `action_jitter_l2_mean = 0.1180`
+- `episode_return_mean = 3.2625`
+- `fall_rate = 1.0000`
+- `policy_local_sensitivity_cost_mean = 1.8576`
+
+Mechanism check:
+
+- checkpoint `model_100.pt` contains SN state only for actor layer `actor.0`
+- `actor.2`, `actor.4`, and output layer `actor.6` contain normal `weight` and `bias` keys only
+- so the selective-layer switch is active and correctly isolates first-hidden-layer SN
+
+Current selective-layer reading:
+
+- first-hidden-only SN does not recover task validity
+- it improves velocity-tracking error relative to hidden-only `coeff = 1.0`, but it worsens
+  smoothness and local sensitivity relative to full-actor SN medium
+- this closes the useful SN-only parameterization checks under the current reduced-budget policy
+- if SN is revisited, it should be as a new task-stabilized recipe rather than more SN-only
+  architecture toggles
+
 ## Current operational boundary
 
 An attempted larger `SN` smoke at `num_envs = 64` failed with CUDA OOM in the
@@ -245,8 +275,9 @@ The `short` preset uses `32` training envs, `20` iterations, `16` evaluation env
 episodes. The `medium` preset uses `32` training envs, `100` iterations, `16` evaluation envs, and
 `10` episodes. All presets intentionally stay below formal-comparison budget.
 
-All current SN diagnostics, including hidden-layer-only and `coeff = 2.0` medium, collapse at
-evaluation time. They establish only operational feasibility, not replacement-mechanism feasibility.
+All current SN diagnostics, including hidden-layer-only, `coeff = 2.0`, and first-hidden-layer-only
+medium, collapse at evaluation time. They establish only operational feasibility, not
+replacement-mechanism feasibility.
 
 ## Current non-goals
 

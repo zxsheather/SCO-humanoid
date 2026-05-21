@@ -129,6 +129,8 @@ Current selected branch:
 - hidden-layer-only `coeff = 2.0` also collapsed and worsened smoothness-side metrics, so a wider
   blind coefficient sweep is not the next best use of budget; prefer a selective-layer or
   task-stabilized recipe hypothesis if this branch continues
+- first-hidden-only `medium` SN also collapsed, so the current SN-only replacement-mechanism
+  diagnostic is negative; do not continue with more SN-only architecture toggles
 
 ## Immediate non-goals
 

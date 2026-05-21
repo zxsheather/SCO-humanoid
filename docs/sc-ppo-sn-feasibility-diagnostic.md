@@ -106,6 +106,16 @@ python scripts/baseline/run_sn_diagnostic.py \
   --skip-completed
 ```
 
+For the selective-layer diagnostic:
+
+```bash
+python scripts/baseline/run_sn_diagnostic.py \
+  --config configs/methods/sn_ppo_first_hidden_rough_terrain.json \
+  --stage all \
+  --preset medium \
+  --skip-completed
+```
+
 All presets remain `替代机制可行性诊断`; none should be reported as a formal mainline challenge.
 
 Current runner status:
@@ -174,6 +184,23 @@ Coefficient loosening:
 - interpretation: loosening the SN bound increases sensitivity and smoothness costs without
   restoring task validity; do not run a wider blind coefficient sweep yet
 
+Selective-layer isolation:
+
+- config:
+  `configs/methods/sn_ppo_first_hidden_rough_terrain.json`
+- purpose: test whether a minimal first-hidden-layer SN constraint can preserve task learning while
+  retaining architecture-level smoothness pressure
+- result: first-hidden-only `medium` also collapses with `fall_rate = 1.0000`
+- selected checkpoint: `100`
+- `velocity_tracking_error_mean = 1.2858`
+- `joint_acceleration_l2_mean = 121.5766`
+- `action_jitter_l2_mean = 0.1180`
+- `episode_return_mean = 3.2625`
+- `policy_local_sensitivity_cost_mean = 1.8576`
+- mechanism check: only `actor.0` contains SN state; `actor.2`, `actor.4`, and `actor.6` are normal
+  linear layers
+- interpretation: selective first-hidden-layer SN is operational but still not task-valid
+
 Current decision:
 
 - SN is operational and emits comparable mechanism-side evidence
@@ -182,8 +209,11 @@ Current decision:
 - hidden-layer-only SN is also confirmed active, so the failure is not explained by the output layer
   being SN-constrained
 - `coeff = 2.0` is also not enough to recover task validity and worsens smoothness-side metrics
-- this branch should stay open only for mechanism tuning; it should not consume formal-comparison or
-  MuJoCo budget in the current form
+- first-hidden-only SN is also not enough to recover task validity
+- the current SN-only replacement-mechanism diagnostic should be closed as negative under this
+  reduced-budget protocol
+- future SN work should be opened as a different task-stabilized recipe, not continued as blind
+  SN-only architecture toggles
 
 ## Minimal experiment tasks
 

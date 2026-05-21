@@ -279,7 +279,7 @@ aligned on the same boundary:
 - `SN`: selected as the next bounded `替代机制可行性诊断`, with
   `scripts/baseline/run_sn_diagnostic.py --stage all --preset smoke --skip-completed` as the first
   repeatable command; full-actor `smoke`, `short`, `medium`, hidden-layer-only `medium`, and
-  hidden-layer-only `coeff = 2.0` reduced-budget runs completed but collapsed, so this branch is
-  operational evidence only until the SN mechanism or training recipe is revised
+  hidden-layer-only `coeff = 2.0`, and first-hidden-only `medium` reduced-budget runs completed but
+  collapsed, so the current SN-only replacement-mechanism diagnostic is negative
 - `MuJoCo terrain` and `随机阶梯` remain separate non-blocking follow-up lines unless they are
   explicitly promoted later through `闭环后支线选择`
