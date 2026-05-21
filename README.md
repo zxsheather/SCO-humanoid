@@ -58,13 +58,19 @@ Current selected-checkpoint aggregate over seeds `11`, `17`, and `23`:
 Important boundary:
 
 - the method line above is currently the strongest completed line in the repo
-- but the rough-terrain formal baseline side is now a protocol-repair problem
-- the completed baseline refresh showed that `Vanilla PPO` and the bounded heuristic action-rate
-  family (`-0.0005`, `-0.0020`, `-0.0050`) all collapse to `checkpoint 0` under the frozen
-  `3-seed + checkpoint-sweep` regime
+- the frozen baseline refresh showed that `Vanilla PPO` and the bounded heuristic action-rate
+  family (`-0.0005`, `-0.0020`, `-0.0050`) all collapse to `checkpoint 0` under the original
+  `64 envs x 400 iterations` formal-compare regime
+- the baseline-side protocol repair line then produced a revised long-budget heuristic anchor:
+  `action_rate = -0.0050`, `512 envs x 400 iterations`, selected checkpoints `350 / 300 / 350`
+- against that revised heuristic anchor, `SC-PPO 3.8` remains better on the shared Isaac
+  rough-terrain velocity-tracking, fall-rate, joint-acceleration, and action-jitter metrics
+- the aligned `MuJoCo isaac_mainline` replay is mixed external-validation evidence rather than an
+  `SC-PPO` cross-engine win: the revised heuristic is better on task-side metrics, while `SC-PPO
+  3.8` is only slightly better on action jitter
 
-So the repo currently supports a strong `SC-PPO` mainline result, but not yet a closed
-report-grade three-way rough-terrain comparison.
+So the repo currently supports an Isaac-side `方法优于启发式` result, with `MuJoCo` reported as a
+`混合外部验证结论`.
 
 For the most current interpretation, read:
 
@@ -254,8 +260,13 @@ If you are new to the repo, the fastest way to build context is:
 
 The immediate next task in this repo is:
 
-`repair the rough-terrain formal-compare protocol on the baseline side`
+`finish report and issue-tracker reconciliation around the completed mainline evidence closure`
 
-Concretely, that means explaining why the frozen formal-compare regime collapses the full bounded
-heuristic family and deciding whether the report-grade baseline protocol itself must be revised
-before any downstream comparison or `MuJoCo` claim is refreshed.
+Concretely, that means keeping `README.md`, `CONTEXT.md`, GitHub Issues, and the report drafts
+aligned on the same boundary:
+
+- Isaac rough-terrain: `SC-PPO 3.8` supports the current `方法优于启发式` claim against the revised
+  heuristic anchor
+- `MuJoCo isaac_mainline`: aligned replay is `混合外部验证结论`
+- `MuJoCo terrain`, `PID有限消融`, and `SN` remain separate non-blocking follow-up lines unless they
+  are explicitly promoted later

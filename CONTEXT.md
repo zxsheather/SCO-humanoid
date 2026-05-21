@@ -30,7 +30,11 @@ _Avoid_: 新方法主线, 静默失败补丁, 结果没收口就混入主报告
 
 **部分迁移结论**:
 A bounded external-validation claim where the current mainline transfers some task-relevant advantages across engines, but not the full smoothness conclusion.
-_Avoid_: 全面跨引擎转优, 附录级边角结果, 把 mixed evidence 写成 complete win
+_Avoid_: 混合外部验证结论, 全面跨引擎转优, 附录级边角结果
+
+**混合外部验证结论**:
+A bounded external-validation claim where cross-engine replay remains informative but does not preserve the main Isaac-side method ordering across the key metrics.
+_Avoid_: 部分迁移结论, 全面跨引擎转优, 把指标分裂写成主线胜利
 
 **架构级平滑优化线**:
 A post-mainline diagnostic branch that tests whether an actor-side architectural constraint can replace the current Jacobian-penalty path without expanding the task definition.
@@ -193,6 +197,7 @@ _Avoid_: 双消融扩张, 全组件独立归因
 - A **主线证据闭环** should happen before the repo opens a materially broader post-mainline exploration branch
 - A **协议修复线** exists to fix evaluation semantics or protocol quality without being mistaken for a new algorithm claim
 - A **部分迁移结论** lets the repo include external validation in the main report without overstating mixed evidence
+- A **混合外部验证结论** should replace a **部分迁移结论** when aligned cross-engine replay does not preserve the Isaac-side method ordering
 - A **架构级平滑优化线** should stay inside the current locomotion claim and first test mechanism replacement rather than task expansion
 - A **替代机制可行性诊断** should precede any formal mainline challenge from a zero-implementation method branch
 - A **同尺比较** keeps mechanism replacement interpretable by preserving the repo's existing evidence chain
@@ -338,3 +343,4 @@ _Avoid_: 双消融扩张, 全组件独立归因
 - “启发式锚点三种子是否只需单次可用结果” was ambiguous between a loose baseline check and formal comparison evidence — resolved: treat the selected heuristic baseline as a formal comparison anchor and require `3-seed + checkpoint-sweep` evidence
 - “启发式锚点三种子失稳后是否仍可直接进入 #5” was ambiguous between accepting the old single-run anchor and reopening baseline selection — resolved: if the selected heuristic baseline fails the formal `3-seed + checkpoint-sweep` standard, reopen heuristic-anchor selection rather than counting `#5` as complete
 - “bounded heuristic family 全失败后下一步是什么” was ambiguous between continuing the same search and starting a **协议修复线** — resolved: if the bounded heuristic family all fails under the frozen `3-seed + checkpoint-sweep` regime, shift the repo to a baseline-side **协议修复线** and make any regime revision explicit
+- “MuJoCo 对齐 revised heuristic anchor 后怎么写” was ambiguous between **部分迁移结论** and **混合外部验证结论** — resolved: use **混合外部验证结论** when aligned replay does not preserve the Isaac-side `SC-PPO` over heuristic ordering

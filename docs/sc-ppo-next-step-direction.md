@@ -1,20 +1,24 @@
 # SC-PPO Next-Step Direction
 
 This note records the repo's currently agreed next-step direction for the
-`受限优化与平滑性增强` line after the completed rough-terrain formal baseline refresh.
+`受限优化与平滑性增强` line after the completed rough-terrain formal baseline refresh and aligned
+`MuJoCo isaac_mainline` replay.
 
 ## Current direction
 
-The repo's next step now has three ordered layers:
+The repo has completed the previous two closure layers:
 
 1. `重冻结 rough-terrain 三组正式对比`
 2. `把 MuJoCo关键两组终验 写成 mixed evidence`
-3. one bounded post-mainline `架构级平滑优化线`
+
+The current next step is:
+
+`报告 / tracker / README 口径收口`
 
 This means the repo should not immediately expand into `ALCP`, `SysID`, `Residual RL`,
 visual distillation, or `VLA` work.
 
-## Layer 1: 重冻结 rough-terrain 三组正式对比
+## Completed Layer 1: 重冻结 rough-terrain 三组正式对比
 
 The protocol-revision line has now already done the repair-stage work for the heuristic row.
 The sequence is:
@@ -23,10 +27,10 @@ The sequence is:
 - repaired-budget `512 envs x 200 iterations -> 0 / 0 / 200`
 - revised long-budget `512 envs x 400 iterations -> 350 / 300 / 350`
 
-So the immediate step is no longer to ask whether protocol revision is necessary.
-It is:
+So the repo no longer needs to ask whether protocol revision is necessary, and it no longer needs
+to treat this layer as pending. The frozen claim boundary is:
 
-`freeze the Isaac-side three-way claim boundary around Vanilla PPO raw reference, the revised heuristic anchor, and SC-PPO 3.8`
+`Isaac-side 三组正式对比 = Vanilla PPO raw reference + revised heuristic anchor + SC-PPO 3.8`
 
 The historical baseline-side steps remain important context:
 
@@ -54,7 +58,7 @@ Canonical notes for this layer:
 - [rough-terrain formal protocol revision decision](./baselines/rough-terrain-formal-protocol-revision-decision.md)
 - [rough-terrain formal protocol revision long-budget test](./baselines/rough-terrain-formal-protocol-revision-long-budget.md)
 
-## Layer 2: 把 MuJoCo关键两组终验 写成 mixed evidence
+## Completed Layer 2: 把 MuJoCo关键两组终验 写成 mixed evidence
 
 The `MuJoCo isaac_mainline` replay is now aligned to the revised heuristic anchor:
 
@@ -66,10 +70,18 @@ The `MuJoCo isaac_mainline` replay is now aligned to the revised heuristic ancho
   `SC-PPO`
 - keep `MuJoCo terrain` as a protocol-repair line rather than a headline result
 
-## Layer 3: 闭环后的第一条新线
+## Current Layer: 报告 / tracker / README 口径收口
 
-After the baseline protocol and report boundary are repaired, the first new branch should still
-be:
+The immediate work is documentation and tracker consistency:
+
+- keep `CONTEXT.md` terminology aligned with `混合外部验证结论`
+- keep `README.md`, `report.md`, `report.zh.md`, and status docs on the same claim boundary
+- close or update GitHub Issues whose original wording is now superseded by the completed evidence
+  closure
+
+## Next Optional Research Line
+
+After the report/tracker closure is finished, the first new research branch should still be:
 
 `SN`-based `架构级平滑优化线`
 
@@ -93,4 +105,4 @@ The repo should not treat the following as the immediate next step:
 
 When summarizing the agreed direction, the safest compact wording is:
 
-`当前仓库的下一步不是继续扩张研究命题，也不是继续在现有 heuristic action-rate 家族里找一个幸存者。冻结 formal-compare 先给出 0 / 0 / 0，repaired-budget probe 再给出 0 / 0 / 200，而完成的 revised long-budget protocol 已经把旧 heuristic winner 修到 350 / 300 / 350。Isaac 粗糙平面三组正式对比可以围绕 Vanilla PPO raw reference、revised heuristic anchor 和 SC-PPO 3.8 重冻结；但对齐后的 MuJoCo isaac_mainline 不再支持 SC-PPO 的跨引擎优势，应写成 mixed evidence。`
+`当前仓库的主线证据闭环已经完成到可报告边界：Isaac 粗糙平面三组正式对比围绕 Vanilla PPO raw reference、revised heuristic anchor 和 SC-PPO 3.8 收口；对齐后的 MuJoCo isaac_mainline 不支持 SC-PPO 跨引擎胜利，应写成混合外部验证结论。下一步不是继续跑新实验，而是完成报告、README、CONTEXT 和 GitHub Issues 的口径收口。`

@@ -87,14 +87,20 @@ The repo is no longer in a state where more tiny threshold promotions are the hi
 It is also no longer in a state where another bounded heuristic weight search is the right
 immediate action.
 
-The immediate execution order should now be:
+The mainline evidence closure is now complete at the current claim boundary:
 
-1. re-freeze the rough-terrain Isaac `三组正式对比` around `Vanilla PPO` raw reference, the revised
-   heuristic anchor, and `SC-PPO 3.8`
-2. update the report boundary so `MuJoCo isaac_mainline` is reported as mixed aligned evidence, not
-   as an `SC-PPO` transfer advantage
-3. keep `MuJoCo terrain` as a separate protocol-repair line
-4. only then return to post-mainline branches such as `SN`
+- Isaac rough-terrain can be reported around `Vanilla PPO` raw reference, the revised heuristic
+  anchor, and `SC-PPO 3.8`
+- `MuJoCo isaac_mainline` should be reported as `混合外部验证结论`, not as an `SC-PPO` transfer
+  advantage
+- `MuJoCo terrain` remains a separate protocol-repair line
+
+The immediate execution order is now:
+
+1. keep `README.md`, `CONTEXT.md`, GitHub Issues, and the report drafts aligned on the completed
+   claim boundary
+2. finish report polish and submission formatting
+3. only then decide whether to spend more budget on `PID有限消融`, `随机阶梯`, or post-mainline `SN`
 
 ## Detailed references
 

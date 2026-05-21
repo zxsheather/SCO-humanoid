@@ -6,7 +6,7 @@ direction.
 Use it to answer two questions:
 
 - what the repo can currently defend
-- what still blocks a final report-grade claim
+- what limits the final report-grade claim
 
 ## Mainline reading
 
@@ -136,8 +136,8 @@ Interpretation:
   `关节震荡主指标`, and `动作抖动次级指标`
 - `episode_return_mean` is effectively tied and remains only a `总回报补充指标`
 
-So the repo can now defend an Isaac-side `方法优于启发式` reading again, but the external-
-validation side is still not closed.
+So the repo can now defend an Isaac-side `方法优于启发式` reading again. The external-validation
+side is closed only as `混合外部验证结论`, not as a cross-engine `SC-PPO` win.
 
 ## External-Validation Reading
 
@@ -178,7 +178,7 @@ Canonical comparable artifacts:
 
 - [SC-PPO MuJoCo revised-anchor aligned comparison](./sc-ppo-mujoco-revised-anchor-aligned-comparison.md)
 
-## What is not report-grade yet
+## What Is Not Supported
 
 The repo still does not support the following claims:
 

@@ -1,31 +1,30 @@
 # SC-PPO Current Blockers
 
-This document records the current experimental blockers for `SC-PPO` on the repo's
-`速度跟踪行走` task under the `粗糙平面` condition.
+This document records the current experimental blockers and claim-boundary limits for `SC-PPO` on
+the repo's `速度跟踪行走` task under the `粗糙平面` condition.
 
-## Primary blocker
+## Primary Status
 
-The current primary blocker is:
+The previous primary blocker is now resolved:
 
-`当前主线证据闭环还没有按 revised heuristic anchor 重冻结`
+`主线证据闭环已经按 revised heuristic anchor 重冻结`
 
 Reason:
 
 - the completed revised-protocol long-budget heuristic run now yields
   `selected checkpoints = 350 / 300 / 350`
 - so the repo is no longer blocked by `whether any task-valid heuristic formal anchor exists`
-- the immediate remaining gap is to restate the rough-terrain Isaac `三组正式对比` around:
+- the rough-terrain Isaac `三组正式对比` can now be stated around:
   - `Vanilla PPO` raw reference
   - the revised heuristic anchor
   - `SC-PPO 3.8`
-- until that wording and citation set are frozen, the artifacts are ahead of the report boundary
 
-So the repo is now blocked first by evidence-boundary closure, not by another local `SC-PPO`
-mechanism question and not by another heuristic weight search.
+So the repo is no longer blocked by evidence-boundary closure. The remaining work is report,
+README, `CONTEXT.md`, and issue-tracker reconciliation.
 
-## Secondary blocker
+## External-Validation Boundary
 
-The current secondary blocker is:
+The current external-validation boundary is:
 
 `MuJoCo 对齐 revised heuristic anchor 后不再支持 SC-PPO 跨引擎优势`
 
@@ -36,12 +35,12 @@ Reason:
 - revised heuristic is better on task stability, velocity tracking, episode length, and joint
   acceleration
 - `SC-PPO 3.8` is only better on action jitter
-- so the report must avoid the older wording that implied a MuJoCo task-side transfer advantage
-  for `SC-PPO`
+- so the report must use `混合外部验证结论` rather than the older wording that implied a MuJoCo
+  task-side transfer advantage for `SC-PPO`
 
-## Tertiary blocker
+## Residual Limitation
 
-The current tertiary blocker is:
+The current residual limitation is:
 
 `当前主线仍然依赖 checkpoint sweep，而 final checkpoint 不能直接替代`
 
@@ -130,20 +129,19 @@ Completed aligned `MuJoCo isaac_mainline` comparison:
   - `fall_rate = 0.0167 +- 0.0236`
   - `episode_steps_mean = 1984.7833 +- 21.5196`
 
-## Immediate remediation target
+## Immediate Reconciliation Target
 
 The current first-priority remediation target is:
 
-`用 revised heuristic anchor 重写 Isaac 粗糙平面三组正式对比，并把 MuJoCo 写成 mixed evidence`
+`同步 README、CONTEXT、GitHub Issues 和报告草稿，使它们都反映已完成的主线证据闭环`
 
 Execution-facing notes:
 
-- do not reopen the same bounded action-rate search as if the issue were still only anchor
-  selection
-- use the revised long-budget heuristic artifacts as the current baseline anchor citation set
-- record `Vanilla PPO` collapse as raw-reference evidence and do not spend repair budget on it
+- do not reopen the same bounded action-rate search as if the issue were still only anchor selection
+- do not spend new budget on `Vanilla PPO` repair; keep its collapse as raw-reference evidence
 - do not describe aligned `MuJoCo isaac_mainline` as an `SC-PPO` win
-- keep terrain-side `MuJoCo` work separate from the current mainline claim boundary
+- keep terrain-side `MuJoCo`, `PID有限消融`, and `SN` as separate follow-up lines unless they are
+  explicitly promoted later
 
 ## Canonical references
 
