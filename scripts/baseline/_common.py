@@ -143,6 +143,12 @@ def resolve_run_dir(
         repo_relative = (REPO_ROOT / explicit).resolve()
         if repo_relative.exists():
             return repo_relative
+        if "logs" in explicit.parts:
+            logs_index = explicit.parts.index("logs")
+            logs_relative = Path(*explicit.parts[logs_index + 1 :])
+            explicit_under_logs = (humanoid_gym_root / "logs" / logs_relative).resolve()
+            if explicit_under_logs.exists():
+                return explicit_under_logs
         log_relative = log_root / explicit
         if log_relative.exists():
             return log_relative
