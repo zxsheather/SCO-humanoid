@@ -233,6 +233,27 @@ Canonical artifacts:
 - [SC-PPO SN feasibility diagnostic](./sc-ppo-sn-feasibility-diagnostic.md)
 - `artifacts/analysis/sn_replacement_diagnostic/sn_ppo_first_hidden_rough_terrain_medium_seed123145_summary.json`
 
+## Post-Freeze Anisotropic Constraint Diagnostic Reading
+
+The post-freeze anisotropic local-sensitivity branch is closed as a negative `诊断支线`, not as a
+new `正式候选线`.
+
+Completed reading:
+
+- anisotropic group weighting is operational and can be logged under the shared constraint-evidence
+  schema
+- `positive_part` penalty was the main local mechanism repair; changing the multiplier update path
+  alone was not enough
+- proximal-only masking introduced a whole-policy under-reporting loophole until
+  `legacy_guard_mode = max_with_legacy` was added
+- after that guard was added, the branch still remained not task-valid on rough terrain under the
+  short-budget diagnostic
+- no anisotropic masking variant has broken the current `fall_rate = 1.0` reduced-budget barrier
+
+Canonical note:
+
+- [SC-PPO anisotropic constraint diagnostic](./sc-ppo-anisotropic-constraint-diagnostic.md)
+
 ## Random-Stairs Stress Reading
 
 Issue `#7` is closed as a selected-checkpoint stress test, not as a new method-ranking result.
@@ -282,6 +303,7 @@ The repo still does not support the following claims:
 - that a broad neighborhood of tighter thresholds is interchangeable with the `3.8` mainline
 - that the `PID有限消融` proves every PID term is independently necessary
 - that the current `SN-only` branch is a task-valid replacement mechanism
+- that the anisotropic local-sensitivity masking branch is a promotable smoothness mechanism
 - that the first stairs-only random-stairs protocol supports a task-valid method ranking
 
 The completed local controls still reinforce that boundary:

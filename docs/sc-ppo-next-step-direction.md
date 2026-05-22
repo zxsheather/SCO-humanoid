@@ -138,6 +138,33 @@ Canonical notes:
 - [SC-PPO SN feasibility diagnostic](./sc-ppo-sn-feasibility-diagnostic.md)
 - [SC-PPO SN prototype](./sc-ppo-sn-prototype.md)
 
+## Completed Layer 4b: post-freeze anisotropic constraint diagnostic
+
+The post-freeze anisotropic local-sensitivity branch is also now closed as a bounded
+`诊断支线`.
+
+Current decision:
+
+- anisotropic group weighting and logging are operational
+- `positive_part` penalty matters, but does not recover task-valid locomotion by itself
+- proximal-only masking created a whole-policy under-reporting loophole until
+  `legacy_guard_mode = max_with_legacy` was added
+- after the guard repaired that loophole, the branch still remained collapsed on rough terrain
+- do not continue blind anisotropic weight search as if it were the highest-value next move
+
+Updated reading:
+
+- the next useful mechanism question is no longer `which anisotropic support-set weights should we
+  tune next`
+- it is `why can train-time local-sensitivity improvement coexist with rough-terrain
+  fall_rate = 1.0`
+- that follow-up should be opened as a separate post-freeze issue around objective mismatch rather
+  than continued as more masking variants
+
+Canonical note:
+
+- [SC-PPO anisotropic constraint diagnostic](./sc-ppo-anisotropic-constraint-diagnostic.md)
+
 ## Completed Layer 5: #7 随机阶梯
 
 After the SN-only branch closed negative, the selected bounded follow-up is:
@@ -204,6 +231,7 @@ The repo should not treat the following as the immediate next step:
   still only candidate choice
 - promoting new `MuJoCo terrain` runs as if they solved the current blocker
 - continuing blind `SN-only` layer or coefficient toggles under the failed reduced-budget recipe
+- continuing blind anisotropic support-set masking search after the honesty-guard closure
 - launching `ALCP` as the first implementation branch
 - starting `SysID` or `Residual RL` work before the current baseline-side repair is done
 - adding perception or `VLA` as if they were a direct continuation of the current locomotion line

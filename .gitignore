@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 
 .external/
+.bootstrap/
 artifacts/*
 !artifacts/README.md
 !artifacts/analysis/

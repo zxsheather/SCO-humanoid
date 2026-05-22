@@ -232,6 +232,9 @@ class LeggedRobotCfgPPO(BaseConfig):
             dual_lr = 0.01
             cost_aggregation = "mean"
             cost_quantile = 0.9
+            penalty_mode = "signed"
+            update_error_mode = "signed"
+            legacy_guard_mode = "off"
             pid_kp = 0.05
             pid_ki = 0.001
             pid_kd = 0.01
@@ -243,6 +246,10 @@ class LeggedRobotCfgPPO(BaseConfig):
             integral_min = -10.0
             integral_max = 10.0
             epsilon = 1e-6
+            anisotropic_enabled = False
+            anisotropic_group_slices = []
+            anisotropic_group_weights = []
+            anisotropic_group_labels = []
 
     class runner:
         policy_class_name = 'ActorCritic'

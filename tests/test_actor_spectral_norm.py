@@ -1,22 +1,10 @@
 from __future__ import annotations
 
-import importlib
-from pathlib import Path
-import sys
 import unittest
 
 import torch.nn as nn
 
-
-REPO_ROOT = Path(__file__).resolve().parents[1]
-HUMANOID_GYM_ROOT = REPO_ROOT / ".external" / "humanoid-gym"
-
-
-def load_actor_critic_module():
-    root_str = str(HUMANOID_GYM_ROOT)
-    if root_str not in sys.path:
-        sys.path.insert(0, root_str)
-    return importlib.import_module("humanoid.algo.ppo.actor_critic")
+from tests._sc_ppo_loader import load_actor_critic_module
 
 
 class ActorSpectralNormTests(unittest.TestCase):
