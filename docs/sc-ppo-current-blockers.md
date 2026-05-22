@@ -20,9 +20,9 @@ Reason:
   - `SC-PPO 3.8`
 
 So the repo is no longer blocked by evidence-boundary closure. The resulting
-`科研交付冻结 / 仓库内科研交付包` pass is also complete, so `main` no longer carries active closure
-work; further motion belongs to post-freeze branch selection rather than more reconciliation on the
-frozen package.
+`科研交付冻结 / 仓库内科研交付包` pass is also complete, so `main` now operates as a
+`冻结主档案分支`: it no longer carries active closure work, and further motion belongs to post-freeze
+branch selection rather than more reconciliation on the frozen package.
 
 The `PID有限消融` follow-up is also now closed as a limited mechanism diagnostic. A matched
 `普通对偶上升` probe at `threshold = 3.8` collapses under the minimal Isaac evaluation, so it
@@ -163,6 +163,8 @@ Execution-facing notes:
 - keep `#7 随机阶梯` closed as selected-checkpoint transfer failure on `main`
 - preserve the completed `冻结期轻量验证` boundary; do not rerun Isaac training, MuJoCo replay,
   random-stairs evaluation, or SN diagnostics as part of frozen-package maintenance
+- allow only bounded `main` backports: `冻结边界章节` updates and reusable evaluation or
+  diagnostic infrastructure
 - keep terrain-side `MuJoCo` separate unless it is explicitly promoted later through
   `闭环后支线选择`
 
