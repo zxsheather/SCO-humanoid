@@ -28,6 +28,10 @@ from _common import (  # noqa: E402
     resolve_run_dir,
     write_json,
 )
+from _behavior_trace_metrics import (  # noqa: E402
+    should_capture_traces,
+    trace_capture_config,
+)
 from _overrides import apply_method_overrides  # noqa: E402
 
 
@@ -69,6 +73,23 @@ def constraint_logging_config(config: dict[str, Any]) -> dict[str, Any]:
     merged = defaults.copy()
     merged.update(config.get("evaluation", {}).get("constraint_logging", {}))
     return merged
+
+
+def reset_trace_buffers(trace_buffers: list[dict[str, list[list[float]]]], env_id: int) -> None:
+    trace_buffers[env_id]["dof_pos"].clear()
+    trace_buffers[env_id]["dof_vel"].clear()
+
+
+def append_trace_step(
+    trace_buffers: list[dict[str, list[list[float]]]],
+    env,
+    max_steps_per_episode: int,
+) -> None:
+    for env_id, buffer in enumerate(trace_buffers):
+        if len(buffer["dof_pos"]) >= max_steps_per_episode:
+            continue
+        buffer["dof_pos"].append(env.dof_pos[env_id].detach().cpu().tolist())
+        buffer["dof_vel"].append(env.dof_vel[env_id].detach().cpu().tolist())
 
 
 def resolve_optional_artifact_path(output_dir: Path, value: str | None) -> Path | None:
@@ -118,6 +139,14 @@ def main() -> int:
     parser.add_argument("--rl-device", default=None, help="Override the configured RL device.")
     parser.add_argument("--sim-device", default=None, help="Override the configured sim device.")
     parser.add_argument("--seed", type=int, default=None, help="Override the evaluation seed.")
+    parser.add_argument("--capture-traces", action="store_true", help="Persist compact episode traces for offline analysis.")
+    parser.add_argument("--trace-max-episodes", type=int, default=None, help="Override the number of completed episodes to trace.")
+    parser.add_argument(
+        "--trace-max-steps",
+        type=int,
+        default=None,
+        help="Override the maximum number of recorded steps per captured episode.",
+    )
     args = parser.parse_args()
 
     config = load_config(args.config)
@@ -134,6 +163,14 @@ def main() -> int:
     eval_cfg = config["evaluation"]
     method_cfg = config.get("method", {})
     constraint_cfg = constraint_logging_config(config)
+    trace_cfg = trace_capture_config(config)
+    if args.capture_traces:
+        trace_cfg["enabled"] = True
+    if args.trace_max_episodes is not None:
+        trace_cfg["max_episodes"] = int(args.trace_max_episodes)
+    if args.trace_max_steps is not None:
+        trace_cfg["max_steps_per_episode"] = int(args.trace_max_steps)
+    capture_traces = should_capture_traces(trace_cfg)
     rl_device = args.rl_device or eval_cfg["rl_device"]
     sim_device = args.sim_device or eval_cfg["sim_device"]
     seed = args.seed if args.seed is not None else eval_cfg.get("seed")
@@ -180,6 +217,8 @@ def main() -> int:
     action_jitter_values: list[float] = []
     fell_flags: list[bool] = []
     local_sensitivity_samples: list[float] = []
+    captured_episodes: list[dict[str, Any]] = []
+    trace_buffers = [{"dof_pos": [], "dof_vel": []} for _ in range(env.num_envs)]
     step_counter = 0
 
     while completed_episodes < target_episodes:
@@ -197,6 +236,9 @@ def main() -> int:
         with torch.inference_mode():
             actions = policy(obs.detach())
             obs, _, rewards, dones, infos = env.step(actions.detach())
+
+        if capture_traces and len(captured_episodes) < int(trace_cfg["max_episodes"]):
+            append_trace_step(trace_buffers, env, int(trace_cfg["max_steps_per_episode"]))
 
         linear_error = torch.abs(env.commands[:, 0] - env.base_lin_vel[:, 0])
         yaw_error = torch.abs(env.commands[:, 2] - env.base_ang_vel[:, 2])
@@ -217,6 +259,7 @@ def main() -> int:
 
         time_outs = infos.get("time_outs")
         for env_id in done_ids.tolist():
+            fell = True if time_outs is None else not bool(time_outs[env_id].item())
             returns.append(float(episode_returns[env_id].item()))
             tracking_errors.append(
                 float((episode_tracking_error[env_id] / torch.clamp(episode_lengths[env_id], min=1)).item())
@@ -227,10 +270,21 @@ def main() -> int:
             action_jitter_values.append(
                 float((episode_action_jitter[env_id] / torch.clamp(episode_lengths[env_id], min=1)).item())
             )
-            if time_outs is None:
-                fell_flags.append(True)
-            else:
-                fell_flags.append(not bool(time_outs[env_id].item()))
+            fell_flags.append(fell)
+            if capture_traces and len(captured_episodes) < int(trace_cfg["max_episodes"]):
+                captured_episodes.append(
+                    {
+                        "episode_index": len(captured_episodes),
+                        "env_id": env_id,
+                        "episode_length": int(episode_lengths[env_id].item()),
+                        "fell": fell,
+                        "dt": float(env.dt),
+                        "dof_pos": [list(step) for step in trace_buffers[env_id]["dof_pos"]],
+                        "dof_vel": [list(step) for step in trace_buffers[env_id]["dof_vel"]],
+                        "truncated": len(trace_buffers[env_id]["dof_pos"]) >= int(trace_cfg["max_steps_per_episode"]),
+                    }
+                )
+            reset_trace_buffers(trace_buffers, env_id)
             completed_episodes += 1
             episode_returns[env_id] = 0.0
             episode_tracking_error[env_id] = 0.0
@@ -304,9 +358,27 @@ def main() -> int:
         "episode_return_mean": return_mean,
         "episode_return_std": return_std,
         "constraint_metrics": constraint_metrics,
+        "trace_capture": {
+            "enabled": capture_traces,
+            "episodes_captured": len(captured_episodes),
+            "trace_path": None,
+        },
     }
 
     checkpoint_path = latest_checkpoint(run_dir) if args.checkpoint is None else run_dir / f"model_{args.checkpoint}.pt"
+    trace_path = None
+    if capture_traces:
+        trace_path = output_dir / str(trace_cfg["filename"])
+        write_json(
+            trace_path,
+            {
+                "metric_schema_version": int(eval_cfg.get("metric_schema_version", 1)),
+                "run_name": run_name,
+                "checkpoint_path": relative_to_repo(checkpoint_path),
+                "episodes": captured_episodes,
+            },
+        )
+        metrics["trace_capture"]["trace_path"] = relative_to_repo(trace_path)
     metrics_path = output_dir / "metrics.json"
     write_json(metrics_path, metrics)
 
@@ -320,10 +392,14 @@ def main() -> int:
     manifest["run_dir"] = relative_to_repo(run_dir)
     manifest["checkpoint_path"] = relative_to_repo(checkpoint_path)
     manifest["metrics_path"] = relative_to_repo(metrics_path)
+    if trace_path is not None and trace_path.exists():
+        manifest["trace_path"] = relative_to_repo(trace_path)
     manifest["metrics"] = metrics
     write_json(manifest_path, manifest)
 
     print(f"Wrote {relative_to_repo(metrics_path)}")
+    if trace_path is not None and trace_path.exists():
+        print(f"Wrote {relative_to_repo(trace_path)}")
     print(f"Updated {relative_to_repo(manifest_path)}")
     return 0
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import math
+import statistics
 import subprocess
 import sys
 from pathlib import Path
@@ -25,6 +26,7 @@ from _common import (  # noqa: E402
     resolve_run_dir,
     write_json,
 )
+from _behavior_trace_metrics import compute_episode_smoothness_metrics  # noqa: E402
 
 DEFAULT_TRACKING_TOLERANCE = 0.10
 DEFAULT_FALL_TOLERANCE = 0.05
@@ -327,6 +329,94 @@ def build_alignment_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     return summary
 
 
+def checkpoint_trace_path(output_dir: Path, checkpoint: int) -> Path:
+    return output_dir / f"episode_traces_checkpoint_{checkpoint}.json"
+
+
+def checkpoint_behavior_smoothness_path(output_dir: Path, checkpoint: int) -> Path:
+    return output_dir / f"behavior_smoothness_metrics_checkpoint_{checkpoint}.json"
+
+
+def summarize_values(values: list[float]) -> dict[str, float | int] | None:
+    if not values:
+        return None
+    return {
+        "count": len(values),
+        "mean": statistics.fmean(values),
+        "std": statistics.pstdev(values) if len(values) > 1 else 0.0,
+        "min": min(values),
+        "max": max(values),
+    }
+
+
+def build_behavior_smoothness_summary(trace_payload: dict[str, Any], *, trace_path: Path) -> dict[str, Any]:
+    episodes = trace_payload.get("episodes", [])
+    rows: list[dict[str, Any]] = []
+    ldlj_values: list[float] = []
+    sparc_values: list[float] = []
+
+    for episode in episodes:
+        metrics = compute_episode_smoothness_metrics(episode)
+        row = {
+            "episode_index": episode.get("episode_index"),
+            "env_id": episode.get("env_id"),
+            "episode_length": episode.get("episode_length"),
+            "fell": episode.get("fell"),
+            **metrics,
+        }
+        if metrics["joint_position_ldlj_mean"] is not None:
+            ldlj_values.append(float(metrics["joint_position_ldlj_mean"]))
+        if metrics["joint_velocity_sparc_mean"] is not None:
+            sparc_values.append(float(metrics["joint_velocity_sparc_mean"]))
+        rows.append(row)
+
+    return {
+        "trace_path": relative_to_repo(trace_path),
+        "episode_count": len(episodes),
+        "episodes": rows,
+        "summary": {
+            "joint_position_ldlj_mean": summarize_values(ldlj_values),
+            "joint_velocity_sparc_mean": summarize_values(sparc_values),
+        },
+    }
+
+
+def persist_trace_artifacts(output_dir: Path, checkpoint: int, metrics: dict[str, Any]) -> dict[str, Any] | None:
+    trace_capture = metrics.get("trace_capture", {})
+    trace_path_value = trace_capture.get("trace_path")
+    if not isinstance(trace_path_value, str):
+        return None
+
+    source_trace_path = Path(trace_path_value)
+    if not source_trace_path.is_absolute():
+        source_trace_path = (repo_root() / source_trace_path).resolve()
+    if not source_trace_path.exists():
+        return None
+
+    trace_payload = read_json(source_trace_path)
+    per_checkpoint_trace_path = checkpoint_trace_path(output_dir, checkpoint)
+    write_json(per_checkpoint_trace_path, trace_payload)
+
+    smoothness_summary = build_behavior_smoothness_summary(trace_payload, trace_path=per_checkpoint_trace_path)
+    smoothness_path = checkpoint_behavior_smoothness_path(output_dir, checkpoint)
+    write_json(smoothness_path, smoothness_summary)
+    return {
+        "trace_path": relative_to_repo(per_checkpoint_trace_path),
+        "smoothness_path": relative_to_repo(smoothness_path),
+        "summary": smoothness_summary.get("summary", {}),
+    }
+
+
+def smoothness_metric_mean(trace_artifacts: dict[str, Any] | None, key: str) -> float | None:
+    if not trace_artifacts:
+        return None
+    metric_summary = trace_artifacts.get("summary", {}).get(key)
+    if not isinstance(metric_summary, dict):
+        return None
+    value = metric_summary.get("mean")
+    return float(value) if value is not None else None
+
+
 def build_evaluate_policy_command(
     *,
     config_path: str | None,
@@ -339,6 +429,9 @@ def build_evaluate_policy_command(
     rl_device: str | None,
     sim_device: str | None,
     seed: int | None,
+    capture_traces: bool,
+    trace_max_episodes: int | None,
+    trace_max_steps: int | None,
 ) -> list[str]:
     command = [
         sys.executable,
@@ -364,6 +457,12 @@ def build_evaluate_policy_command(
         command.extend(["--sim-device", sim_device])
     if seed is not None:
         command.extend(["--seed", str(seed)])
+    if capture_traces:
+        command.append("--capture-traces")
+    if trace_max_episodes is not None:
+        command.extend(["--trace-max-episodes", str(trace_max_episodes)])
+    if trace_max_steps is not None:
+        command.extend(["--trace-max-steps", str(trace_max_steps)])
     return command
 
 
@@ -380,6 +479,9 @@ def evaluate_one_checkpoint(
     rl_device: str | None,
     sim_device: str | None,
     seed: int | None,
+    capture_traces: bool,
+    trace_max_episodes: int | None,
+    trace_max_steps: int | None,
 ) -> dict[str, Any]:
     # Isaac Gym/PhysX cannot be safely reinitialized repeatedly inside one Python process.
     # Run each checkpoint evaluation in a fresh subprocess so longer-budget sweeps are stable.
@@ -397,6 +499,9 @@ def evaluate_one_checkpoint(
         rl_device=rl_device,
         sim_device=sim_device,
         seed=seed,
+        capture_traces=capture_traces,
+        trace_max_episodes=trace_max_episodes,
+        trace_max_steps=trace_max_steps,
     )
     completed = subprocess.run(command, cwd=str(repo_root()), check=False)
     recovered_metrics = None
@@ -413,12 +518,14 @@ def evaluate_one_checkpoint(
     metrics = recovered_metrics if recovered_metrics is not None else read_json(output_dir / "metrics.json")
     checkpoint_metrics_path = output_dir / f"metrics_checkpoint_{checkpoint}.json"
     write_json(checkpoint_metrics_path, metrics)
+    trace_artifacts = persist_trace_artifacts(output_dir, checkpoint, metrics)
     return {
         "checkpoint": checkpoint,
         "checkpoint_file": checkpoint_file,
         "metrics_path": relative_to_repo(checkpoint_metrics_path),
         "metrics": metrics,
         "composite_score": composite_score(metrics),
+        "trace_artifacts": trace_artifacts,
     }
 
 
@@ -438,6 +545,14 @@ def main() -> int:
         "--reuse-existing-metrics",
         action="store_true",
         help="Reuse existing metrics_checkpoint_<N>.json files when present instead of reevaluating checkpoints.",
+    )
+    parser.add_argument("--capture-traces", action="store_true", help="Persist compact per-checkpoint traces during replay.")
+    parser.add_argument("--trace-max-episodes", type=int, default=None, help="Override the number of completed episodes to trace.")
+    parser.add_argument(
+        "--trace-max-steps",
+        type=int,
+        default=None,
+        help="Override the maximum number of recorded steps per captured episode.",
     )
     args = parser.parse_args()
 
@@ -459,6 +574,7 @@ def main() -> int:
                         "metrics_path": relative_to_repo(output_dir / f"metrics_checkpoint_{checkpoint}.json"),
                         "metrics": metrics,
                         "composite_score": composite_score(metrics),
+                        "trace_artifacts": None,
                     }
                 )
                 continue
@@ -475,6 +591,9 @@ def main() -> int:
                 rl_device=args.rl_device,
                 sim_device=args.sim_device,
                 seed=args.seed,
+                capture_traces=args.capture_traces,
+                trace_max_episodes=args.trace_max_episodes,
+                trace_max_steps=args.trace_max_steps,
             )
         )
 
@@ -496,6 +615,16 @@ def main() -> int:
                 "constraint_violation_rate": constraint_metrics.get("constraint_violation_rate"),
                 "eval_policy_local_sensitivity_cost_mean": constraint_metrics.get("policy_local_sensitivity_cost_mean"),
                 "eval_constraint_violation_rate": constraint_metrics.get("constraint_violation_rate"),
+                "joint_position_ldlj_mean": smoothness_metric_mean(
+                    item.get("trace_artifacts"), "joint_position_ldlj_mean"
+                ),
+                "joint_velocity_sparc_mean": smoothness_metric_mean(
+                    item.get("trace_artifacts"), "joint_velocity_sparc_mean"
+                ),
+                "trace_path": item.get("trace_artifacts", {}).get("trace_path") if item.get("trace_artifacts") else None,
+                "behavior_smoothness_metrics_path": (
+                    item.get("trace_artifacts", {}).get("smoothness_path") if item.get("trace_artifacts") else None
+                ),
                 "metrics_path": item["metrics_path"],
                 **train_constraint_metrics,
             }
@@ -508,6 +637,14 @@ def main() -> int:
     alignment_summary_path = output_dir / "checkpoint_diagnostic_alignment.json"
     write_json(selected_metrics_path, next(item["metrics"] for item in results if item["checkpoint"] == best["checkpoint"]))
     write_json(alignment_summary_path, alignment_summary)
+    selected_trace_artifacts = next(
+        (item.get("trace_artifacts") for item in results if item["checkpoint"] == best["checkpoint"]),
+        None,
+    )
+    if selected_trace_artifacts and selected_trace_artifacts.get("smoothness_path"):
+        selected_smoothness_source = repo_root() / str(selected_trace_artifacts["smoothness_path"])
+        if selected_smoothness_source.exists():
+            write_json(output_dir / "behavior_smoothness_metrics_selected.json", read_json(selected_smoothness_source))
     summary = {
         "run_name": args.run_name,
         "load_run": args.load_run,
@@ -526,6 +663,11 @@ def main() -> int:
         "selected_metrics_path": relative_to_repo(selected_metrics_path),
         "checkpoint_diagnostic_alignment_path": relative_to_repo(alignment_summary_path),
         "checkpoint_diagnostic_alignment": alignment_summary,
+        "selected_behavior_smoothness_metrics_path": (
+            relative_to_repo(output_dir / "behavior_smoothness_metrics_selected.json")
+            if (output_dir / "behavior_smoothness_metrics_selected.json").exists()
+            else None
+        ),
         "rows": summary_rows,
         "latest_checkpoint_path": relative_to_repo(latest_checkpoint(run_dir)),
     }
@@ -542,6 +684,8 @@ def main() -> int:
         manifest["selected_checkpoint_metrics_path"] = best["metrics_path"]
         manifest["selected_metrics_path"] = relative_to_repo(selected_metrics_path)
         manifest["checkpoint_diagnostic_alignment_path"] = relative_to_repo(alignment_summary_path)
+        if summary["selected_behavior_smoothness_metrics_path"] is not None:
+            manifest["selected_behavior_smoothness_metrics_path"] = summary["selected_behavior_smoothness_metrics_path"]
         write_json(manifest_path, manifest)
 
     if status != "selected":
