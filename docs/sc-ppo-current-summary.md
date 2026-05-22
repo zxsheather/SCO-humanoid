@@ -96,7 +96,7 @@ The mainline evidence closure is now complete at the current claim boundary:
 - `MuJoCo terrain` remains a separate protocol-repair line
 
 That mainline closure and the resulting `仓库内科研交付包` freeze are now complete. The current
-execution rule on `main` is:
+execution rule is to treat `main` as a `冻结主档案分支`:
 
 1. keep `README.md`, `CONTEXT.md`, GitHub Issues, report drafts, and reproduction entrypoints
    aligned on the completed claim boundary
@@ -105,6 +105,8 @@ execution rule on `main` is:
 3. keep `#7 随机阶梯` closed as selected-checkpoint transfer failure, not as a task-valid method
    ranking or a request for more immediate experiment budget, and open any further terrain-side or
    mechanism-side work as separate post-freeze branches
+4. allow only bounded backports into `main`: `冻结边界章节` updates and reusable evaluation or
+   diagnostic infrastructure, not mechanism-specific branch outcomes
 
 The first #7 stairs-only selected-checkpoint stress test is now complete:
 

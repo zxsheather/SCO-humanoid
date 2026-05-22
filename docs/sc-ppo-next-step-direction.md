@@ -17,12 +17,13 @@ The repo has completed the previous closure layers:
 
 The repo no longer has an unfinished closure step on `main`. The current operating rule is:
 
-`keep main frozen and open any additional work as a post-freeze branch`
+`treat main as 冻结主档案分支 and open any additional work as a post-freeze branch`
 
 This means the repo should preserve the completed reports, tracker state, artifact pointers, and
-reproduction entrypoints on `main` rather than reopening the frozen package. It should not
-immediately expand into moderated stairs, `SN` recipe redesign, `ALCP`, `SysID`, `Residual RL`,
-visual distillation, or `VLA` work on the frozen branch.
+reproduction entrypoints on `main` rather than reopening the frozen package. It may still absorb
+bounded backports for `冻结边界章节` updates and reusable evaluation or diagnostic infrastructure,
+but it should not immediately expand into moderated stairs, `SN` recipe redesign, `ALCP`, `SysID`,
+`Residual RL`, visual distillation, or `VLA` work on the frozen branch.
 
 ## Completed Layer 1: 重冻结 rough-terrain 三组正式对比
 
@@ -86,6 +87,8 @@ The documentation and tracker consistency pass has one current rule:
   handoff
 - keep `docs/adr/0001-freeze-research-delivery-before-new-protocol-repair.md` as the freeze
   decision record
+- treat `main` as `冻结主档案分支`: backport only `冻结边界章节` updates and reusable evaluation
+  or diagnostic infrastructure
 - close or update GitHub Issues whose original wording is now superseded by the completed evidence
   closure
 - keep `PID有限消融` closed as mechanism support rather than reopening it as broad component
@@ -191,6 +194,8 @@ Operating rule after completion:
   `main`
 - keep the frozen package stable and use the final reproduction checklist plus freeze summary as the
   canonical handoff index
+- allow only bounded `main` backports: `冻结边界章节` updates and reusable evaluation or
+  diagnostic infrastructure
 - if new work is opened, do it as a separate post-freeze issue or branch
 
 ## Immediate non-goals on `main`
@@ -212,7 +217,7 @@ The repo should not treat the following as the immediate next step:
 
 When summarizing the agreed repo state, the safest compact wording is:
 
-`当前仓库的主线证据闭环和科研交付冻结都已经完成：Isaac 粗糙平面三组正式对比围绕 Vanilla PPO raw reference、revised heuristic anchor 和 SC-PPO 3.8 收口；对齐后的 MuJoCo isaac_mainline 不支持 SC-PPO 跨引擎胜利，应写成混合外部验证结论。PID有限消融、SN-only 负向诊断和 #7 随机阶梯 selected-checkpoint transfer failure 都已经闭合。main 分支承载的是仓库内科研交付包；任何 moderated stairs、task-stabilized SN recipe 或其他新方向都应作为 post-freeze branch 单独打开。`
+`当前仓库的主线证据闭环和科研交付冻结都已经完成：Isaac 粗糙平面三组正式对比围绕 Vanilla PPO raw reference、revised heuristic anchor 和 SC-PPO 3.8 收口；对齐后的 MuJoCo isaac_mainline 不支持 SC-PPO 跨引擎胜利，应写成混合外部验证结论。PID有限消融、SN-only 负向诊断和 #7 随机阶梯 selected-checkpoint transfer failure 都已经闭合。main 分支当前作为 冻结主档案分支 承载仓库内科研交付包；它只吸收 冻结边界章节 和可复用评估/诊断基础设施的有限回灌，任何 moderated stairs、task-stabilized SN recipe 或其他新方向都应作为 post-freeze branch 单独打开。`
 
 Updated after `PID有限消融` closure:
 

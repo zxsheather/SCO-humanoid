@@ -44,6 +44,10 @@ _Avoid_: README长命令堆积, 报告正文操作手册, 新实验计划
 A short report section that records completed post-mainline diagnostics and delivery boundaries without rewriting the main research narrative.
 _Avoid_: 重写主报告, 新主结果章节, 实验计划章节
 
+**冻结主档案分支**:
+A main-branch posture where the repo stays stable as the archival research handoff line, but may still accept bounded post-freeze backports limited to **冻结边界章节** updates and reusable evaluation or diagnostic infrastructure.
+_Avoid_: 借维护名义重开实验主叙事, 把机制专属实现直接回灌主线
+
 **闭环后支线选择**:
 A post-mainline decision point where the repo chooses one bounded follow-up branch after the current claim boundary is frozen.
 _Avoid_: 多支线同时展开, 用新支线重写已冻结主结论
@@ -224,6 +228,7 @@ _Avoid_: 双消融扩张, 全组件独立归因
 - **冻结期轻量验证** is the only validation style appropriate during **科研交付冻结** unless the maintainer explicitly reopens a new experiment branch
 - A **最终复现清单** belongs to a **仓库内科研交付包** and keeps operational reproduction details out of README and report narrative
 - A **冻结边界章节** updates reports with post-mainline diagnostic outcomes without reopening the main result structure
+- A **冻结主档案分支** keeps `main` stable after **科研交付冻结** while still allowing bounded backports for **冻结边界章节** and reusable evaluation or diagnostic infrastructure
 - A **闭环后支线选择** should choose one bounded **诊断支线** without reopening the frozen mainline claim
 - A **协议修复线** exists to fix evaluation semantics or protocol quality without being mistaken for a new algorithm claim
 - A **部分迁移结论** lets the repo include external validation in the main report without overstating mixed evidence
@@ -369,6 +374,9 @@ _Avoid_: 双消融扩张, 全组件独立归因
 > **Dev:** "报告要不要按 SN 和随机阶梯重写一遍？"
 > **Domain expert:** "不要；新增 **冻结边界章节**，记录 post-mainline diagnostics 和交付边界，不改写主结果叙事。"
 
+> **Dev:** "冻结后的 main 是完全只读，还是还能收少量维护回灌？"
+> **Domain expert:** "把 `main` 当作 **冻结主档案分支**。它保持稳定，但仍可吸收两类有限回灌：**冻结边界章节** 更新，以及可复用的评估/诊断基础设施；机制专属实现不要直接回灌。"
+
 ## Flagged ambiguities
 
 - “实施计划” was ambiguous between **科研验证型交付** and **工程产品型交付** — resolved: this project uses **科研验证型交付**
@@ -406,3 +414,4 @@ _Avoid_: 双消融扩张, 全组件独立归因
 - “科研交付冻结 是否需要重跑实验” was ambiguous between re-validation by recomputation and consistency checking — resolved: use **冻结期轻量验证** and do not generate new formal evidence
 - “复现命令放在哪里” was ambiguous between README, report body, and an independent operational index — resolved: create a standalone **最终复现清单**
 - “冻结时 report 是否需要重写” was ambiguous between rewriting the research narrative and appending delivery boundaries — resolved: add a **冻结边界章节** only
+- “冻结后的 main 是否完全只读” was ambiguous between zero-backport archival freeze and bounded maintenance — resolved: treat `main` as a **冻结主档案分支**
