@@ -16,6 +16,9 @@ class SCPPO(PPO):
 
         cfg = constraint or {}
         self.constraint_enabled = bool(cfg.get("enabled", True))
+        self.constraint_objective = self._normalize_constraint_objective(
+            cfg.get("objective", "policy_local_sensitivity")
+        )
         self.constraint_threshold = float(cfg.get("threshold", 5.5))
         self.constraint_subsample_obs = self._parse_constraint_subsample_obs(cfg.get("subsample_obs", 8))
         self.constraint_update_mode = str(cfg.get("update_mode", "pid")).lower()
@@ -45,6 +48,12 @@ class SCPPO(PPO):
         self.constraint_anisotropic_group_labels = self._parse_constraint_group_labels(
             cfg.get("anisotropic_group_labels", [])
         )
+        self.constraint_action_rate_observation_frame_size = int(
+            cfg.get("action_rate_observation_frame_size", 0) or 0
+        )
+        self.constraint_action_rate_observation_action_slice = self._parse_constraint_action_slice(
+            cfg.get("action_rate_observation_action_slice")
+        )
         self._resolved_anisotropic_groups = None
         self._resolved_anisotropic_action_dim = None
 
@@ -56,6 +65,14 @@ class SCPPO(PPO):
         self.previous_constraint_error = 0.0
         self.constraint_trace = []
         self.latest_stats = {}
+
+    def _normalize_constraint_objective(self, raw_value):
+        normalized = str(raw_value or "policy_local_sensitivity").strip().lower()
+        if normalized in {"policy_local_sensitivity", "local_sensitivity", "jacobian"}:
+            return "policy_local_sensitivity"
+        if normalized in {"action_rate", "action_delta"}:
+            return "action_rate"
+        raise ValueError(f"Unsupported constraint objective: {raw_value}")
 
     def _parse_constraint_subsample_obs(self, raw_value):
         if raw_value is None:
@@ -113,6 +130,25 @@ class SCPPO(PPO):
             raw_value = ast.literal_eval(raw_value)
         return [str(value) for value in raw_value]
 
+    def _parse_constraint_action_slice(self, raw_value):
+        if raw_value is None or raw_value == "":
+            return None
+        if isinstance(raw_value, str):
+            raw_value = ast.literal_eval(raw_value)
+        if not isinstance(raw_value, (list, tuple)) or len(raw_value) != 2:
+            raise ValueError("action_rate_observation_action_slice must be [start, end)")
+        start, end = int(raw_value[0]), int(raw_value[1])
+        if start < 0 or end <= start:
+            raise ValueError("action_rate_observation_action_slice must satisfy 0 <= start < end")
+        return (start, end)
+
+    def _constraint_metric_prefix(self):
+        if self.constraint_objective == "policy_local_sensitivity":
+            return "policy_local_sensitivity"
+        if self.constraint_objective == "action_rate":
+            return "action_rate"
+        raise ValueError(f"Unsupported constraint objective: {self.constraint_objective}")
+
     def _constraint_effective_mode(self):
         if self.constraint_anisotropic_enabled:
             return "anisotropic_group_weighted"
@@ -162,6 +198,77 @@ class SCPPO(PPO):
         self._resolved_anisotropic_action_dim = action_dim
         return self._resolved_anisotropic_groups
 
+    def _constraint_metrics_from_squared_by_action(self, squared_metric_by_action):
+        legacy_squared_norm = squared_metric_by_action.sum(dim=1)
+        legacy_metric = torch.sqrt(torch.clamp(legacy_squared_norm, min=self.constraint_epsilon))
+
+        metric = legacy_metric
+        group_cost_mean = None
+        group_cost_max = None
+        group_cost_quantile = None
+        group_slices = []
+        group_weights = []
+        group_labels = []
+        if self.constraint_anisotropic_enabled:
+            resolved_groups = self._resolve_anisotropic_groups(squared_metric_by_action.shape[1])
+            group_squared_norm = torch.stack(
+                [
+                    squared_metric_by_action[:, start:end].sum(dim=1)
+                    for start, end in resolved_groups["slices"]
+                ],
+                dim=1,
+            )
+            weights = torch.tensor(
+                resolved_groups["weights"],
+                device=group_squared_norm.device,
+                dtype=group_squared_norm.dtype,
+            )
+            weighted_squared_norm = torch.sum(group_squared_norm * weights.unsqueeze(0), dim=1)
+            metric = torch.sqrt(torch.clamp(weighted_squared_norm, min=self.constraint_epsilon))
+            group_metric = torch.sqrt(torch.clamp(group_squared_norm, min=self.constraint_epsilon))
+            group_cost_mean = group_metric.mean(dim=0)
+            group_cost_max = group_metric.max(dim=0).values
+            group_cost_quantile = torch.quantile(group_metric, self.constraint_cost_quantile, dim=0)
+            group_slices = [list(bounds) for bounds in resolved_groups["slices"]]
+            group_weights = list(resolved_groups["weights"])
+            group_labels = list(resolved_groups["labels"])
+
+        cost_mean = metric.mean()
+        cost_max = metric.max()
+        cost_quantile = torch.quantile(metric, self.constraint_cost_quantile)
+        effective_cost_for_update = self._aggregate_constraint_cost(cost_mean, cost_max, cost_quantile)
+        legacy_cost_mean = legacy_metric.mean()
+        legacy_cost_max = legacy_metric.max()
+        legacy_cost_quantile = torch.quantile(legacy_metric, self.constraint_cost_quantile)
+        legacy_cost_for_update = self._aggregate_constraint_cost(
+            legacy_cost_mean,
+            legacy_cost_max,
+            legacy_cost_quantile,
+        )
+        cost_for_update = self._guard_constraint_cost(effective_cost_for_update, legacy_cost_for_update)
+        violation_rate = torch.mean((metric > self.constraint_threshold).float())
+        return {
+            "cost_mean": cost_mean,
+            "cost_max": cost_max,
+            "cost_quantile": cost_quantile,
+            "effective_cost_for_update": effective_cost_for_update,
+            "legacy_cost_for_update": legacy_cost_for_update,
+            "cost_for_update": cost_for_update,
+            "violation_rate": violation_rate,
+            "legacy_cost_mean": legacy_cost_mean,
+            "legacy_cost_max": legacy_cost_max,
+            "legacy_cost_quantile": legacy_cost_quantile,
+            "legacy_violation_rate": torch.mean((legacy_metric > self.constraint_threshold).float()),
+            "effective_mode": self._constraint_effective_mode(),
+            "group_cost_mean": group_cost_mean,
+            "group_cost_max": group_cost_max,
+            "group_cost_quantile": group_cost_quantile,
+            "group_slices": group_slices,
+            "group_weights": group_weights,
+            "group_labels": group_labels,
+            "sample_count": metric.shape[0],
+        }
+
     def _local_sensitivity_metrics(self, obs_batch):
         sampled_obs = self._constraint_obs_batch(obs_batch).detach().clone().requires_grad_(True)
         action_mean = self.actor_critic.act_inference(sampled_obs)
@@ -180,76 +287,44 @@ class SCPPO(PPO):
             )[0]
             squared_norm_by_action.append(torch.sum(torch.square(grads), dim=1))
 
-        squared_norm_by_action = torch.stack(squared_norm_by_action, dim=1)
-        legacy_squared_norm = squared_norm_by_action.sum(dim=1)
-        legacy_local_sensitivity = torch.sqrt(torch.clamp(legacy_squared_norm, min=self.constraint_epsilon))
+        return self._constraint_metrics_from_squared_by_action(torch.stack(squared_norm_by_action, dim=1))
 
-        local_sensitivity = legacy_local_sensitivity
-        group_cost_mean = None
-        group_cost_max = None
-        group_cost_quantile = None
-        group_slices = []
-        group_weights = []
-        group_labels = []
-        if self.constraint_anisotropic_enabled:
-            resolved_groups = self._resolve_anisotropic_groups(action_mean.shape[1])
-            group_squared_norm = torch.stack(
-                [
-                    squared_norm_by_action[:, start:end].sum(dim=1)
-                    for start, end in resolved_groups["slices"]
-                ],
-                dim=1,
-            )
-            weights = torch.tensor(
-                resolved_groups["weights"],
-                device=group_squared_norm.device,
-                dtype=group_squared_norm.dtype,
-            )
-            weighted_squared_norm = torch.sum(group_squared_norm * weights.unsqueeze(0), dim=1)
-            local_sensitivity = torch.sqrt(torch.clamp(weighted_squared_norm, min=self.constraint_epsilon))
-            group_local_sensitivity = torch.sqrt(torch.clamp(group_squared_norm, min=self.constraint_epsilon))
-            group_cost_mean = group_local_sensitivity.mean(dim=0)
-            group_cost_max = group_local_sensitivity.max(dim=0).values
-            group_cost_quantile = torch.quantile(group_local_sensitivity, self.constraint_cost_quantile, dim=0)
-            group_slices = [list(bounds) for bounds in resolved_groups["slices"]]
-            group_weights = list(resolved_groups["weights"])
-            group_labels = list(resolved_groups["labels"])
+    def _action_rate_previous_actions(self, obs_batch, action_dim):
+        if self.constraint_action_rate_observation_frame_size <= 0:
+            raise ValueError("action_rate objective requires action_rate_observation_frame_size > 0")
+        if self.constraint_action_rate_observation_action_slice is None:
+            raise ValueError("action_rate objective requires action_rate_observation_action_slice")
 
-        cost_mean = local_sensitivity.mean()
-        cost_max = local_sensitivity.max()
-        cost_quantile = torch.quantile(local_sensitivity, self.constraint_cost_quantile)
-        effective_cost_for_update = self._aggregate_constraint_cost(cost_mean, cost_max, cost_quantile)
-        legacy_cost_mean = legacy_local_sensitivity.mean()
-        legacy_cost_max = legacy_local_sensitivity.max()
-        legacy_cost_quantile = torch.quantile(legacy_local_sensitivity, self.constraint_cost_quantile)
-        legacy_cost_for_update = self._aggregate_constraint_cost(
-            legacy_cost_mean,
-            legacy_cost_max,
-            legacy_cost_quantile,
-        )
-        cost_for_update = self._guard_constraint_cost(effective_cost_for_update, legacy_cost_for_update)
-        violation_rate = torch.mean((local_sensitivity > self.constraint_threshold).float())
-        return {
-            "cost_mean": cost_mean,
-            "cost_max": cost_max,
-            "cost_quantile": cost_quantile,
-            "effective_cost_for_update": effective_cost_for_update,
-            "legacy_cost_for_update": legacy_cost_for_update,
-            "cost_for_update": cost_for_update,
-            "violation_rate": violation_rate,
-            "legacy_cost_mean": legacy_cost_mean,
-            "legacy_cost_max": legacy_cost_max,
-            "legacy_cost_quantile": legacy_cost_quantile,
-            "legacy_violation_rate": torch.mean((legacy_local_sensitivity > self.constraint_threshold).float()),
-            "effective_mode": self._constraint_effective_mode(),
-            "group_cost_mean": group_cost_mean,
-            "group_cost_max": group_cost_max,
-            "group_cost_quantile": group_cost_quantile,
-            "group_slices": group_slices,
-            "group_weights": group_weights,
-            "group_labels": group_labels,
-            "sample_count": local_sensitivity.shape[0],
-        }
+        frame_size = self.constraint_action_rate_observation_frame_size
+        action_start, action_end = self.constraint_action_rate_observation_action_slice
+        if action_end > frame_size:
+            raise ValueError("action_rate_observation_action_slice cannot exceed frame size")
+        if action_end - action_start != action_dim:
+            raise ValueError(
+                f"action_rate_observation_action_slice width {action_end - action_start} "
+                f"does not match action dim {action_dim}"
+            )
+        if obs_batch.shape[1] < frame_size or (obs_batch.shape[1] % frame_size) != 0:
+            raise ValueError(
+                f"obs dim {obs_batch.shape[1]} is incompatible with action_rate_observation_frame_size {frame_size}"
+            )
+
+        latest_frame_offset = obs_batch.shape[1] - frame_size
+        return obs_batch[:, latest_frame_offset + action_start : latest_frame_offset + action_end]
+
+    def _action_rate_metrics(self, obs_batch):
+        sampled_obs = self._constraint_obs_batch(obs_batch)
+        action_mean = self.actor_critic.act_inference(sampled_obs)
+        previous_actions = self._action_rate_previous_actions(sampled_obs, action_mean.shape[1]).detach()
+        squared_action_delta_by_action = torch.square(action_mean - previous_actions)
+        return self._constraint_metrics_from_squared_by_action(squared_action_delta_by_action)
+
+    def _constraint_metrics(self, obs_batch):
+        if self.constraint_objective == "policy_local_sensitivity":
+            return self._local_sensitivity_metrics(obs_batch)
+        if self.constraint_objective == "action_rate":
+            return self._action_rate_metrics(obs_batch)
+        raise ValueError(f"Unsupported constraint objective: {self.constraint_objective}")
 
     def _aggregate_constraint_cost(self, cost_mean, cost_max, cost_quantile):
         if self.constraint_cost_aggregation == "mean":
@@ -403,7 +478,7 @@ class SCPPO(PPO):
                 constraint_update_error = torch.tensor(0.0, device=self.device)
                 constraint_sample_count = 0
                 if self.constraint_enabled:
-                    constraint_stats = self._local_sensitivity_metrics(obs_batch)
+                    constraint_stats = self._constraint_metrics(obs_batch)
                     constraint_cost = constraint_stats["cost_mean"]
                     constraint_cost_update = constraint_stats["cost_for_update"]
                     constraint_effective_cost_update = constraint_stats["effective_cost_for_update"]
@@ -486,8 +561,10 @@ class SCPPO(PPO):
         if self.constraint_enabled:
             lagrange_delta = self._update_lagrange_multiplier(mean_constraint_cost_update - self.constraint_threshold)
 
+        metric_prefix = self._constraint_metric_prefix()
         trace_entry = {
             "iteration": len(self.constraint_trace),
+            "constraint_objective": self.constraint_objective,
             "lagrange_multiplier": float(self.lagrange_multiplier.item()),
             "lagrange_delta": float(lagrange_delta),
             "constraint_cost_aggregation": self.constraint_cost_aggregation,
@@ -498,11 +575,11 @@ class SCPPO(PPO):
             "constraint_update_error_mode": self.constraint_update_error_mode,
             "constraint_legacy_guard_mode": self.constraint_legacy_guard_mode,
             "constraint_threshold": self.constraint_threshold,
-            "policy_local_sensitivity_cost_mean": float(mean_constraint_cost),
-            "policy_local_sensitivity_cost_update": float(mean_constraint_cost_update),
-            "policy_local_sensitivity_effective_cost_update": float(mean_constraint_effective_cost_update),
-            "policy_local_sensitivity_cost_max": float(mean_constraint_cost_max),
-            "policy_local_sensitivity_cost_quantile": float(mean_constraint_cost_quantile),
+            "constraint_cost_mean": float(mean_constraint_cost),
+            "constraint_cost_update": float(mean_constraint_cost_update),
+            "constraint_effective_cost_update": float(mean_constraint_effective_cost_update),
+            "constraint_cost_max": float(mean_constraint_cost_max),
+            "constraint_cost_quantile": float(mean_constraint_cost_quantile),
             "pid_integral_mode": self.constraint_pid_integral_mode,
             "pid_integral_decay": float(self.constraint_pid_integral_decay),
             "constraint_integral_error": float(self.constraint_integral_error),
@@ -511,15 +588,33 @@ class SCPPO(PPO):
             "constraint_violation_rate": float(mean_constraint_violation_rate),
             "constraint_penalty_loss_mean": float(mean_constraint_penalty),
             "constraint_sample_count": int(total_constraint_samples),
+            f"{metric_prefix}_cost_mean": float(mean_constraint_cost),
+            f"{metric_prefix}_cost_update": float(mean_constraint_cost_update),
+            f"{metric_prefix}_effective_cost_update": float(mean_constraint_effective_cost_update),
+            f"{metric_prefix}_cost_max": float(mean_constraint_cost_max),
+            f"{metric_prefix}_cost_quantile": float(mean_constraint_cost_quantile),
         }
         if self.constraint_enabled:
             trace_entry["constraint_effective_mode"] = constraint_effective_mode
-            trace_entry["policy_local_sensitivity_legacy_cost_mean"] = float(mean_constraint_legacy_cost)
-            trace_entry["policy_local_sensitivity_legacy_cost_update"] = float(mean_constraint_legacy_cost_update)
-            trace_entry["policy_local_sensitivity_legacy_cost_max"] = float(mean_constraint_legacy_cost_max)
-            trace_entry["policy_local_sensitivity_legacy_cost_quantile"] = float(mean_constraint_legacy_cost_quantile)
+            trace_entry["constraint_legacy_cost_mean"] = float(mean_constraint_legacy_cost)
+            trace_entry["constraint_legacy_cost_update"] = float(mean_constraint_legacy_cost_update)
+            trace_entry["constraint_legacy_cost_max"] = float(mean_constraint_legacy_cost_max)
+            trace_entry["constraint_legacy_cost_quantile"] = float(mean_constraint_legacy_cost_quantile)
             trace_entry["constraint_legacy_violation_rate"] = float(mean_constraint_legacy_violation_rate)
             trace_entry["constraint_anisotropic_enabled"] = bool(self.constraint_anisotropic_enabled)
+            trace_entry[f"{metric_prefix}_legacy_cost_mean"] = float(mean_constraint_legacy_cost)
+            trace_entry[f"{metric_prefix}_legacy_cost_update"] = float(mean_constraint_legacy_cost_update)
+            trace_entry[f"{metric_prefix}_legacy_cost_max"] = float(mean_constraint_legacy_cost_max)
+            trace_entry[f"{metric_prefix}_legacy_cost_quantile"] = float(mean_constraint_legacy_cost_quantile)
+            if self.constraint_objective == "action_rate":
+                trace_entry["action_rate_observation_frame_size"] = int(
+                    self.constraint_action_rate_observation_frame_size
+                )
+                trace_entry["action_rate_observation_action_slice"] = (
+                    list(self.constraint_action_rate_observation_action_slice)
+                    if self.constraint_action_rate_observation_action_slice is not None
+                    else None
+                )
             if mean_constraint_group_cost_mean is not None:
                 trace_entry["constraint_group_slices"] = constraint_group_slices
                 trace_entry["constraint_group_weights"] = constraint_group_weights
@@ -537,18 +632,15 @@ class SCPPO(PPO):
     def get_logging_stats(self):
         if not self.latest_stats:
             return {}
+        metric_prefix = self._constraint_metric_prefix()
         stats = {
             "Constraint/lagrange_multiplier": self.latest_stats["lagrange_multiplier"],
             "Constraint/lagrange_delta": self.latest_stats["lagrange_delta"],
-            "Constraint/policy_local_sensitivity_cost_mean": self.latest_stats["policy_local_sensitivity_cost_mean"],
-            "Constraint/policy_local_sensitivity_cost_update": self.latest_stats["policy_local_sensitivity_cost_update"],
-            "Constraint/policy_local_sensitivity_effective_cost_update": self.latest_stats[
-                "policy_local_sensitivity_effective_cost_update"
-            ],
-            "Constraint/policy_local_sensitivity_cost_max": self.latest_stats["policy_local_sensitivity_cost_max"],
-            "Constraint/policy_local_sensitivity_cost_quantile": self.latest_stats[
-                "policy_local_sensitivity_cost_quantile"
-            ],
+            "Constraint/constraint_cost_mean": self.latest_stats["constraint_cost_mean"],
+            "Constraint/constraint_cost_update": self.latest_stats["constraint_cost_update"],
+            "Constraint/constraint_effective_cost_update": self.latest_stats["constraint_effective_cost_update"],
+            "Constraint/constraint_cost_max": self.latest_stats["constraint_cost_max"],
+            "Constraint/constraint_cost_quantile": self.latest_stats["constraint_cost_quantile"],
             "Constraint/constraint_threshold": self.latest_stats["constraint_threshold"],
             "Constraint/constraint_error": self.latest_stats["constraint_error"],
             "Constraint/constraint_integral_error": self.latest_stats["constraint_integral_error"],
@@ -556,15 +648,24 @@ class SCPPO(PPO):
             "Constraint/constraint_update_error": self.latest_stats["constraint_update_error"],
             "Constraint/constraint_violation_rate": self.latest_stats["constraint_violation_rate"],
             "Loss/constraint_penalty": self.latest_stats["constraint_penalty_loss_mean"],
+            f"Constraint/{metric_prefix}_cost_mean": self.latest_stats[f"{metric_prefix}_cost_mean"],
+            f"Constraint/{metric_prefix}_cost_update": self.latest_stats[f"{metric_prefix}_cost_update"],
+            f"Constraint/{metric_prefix}_effective_cost_update": self.latest_stats[
+                f"{metric_prefix}_effective_cost_update"
+            ],
+            f"Constraint/{metric_prefix}_cost_max": self.latest_stats[f"{metric_prefix}_cost_max"],
+            f"Constraint/{metric_prefix}_cost_quantile": self.latest_stats[f"{metric_prefix}_cost_quantile"],
         }
-        if "policy_local_sensitivity_legacy_cost_mean" in self.latest_stats:
-            stats["Constraint/policy_local_sensitivity_legacy_cost_mean"] = self.latest_stats[
-                "policy_local_sensitivity_legacy_cost_mean"
-            ]
-            stats["Constraint/policy_local_sensitivity_legacy_cost_update"] = self.latest_stats[
-                "policy_local_sensitivity_legacy_cost_update"
-            ]
+        if "constraint_legacy_cost_mean" in self.latest_stats:
+            stats["Constraint/constraint_legacy_cost_mean"] = self.latest_stats["constraint_legacy_cost_mean"]
+            stats["Constraint/constraint_legacy_cost_update"] = self.latest_stats["constraint_legacy_cost_update"]
             stats["Constraint/constraint_legacy_violation_rate"] = self.latest_stats["constraint_legacy_violation_rate"]
+            stats[f"Constraint/{metric_prefix}_legacy_cost_mean"] = self.latest_stats[
+                f"{metric_prefix}_legacy_cost_mean"
+            ]
+            stats[f"Constraint/{metric_prefix}_legacy_cost_update"] = self.latest_stats[
+                f"{metric_prefix}_legacy_cost_update"
+            ]
         group_means = self.latest_stats.get("constraint_group_cost_mean", [])
         group_labels = self.latest_stats.get("constraint_group_labels", [])
         for label, value in zip(group_labels, group_means):
@@ -594,9 +695,11 @@ class SCPPO(PPO):
     def get_artifact_payload(self):
         if not self.constraint_trace:
             return {}
-        cost_history = [entry["policy_local_sensitivity_cost_mean"] for entry in self.constraint_trace]
+        metric_prefix = self._constraint_metric_prefix()
+        cost_history = [entry["constraint_cost_mean"] for entry in self.constraint_trace if "constraint_cost_mean" in entry]
         payload = {
             "constraint_metrics": {
+                "constraint_objective": self.constraint_objective,
                 "constraint_sample_count": int(sum(entry["constraint_sample_count"] for entry in self.constraint_trace)),
                 "constraint_cost_aggregation": self.constraint_cost_aggregation,
                 "constraint_cost_quantile": float(self.constraint_cost_quantile),
@@ -613,37 +716,51 @@ class SCPPO(PPO):
                 "dual_update_mode": self.constraint_update_mode,
                 "lagrange_multiplier": self.latest_stats.get("lagrange_multiplier"),
                 "lagrange_multiplier_max": self.constraint_lambda_max,
-                "local_sensitivity_threshold": self.constraint_threshold,
+                "constraint_threshold": self.constraint_threshold,
                 "pid_integral_mode": self.constraint_pid_integral_mode,
                 "pid_integral_decay": float(self.constraint_pid_integral_decay),
-                "policy_local_sensitivity_cost_mean": self.latest_stats.get("policy_local_sensitivity_cost_mean"),
-                "policy_local_sensitivity_cost_update": self.latest_stats.get("policy_local_sensitivity_cost_update"),
-                "policy_local_sensitivity_effective_cost_update": self.latest_stats.get(
-                    "policy_local_sensitivity_effective_cost_update"
-                ),
-                "policy_local_sensitivity_cost_max": self.latest_stats.get("policy_local_sensitivity_cost_max"),
-                "policy_local_sensitivity_cost_quantile": self.latest_stats.get(
-                    "policy_local_sensitivity_cost_quantile"
-                ),
-                "policy_local_sensitivity_legacy_cost_mean": self.latest_stats.get(
-                    "policy_local_sensitivity_legacy_cost_mean"
-                ),
-                "policy_local_sensitivity_legacy_cost_update": self.latest_stats.get(
-                    "policy_local_sensitivity_legacy_cost_update"
-                ),
-                "policy_local_sensitivity_legacy_cost_max": self.latest_stats.get(
-                    "policy_local_sensitivity_legacy_cost_max"
-                ),
-                "policy_local_sensitivity_legacy_cost_quantile": self.latest_stats.get(
-                    "policy_local_sensitivity_legacy_cost_quantile"
-                ),
+                "constraint_cost_mean": self.latest_stats.get("constraint_cost_mean"),
+                "constraint_cost_update": self.latest_stats.get("constraint_cost_update"),
+                "constraint_effective_cost_update": self.latest_stats.get("constraint_effective_cost_update"),
+                "constraint_cost_max": self.latest_stats.get("constraint_cost_max"),
+                "constraint_cost_quantile": self.latest_stats.get("constraint_cost_quantile"),
+                "constraint_legacy_cost_mean": self.latest_stats.get("constraint_legacy_cost_mean"),
+                "constraint_legacy_cost_update": self.latest_stats.get("constraint_legacy_cost_update"),
+                "constraint_legacy_cost_max": self.latest_stats.get("constraint_legacy_cost_max"),
+                "constraint_legacy_cost_quantile": self.latest_stats.get("constraint_legacy_cost_quantile"),
                 "constraint_legacy_violation_rate": self.latest_stats.get("constraint_legacy_violation_rate"),
-                "policy_local_sensitivity_cost_std": (
+                "constraint_cost_std": (
+                    statistics.pstdev(cost_history) if len(cost_history) > 1 else 0.0
+                ),
+                f"{metric_prefix}_cost_mean": self.latest_stats.get(f"{metric_prefix}_cost_mean"),
+                f"{metric_prefix}_cost_update": self.latest_stats.get(f"{metric_prefix}_cost_update"),
+                f"{metric_prefix}_effective_cost_update": self.latest_stats.get(
+                    f"{metric_prefix}_effective_cost_update"
+                ),
+                f"{metric_prefix}_cost_max": self.latest_stats.get(f"{metric_prefix}_cost_max"),
+                f"{metric_prefix}_cost_quantile": self.latest_stats.get(f"{metric_prefix}_cost_quantile"),
+                f"{metric_prefix}_legacy_cost_mean": self.latest_stats.get(f"{metric_prefix}_legacy_cost_mean"),
+                f"{metric_prefix}_legacy_cost_update": self.latest_stats.get(f"{metric_prefix}_legacy_cost_update"),
+                f"{metric_prefix}_legacy_cost_max": self.latest_stats.get(f"{metric_prefix}_legacy_cost_max"),
+                f"{metric_prefix}_legacy_cost_quantile": self.latest_stats.get(f"{metric_prefix}_legacy_cost_quantile"),
+                f"{metric_prefix}_cost_std": (
                     statistics.pstdev(cost_history) if len(cost_history) > 1 else 0.0
                 ),
             },
             "lagrange_multiplier_trace": self.constraint_trace,
         }
+        if self.constraint_objective == "policy_local_sensitivity":
+            payload["constraint_metrics"]["local_sensitivity_threshold"] = self.constraint_threshold
+        if self.constraint_objective == "action_rate":
+            payload["constraint_metrics"]["action_rate_threshold"] = self.constraint_threshold
+            payload["constraint_metrics"]["action_rate_observation_frame_size"] = int(
+                self.constraint_action_rate_observation_frame_size
+            )
+            payload["constraint_metrics"]["action_rate_observation_action_slice"] = (
+                list(self.constraint_action_rate_observation_action_slice)
+                if self.constraint_action_rate_observation_action_slice is not None
+                else None
+            )
         if self.latest_stats.get("constraint_group_cost_mean") is not None:
             payload["constraint_metrics"]["constraint_group_slices"] = self.latest_stats.get("constraint_group_slices", [])
             payload["constraint_metrics"]["constraint_group_weights"] = self.latest_stats.get("constraint_group_weights", [])

@@ -1,7 +1,16 @@
 __pycache__/
 *.pyc
 
-.external/
+.external/*
+!.external/humanoid-gym/
+.external/humanoid-gym/*
+!.external/humanoid-gym/humanoid/
+.external/humanoid-gym/humanoid/*
+!.external/humanoid-gym/humanoid/algo/
+.external/humanoid-gym/humanoid/algo/*
+!.external/humanoid-gym/humanoid/algo/ppo/
+.external/humanoid-gym/humanoid/algo/ppo/*
+!.external/humanoid-gym/humanoid/algo/ppo/rollout_storage.py
 .bootstrap/
 artifacts/*
 !artifacts/README.md

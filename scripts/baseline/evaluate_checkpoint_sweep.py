@@ -29,6 +29,11 @@ from _common import (  # noqa: E402
 DEFAULT_TRACKING_TOLERANCE = 0.10
 DEFAULT_FALL_TOLERANCE = 0.05
 CONSTRAINT_CORRELATION_PAIRS = (
+    ("train_constraint_cost_mean", "fall_rate"),
+    ("train_constraint_cost_update", "fall_rate"),
+    ("train_constraint_cost_mean", "joint_acceleration_l2_mean"),
+    ("train_constraint_cost_mean", "action_jitter_l2_mean"),
+    ("train_constraint_cost_mean", "velocity_tracking_error_mean"),
     ("train_policy_local_sensitivity_cost_mean", "fall_rate"),
     ("train_policy_local_sensitivity_cost_update", "fall_rate"),
     ("train_policy_local_sensitivity_cost_mean", "joint_acceleration_l2_mean"),
@@ -39,17 +44,35 @@ CONSTRAINT_CORRELATION_PAIRS = (
 )
 TRAIN_CONSTRAINT_FLOAT_KEYS = (
     "lagrange_multiplier",
+    "constraint_threshold",
+    "constraint_cost_mean",
+    "constraint_cost_update",
+    "constraint_effective_cost_update",
+    "constraint_cost_max",
+    "constraint_cost_quantile",
+    "constraint_legacy_cost_mean",
+    "constraint_legacy_cost_update",
+    "constraint_legacy_cost_max",
+    "constraint_legacy_cost_quantile",
     "policy_local_sensitivity_cost_mean",
     "policy_local_sensitivity_cost_update",
     "policy_local_sensitivity_effective_cost_update",
     "policy_local_sensitivity_legacy_cost_mean",
     "policy_local_sensitivity_legacy_cost_update",
+    "action_rate_cost_mean",
+    "action_rate_cost_update",
+    "action_rate_effective_cost_update",
+    "action_rate_cost_max",
+    "action_rate_cost_quantile",
+    "action_rate_legacy_cost_mean",
+    "action_rate_legacy_cost_update",
     "constraint_violation_rate",
     "constraint_legacy_violation_rate",
     "constraint_penalty_error",
     "constraint_update_error",
 )
 TRAIN_CONSTRAINT_STRING_KEYS = (
+    "constraint_objective",
     "constraint_effective_mode",
     "constraint_penalty_mode",
     "constraint_update_error_mode",
@@ -61,8 +84,14 @@ ALIGNMENT_RANGE_KEYS = (
     "joint_acceleration_l2_mean",
     "action_jitter_l2_mean",
     "episode_return_mean",
+    "eval_constraint_cost_mean",
     "eval_policy_local_sensitivity_cost_mean",
     "eval_constraint_violation_rate",
+    "train_constraint_cost_mean",
+    "train_constraint_cost_update",
+    "train_constraint_effective_cost_update",
+    "train_constraint_legacy_cost_mean",
+    "train_constraint_legacy_cost_update",
     "train_policy_local_sensitivity_cost_mean",
     "train_policy_local_sensitivity_cost_update",
     "train_policy_local_sensitivity_effective_cost_update",
@@ -200,6 +229,21 @@ def numeric_value(value: Any) -> float | None:
     return None
 
 
+def first_numeric(*values: Any) -> float | None:
+    for value in values:
+        parsed = numeric_value(value)
+        if parsed is not None:
+            return parsed
+    return None
+
+
+def first_present(*values: Any) -> Any:
+    for value in values:
+        if value is not None:
+            return value
+    return None
+
+
 def checkpoint_train_constraint_metrics(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
@@ -304,7 +348,14 @@ def build_alignment_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "row_count": len(rows),
         "all_eval_checkpoints_collapsed": all_checkpoints_collapsed(rows),
         "rows_with_train_constraint_metrics": sum(
-            1 for row in rows if numeric_value(row.get("train_policy_local_sensitivity_cost_mean")) is not None
+            1
+            for row in rows
+            if first_numeric(
+                row.get("train_constraint_cost_mean"),
+                row.get("train_policy_local_sensitivity_cost_mean"),
+                row.get("train_action_rate_cost_mean"),
+            )
+            is not None
         ),
         "ranges": {},
         "correlations": {},
@@ -316,8 +367,16 @@ def build_alignment_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     for x_key, y_key in CONSTRAINT_CORRELATION_PAIRS:
         summary["correlations"][f"{x_key}__vs__{y_key}"] = correlation_summary(rows, x_key, y_key)
 
-    train_cost_range = summary["ranges"].get("train_policy_local_sensitivity_cost_mean")
-    train_update_range = summary["ranges"].get("train_policy_local_sensitivity_cost_update")
+    train_cost_range = (
+        summary["ranges"].get("train_constraint_cost_mean")
+        or summary["ranges"].get("train_policy_local_sensitivity_cost_mean")
+        or summary["ranges"].get("train_action_rate_cost_mean")
+    )
+    train_update_range = (
+        summary["ranges"].get("train_constraint_cost_update")
+        or summary["ranges"].get("train_policy_local_sensitivity_cost_update")
+        or summary["ranges"].get("train_action_rate_cost_update")
+    )
     summary["collapsed_task_floor_diagnostic"] = {
         "all_eval_checkpoints_collapsed": summary["all_eval_checkpoints_collapsed"],
         "train_constraint_metrics_available": summary["rows_with_train_constraint_metrics"] > 0,
@@ -483,6 +542,14 @@ def main() -> int:
         metrics = item["metrics"]
         constraint_metrics = metrics.get("constraint_metrics", {})
         train_constraint_metrics = checkpoint_train_constraint_metrics(Path(item["checkpoint_file"]))
+        eval_constraint_cost_mean = first_numeric(
+            constraint_metrics.get("constraint_cost_mean"),
+            constraint_metrics.get("policy_local_sensitivity_cost_mean"),
+            constraint_metrics.get("action_rate_cost_mean"),
+        )
+        eval_constraint_violation_rate = first_numeric(
+            constraint_metrics.get("constraint_violation_rate"),
+        )
         summary_rows.append(
             {
                 "checkpoint": item["checkpoint"],
@@ -494,8 +561,13 @@ def main() -> int:
                 "fall_rate": metrics.get("fall_rate"),
                 "policy_local_sensitivity_cost_mean": constraint_metrics.get("policy_local_sensitivity_cost_mean"),
                 "constraint_violation_rate": constraint_metrics.get("constraint_violation_rate"),
+                "constraint_objective": first_present(
+                    constraint_metrics.get("constraint_objective"),
+                    train_constraint_metrics.get("train_constraint_objective"),
+                ),
+                "eval_constraint_cost_mean": eval_constraint_cost_mean,
                 "eval_policy_local_sensitivity_cost_mean": constraint_metrics.get("policy_local_sensitivity_cost_mean"),
-                "eval_constraint_violation_rate": constraint_metrics.get("constraint_violation_rate"),
+                "eval_constraint_violation_rate": eval_constraint_violation_rate,
                 "metrics_path": item["metrics_path"],
                 **train_constraint_metrics,
             }

@@ -226,6 +226,7 @@ class LeggedRobotCfgPPO(BaseConfig):
 
         class constraint:
             enabled = False
+            objective = "policy_local_sensitivity"
             threshold = 5.5
             subsample_obs = 8
             update_mode = "pid"
@@ -250,6 +251,8 @@ class LeggedRobotCfgPPO(BaseConfig):
             anisotropic_group_slices = []
             anisotropic_group_weights = []
             anisotropic_group_labels = []
+            action_rate_observation_frame_size = 0
+            action_rate_observation_action_slice = []
 
     class runner:
         policy_class_name = 'ActorCritic'

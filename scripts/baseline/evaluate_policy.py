@@ -57,6 +57,17 @@ def summarize(values: list[float]) -> tuple[float | None, float | None]:
     return statistics.fmean(values), statistics.pstdev(values) if len(values) > 1 else 0.0
 
 
+def normalize_constraint_objective(raw_value: Any) -> str | None:
+    if raw_value is None:
+        return None
+    normalized = str(raw_value).strip().lower()
+    if normalized in {"policy_local_sensitivity", "local_sensitivity", "jacobian"}:
+        return "policy_local_sensitivity"
+    if normalized == "action_rate":
+        return "action_rate"
+    return normalized or None
+
+
 def constraint_logging_config(config: dict[str, Any]) -> dict[str, Any]:
     defaults = {
         "collect_local_sensitivity": False,
@@ -104,6 +115,184 @@ def compute_policy_local_sensitivity(actor_critic, obs, sample_envs: int):
             )[0]
             squared_norm += torch.sum(torch.square(grads), dim=1)
     return torch.sqrt(squared_norm)
+
+
+def constraint_override_config(config: dict[str, Any]) -> dict[str, Any]:
+    return config.get("overrides", {}).get("train", {})
+
+
+def resolve_constraint_objective(config: dict[str, Any], sidecar_metrics: dict[str, Any] | None) -> str | None:
+    if isinstance(sidecar_metrics, dict):
+        resolved = normalize_constraint_objective(sidecar_metrics.get("constraint_objective"))
+        if resolved:
+            return resolved
+        if any(sidecar_metrics.get(key) is not None for key in ("action_rate_cost_mean", "action_rate_threshold")):
+            return "action_rate"
+        if any(
+            sidecar_metrics.get(key) is not None
+            for key in ("policy_local_sensitivity_cost_mean", "local_sensitivity_threshold")
+        ):
+            return "policy_local_sensitivity"
+    resolved = normalize_constraint_objective(constraint_override_config(config).get("algorithm.constraint.objective"))
+    if resolved:
+        return resolved
+    constraint_cfg = config.get("evaluation", {}).get("constraint_logging", {})
+    if constraint_cfg.get("collect_local_sensitivity"):
+        return "policy_local_sensitivity"
+    return None
+
+
+def resolve_constraint_threshold(
+    config: dict[str, Any],
+    constraint_cfg: dict[str, Any],
+    sidecar_metrics: dict[str, Any] | None,
+    constraint_objective: str | None,
+) -> float | None:
+    if isinstance(sidecar_metrics, dict):
+        for key in (
+            "constraint_threshold",
+            "action_rate_threshold" if constraint_objective == "action_rate" else None,
+            "local_sensitivity_threshold" if constraint_objective == "policy_local_sensitivity" else None,
+        ):
+            if key is not None and sidecar_metrics.get(key) is not None:
+                return float(sidecar_metrics[key])
+
+    if constraint_objective == "policy_local_sensitivity" and constraint_cfg.get("local_sensitivity_threshold") is not None:
+        return float(constraint_cfg["local_sensitivity_threshold"])
+
+    override_threshold = constraint_override_config(config).get("algorithm.constraint.threshold")
+    if override_threshold is not None:
+        return float(override_threshold)
+    return None
+
+
+def build_constraint_metrics(
+    config: dict[str, Any],
+    constraint_cfg: dict[str, Any],
+    sidecar_metrics: dict[str, Any] | None,
+    multiplier_trace_path: Path | None,
+    local_sensitivity_samples: list[float],
+    action_rate_samples: list[float],
+    sidecar_path: Path | None,
+) -> dict[str, Any]:
+    constraint_objective = resolve_constraint_objective(config, sidecar_metrics)
+    constraint_threshold = resolve_constraint_threshold(config, constraint_cfg, sidecar_metrics, constraint_objective)
+
+    local_sensitivity_mean, local_sensitivity_std = summarize(local_sensitivity_samples)
+    action_rate_mean, action_rate_std = summarize(action_rate_samples)
+
+    violation_rate = None
+    if constraint_threshold is not None:
+        if constraint_objective == "policy_local_sensitivity" and local_sensitivity_samples:
+            violation_count = sum(1 for value in local_sensitivity_samples if value > constraint_threshold)
+            violation_rate = violation_count / len(local_sensitivity_samples)
+        elif constraint_objective == "action_rate" and action_rate_samples:
+            violation_count = sum(1 for value in action_rate_samples if value > constraint_threshold)
+            violation_rate = violation_count / len(action_rate_samples)
+
+    constraint_metrics: dict[str, Any] = {
+        "supported": bool(
+            constraint_objective
+            or constraint_cfg["collect_local_sensitivity"]
+            or sidecar_metrics
+            or (multiplier_trace_path and multiplier_trace_path.exists())
+        ),
+        "constraint_objective": constraint_objective,
+        "constraint_cost_mean": None,
+        "constraint_cost_std": None,
+        "constraint_sample_count": 0,
+        "constraint_violation_rate": violation_rate,
+        "constraint_threshold": constraint_threshold,
+        "policy_local_sensitivity_cost_mean": local_sensitivity_mean,
+        "policy_local_sensitivity_cost_std": local_sensitivity_std,
+        "policy_local_sensitivity_sample_count": len(local_sensitivity_samples),
+        "local_sensitivity_threshold": (
+            constraint_threshold if constraint_objective == "policy_local_sensitivity" else None
+        ),
+        "action_rate_cost_mean": action_rate_mean,
+        "action_rate_cost_std": action_rate_std,
+        "action_rate_sample_count": len(action_rate_samples),
+        "action_rate_threshold": constraint_threshold if constraint_objective == "action_rate" else None,
+        "sidecar_metrics_path": relative_to_repo(sidecar_path) if sidecar_path and sidecar_path.exists() else None,
+        "lagrange_multiplier_trace_path": (
+            relative_to_repo(multiplier_trace_path) if multiplier_trace_path and multiplier_trace_path.exists() else None
+        ),
+    }
+
+    if constraint_objective == "policy_local_sensitivity":
+        constraint_metrics["constraint_cost_mean"] = local_sensitivity_mean
+        constraint_metrics["constraint_cost_std"] = local_sensitivity_std
+        constraint_metrics["constraint_sample_count"] = len(local_sensitivity_samples)
+    elif constraint_objective == "action_rate":
+        constraint_metrics["constraint_cost_mean"] = action_rate_mean
+        constraint_metrics["constraint_cost_std"] = action_rate_std
+        constraint_metrics["constraint_sample_count"] = len(action_rate_samples)
+
+    if isinstance(sidecar_metrics, dict):
+        constraint_metrics["sidecar_metrics"] = sidecar_metrics
+        for key in (
+            "constraint_objective",
+            "constraint_cost_mean",
+            "constraint_cost_std",
+            "constraint_sample_count",
+            "constraint_violation_rate",
+            "constraint_threshold",
+            "constraint_cost_aggregation",
+            "constraint_cost_quantile",
+            "constraint_subsample_obs",
+            "constraint_sampling_mode",
+            "constraint_effective_mode",
+            "constraint_anisotropic_enabled",
+            "constraint_penalty_mode",
+            "constraint_update_error_mode",
+            "constraint_legacy_guard_mode",
+            "constraint_penalty_error",
+            "constraint_update_error",
+            "dual_update_mode",
+            "lagrange_multiplier",
+            "lagrange_multiplier_max",
+            "pid_integral_mode",
+            "pid_integral_decay",
+            "constraint_cost_update",
+            "constraint_effective_cost_update",
+            "constraint_cost_max",
+            "constraint_cost_quantile",
+            "constraint_legacy_cost_mean",
+            "constraint_legacy_cost_update",
+            "constraint_legacy_cost_max",
+            "constraint_legacy_cost_quantile",
+            "constraint_legacy_violation_rate",
+            "policy_local_sensitivity_cost_mean",
+            "policy_local_sensitivity_cost_std",
+            "policy_local_sensitivity_cost_update",
+            "policy_local_sensitivity_effective_cost_update",
+            "policy_local_sensitivity_cost_max",
+            "policy_local_sensitivity_cost_quantile",
+            "policy_local_sensitivity_legacy_cost_mean",
+            "policy_local_sensitivity_legacy_cost_update",
+            "policy_local_sensitivity_legacy_cost_max",
+            "policy_local_sensitivity_legacy_cost_quantile",
+            "action_rate_cost_mean",
+            "action_rate_cost_std",
+            "action_rate_cost_update",
+            "action_rate_effective_cost_update",
+            "action_rate_cost_max",
+            "action_rate_cost_quantile",
+            "action_rate_legacy_cost_mean",
+            "action_rate_legacy_cost_update",
+            "action_rate_legacy_cost_max",
+            "action_rate_legacy_cost_quantile",
+            "action_rate_observation_frame_size",
+            "action_rate_observation_action_slice",
+            "local_sensitivity_threshold",
+            "action_rate_threshold",
+        ):
+            if sidecar_metrics.get(key) is not None and constraint_metrics.get(key) is None:
+                constraint_metrics[key] = sidecar_metrics.get(key)
+        if constraint_metrics["constraint_violation_rate"] is None:
+            constraint_metrics["constraint_violation_rate"] = sidecar_metrics.get("constraint_violation_rate")
+
+    return constraint_metrics
 
 
 def main() -> int:
@@ -180,6 +369,7 @@ def main() -> int:
     action_jitter_values: list[float] = []
     fell_flags: list[bool] = []
     local_sensitivity_samples: list[float] = []
+    action_rate_samples: list[float] = []
     step_counter = 0
 
     while completed_episodes < target_episodes:
@@ -203,6 +393,7 @@ def main() -> int:
         step_tracking_error = linear_error + yaw_error
         step_joint_accel = torch.linalg.vector_norm((env.dof_vel - prev_dof_vel) / env.dt, dim=1)
         step_action_jitter = torch.linalg.vector_norm(env.actions - prev_actions, dim=1)
+        action_rate_samples.extend(float(value) for value in step_action_jitter.detach().cpu().tolist())
 
         episode_returns += rewards
         episode_tracking_error += step_tracking_error
@@ -253,40 +444,15 @@ def main() -> int:
     if sidecar_path is not None and sidecar_path.exists():
         sidecar_metrics = read_json(sidecar_path)
 
-    local_sensitivity_mean, local_sensitivity_std = summarize(local_sensitivity_samples)
-    local_sensitivity_threshold = constraint_cfg.get("local_sensitivity_threshold")
-    if local_sensitivity_threshold is None and isinstance(sidecar_metrics, dict):
-        local_sensitivity_threshold = sidecar_metrics.get("local_sensitivity_threshold")
-
-    violation_rate = None
-    if local_sensitivity_threshold is not None and local_sensitivity_samples:
-        violation_count = sum(1 for value in local_sensitivity_samples if value > float(local_sensitivity_threshold))
-        violation_rate = violation_count / len(local_sensitivity_samples)
-
-    constraint_metrics: dict[str, Any] = {
-        "supported": bool(constraint_cfg["collect_local_sensitivity"] or sidecar_metrics or multiplier_trace_path),
-        "policy_local_sensitivity_cost_mean": local_sensitivity_mean,
-        "policy_local_sensitivity_cost_std": local_sensitivity_std,
-        "policy_local_sensitivity_sample_count": len(local_sensitivity_samples),
-        "constraint_violation_rate": violation_rate,
-        "local_sensitivity_threshold": local_sensitivity_threshold,
-        "sidecar_metrics_path": relative_to_repo(sidecar_path) if sidecar_path and sidecar_path.exists() else None,
-        "lagrange_multiplier_trace_path": (
-            relative_to_repo(multiplier_trace_path) if multiplier_trace_path and multiplier_trace_path.exists() else None
-        ),
-    }
-    if isinstance(sidecar_metrics, dict):
-        constraint_metrics["sidecar_metrics"] = sidecar_metrics
-        if constraint_metrics["policy_local_sensitivity_cost_mean"] is None:
-            constraint_metrics["policy_local_sensitivity_cost_mean"] = sidecar_metrics.get(
-                "policy_local_sensitivity_cost_mean"
-            )
-        if constraint_metrics["policy_local_sensitivity_cost_std"] is None:
-            constraint_metrics["policy_local_sensitivity_cost_std"] = sidecar_metrics.get(
-                "policy_local_sensitivity_cost_std"
-            )
-        if constraint_metrics["constraint_violation_rate"] is None:
-            constraint_metrics["constraint_violation_rate"] = sidecar_metrics.get("constraint_violation_rate")
+    constraint_metrics = build_constraint_metrics(
+        config=config,
+        constraint_cfg=constraint_cfg,
+        sidecar_metrics=sidecar_metrics if isinstance(sidecar_metrics, dict) else None,
+        multiplier_trace_path=multiplier_trace_path,
+        local_sensitivity_samples=local_sensitivity_samples,
+        action_rate_samples=action_rate_samples,
+        sidecar_path=sidecar_path,
+    )
 
     metrics = {
         "metric_schema_version": int(eval_cfg.get("metric_schema_version", 1)),

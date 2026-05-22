@@ -48,8 +48,12 @@ class CheckpointSweepRecoveryTests(unittest.TestCase):
                 {
                     "alg_extra_state_dict": {
                         "latest_stats": {
+                            "constraint_objective": "action_rate",
+                            "constraint_cost_mean": 0.18,
+                            "constraint_cost_update": 0.22,
                             "lagrange_multiplier": 0.5,
                             "policy_local_sensitivity_cost_mean": 0.42,
+                            "action_rate_cost_mean": 0.18,
                             "constraint_effective_mode": "anisotropic_group_weighted",
                             "constraint_legacy_guard_mode": "max_with_legacy",
                         },
@@ -61,8 +65,12 @@ class CheckpointSweepRecoveryTests(unittest.TestCase):
 
             metrics = checkpoint_sweep.checkpoint_train_constraint_metrics(checkpoint_path)
 
+            self.assertEqual(metrics["train_constraint_objective"], "action_rate")
+            self.assertEqual(metrics["train_constraint_cost_mean"], 0.18)
+            self.assertEqual(metrics["train_constraint_cost_update"], 0.22)
             self.assertEqual(metrics["train_lagrange_multiplier"], 0.5)
             self.assertEqual(metrics["train_policy_local_sensitivity_cost_mean"], 0.42)
+            self.assertEqual(metrics["train_action_rate_cost_mean"], 0.18)
             self.assertEqual(metrics["train_constraint_effective_mode"], "anisotropic_group_weighted")
             self.assertEqual(metrics["train_constraint_legacy_guard_mode"], "max_with_legacy")
             self.assertEqual(metrics["train_constraint_trace_length"], 3)
