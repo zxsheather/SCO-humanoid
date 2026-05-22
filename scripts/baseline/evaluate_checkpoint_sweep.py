@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import math
 import subprocess
 import sys
 from pathlib import Path
@@ -27,6 +28,50 @@ from _common import (  # noqa: E402
 
 DEFAULT_TRACKING_TOLERANCE = 0.10
 DEFAULT_FALL_TOLERANCE = 0.05
+CONSTRAINT_CORRELATION_PAIRS = (
+    ("train_policy_local_sensitivity_cost_mean", "fall_rate"),
+    ("train_policy_local_sensitivity_cost_update", "fall_rate"),
+    ("train_policy_local_sensitivity_cost_mean", "joint_acceleration_l2_mean"),
+    ("train_policy_local_sensitivity_cost_mean", "action_jitter_l2_mean"),
+    ("train_policy_local_sensitivity_cost_mean", "velocity_tracking_error_mean"),
+    ("eval_policy_local_sensitivity_cost_mean", "fall_rate"),
+    ("eval_policy_local_sensitivity_cost_mean", "joint_acceleration_l2_mean"),
+)
+TRAIN_CONSTRAINT_FLOAT_KEYS = (
+    "lagrange_multiplier",
+    "policy_local_sensitivity_cost_mean",
+    "policy_local_sensitivity_cost_update",
+    "policy_local_sensitivity_effective_cost_update",
+    "policy_local_sensitivity_legacy_cost_mean",
+    "policy_local_sensitivity_legacy_cost_update",
+    "constraint_violation_rate",
+    "constraint_legacy_violation_rate",
+    "constraint_penalty_error",
+    "constraint_update_error",
+)
+TRAIN_CONSTRAINT_STRING_KEYS = (
+    "constraint_effective_mode",
+    "constraint_penalty_mode",
+    "constraint_update_error_mode",
+    "constraint_legacy_guard_mode",
+)
+ALIGNMENT_RANGE_KEYS = (
+    "fall_rate",
+    "velocity_tracking_error_mean",
+    "joint_acceleration_l2_mean",
+    "action_jitter_l2_mean",
+    "episode_return_mean",
+    "eval_policy_local_sensitivity_cost_mean",
+    "eval_constraint_violation_rate",
+    "train_policy_local_sensitivity_cost_mean",
+    "train_policy_local_sensitivity_cost_update",
+    "train_policy_local_sensitivity_effective_cost_update",
+    "train_policy_local_sensitivity_legacy_cost_mean",
+    "train_policy_local_sensitivity_legacy_cost_update",
+    "train_constraint_violation_rate",
+    "train_constraint_legacy_violation_rate",
+    "train_lagrange_multiplier",
+)
 
 
 def parse_checkpoint_list(raw: str | None, run_dir: Path) -> list[int]:
@@ -143,6 +188,145 @@ def existing_checkpoint_metrics(output_dir: Path, checkpoint: int) -> dict[str, 
     return read_json(checkpoint_metrics_path)
 
 
+def checkpoint_path(run_dir: Path, checkpoint: int) -> Path:
+    return run_dir / f"model_{checkpoint}.pt"
+
+
+def numeric_value(value: Any) -> float | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    return None
+
+
+def checkpoint_train_constraint_metrics(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+
+    import torch
+
+    loaded = torch.load(path, map_location="cpu", weights_only=False)
+    alg_extra_state = loaded.get("alg_extra_state_dict")
+    if not isinstance(alg_extra_state, dict):
+        return {}
+    latest_stats = alg_extra_state.get("latest_stats")
+    if not isinstance(latest_stats, dict):
+        return {}
+
+    train_metrics: dict[str, Any] = {}
+    for key in TRAIN_CONSTRAINT_FLOAT_KEYS:
+        train_metrics[f"train_{key}"] = numeric_value(latest_stats.get(key))
+    for key in TRAIN_CONSTRAINT_STRING_KEYS:
+        value = latest_stats.get(key)
+        train_metrics[f"train_{key}"] = str(value) if value is not None else None
+
+    constraint_trace = alg_extra_state.get("constraint_trace")
+    if isinstance(constraint_trace, list):
+        train_metrics["train_constraint_trace_length"] = len(constraint_trace)
+    else:
+        train_metrics["train_constraint_trace_length"] = None
+    return train_metrics
+
+
+def metric_range(rows: list[dict[str, Any]], key: str) -> dict[str, Any] | None:
+    values: list[tuple[int, float]] = []
+    for row in rows:
+        value = numeric_value(row.get(key))
+        if value is None:
+            continue
+        values.append((int(row["checkpoint"]), value))
+
+    if not values:
+        return None
+
+    min_checkpoint, min_value = min(values, key=lambda item: item[1])
+    max_checkpoint, max_value = max(values, key=lambda item: item[1])
+    return {
+        "count": len(values),
+        "min": min_value,
+        "max": max_value,
+        "delta": max_value - min_value,
+        "argmin_checkpoint": min_checkpoint,
+        "argmax_checkpoint": max_checkpoint,
+    }
+
+
+def pearson_correlation(xs: list[float], ys: list[float]) -> float | None:
+    if len(xs) != len(ys) or len(xs) < 2:
+        return None
+    mean_x = sum(xs) / len(xs)
+    mean_y = sum(ys) / len(ys)
+    centered_x = [value - mean_x for value in xs]
+    centered_y = [value - mean_y for value in ys]
+    variance_x = sum(value * value for value in centered_x)
+    variance_y = sum(value * value for value in centered_y)
+    if variance_x <= 0.0 or variance_y <= 0.0:
+        return None
+    covariance = sum(x_value * y_value for x_value, y_value in zip(centered_x, centered_y))
+    return covariance / math.sqrt(variance_x * variance_y)
+
+
+def correlation_summary(rows: list[dict[str, Any]], x_key: str, y_key: str) -> dict[str, Any]:
+    pairs: list[tuple[int, float, float]] = []
+    for row in rows:
+        x_value = numeric_value(row.get(x_key))
+        y_value = numeric_value(row.get(y_key))
+        if x_value is None or y_value is None:
+            continue
+        pairs.append((int(row["checkpoint"]), x_value, y_value))
+
+    if len(pairs) < 2:
+        return {"pair_count": len(pairs), "pearson": None, "reason": "insufficient_pairs"}
+
+    x_values = [item[1] for item in pairs]
+    y_values = [item[2] for item in pairs]
+    x_span = max(x_values) - min(x_values)
+    y_span = max(y_values) - min(y_values)
+    if x_span <= 1e-12:
+        return {"pair_count": len(pairs), "pearson": None, "reason": f"{x_key}_constant"}
+    if y_span <= 1e-12:
+        return {"pair_count": len(pairs), "pearson": None, "reason": f"{y_key}_constant"}
+
+    return {
+        "pair_count": len(pairs),
+        "pearson": pearson_correlation(x_values, y_values),
+        "x_min": min(x_values),
+        "x_max": max(x_values),
+        "y_min": min(y_values),
+        "y_max": max(y_values),
+    }
+
+
+def build_alignment_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    summary: dict[str, Any] = {
+        "available": bool(rows),
+        "row_count": len(rows),
+        "all_eval_checkpoints_collapsed": all_checkpoints_collapsed(rows),
+        "rows_with_train_constraint_metrics": sum(
+            1 for row in rows if numeric_value(row.get("train_policy_local_sensitivity_cost_mean")) is not None
+        ),
+        "ranges": {},
+        "correlations": {},
+    }
+    for key in ALIGNMENT_RANGE_KEYS:
+        range_summary = metric_range(rows, key)
+        if range_summary is not None:
+            summary["ranges"][key] = range_summary
+    for x_key, y_key in CONSTRAINT_CORRELATION_PAIRS:
+        summary["correlations"][f"{x_key}__vs__{y_key}"] = correlation_summary(rows, x_key, y_key)
+
+    train_cost_range = summary["ranges"].get("train_policy_local_sensitivity_cost_mean")
+    train_update_range = summary["ranges"].get("train_policy_local_sensitivity_cost_update")
+    summary["collapsed_task_floor_diagnostic"] = {
+        "all_eval_checkpoints_collapsed": summary["all_eval_checkpoints_collapsed"],
+        "train_constraint_metrics_available": summary["rows_with_train_constraint_metrics"] > 0,
+        "train_cost_mean_moves": bool(train_cost_range and train_cost_range["delta"] > 0.0),
+        "train_cost_update_moves": bool(train_update_range and train_update_range["delta"] > 0.0),
+    }
+    return summary
+
+
 def build_evaluate_policy_command(
     *,
     config_path: str | None,
@@ -189,6 +373,7 @@ def evaluate_one_checkpoint(
     run_name: str,
     load_run: str,
     checkpoint: int,
+    checkpoint_file: Path,
     humanoid_gym_root: str | None,
     num_envs: int | None,
     episodes: int | None,
@@ -230,6 +415,7 @@ def evaluate_one_checkpoint(
     write_json(checkpoint_metrics_path, metrics)
     return {
         "checkpoint": checkpoint,
+        "checkpoint_file": checkpoint_file,
         "metrics_path": relative_to_repo(checkpoint_metrics_path),
         "metrics": metrics,
         "composite_score": composite_score(metrics),
@@ -269,6 +455,7 @@ def main() -> int:
                 results.append(
                     {
                         "checkpoint": checkpoint,
+                        "checkpoint_file": checkpoint_path(run_dir, checkpoint),
                         "metrics_path": relative_to_repo(output_dir / f"metrics_checkpoint_{checkpoint}.json"),
                         "metrics": metrics,
                         "composite_score": composite_score(metrics),
@@ -281,6 +468,7 @@ def main() -> int:
                 run_name=args.run_name,
                 load_run=args.load_run,
                 checkpoint=checkpoint,
+                checkpoint_file=checkpoint_path(run_dir, checkpoint),
                 humanoid_gym_root=args.humanoid_gym_root,
                 num_envs=args.num_envs,
                 episodes=args.episodes,
@@ -294,6 +482,7 @@ def main() -> int:
     for item in results:
         metrics = item["metrics"]
         constraint_metrics = metrics.get("constraint_metrics", {})
+        train_constraint_metrics = checkpoint_train_constraint_metrics(Path(item["checkpoint_file"]))
         summary_rows.append(
             {
                 "checkpoint": item["checkpoint"],
@@ -305,14 +494,20 @@ def main() -> int:
                 "fall_rate": metrics.get("fall_rate"),
                 "policy_local_sensitivity_cost_mean": constraint_metrics.get("policy_local_sensitivity_cost_mean"),
                 "constraint_violation_rate": constraint_metrics.get("constraint_violation_rate"),
+                "eval_policy_local_sensitivity_cost_mean": constraint_metrics.get("policy_local_sensitivity_cost_mean"),
+                "eval_constraint_violation_rate": constraint_metrics.get("constraint_violation_rate"),
                 "metrics_path": item["metrics_path"],
+                **train_constraint_metrics,
             }
         )
 
     best, task_floor = selected_row(summary_rows)
     status = selection_status(summary_rows)
+    alignment_summary = build_alignment_summary(summary_rows)
     selected_metrics_path = output_dir / "metrics_selected.json"
+    alignment_summary_path = output_dir / "checkpoint_diagnostic_alignment.json"
     write_json(selected_metrics_path, next(item["metrics"] for item in results if item["checkpoint"] == best["checkpoint"]))
+    write_json(alignment_summary_path, alignment_summary)
     summary = {
         "run_name": args.run_name,
         "load_run": args.load_run,
@@ -329,6 +524,8 @@ def main() -> int:
         "best_composite_score": best["composite_score"],
         "selected_checkpoint_metrics_path": best["metrics_path"],
         "selected_metrics_path": relative_to_repo(selected_metrics_path),
+        "checkpoint_diagnostic_alignment_path": relative_to_repo(alignment_summary_path),
+        "checkpoint_diagnostic_alignment": alignment_summary,
         "rows": summary_rows,
         "latest_checkpoint_path": relative_to_repo(latest_checkpoint(run_dir)),
     }
@@ -344,6 +541,7 @@ def main() -> int:
         manifest["selected_checkpoint"] = best["checkpoint"]
         manifest["selected_checkpoint_metrics_path"] = best["metrics_path"]
         manifest["selected_metrics_path"] = relative_to_repo(selected_metrics_path)
+        manifest["checkpoint_diagnostic_alignment_path"] = relative_to_repo(alignment_summary_path)
         write_json(manifest_path, manifest)
 
     if status != "selected":

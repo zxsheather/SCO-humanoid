@@ -131,6 +131,82 @@ class CheckpointSweepCollapseTests(unittest.TestCase):
         self.assertEqual(task_floor["reference_checkpoint"], 400)
         self.assertEqual(task_floor["eligible_checkpoints"], [300, 400])
 
+    def test_build_alignment_summary_marks_constant_fall_rate_series(self) -> None:
+        rows = [
+            {
+                "checkpoint": 0,
+                "fall_rate": 1.0,
+                "joint_acceleration_l2_mean": 90.0,
+                "action_jitter_l2_mean": 0.02,
+                "velocity_tracking_error_mean": 1.3,
+                "episode_return_mean": 3.9,
+                "train_policy_local_sensitivity_cost_mean": 0.60,
+                "train_policy_local_sensitivity_cost_update": 0.62,
+                "eval_policy_local_sensitivity_cost_mean": 0.95,
+            },
+            {
+                "checkpoint": 25,
+                "fall_rate": 1.0,
+                "joint_acceleration_l2_mean": 80.0,
+                "action_jitter_l2_mean": 0.05,
+                "velocity_tracking_error_mean": 1.2,
+                "episode_return_mean": 4.1,
+                "train_policy_local_sensitivity_cost_mean": 0.40,
+                "train_policy_local_sensitivity_cost_update": 0.45,
+                "eval_policy_local_sensitivity_cost_mean": 0.85,
+            },
+        ]
+
+        summary = checkpoint_sweep.build_alignment_summary(rows)
+
+        self.assertTrue(summary["all_eval_checkpoints_collapsed"])
+        self.assertEqual(
+            summary["correlations"]["train_policy_local_sensitivity_cost_mean__vs__fall_rate"]["reason"],
+            "fall_rate_constant",
+        )
+        self.assertTrue(summary["collapsed_task_floor_diagnostic"]["train_cost_mean_moves"])
+        self.assertTrue(summary["collapsed_task_floor_diagnostic"]["train_cost_update_moves"])
+
+    def test_build_alignment_summary_computes_pearson_for_varying_series(self) -> None:
+        rows = [
+            {
+                "checkpoint": 0,
+                "fall_rate": 0.9,
+                "joint_acceleration_l2_mean": 90.0,
+                "action_jitter_l2_mean": 0.20,
+                "velocity_tracking_error_mean": 1.4,
+                "episode_return_mean": 3.0,
+                "train_policy_local_sensitivity_cost_mean": 0.9,
+                "eval_policy_local_sensitivity_cost_mean": 1.1,
+            },
+            {
+                "checkpoint": 100,
+                "fall_rate": 0.5,
+                "joint_acceleration_l2_mean": 70.0,
+                "action_jitter_l2_mean": 0.10,
+                "velocity_tracking_error_mean": 1.0,
+                "episode_return_mean": 5.0,
+                "train_policy_local_sensitivity_cost_mean": 0.5,
+                "eval_policy_local_sensitivity_cost_mean": 0.7,
+            },
+            {
+                "checkpoint": 200,
+                "fall_rate": 0.1,
+                "joint_acceleration_l2_mean": 50.0,
+                "action_jitter_l2_mean": 0.05,
+                "velocity_tracking_error_mean": 0.6,
+                "episode_return_mean": 8.0,
+                "train_policy_local_sensitivity_cost_mean": 0.1,
+                "eval_policy_local_sensitivity_cost_mean": 0.3,
+            },
+        ]
+
+        summary = checkpoint_sweep.build_alignment_summary(rows)
+        correlation = summary["correlations"]["train_policy_local_sensitivity_cost_mean__vs__fall_rate"]
+
+        self.assertEqual(correlation["pair_count"], 3)
+        self.assertAlmostEqual(correlation["pearson"], 1.0, places=6)
+
 
 if __name__ == "__main__":
     unittest.main()
