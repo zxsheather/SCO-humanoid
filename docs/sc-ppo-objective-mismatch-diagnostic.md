@@ -139,21 +139,136 @@ So the branch's current best reading is:
 
 `the local-sensitivity objective still tracks behavior-layer roughness, but the current training path appears to spend more local sensitivity in order to buy task validity and tracking quality`
 
+## Third feedback-loop pass: multi-seed check
+
+The same checkpoint-neighborhood replay was then extended to the other two mainline seeds:
+
+- `sc_ppo_threshold_38_objective_mismatch_seed17`
+- `sc_ppo_threshold_38_objective_mismatch_seed23`
+
+Each replay used checkpoints `0, 100, 200, 300, 400`.
+
+Selected checkpoints from the diagnostic replay:
+
+- `seed11 -> 300`
+- `seed17 -> 300`
+- `seed23 -> 400`
+
+### Stable pattern across all three seeds
+
+Across `11 / 17 / 23`, the same sign pattern now appears consistently:
+
+- `train_policy_local_sensitivity_cost_mean` is negatively correlated with `fall_rate`
+  - seed11: `-0.52`
+  - seed17: `-0.46`
+  - seed23: `-0.34`
+- `train_policy_local_sensitivity_cost_mean` is negatively correlated with
+  `velocity_tracking_error_mean`
+  - seed11: `-0.79`
+  - seed17: `-0.74`
+  - seed23: `-0.67`
+- `train_policy_local_sensitivity_cost_mean` is positively correlated with
+  `action_jitter_l2_mean`
+  - seed11: `0.92`
+  - seed17: `0.96`
+  - seed23: `0.92`
+- `train_policy_local_sensitivity_cost_mean` is positively correlated with
+  `joint_acceleration_l2_mean`
+  - seed11: `0.77`
+  - seed17: `0.47`
+  - seed23: `0.86`
+
+### Multi-seed interpretation
+
+This materially strengthens the current branch reading:
+
+- the current local-sensitivity objective is not random noise
+- it remains behavior-relevant, because higher local sensitivity still travels with rougher action
+  jitter and usually rougher joint acceleration
+- but better task validity and better velocity tracking are repeatedly reached at *higher*, not
+  lower, local-sensitivity cost
+
+So the stronger reading is now:
+
+`the present SC-PPO training path appears to face a repeatable objective tension: the policy improves rough-terrain task validity and tracking by moving toward a higher-local-sensitivity, rougher-behavior regime`
+
+That is stronger evidence for `constraint target / optimization tension` than for:
+
+- a pure logging artifact
+- a pure evaluation disconnect
+- or a single-seed accident
+
+## Fourth feedback-loop pass: plain-dual collapsed control
+
+To test whether that tension looks uniquely tied to `PID-Lagrangian正式方案`, the same alignment
+summary was then replayed on the already-recorded `普通对偶上升` control:
+
+- config: `configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_dual_001.json`
+- artifact run: `sc_ppo_threshold_38_lambda_05_quantile_090_dual_001_objective_mismatch_probe`
+- upstream run dir:
+  `May14_10-44-08_sc_ppo_threshold_38_lambda_05_quantile_090_dual_001_rough_terrain_iter100`
+- checkpoints: `0, 100`
+
+Generated artifacts:
+
+- `artifacts/methods/sc_ppo_dual_probe/sc_ppo_threshold_38_lambda_05_quantile_090_dual_001_objective_mismatch_probe/checkpoint_sweep_summary.json`
+- `artifacts/methods/sc_ppo_dual_probe/sc_ppo_threshold_38_lambda_05_quantile_090_dual_001_objective_mismatch_probe/checkpoint_diagnostic_alignment.json`
+
+### Control reading
+
+This control still stays fully collapsed on rough terrain:
+
+- `fall_rate = 1.0` at both checkpoints
+- `episode_return_mean` stays very low: `3.6438 -> 4.7101`
+
+But the same directional pattern still appears inside that collapse:
+
+- train local-sensitivity cost rises sharply:
+  - `train_policy_local_sensitivity_cost_mean: 0.3085 -> 3.0042`
+  - `train_policy_local_sensitivity_cost_update: 0.3186 -> 3.8759`
+- train multiplier decays almost to zero:
+  - `train_lagrange_multiplier: 0.4652 -> 0.0044`
+- velocity tracking improves slightly:
+  - `velocity_tracking_error_mean: 1.2937 -> 1.1646`
+- behavior-layer roughness worsens:
+  - `action_jitter_l2_mean: 0.0141 -> 0.1661`
+  - `joint_acceleration_l2_mean: 89.5746 -> 121.3371`
+
+The alignment summary therefore reports:
+
+- `train_policy_local_sensitivity_cost_mean` vs `fall_rate`: constant-series, not meaningful
+- `train_policy_local_sensitivity_cost_mean` vs `velocity_tracking_error_mean`: `pearson = -1.0`
+- `train_policy_local_sensitivity_cost_mean` vs `action_jitter_l2_mean`: `pearson = 1.0`
+- `train_policy_local_sensitivity_cost_mean` vs `joint_acceleration_l2_mean`: `pearson = 1.0`
+
+### Control interpretation
+
+This control does **not** prove that `optimization-timescale mismatch` is absent. It only sharpens
+priority:
+
+- the same `higher local sensitivity <-> rougher behavior` relation appears even under
+  `普通对偶上升`
+- so the current branch can no longer treat the observed tension as obviously `PID`-specific
+- because every control checkpoint still has `fall_rate = 1.0`, the control is too collapsed to
+  settle the timescale question by itself
+
+The updated branch reading is therefore:
+
+`objective tension now looks more primary than PID-specific multiplier dynamics, although timescale effects may still amplify it`
+
 ## Updated next step
 
-The next useful diagnostic is not more support-set tuning. It is to distinguish whether that
-observed tension comes primarily from:
+The next useful diagnostic is no longer more support-set tuning, and it is no longer a blind
+multiplier retuning loop either.
 
-- the constraint target itself
-- the aggregation rule
-- or the optimization timescale / multiplier dynamics
+The highest-value bounded follow-up is now:
 
-Candidate next moves:
+- keep the current checkpoint-alignment instrumentation as the evaluation frame
+- open one bounded `诊断支线` that changes the constraint target or aggregation rule while staying
+  inside the same `速度跟踪行走 / 复杂地形条件 / 同尺比较` frame
+- treat pure multiplier-timescale tuning as secondary unless a less-collapsed control produces new
+  counter-evidence
 
-- replay the same alignment summary on seed `17` and seed `23` of the `SC-PPO 3.8` mainline
-- compare the same checkpoint neighborhood against one collapsed control such as plain dual ascent
-- if the pattern persists, open one bounded mechanism test that changes the objective or the update
-  timescale without reopening broad threshold search
+So the current issue can now defend a narrower conclusion:
 
-Only after that should the branch claim `constraint target mismatch`, `aggregation mismatch`, or
-`optimization-timescale mismatch`.
+`the present local-sensitivity training objective is behavior-relevant, but its current optimum is repeatedly misaligned with the repo's smoothness-first success criterion on rough terrain`
