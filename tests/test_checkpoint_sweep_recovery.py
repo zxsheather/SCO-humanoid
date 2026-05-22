@@ -5,6 +5,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import torch
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 BASELINE_DIR = REPO_ROOT / "scripts" / "baseline"
@@ -38,6 +40,32 @@ class CheckpointSweepRecoveryTests(unittest.TestCase):
 
             rejected = checkpoint_sweep.recover_checkpoint_metrics(output_dir, 300)
             self.assertIsNone(rejected)
+
+    def test_checkpoint_train_constraint_metrics_reads_latest_stats_from_checkpoint(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            checkpoint_path = Path(tmpdir) / "model_25.pt"
+            torch.save(
+                {
+                    "alg_extra_state_dict": {
+                        "latest_stats": {
+                            "lagrange_multiplier": 0.5,
+                            "policy_local_sensitivity_cost_mean": 0.42,
+                            "constraint_effective_mode": "anisotropic_group_weighted",
+                            "constraint_legacy_guard_mode": "max_with_legacy",
+                        },
+                        "constraint_trace": [{}, {}, {}],
+                    }
+                },
+                checkpoint_path,
+            )
+
+            metrics = checkpoint_sweep.checkpoint_train_constraint_metrics(checkpoint_path)
+
+            self.assertEqual(metrics["train_lagrange_multiplier"], 0.5)
+            self.assertEqual(metrics["train_policy_local_sensitivity_cost_mean"], 0.42)
+            self.assertEqual(metrics["train_constraint_effective_mode"], "anisotropic_group_weighted")
+            self.assertEqual(metrics["train_constraint_legacy_guard_mode"], "max_with_legacy")
+            self.assertEqual(metrics["train_constraint_trace_length"], 3)
 
 
 if __name__ == "__main__":
