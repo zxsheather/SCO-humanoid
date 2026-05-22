@@ -1,0 +1,68 @@
+{
+  "name": "random_stairs_selected_checkpoint_moderated_stress",
+  "analysis_root": "artifacts/analysis/random_stairs_selected_checkpoint_moderated_stress",
+  "seeds": [11, 17, 23],
+  "eval_num_envs": 32,
+  "episodes": 20,
+  "terrain_protocol": {
+    "scope": "复杂地形条件 pressure test",
+    "primary_task": "速度跟踪行走",
+    "terrain_condition": "random_stairs_moderated",
+    "mesh_type": "trimesh",
+    "measure_heights": false,
+    "terrain_proportions": [0.0, 0.0, 0.7, 0.0, 0.0, 0.15, 0.15],
+    "policy_input_compatibility": "height measurements disabled to preserve the existing 705-dim actor observation contract",
+    "moderation_rule": "retain stair_up and stair_down slices while restoring most columns to rough uniform terrain",
+    "claim_boundary": "evaluation-only moderated stress test of selected rough-terrain checkpoints"
+  },
+  "candidates": [
+    {
+      "id": "vanilla_ppo",
+      "label": "Vanilla PPO raw reference",
+      "config": "configs/methods/vanilla_ppo_full_compare_random_stairs_moderated_eval.json",
+      "run_name_template": "vanilla_ppo_random_stairs_moderated_stress_seed{seed}",
+      "selected_checkpoints": {
+        "11": 0,
+        "17": 0,
+        "23": 0
+      },
+      "load_runs": {
+        "11": ".external/humanoid-gym/logs/ecolab_vanilla_ppo_full_compare/May18_12-49-14_vanilla_ppo_full_compare_rough_terrain_seed11",
+        "17": ".external/humanoid-gym/logs/ecolab_vanilla_ppo_full_compare/May19_01-43-24_vanilla_ppo_full_compare_rough_terrain_seed17",
+        "23": ".external/humanoid-gym/logs/ecolab_vanilla_ppo_full_compare/May19_01-59-26_vanilla_ppo_full_compare_rough_terrain_seed23"
+      }
+    },
+    {
+      "id": "heuristic_smoothing",
+      "label": "PPO + heuristic smoothing revised anchor",
+      "config": "configs/methods/heuristic_smoothing_action_rate_0050_random_stairs_moderated_eval.json",
+      "run_name_template": "heuristic_smoothing_action_rate_0050_random_stairs_moderated_stress_seed{seed}",
+      "selected_checkpoints": {
+        "11": 350,
+        "17": 300,
+        "23": 350
+      },
+      "load_runs": {
+        "11": ".external/humanoid-gym/logs/ecolab_heuristic_smoothing_formal_protocol_revision_long_budget/May21_03-55-49_heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11",
+        "17": ".external/humanoid-gym/logs/ecolab_heuristic_smoothing_formal_protocol_revision_long_budget/May21_04-23-32_heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17",
+        "23": ".external/humanoid-gym/logs/ecolab_heuristic_smoothing_formal_protocol_revision_long_budget/May21_04-51-50_heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23"
+      }
+    },
+    {
+      "id": "sc_ppo",
+      "label": "SC-PPO threshold=3.8 PID mainline",
+      "config": "configs/methods/sc_ppo_threshold_38_pid_random_stairs_moderated_eval.json",
+      "run_name_template": "sc_ppo_threshold_38_pid_random_stairs_moderated_stress_seed{seed}",
+      "selected_checkpoints": {
+        "11": 300,
+        "17": 300,
+        "23": 400
+      },
+      "load_runs": {
+        "11": ".external/humanoid-gym/logs/ecolab_sc_ppo_pid_probe/May14_13-38-03_sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11",
+        "17": ".external/humanoid-gym/logs/ecolab_sc_ppo_pid_probe/May14_13-38-38_sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17",
+        "23": ".external/humanoid-gym/logs/ecolab_sc_ppo_pid_probe/May14_13-40-42_sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23"
+      }
+    }
+  ]
+}

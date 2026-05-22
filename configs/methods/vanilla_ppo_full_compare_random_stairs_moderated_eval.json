@@ -1,0 +1,64 @@
+{
+  "name": "vanilla_ppo_full_compare_random_stairs_moderated_eval",
+  "method": {
+    "id": "vanilla_ppo",
+    "label": "Vanilla PPO (formal compare, moderated random-stairs stress eval)",
+    "family": "vanilla",
+    "smoothness_strategy": "none"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_vanilla_ppo_full_compare",
+  "run_name": "vanilla_ppo_full_compare_random_stairs_moderated_eval",
+  "artifacts_root": "artifacts/methods/random_stairs_moderated_stress",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 32,
+    "episodes": 20,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 123145,
+    "metric_schema_version": 2,
+    "constraint_logging": {
+      "collect_local_sensitivity": true,
+      "local_sensitivity_threshold": null,
+      "sample_envs": 4,
+      "sample_every_n_steps": 20,
+      "sidecar_metrics_filename": "constraint_metrics.json",
+      "multiplier_trace_filename": "lagrange_multiplier_trace.json"
+    }
+  },
+  "evaluation_protocol": {
+    "id": "random_stairs_selected_checkpoint_moderated_stress",
+    "scope": "复杂地形条件 pressure test",
+    "terrain_condition": "random_stairs_moderated",
+    "primary_task": "速度跟踪行走",
+    "mesh_type": "trimesh",
+    "measure_heights": false,
+    "terrain_proportions": [0.0, 0.0, 0.7, 0.0, 0.0, 0.15, 0.15],
+    "checkpoint_policy": "selected rough-terrain checkpoint only",
+    "claim_boundary": "moderated stress test only; not retraining or a new headline method line"
+  },
+  "overrides": {
+    "env": {
+      "terrain.mesh_type": "trimesh",
+      "terrain.curriculum": false,
+      "terrain.measure_heights": false,
+      "terrain.num_rows": 4,
+      "terrain.num_cols": 10,
+      "terrain.terrain_proportions": [0.0, 0.0, 0.7, 0.0, 0.0, 0.15, 0.15],
+      "rewards.scales.action_smoothness": 0.0,
+      "rewards.scales.dof_acc": 0.0,
+      "rewards.scales.base_acc": 0.0,
+      "rewards.scales.dof_vel": 0.0
+    },
+    "train": {
+      "runner.max_iterations": 400,
+      "runner.save_interval": 50
+    }
+  }
+}

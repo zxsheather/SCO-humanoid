@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -12,6 +13,7 @@ BASELINE_DIR = REPO_ROOT / "scripts" / "baseline"
 if str(BASELINE_DIR) not in sys.path:
     sys.path.insert(0, str(BASELINE_DIR))
 
+import _common as baseline_common  # noqa: E402
 import run_random_stairs_stress_test as random_stairs  # noqa: E402
 
 
@@ -39,6 +41,17 @@ class RandomStairsStressRunnerTests(unittest.TestCase):
         self.assertEqual(env_overrides["terrain.mesh_type"], "trimesh")
         self.assertFalse(env_overrides["terrain.measure_heights"])
         self.assertEqual(env_overrides["terrain.terrain_proportions"], [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5])
+
+    def test_moderated_random_stairs_protocol_restores_rough_uniform_majority(self) -> None:
+        config_path = REPO_ROOT / "configs" / "methods" / "sc_ppo_threshold_38_pid_random_stairs_moderated_eval.json"
+        with config_path.open("r", encoding="utf-8") as handle:
+            config = json.load(handle)
+
+        env_overrides = config["overrides"]["env"]
+        self.assertEqual(env_overrides["terrain.mesh_type"], "trimesh")
+        self.assertFalse(env_overrides["terrain.measure_heights"])
+        self.assertEqual(env_overrides["terrain.num_cols"], 10)
+        self.assertEqual(env_overrides["terrain.terrain_proportions"], [0.0, 0.0, 0.7, 0.0, 0.0, 0.15, 0.15])
 
     def test_build_evaluate_command_targets_selected_checkpoint(self) -> None:
         sweep_cfg = random_stairs.load_sweep_config(random_stairs.DEFAULT_SWEEP_CONFIG)
@@ -119,6 +132,24 @@ class RandomStairsStressRunnerTests(unittest.TestCase):
 
         self.assertEqual(interpretation["task_validity_outcome"], "all_methods_collapsed")
         self.assertEqual(interpretation["collapsed_candidate_ids"], ["heuristic_smoothing", "sc_ppo"])
+
+    def test_resolve_run_dir_accepts_repo_relative_load_run_with_external_logs_prefix(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_root = Path(tmpdir)
+            humanoid_gym_root = tmp_root / "existing-checkout" / ".external" / "humanoid-gym"
+            run_dir = humanoid_gym_root / "logs" / "demo_experiment" / "May22_demo_run"
+            run_dir.mkdir(parents=True)
+
+            resolved = baseline_common.resolve_run_dir(
+                humanoid_gym_root=humanoid_gym_root,
+                config={
+                    "experiment_name": "demo_experiment",
+                    "artifacts_root": "artifacts/demo",
+                },
+                load_run=".external/humanoid-gym/logs/demo_experiment/May22_demo_run",
+            )
+
+            self.assertEqual(resolved, run_dir.resolve())
 
 
 if __name__ == "__main__":
