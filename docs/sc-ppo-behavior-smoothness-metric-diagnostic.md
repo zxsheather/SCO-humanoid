@@ -157,15 +157,79 @@ So the new trace-based metrics do **not** trivially collapse onto the current lo
 At minimum, they complicate the current smoothness story and justify a slightly richer checkpoint-neighborhood
 replay before making any stronger alignment claim.
 
+## Seed11 Revised-Heuristic Neighborhood
+
+The next bounded replay was run on the revised heuristic `seed11` neighborhood:
+
+- run:
+  `heuristic_behavior_trace_neighborhood_seed11_300_350_400`
+- upstream run:
+  `May21_03-55-49_heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11`
+- checkpoints: `300`, `350`, `400`
+
+Observed reading:
+
+Checkpoint `300`:
+
+- `fall_rate = 1.0`
+- `velocity_tracking_error_mean = 0.6407`
+- `joint_acceleration_l2_mean = 102.0995`
+- `action_jitter_l2_mean = 0.2482`
+- `episode_return_mean = 66.0412`
+- `policy_local_sensitivity_cost_mean = 7.2017`
+- `joint_position_ldlj_mean = -28.2216`
+- `joint_velocity_sparc_mean = -23.6050`
+
+Checkpoint `350`:
+
+- `fall_rate = 1.0`
+- `velocity_tracking_error_mean = 0.9265`
+- `joint_acceleration_l2_mean = 138.9144`
+- `action_jitter_l2_mean = 0.2954`
+- `episode_return_mean = 45.4078`
+- `policy_local_sensitivity_cost_mean = 7.2038`
+- `joint_position_ldlj_mean = -28.3102`
+- `joint_velocity_sparc_mean = -23.5264`
+
+Checkpoint `400`:
+
+- `fall_rate = 1.0`
+- `velocity_tracking_error_mean = 0.6618`
+- `joint_acceleration_l2_mean = 95.4117`
+- `action_jitter_l2_mean = 0.2501`
+- `episode_return_mean = 83.1079`
+- `policy_local_sensitivity_cost_mean = 7.8296`
+- `joint_position_ldlj_mean = -28.4820`
+- `joint_velocity_sparc_mean = -20.5100`
+
+Interpretation boundary:
+
+- this replay is still collapse-only evidence because all three quick replays ended with `fall_rate = 1.0`
+- the script therefore records `selection_status = all_checkpoints_collapsed` and picks checkpoint `400`
+  only by the fallback composite score
+
+Even with that limitation, the neighborhood is already informative:
+
+- checkpoint `350` is dominated by both older shared metrics and the new trace metrics
+- checkpoint `300` has the best `velocity_tracking_error_mean`, `action_jitter_l2_mean`, and
+  `joint_position_ldlj_mean`
+- checkpoint `400` has the best `joint_acceleration_l2_mean`, `episode_return_mean`, and
+  `joint_velocity_sparc_mean`
+- `policy_local_sensitivity_cost_mean` slightly prefers `300 / 350` over `400`
+
+So the richer bounded replay strengthens the same broad conclusion:
+
+- the new trace metrics are not reducible to a single existing smoothness proxy
+- even within one method line, `LDLJ` and `SPARC` can disagree with each other
+- the repo is likely observing multiple smoothness dimensions rather than one scalar notion
+
 ## Next Step
 
-The next useful move is:
+The next useful move is narrower than more training:
 
-- keep the new trace pipeline
-- replay a tiny checkpoint neighborhood or a small selected-checkpoint pair set
-- then read whether `LDLJ / SPARC` align more closely with
-  `policy_local_sensitivity_cost_mean`,
-  `action_jitter_l2_mean`,
-  or `joint_acceleration_l2_mean`
+- keep the trace pipeline as-is
+- either replay a tiny cross-seed selected-checkpoint set for both lines or stop here and open the PR
+- frame the branch claim as a diagnostic result:
+  trace-based smoothness metrics complicate, rather than confirm, the current local-sensitivity story
 
-Do not promote this branch to formal-comparison reruns, MuJoCo expansion, or new training budgets yet.
+Do not promote this branch to new training budgets, formal-comparison reruns, or product claims.
