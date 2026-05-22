@@ -76,16 +76,84 @@ So the first pass should be read as:
 
 `instrumentation success, diagnosis still open`
 
+## Second feedback-loop run
+
+To increase diagnostic value, the same alignment summary was replayed on the current `SC-PPO 3.8`
+mainline seed-11 checkpoint neighborhood:
+
+- config: `configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp.json`
+- artifact run: `sc_ppo_threshold_38_objective_mismatch_seed11`
+- upstream run dir:
+  `May14_13-38-03_sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11`
+- checkpoints: `0, 100, 200, 300, 400`
+
+Generated artifacts:
+
+- `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_objective_mismatch_seed11/checkpoint_sweep_summary.json`
+- `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_objective_mismatch_seed11/checkpoint_diagnostic_alignment.json`
+
+## Second reading
+
+This second pass is much more informative than the two-checkpoint collapsed run.
+
+Observed trajectory:
+
+- train constraint cost grows strongly across training:
+  - `train_policy_local_sensitivity_cost_mean: 0.2951 -> 3.4390`
+  - `train_policy_local_sensitivity_cost_update: 0.3082 -> 3.7525`
+- task validity improves at the same time:
+  - `fall_rate: 1.0 -> 0.2`
+  - `velocity_tracking_error_mean: 1.4031 -> 0.6012`
+  - `episode_return_mean: 4.2785 -> 102.8265`
+- behavior-layer smoothness gets worse in the same direction as the higher local-sensitivity cost:
+  - `action_jitter_l2_mean: 0.0116 -> 0.2629`
+  - `joint_acceleration_l2_mean: 68.7516 -> 144.6384` with a higher peak at checkpoint `200`
+
+The resulting alignment summary therefore shows:
+
+- `train_policy_local_sensitivity_cost_mean` is negatively correlated with `fall_rate`
+  (`pearson ~= -0.52`)
+- `train_policy_local_sensitivity_cost_mean` is negatively correlated with
+  `velocity_tracking_error_mean` (`pearson ~= -0.79`)
+- `train_policy_local_sensitivity_cost_mean` is positively correlated with `action_jitter_l2_mean`
+  (`pearson ~= 0.92`)
+- `train_policy_local_sensitivity_cost_mean` is positively correlated with
+  `joint_acceleration_l2_mean` (`pearson ~= 0.77`)
+
+Interpretation:
+
+- this is not a `no-signal` failure where the constraint metric moves independently of everything
+- instead, the current local-sensitivity metric appears to move in the same direction as
+  behavior-layer roughness while moving against task-validity improvement
+- that is stronger evidence for `objective tension / task-floor mismatch` than for a pure
+  `measurement disconnected from behavior` story
+
+The `300/400` selector neighborhood makes the same tradeoff visible:
+
+- both checkpoints satisfy the current task floor
+- `400` has slightly better velocity tracking and higher return
+- `300` has lower `action_jitter_l2_mean`, lower `joint_acceleration_l2_mean`, and lower train
+  local-sensitivity cost
+
+So the branch's current best reading is:
+
+`the local-sensitivity objective still tracks behavior-layer roughness, but the current training path appears to spend more local sensitivity in order to buy task validity and tracking quality`
+
 ## Updated next step
 
-The next useful diagnostic is not more support-set tuning. It is to run the same alignment summary
-on a richer checkpoint neighborhood where the branch has more than two checkpoints and where at
-least one behavior-layer metric meaningfully separates.
+The next useful diagnostic is not more support-set tuning. It is to distinguish whether that
+observed tension comes primarily from:
+
+- the constraint target itself
+- the aggregation rule
+- or the optimization timescale / multiplier dynamics
 
 Candidate next moves:
 
-- rerun a reduced-budget `SC-PPO` diagnostic with denser checkpoint saves
-- or replay an existing longer `SC-PPO` checkpoint neighborhood through the same alignment summary
+- replay the same alignment summary on seed `17` and seed `23` of the `SC-PPO 3.8` mainline
+- compare the same checkpoint neighborhood against one collapsed control such as plain dual ascent
+- if the pattern persists, open one bounded mechanism test that changes the objective or the update
+  timescale without reopening broad threshold search
 
 Only after that should the branch claim `constraint target mismatch`, `aggregation mismatch`, or
 `optimization-timescale mismatch`.
