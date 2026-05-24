@@ -38,6 +38,8 @@ from collections import deque
 from datetime import datetime
 from .ppo import PPO
 from .sc_ppo import SCPPO
+from .action_scaling_ppo import ActionScalingPPO
+from .output_scaling_ppo import OutputScalingPPO
 from .actor_critic import ActorCritic
 from humanoid.algo.vec_env import VecEnv
 from torch.utils.tensorboard import SummaryWriter

@@ -75,12 +75,44 @@ Important boundary:
 So the repo currently supports an Isaac-side `方法优于启发式` result, with `MuJoCo` reported as a
 `混合外部验证结论`.
 
+`main` should now be read as a `冻结主档案分支`:
+
+- it preserves the completed internal research delivery package
+- it may only absorb bounded backports for `冻结边界章节` updates and reusable evaluation or
+  diagnostic infrastructure
+- it should not reopen training, replay, or mechanism-specific branch work on `main`
+
 For the most current interpretation, read:
 
 - [docs/sc-ppo-report-status.md](docs/sc-ppo-report-status.md)
 - [docs/sc-ppo-current-summary.md](docs/sc-ppo-current-summary.md)
 - [docs/baselines/rough-terrain-formal-comparison.md](docs/baselines/rough-terrain-formal-comparison.md)
 - [docs/sc-ppo-pid-limited-ablation.md](docs/sc-ppo-pid-limited-ablation.md)
+
+## Fastest current handoff
+
+If you only need the current frozen-mainline answer, read:
+
+1. [docs/sc-ppo-current-summary.md](docs/sc-ppo-current-summary.md)
+2. [docs/sc-ppo-report-status.md](docs/sc-ppo-report-status.md)
+3. [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
+
+Minimal frozen-package validation:
+
+```bash
+cd /home/zhuoxiang/SCO-humanoid
+export PYTHON_BIN=/TinyNAS2024/zhuoxiang/sco-humanoid/bin/python
+$PYTHON_BIN scripts/baseline/check_env.py
+$PYTHON_BIN -m unittest \
+  tests.test_baseline_common \
+  tests.test_behavior_trace_metrics \
+  tests.test_checkpoint_sweep_recovery \
+  tests.test_baseline_protocol_failfast
+git diff --check
+```
+
+Use [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
+for the broader frozen-package validation and canonical artifact index.
 
 ## Quick start
 
@@ -98,7 +130,18 @@ bash scripts/baseline/bootstrap_humanoid_gym.sh
 python scripts/baseline/check_env.py
 ```
 
-### 3. Run one training job
+### 3. Read the current frozen-mainline package
+
+Start from:
+
+- [docs/sc-ppo-current-summary.md](docs/sc-ppo-current-summary.md)
+- [docs/sc-ppo-report-status.md](docs/sc-ppo-report-status.md)
+- [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
+
+### 4. Historical experiment entrypoint
+
+This is a historical reproduction entrypoint, not part of routine frozen-package validation on
+`main`:
 
 ```bash
 python scripts/baseline/train_vanilla_ppo.py \
@@ -243,6 +286,11 @@ Current status and next step:
 - [docs/sc-ppo-next-step-direction.md](docs/sc-ppo-next-step-direction.md)
 - [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
 
+Post-freeze reusable diagnostics on `main`:
+
+- [docs/sc-ppo-objective-mismatch-diagnostic.md](docs/sc-ppo-objective-mismatch-diagnostic.md)
+- [docs/sc-ppo-behavior-smoothness-metric-diagnostic.md](docs/sc-ppo-behavior-smoothness-metric-diagnostic.md)
+
 ## Reproducibility notes
 
 - Runtime outputs are written under `artifacts/`
@@ -285,6 +333,8 @@ experiment branch:
 - `#7 随机阶梯`: closed as a selected-checkpoint stress test; all three methods collapse under the
   first stairs-only random-stairs protocol, so it records direct transfer failure rather than a
   task-valid method ranking
+- post-freeze reusable diagnostics now included on `main`: objective-mismatch checkpoint alignment
+  and behavior-smoothness trace summaries
 - future moderated random-stairs, terrain protocol repair, or task-stabilized SN work should be
   opened as separate post-freeze branches rather than modifying the frozen package on `main`
 
@@ -292,3 +342,5 @@ Tracked freeze references:
 
 - [artifacts/analysis/final_research_delivery_freeze/summary.json](artifacts/analysis/final_research_delivery_freeze/summary.json)
 - [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
+- [docs/sc-ppo-objective-mismatch-diagnostic.md](docs/sc-ppo-objective-mismatch-diagnostic.md)
+- [docs/sc-ppo-behavior-smoothness-metric-diagnostic.md](docs/sc-ppo-behavior-smoothness-metric-diagnostic.md)

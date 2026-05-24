@@ -27,6 +27,13 @@ REPO_ROOT = repo_root()
 DEFAULT_SWEEP_CONFIG = REPO_ROOT / "configs" / "sweeps" / "rough_terrain_formal_comparison.json"
 TRAIN_SCRIPT = REPO_ROOT / "scripts" / "baseline" / "train_vanilla_ppo.py"
 EVAL_SCRIPT = REPO_ROOT / "scripts" / "baseline" / "evaluate_checkpoint_sweep.py"
+COMPARISON_METRIC_KEYS = [
+    "velocity_tracking_error_mean",
+    "joint_acceleration_l2_mean",
+    "action_jitter_l2_mean",
+    "episode_return_mean",
+    "fall_rate",
+]
 
 
 def load_sweep_config(config_path: str | Path | None) -> dict[str, Any]:
@@ -95,6 +102,9 @@ def build_train_command(
     run_name: str,
     seed: int,
     args: argparse.Namespace,
+    *,
+    train_num_envs: int | None = None,
+    max_iterations: int | None = None,
 ) -> list[str]:
     command = [
         sys.executable,
@@ -105,10 +115,12 @@ def build_train_command(
     ]
     if args.humanoid_gym_root:
         command.append(f"--humanoid-gym-root={args.humanoid_gym_root}")
-    if args.train_num_envs is not None:
-        command.append(f"--num-envs={args.train_num_envs}")
-    if args.max_iterations is not None:
-        command.append(f"--max-iterations={args.max_iterations}")
+    effective_train_num_envs = args.train_num_envs if args.train_num_envs is not None else train_num_envs
+    effective_max_iterations = args.max_iterations if args.max_iterations is not None else max_iterations
+    if effective_train_num_envs is not None:
+        command.append(f"--num-envs={effective_train_num_envs}")
+    if effective_max_iterations is not None:
+        command.append(f"--max-iterations={effective_max_iterations}")
     if args.rl_device:
         command.append(f"--rl-device={args.rl_device}")
     if args.sim_device:
@@ -122,6 +134,9 @@ def build_evaluate_command(
     load_run: str,
     seed: int,
     args: argparse.Namespace,
+    *,
+    eval_num_envs: int | None = None,
+    episodes: int | None = None,
 ) -> list[str]:
     command = [
         sys.executable,
@@ -136,10 +151,12 @@ def build_evaluate_command(
     ]
     if args.humanoid_gym_root:
         command.extend(["--humanoid-gym-root", args.humanoid_gym_root])
-    if args.eval_num_envs is not None:
-        command.extend(["--num-envs", str(args.eval_num_envs)])
-    if args.episodes is not None:
-        command.extend(["--episodes", str(args.episodes)])
+    effective_eval_num_envs = args.eval_num_envs if args.eval_num_envs is not None else eval_num_envs
+    effective_episodes = args.episodes if args.episodes is not None else episodes
+    if effective_eval_num_envs is not None:
+        command.extend(["--num-envs", str(effective_eval_num_envs)])
+    if effective_episodes is not None:
+        command.extend(["--episodes", str(effective_episodes)])
     if args.rl_device:
         command.extend(["--rl-device", args.rl_device])
     if args.sim_device:
@@ -148,25 +165,37 @@ def build_evaluate_command(
 
 
 def aggregate_metrics(metrics_list: list[dict[str, Any]]) -> dict[str, float]:
-    keys = [
-        "velocity_tracking_error_mean",
-        "joint_acceleration_l2_mean",
-        "action_jitter_l2_mean",
-        "episode_return_mean",
-        "fall_rate",
-    ]
     aggregate: dict[str, float] = {}
-    for key in keys:
+    for key in COMPARISON_METRIC_KEYS:
         values = [float(metrics[key]) for metrics in metrics_list]
         aggregate[f"{key}_mean"] = mean(values)
         aggregate[f"{key}_std"] = pstdev(values) if len(values) > 1 else 0.0
     return aggregate
 
 
+def latest_metrics_row(rows: Any) -> dict[str, Any] | None:
+    if not isinstance(rows, list):
+        return None
+    typed_rows = [row for row in rows if isinstance(row, dict) and "checkpoint" in row]
+    if not typed_rows:
+        return None
+    return max(typed_rows, key=lambda row: int(row["checkpoint"]))
+
+
+def metrics_snapshot_from_row(row: dict[str, Any] | None) -> dict[str, float] | None:
+    if row is None:
+        return None
+    if any(key not in row for key in COMPARISON_METRIC_KEYS):
+        return None
+    return {key: float(row[key]) for key in COMPARISON_METRIC_KEYS}
+
+
 def collect_candidate_summary(config: dict[str, Any], seeds: list[int]) -> dict[str, Any]:
     per_seed: dict[str, Any] = {}
-    metrics_list: list[dict[str, Any]] = []
+    selected_metrics_list: list[dict[str, Any]] = []
+    final_metrics_list: list[dict[str, float]] = []
     selected_checkpoints: dict[str, int] = {}
+    final_checkpoints: dict[str, int] = {}
     selection_statuses: dict[str, str] = {}
     missing_seeds: list[int] = []
 
@@ -189,6 +218,8 @@ def collect_candidate_summary(config: dict[str, Any], seeds: list[int]) -> dict[
             continue
         selected_metrics = read_json(REPO_ROOT / selected_metrics_path)
         selection_status = str(summary.get("selection_status", "selected"))
+        final_row = latest_metrics_row(summary.get("rows"))
+        final_metrics = metrics_snapshot_from_row(final_row)
         per_seed[str(seed)] = {
             "run_name": run_name,
             "load_run": load_run,
@@ -197,10 +228,16 @@ def collect_candidate_summary(config: dict[str, Any], seeds: list[int]) -> dict[
             "selected_checkpoint": int(summary["best_checkpoint"]),
             "selected_metrics_path": selected_metrics_path,
             "selected_metrics": selected_metrics,
+            "final_checkpoint": int(final_row["checkpoint"]) if final_row is not None else None,
+            "final_metrics": final_metrics,
         }
         selection_statuses[str(seed)] = selection_status
         selected_checkpoints[str(seed)] = int(summary["best_checkpoint"])
-        metrics_list.append(selected_metrics)
+        if final_row is not None:
+            final_checkpoints[str(seed)] = int(final_row["checkpoint"])
+        selected_metrics_list.append(selected_metrics)
+        if final_metrics is not None:
+            final_metrics_list.append(final_metrics)
 
     summary: dict[str, Any] = {
         "id": config["method"]["id"],
@@ -210,14 +247,18 @@ def collect_candidate_summary(config: dict[str, Any], seeds: list[int]) -> dict[
         "seeds": seeds,
         "missing_seeds": missing_seeds,
         "selected_checkpoints": selected_checkpoints,
+        "final_checkpoints": final_checkpoints,
         "selection_statuses": selection_statuses,
         "per_seed": per_seed,
-        "status": "complete" if not missing_seeds and len(metrics_list) == len(seeds) else "incomplete",
+        "status": "complete" if not missing_seeds and len(selected_metrics_list) == len(seeds) else "incomplete",
     }
     if not missing_seeds and selection_statuses and all(status != "selected" for status in selection_statuses.values()):
         summary["status"] = "collapsed"
-    if metrics_list:
-        summary["aggregate"] = aggregate_metrics(metrics_list)
+    if selected_metrics_list:
+        summary["aggregate"] = aggregate_metrics(selected_metrics_list)
+        summary["selected_aggregate"] = summary["aggregate"]
+    if final_metrics_list:
+        summary["final_aggregate"] = aggregate_metrics(final_metrics_list)
     return summary
 
 
@@ -287,11 +328,29 @@ def main() -> int:
             print(f"[{candidate['id']}] {candidate['label']}")
             for seed in sweep_cfg["seeds"]:
                 run_name = candidate_run_name(config["run_name"], seed)
-                load_run = resolve_eval_load_run(config, run_name)
                 train_status = "complete" if train_complete(config, run_name) else "pending"
                 eval_status = "complete" if evaluate_complete(config, run_name) else "pending"
-                train_command = " ".join(build_train_command(config_path, run_name, seed, args))
-                eval_command = " ".join(build_evaluate_command(config_path, run_name, load_run, seed, args))
+                train_command = " ".join(
+                    build_train_command(
+                        config_path,
+                        run_name,
+                        seed,
+                        args,
+                        train_num_envs=sweep_cfg.get("train_num_envs"),
+                        max_iterations=sweep_cfg.get("max_iterations"),
+                    )
+                )
+                eval_command = " ".join(
+                    build_evaluate_command(
+                        config_path,
+                        run_name,
+                        resolve_eval_load_run(config, run_name),
+                        seed,
+                        args,
+                        eval_num_envs=sweep_cfg.get("eval_num_envs"),
+                        episodes=sweep_cfg.get("episodes"),
+                    )
+                )
                 print(f"  seed {seed}")
                 print(f"    train: {train_status}")
                 print(f"    command: {train_command}")
@@ -307,14 +366,32 @@ def main() -> int:
         print(f"[{candidate['id']}] {candidate['label']}")
         for seed in sweep_cfg["seeds"]:
             run_name = candidate_run_name(config["run_name"], seed)
-            load_run = resolve_eval_load_run(config, run_name)
             for stage in stages:
                 complete = stage_complete(stage, config, run_name)
                 if args.skip_completed and complete:
                     marker = train_manifest_path(config, run_name) if stage == "train" else eval_summary_path(config, run_name)
                     print(f"Skipping {stage}: {relative_to_repo(marker)} already exists")
                     continue
-                command = build_train_command(config_path, run_name, seed, args) if stage == "train" else build_evaluate_command(config_path, run_name, load_run, seed, args)
+                command = (
+                    build_train_command(
+                        config_path,
+                        run_name,
+                        seed,
+                        args,
+                        train_num_envs=sweep_cfg.get("train_num_envs"),
+                        max_iterations=sweep_cfg.get("max_iterations"),
+                    )
+                    if stage == "train"
+                    else build_evaluate_command(
+                        config_path,
+                        run_name,
+                        resolve_eval_load_run(config, run_name),
+                        seed,
+                        args,
+                        eval_num_envs=sweep_cfg.get("eval_num_envs"),
+                        episodes=sweep_cfg.get("episodes"),
+                    )
+                )
                 exit_code = run_command(command, cwd=REPO_ROOT, dry_run=args.dry_run)
                 if exit_code != 0:
                     recovered = stage_complete(stage, config, run_name)
