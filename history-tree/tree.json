@@ -1,0 +1,177 @@
+{
+  "project": "SCO-humanoid",
+  "generated": "2026-05-24",
+  "description": "A short, high-intensity research history: from Vanilla PPO and shared metrics, through SC-PPO mainline closure and protocol repair, into a frozen archival branch with post-freeze diagnostics and architecture probes.",
+  "nodes": [
+    {
+      "id": "repo-bootstrap",
+      "title": "Research Repo Bootstrap",
+      "date": "2026-05-14",
+      "type": "milestone",
+      "outcome": "success",
+      "tags": ["initial-commit", "humanoid-gym", "research-repo"],
+      "parent": null,
+      "summary": "Initial commit turned the repo into a Humanoid-Gym-based research workspace with scripts, configs, docs, artifacts, and issue-driven planning."
+    },
+    {
+      "id": "shared-metric-schema",
+      "title": "Shared Metric Schema",
+      "date": "2026-05-14",
+      "type": "decision",
+      "outcome": "success",
+      "tags": ["evaluation", "metrics", "comparison"],
+      "parent": "repo-bootstrap",
+      "summary": "A single evaluation contract standardized task, smoothness, and constraint metrics so PPO, heuristic, and SC-PPO could be compared on one scale."
+    },
+    {
+      "id": "heuristic-baseline-sweep",
+      "title": "Bounded Heuristic Baseline Sweep",
+      "date": "2026-05-14",
+      "type": "experiment",
+      "outcome": "success",
+      "tags": ["baseline", "action-rate", "heuristic"],
+      "parent": "shared-metric-schema",
+      "summary": "A bounded action-rate sweep chose `action_rate = -0.0050` as the heuristic anchor, which later became the baseline candidate in protocol-repair work."
+    },
+    {
+      "id": "sc-ppo-pid-mainline",
+      "title": "SC-PPO PID Mainline",
+      "date": "2026-05-14",
+      "type": "pivot",
+      "outcome": "success",
+      "tags": ["sc-ppo", "pid-lagrangian", "constraint"],
+      "parent": "shared-metric-schema",
+      "summary": "SC-PPO replaced reward shaping with a Jacobian-style local-sensitivity constraint and PID-Lagrangian updates, creating the repo’s main method line."
+    },
+    {
+      "id": "baseline-freeze-collapse",
+      "title": "Frozen Formal Compare Collapse",
+      "date": "2026-05-20",
+      "type": "incident",
+      "outcome": "failure",
+      "tags": ["formal-compare", "baseline", "collapse"],
+      "parent": "heuristic-baseline-sweep",
+      "summary": "The frozen `64 envs x 400 iterations` formal compare collapsed Vanilla PPO and every heuristic row to checkpoint 0, exposing a protocol failure."
+    },
+    {
+      "id": "protocol-repair-probe",
+      "title": "Protocol Repair Probe",
+      "date": "2026-05-21",
+      "type": "experiment",
+      "outcome": "mixed",
+      "tags": ["protocol-repair", "baseline", "512-envs"],
+      "parent": "baseline-freeze-collapse",
+      "summary": "A repaired `512 envs x 200 iterations` probe broke universal collapse but only rescued seed23, proving the blocker was protocol, not just selector bugs."
+    },
+    {
+      "id": "revised-heuristic-anchor",
+      "title": "Revised Heuristic Formal Anchor",
+      "date": "2026-05-21",
+      "type": "milestone",
+      "outcome": "success",
+      "tags": ["protocol-revision", "baseline", "3-seed"],
+      "parent": "protocol-repair-probe",
+      "summary": "Extending the repaired protocol to `512 envs x 400 iterations` finally produced a task-valid 3-seed heuristic anchor at checkpoints `350 / 300 / 350`."
+    },
+    {
+      "id": "mujoco-aligned-mixed",
+      "title": "MuJoCo Aligned Mixed Reading",
+      "date": "2026-05-21",
+      "type": "experiment",
+      "outcome": "mixed",
+      "tags": ["mujoco", "external-validation", "mixed"],
+      "parent": "revised-heuristic-anchor",
+      "summary": "Once MuJoCo replay was aligned to the revised heuristic anchor, SC-PPO lost its earlier partial-transfer wording and the repo adopted a mixed result."
+    },
+    {
+      "id": "pid-limited-ablation",
+      "title": "PID-Limited Ablation",
+      "date": "2026-05-21",
+      "type": "experiment",
+      "outcome": "mixed",
+      "tags": ["ablation", "pid", "plain-dual"],
+      "parent": "sc-ppo-pid-mainline",
+      "summary": "A matched plain-dual control collapsed, so PID-Lagrangian stayed as the formal SC-PPO recipe without expanding into a full component attribution study."
+    },
+    {
+      "id": "sn-feasibility-diagnostic",
+      "title": "SN Feasibility Diagnostic",
+      "date": "2026-05-21",
+      "type": "experiment",
+      "outcome": "failure",
+      "tags": ["spectral-normalization", "replacement-mechanism", "negative"],
+      "parent": "sc-ppo-pid-mainline",
+      "summary": "Spectral Normalization proved implementable and measurable, but every reduced-budget SN-only variant remained task-invalid and the branch closed negative."
+    },
+    {
+      "id": "random-stairs-transfer-failure",
+      "title": "Random-Stairs Transfer Failure",
+      "date": "2026-05-21",
+      "type": "experiment",
+      "outcome": "failure",
+      "tags": ["random-stairs", "stress-test", "transfer"],
+      "parent": "sn-feasibility-diagnostic",
+      "summary": "Selected rough-terrain checkpoints from Vanilla PPO, heuristic, and SC-PPO all collapsed on the first stairs-only stress test."
+    },
+    {
+      "id": "research-delivery-freeze",
+      "title": "Research Delivery Freeze",
+      "date": "2026-05-21",
+      "type": "decision",
+      "outcome": "success",
+      "tags": ["freeze", "handoff", "main-branch"],
+      "parent": "random-stairs-transfer-failure",
+      "summary": "After mainline closure, MuJoCo alignment, PID ablation, SN diagnostics, and stairs failure, `main` was frozen as an archival research handoff branch."
+    },
+    {
+      "id": "objective-mismatch-diagnostic",
+      "title": "Objective Mismatch Diagnostic",
+      "date": "2026-05-22",
+      "type": "experiment",
+      "outcome": "mixed",
+      "tags": ["post-freeze", "diagnostic", "alignment"],
+      "parent": "research-delivery-freeze",
+      "summary": "Post-freeze instrumentation showed a repeatable tension: higher local-sensitivity cost often co-traveled with better task validity but rougher behavior."
+    },
+    {
+      "id": "behavior-trace-metrics",
+      "title": "Behavior Trace Metrics",
+      "date": "2026-05-22",
+      "type": "experiment",
+      "outcome": "mixed",
+      "tags": ["trace-metrics", "ldlj", "sparc"],
+      "parent": "objective-mismatch-diagnostic",
+      "summary": "Trace capture added LDLJ/SPARC-like metrics and showed independent smoothness signals can complicate, not simply confirm, the existing local-sensitivity story."
+    },
+    {
+      "id": "output-scaling-line",
+      "title": "Output-Side Scaling Line",
+      "date": "2026-05-23",
+      "type": "experiment",
+      "outcome": "failure",
+      "tags": ["architecture-line", "output-scaling", "replacement"],
+      "parent": "research-delivery-freeze",
+      "summary": "A clean output-side scaling replacement line was opened after action-side scaling failed, but the canonical 3-seed run still missed the shared entry gate."
+    },
+    {
+      "id": "orthogonal-actor-line",
+      "title": "Orthogonal Actor Line",
+      "date": "2026-05-24",
+      "type": "experiment",
+      "outcome": "failure",
+      "tags": ["architecture-line", "orthogonal", "output-gain"],
+      "parent": "output-scaling-line",
+      "summary": "Orthogonal actor parametrization plus bounded gain became the first architecture-line candidate, but both the main probe and gain-isolation follow-up collapsed."
+    },
+    {
+      "id": "layernorm-actor-line",
+      "title": "LayerNorm Actor Line",
+      "date": "2026-05-24",
+      "type": "experiment",
+      "outcome": "mixed",
+      "tags": ["architecture-line", "layernorm", "open-issue"],
+      "parent": "orthogonal-actor-line",
+      "summary": "LayerNorm actor was the next architecture candidate; it partly rescued survival relative to orthogonal actor but still failed promotion and remains open for a bounded repair."
+    }
+  ]
+}

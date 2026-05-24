@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project History Tree — SCO-humanoid</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #c9d1d9; overflow: hidden; height: 100vh; }
+a { color: #58a6ff; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.header { background: #161b22; border-bottom: 1px solid #30363d; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
+.header h1 { font-size: 18px; font-weight: 600; }
+.header .subtitle { font-size: 12px; color: #8b949e; }
+
+.toolbar { display: flex; gap: 8px; padding: 8px 24px; background: #0d1117; border-bottom: 1px solid #21262d; flex-wrap: wrap; align-items: center; }
+.toolbar input[type="text"] { background: #21262d; border: 1px solid #30363d; border-radius: 6px; padding: 5px 10px; color: #c9d1d9; font-size: 12px; width: 180px; outline: none; }
+.toolbar input[type="text"]:focus { border-color: #58a6ff; }
+.toolbar .chip { background: #21262d; border: 1px solid #30363d; border-radius: 6px; padding: 4px 8px; color: #c9d1d9; font-size: 11px; cursor: pointer; white-space: nowrap; user-select: none; }
+.toolbar .chip:hover { background: #30363d; }
+.toolbar .chip.active { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+.toolbar .sep { color: #30363d; }
+
+.main { display: flex; height: calc(100vh - 98px); }
+.canvas-wrap { flex: 1; position: relative; overflow: hidden; cursor: grab; }
+.canvas-wrap:active { cursor: grabbing; }
+.canvas-wrap.panning { cursor: grabbing; }
+.detail-panel { width: 420px; min-width: 420px; border-left: 1px solid #21262d; overflow-y: auto; padding: 24px; background: #0d1117; }
+
+svg { display: block; }
+
+/* Node circle styles */
+.node-circle { cursor: pointer; transition: r 0.2s, filter 0.2s; }
+.node-circle:hover { filter: brightness(1.4); }
+.node-circle.selected { stroke-width: 3; }
+
+/* Line styles */
+.connector { fill: none; stroke: #30363d; stroke-width: 2; stroke-linecap: round; }
+
+/* Labels */
+.node-label { font-size: 11px; fill: #c9d1d9; pointer-events: none; text-anchor: middle; }
+.node-label-date { font-size: 10px; fill: #8b949e; pointer-events: none; text-anchor: middle; }
+.node-label-outcome { font-size: 13px; font-weight: bold; fill: #fff; pointer-events: none; text-anchor: middle; dominant-baseline: central; }
+
+/* Type colors for circles */
+.type-release { fill: #1f6feb; stroke: #58a6ff; }
+.type-pivot { fill: #6e40c9; stroke: #bc8cff; }
+.type-incident { fill: #da3633; stroke: #f85149; }
+.type-experiment { fill: #9e6a03; stroke: #d29922; }
+.type-decision { fill: #1f6feb; stroke: #39d2c0; }
+.type-milestone { fill: #238636; stroke: #3fb950; }
+
+/* Tooltip */
+.tooltip { position: fixed; background: #1c2128; border: 1px solid #30363d; border-radius: 8px; padding: 10px 14px; font-size: 12px; max-width: 260px; pointer-events: none; z-index: 100; opacity: 0; transition: opacity 0.15s; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.tooltip.show { opacity: 1; }
+.tooltip .tt-title { font-weight: 600; margin-bottom: 4px; }
+.tooltip .tt-summary { color: #8b949e; line-height: 1.5; }
+
+/* Detail panel */
+.detail-empty { color: #8b949e; font-size: 14px; text-align: center; margin-top: 80px; }
+.detail-loading { color: #8b949e; font-size: 14px; }
+
+.detail-content h1 { font-size: 20px; margin-bottom: 12px; border-bottom: 1px solid #21262d; padding-bottom: 12px; }
+.detail-content h2 { font-size: 15px; margin-top: 20px; margin-bottom: 8px; }
+.detail-content p, .detail-content li { font-size: 13px; line-height: 1.7; color: #c9d1d9; }
+.detail-content ul, .detail-content ol { padding-left: 20px; margin-bottom: 10px; }
+.detail-content code { background: #161b22; padding: 2px 5px; border-radius: 4px; font-size: 12px; }
+.detail-content pre { background: #161b22; padding: 12px; border-radius: 6px; overflow-x: auto; margin: 10px 0; }
+.detail-content pre code { background: none; padding: 0; }
+.detail-content blockquote { border-left: 3px solid #30363d; padding-left: 12px; color: #8b949e; margin: 10px 0; }
+
+.zoom-hint { position: absolute; bottom: 12px; right: 16px; font-size: 11px; color: #484f58; pointer-events: none; }
+
+.legend { display: flex; gap: 12px; flex-wrap: wrap; padding: 0 24px; }
+.legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #8b949e; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>SCO-humanoid &mdash; Project History Tree</h1>
+    <div class="subtitle">Scroll to zoom &middot; Drag to pan &middot; Click a node to see details</div>
+  </div>
+</div>
+<div class="toolbar" id="toolbar">
+  <input type="text" id="search" placeholder="Search nodes..." oninput="renderTree()">
+  <span class="sep">|</span>
+  <span style="color:#8b949e;font-size:11px;">Type:</span>
+  <span id="type-filters"></span>
+  <span class="sep">|</span>
+  <span style="color:#8b949e;font-size:11px;">Outcome:</span>
+  <span id="outcome-filters"></span>
+</div>
+<div class="main">
+  <div class="canvas-wrap" id="canvas-wrap">
+    <svg id="tree-svg"></svg>
+    <div class="zoom-hint" id="zoom-hint"></div>
+  </div>
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-empty">Select a node from the tree to view its details.</div>
+  </div>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+let treeData = {};
+let activeTypeFilters = new Set();
+let activeOutcomeFilters = new Set();
+let selectedNodeId = null;
+let layoutPositions = {};
+
+// Pan/zoom state
+let tx = 60, ty = 60;
+let scale = 1;
+const SCALE_MIN = 0.2, SCALE_MAX = 3;
+let dragging = false, dragX = 0, dragY = 0;
+
+// Layout constants
+const NODE_R = 22;
+const LAYER_GAP_Y = 130;
+const MIN_SIBLING_GAP = 60;
+
+const TYPE_COLORS = {
+  release: '#58a6ff', pivot: '#bc8cff', incident: '#f85149',
+  experiment: '#d29922', decision: '#39d2c0', milestone: '#3fb950'
+};
+
+const TYPE_FILLS = {
+  release: '#1f6feb', pivot: '#6e40c9', incident: '#da3633',
+  experiment: '#9e6a03', decision: '#1f6feb', milestone: '#238636'
+};
+
+const OUTCOME_ICONS = { success: '✓', failure: '✗', mixed: '~' };
+const OUTCOME_LABELS = { success: 'Success', failure: 'Failed', mixed: 'Mixed' };
+
+async function init() {
+  try {
+    const resp = await fetch('tree.json');
+    treeData = await resp.json();
+  } catch(e) {
+    treeData = { nodes: [] };
+  }
+  renderTypeFilters();
+  renderOutcomeFilters();
+  renderTree();
+  setupPanZoom();
+}
+
+function getTypeLabel(t) {
+  const map = { release: 'Rel', pivot: 'Pvt', incident: 'Inc', experiment: 'Exp', decision: 'Dec', milestone: 'Mil' };
+  return map[t] || t;
+}
+
+function renderTypeFilters() {
+  const types = [...new Set(treeData.nodes.map(n => n.type))];
+  const container = document.getElementById('type-filters');
+  container.innerHTML = types.map(t =>
+    `<span class="chip" id="ft-${t}" onclick="toggleTypeFilter('${t}')">${getTypeLabel(t)}</span>`
+  ).join('');
+}
+
+function renderOutcomeFilters() {
+  const outcomes = [...new Set(treeData.nodes.map(n => n.outcome))];
+  const container = document.getElementById('outcome-filters');
+  container.innerHTML = outcomes.map(o =>
+    `<span class="chip" id="fo-${o}" onclick="toggleOutcomeFilter('${o}')">${OUTCOME_ICONS[o]} ${OUTCOME_LABELS[o]}</span>`
+  ).join('');
+}
+
+function toggleTypeFilter(t) {
+  if (activeTypeFilters.has(t)) activeTypeFilters.delete(t);
+  else activeTypeFilters.add(t);
+  document.getElementById('ft-' + t).classList.toggle('active');
+  renderTree();
+}
+
+function toggleOutcomeFilter(o) {
+  if (activeOutcomeFilters.has(o)) activeOutcomeFilters.delete(o);
+  else activeOutcomeFilters.add(o);
+  document.getElementById('fo-' + o).classList.toggle('active');
+  renderTree();
+}
+
+function filterNodes() {
+  const query = document.getElementById('search').value.toLowerCase();
+  return treeData.nodes.filter(n => {
+    if (activeTypeFilters.size > 0 && !activeTypeFilters.has(n.type)) return false;
+    if (activeOutcomeFilters.size > 0 && !activeOutcomeFilters.has(n.outcome)) return false;
+    if (query && !n.title.toLowerCase().includes(query) && !(n.summary || '').toLowerCase().includes(query)) return false;
+    return true;
+  });
+}
+
+// ---- Tree Layout Algorithm (top-down, center-parent-over-children) ----
+
+function computeLayout() {
+  const visible = filterNodes();
+  const visibleIds = new Set(visible.map(n => n.id));
+  const nodeMap = {};
+  visible.forEach(n => { nodeMap[n.id] = n; });
+
+  // Find roots among visible nodes
+  const roots = visible.filter(n => n.parent === null || n.parent === '' || !visibleIds.has(n.parent));
+
+  // Build children map
+  const children = {};
+  visible.forEach(n => {
+    children[n.id] = visible.filter(c => c.parent === n.id);
+  });
+
+  // First pass: compute subtree leaf count (for width allocation)
+  function subtreeWidth(nodeId) {
+    const kids = children[nodeId] || [];
+    if (kids.length === 0) return 1;
+    return kids.reduce((sum, k) => sum + subtreeWidth(k.id), 0);
+  }
+
+  // Second pass: assign x positions
+  const positions = {};
+  let nextX = 0;
+
+  function assignPositions(node, depth) {
+    const kids = children[node.id] || [];
+    if (kids.length === 0) {
+      positions[node.id] = { x: nextX, y: depth };
+      nextX++;
+      return;
+    }
+    // Recursively assign children first
+    kids.forEach(k => assignPositions(k, depth + 1));
+    // Center parent over children
+    const childXs = kids.map(k => positions[k.id].x);
+    const minX = Math.min(...childXs);
+    const maxX = Math.max(...childXs);
+    positions[node.id] = { x: (minX + maxX) / 2, y: depth };
+  }
+
+  // Process each root (forest)
+  nextX = 0;
+  const rootGap = 2; // extra gap between separate roots
+  roots.forEach(root => {
+    assignPositions(root, 0);
+    nextX += rootGap;
+  });
+
+  layoutPositions = positions;
+  return positions;
+}
+
+function renderTree() {
+  const visible = filterNodes();
+  const visibleIds = new Set(visible.map(n => n.id));
+
+  if (visible.length === 0) {
+    document.getElementById('tree-svg').innerHTML = '';
+    return;
+  }
+
+  const positions = computeLayout();
+  const svg = document.getElementById('tree-svg');
+  const wrap = document.getElementById('canvas-wrap');
+  const W = wrap.clientWidth;
+  const H = wrap.clientHeight;
+
+  // Compute bounds
+  const entries = Object.entries(positions);
+  const maxDepth = Math.max(...entries.map(([_,p]) => p.y));
+  const totalX = entries.length > 0 ? Math.max(...entries.map(([_,p]) => p.x)) : 0;
+
+  const svgW = Math.max(W, (totalX + 2) * MIN_SIBLING_GAP * 2 + 400);
+  const svgH = Math.max(H, (maxDepth + 2) * LAYER_GAP_Y + 200);
+
+  const SPACING_X = MIN_SIBLING_GAP;
+
+  // Build SVG
+  let html = '';
+
+  // Draw connectors first (behind nodes)
+  visible.forEach(node => {
+    if (!node.parent || !visibleIds.has(node.parent)) return;
+    const pp = positions[node.parent];
+    const cp = positions[node.id];
+    if (pp === undefined || cp === undefined) return;
+
+    const x1 = 100 + pp.x * SPACING_X;
+    const y1 = 80 + pp.y * LAYER_GAP_Y + NODE_R;
+    const x2 = 100 + cp.x * SPACING_X;
+    const y2 = 80 + cp.y * LAYER_GAP_Y - NODE_R;
+
+    const midY = (y1 + y2) / 2;
+    const d = `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`;
+    html += `<path class="connector" d="${d}"/>`;
+  });
+
+  // Draw nodes
+  visible.forEach(node => {
+    const p = positions[node.id];
+    if (p === undefined) return;
+
+    const cx = 100 + p.x * SPACING_X;
+    const cy = 80 + p.y * LAYER_GAP_Y;
+    const selected = node.id === selectedNodeId;
+    const fillColor = TYPE_FILLS[node.type] || '#666';
+    const strokeColor = TYPE_COLORS[node.type] || '#999';
+
+    html += `<g class="node-group" data-id="${node.id}" style="cursor:pointer">`;
+    // Glow ring for selected
+    if (selected) {
+      html += `<circle cx="${cx}" cy="${cy}" r="${NODE_R + 8}" fill="none" stroke="${strokeColor}" stroke-width="2" opacity="0.5"/>`;
+    }
+    // Main circle
+    html += `<circle class="node-circle type-${node.type}${selected ? ' selected' : ''}"
+      cx="${cx}" cy="${cy}" r="${NODE_R}"
+      fill="${fillColor}" stroke="${strokeColor}" stroke-width="2"
+      data-id="${node.id}"/>`;
+    // Outcome icon inside circle
+    html += `<text class="node-label-outcome" x="${cx}" y="${cy}">${OUTCOME_ICONS[node.outcome]}</text>`;
+    // Title below
+    const shortTitle = node.title.length > 22 ? node.title.substring(0, 22) + '...' : node.title;
+    html += `<text class="node-label" x="${cx}" y="${cy + NODE_R + 16}">${shortTitle}</text>`;
+    // Date below title
+    html += `<text class="node-label-date" x="${cx}" y="${cy + NODE_R + 30}">${node.date}</text>`;
+    html += `</g>`;
+  });
+
+  svg.setAttribute('width', svgW);
+  svg.setAttribute('height', svgH);
+  svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
+  svg.innerHTML = html;
+
+  // Apply current transform
+  applyTransform();
+
+  // Rebind click events on nodes
+  svg.querySelectorAll('.node-group').forEach(g => {
+    g.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = g.dataset.id;
+      if (id) selectNode(id);
+    });
+    g.addEventListener('mouseenter', (e) => {
+      const id = g.dataset.id;
+      const node = treeData.nodes.find(n => n.id === id);
+      if (!node) return;
+      const tip = document.getElementById('tooltip');
+      tip.innerHTML = `<div class="tt-title">${node.title}</div><div class="tt-summary">${node.summary || ''}</div>`;
+      tip.classList.add('show');
+    });
+    g.addEventListener('mousemove', (e) => {
+      const tip = document.getElementById('tooltip');
+      tip.style.left = (e.clientX + 16) + 'px';
+      tip.style.top = (e.clientY + 12) + 'px';
+    });
+    g.addEventListener('mouseleave', () => {
+      document.getElementById('tooltip').classList.remove('show');
+    });
+  });
+
+  document.getElementById('zoom-hint').textContent =
+    (scale * 100).toFixed(0) + '%';
+}
+
+function applyTransform() {
+  const svg = document.getElementById('tree-svg');
+  svg.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+  svg.style.transformOrigin = '0 0';
+}
+
+function setupPanZoom() {
+  const wrap = document.getElementById('canvas-wrap');
+
+  wrap.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const rect = wrap.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    const factor = e.deltaY < 0 ? 1.1 : 0.9;
+    const newScale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, scale * factor));
+
+    // Zoom toward cursor position
+    tx = mx - (mx - tx) * (newScale / scale);
+    ty = my - (my - ty) * (newScale / scale);
+    scale = newScale;
+
+    applyTransform();
+    document.getElementById('zoom-hint').textContent = (scale * 100).toFixed(0) + '%';
+  }, { passive: false });
+
+  wrap.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.node-group')) return;
+    dragging = true;
+    dragX = e.clientX - tx;
+    dragY = e.clientY - ty;
+    wrap.classList.add('panning');
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    tx = e.clientX - dragX;
+    ty = e.clientY - dragY;
+    applyTransform();
+  });
+
+  window.addEventListener('mouseup', () => {
+    dragging = false;
+    document.getElementById('canvas-wrap').classList.remove('panning');
+  });
+
+  // Touch support
+  let lastDist = 0;
+  wrap.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      dragging = true;
+      dragX = e.touches[0].clientX - tx;
+      dragY = e.touches[0].clientY - ty;
+    } else if (e.touches.length === 2) {
+      dragging = false;
+      lastDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    }
+  }, { passive: false });
+
+  wrap.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (e.touches.length === 1 && dragging) {
+      tx = e.touches[0].clientX - dragX;
+      ty = e.touches[0].clientY - dragY;
+      applyTransform();
+    } else if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      if (lastDist > 0) {
+        const factor = dist / lastDist;
+        const newScale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, scale * factor));
+        const rect = wrap.getBoundingClientRect();
+        const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+        const my = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+        tx = mx - (mx - tx) * (newScale / scale);
+        ty = my - (my - ty) * (newScale / scale);
+        scale = newScale;
+        applyTransform();
+      }
+      lastDist = dist;
+    }
+  }, { passive: false });
+
+  wrap.addEventListener('touchend', () => { dragging = false; lastDist = 0; });
+}
+
+async function selectNode(id) {
+  selectedNodeId = id;
+  renderTree();
+  const node = treeData.nodes.find(n => n.id === id);
+  if (!node) return;
+  const panel = document.getElementById('detail-panel');
+  panel.innerHTML = '<div class="detail-loading">Loading...</div>';
+  try {
+    const resp = await fetch('nodes/' + id + '.md');
+    if (!resp.ok) throw new Error('Not found');
+    const md = await resp.text();
+    panel.innerHTML = renderMarkdown(md, node);
+  } catch(e) {
+    panel.innerHTML = '<div class="detail-content"><h1>' + node.title + '</h1><p>' + (node.summary || 'No details available.') + '</p></div>';
+  }
+}
+
+function renderMarkdown(md, node) {
+  let html = md;
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  html = html.replace(/\n\n/g, '</p><p>');
+  html = '<p>' + html + '</p>';
+  html = html.replace(/<p><h([123])>/g, '<h$1>');
+  html = html.replace(/<\/h([123])><\/p>/g, '</h$1>');
+  html = html.replace(/<\/ul><p>/g, '</ul>');
+  html = html.replace(/<p><ul>/g, '<ul>');
+  html = html.replace(/<p><\/p>/g, '');
+  return '<div class="detail-content">' + html + '</div>';
+}
+
+init();
+</script>
+</body>
+</html>

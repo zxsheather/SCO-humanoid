@@ -1,0 +1,281 @@
+{
+  "extracted": "2026-05-24T12:39:30.767524",
+  "repository": "/home/zhuoxiang/SCO-humanoid",
+  "tags": [],
+  "mergeCommits": [
+    {
+      "hash": "e6ceb705",
+      "date": "2026-05-22",
+      "author": "Xiang Zhuo",
+      "subject": "Merge pull request #32 from zxsheather/docs/freeze-mainline-wording-sync"
+    },
+    {
+      "hash": "dd3a2360",
+      "date": "2026-05-22",
+      "author": "Xiang Zhuo",
+      "subject": "Merge pull request #30 from zxsheather/explore/behavior-smoothness-metric-diagnostic"
+    },
+    {
+      "hash": "d38c4ae6",
+      "date": "2026-05-22",
+      "author": "Xiang Zhuo",
+      "subject": "Merge pull request #28 from zxsheather/explore/objective-mismatch-diagnostic-pr"
+    },
+    {
+      "hash": "f05cd4bb",
+      "date": "2026-05-22",
+      "author": "Xiang Zhuo",
+      "subject": "Merge pull request #31 from zxsheather/backport/resolve-run-dir-log-path-fix"
+    }
+  ],
+  "largeCommits": [
+    {
+      "hash": "9af3e25d",
+      "date": "2026-05-22",
+      "author": "zxsheather",
+      "subject": "Forward trace smoothness metrics through checkpoint sweep",
+      "filesChanged": 3,
+      "linesChanged": 384
+    },
+    {
+      "hash": "88981083",
+      "date": "2026-05-22",
+      "author": "zxsheather",
+      "subject": "Add trace-based behavior smoothness metric scaffold",
+      "filesChanged": 4,
+      "linesChanged": 408
+    },
+    {
+      "hash": "6720d420",
+      "date": "2026-05-22",
+      "author": "zxsheather",
+      "subject": "Add objective mismatch checkpoint instrumentation",
+      "filesChanged": 4,
+      "linesChanged": 393
+    },
+    {
+      "hash": "1cf0f27f",
+      "date": "2026-05-21",
+      "author": "zxsheather",
+      "subject": "Update docs for completed research freeze",
+      "filesChanged": 11,
+      "linesChanged": 145
+    },
+    {
+      "hash": "1541893f",
+      "date": "2026-05-21",
+      "author": "zxsheather",
+      "subject": "Freeze internal research delivery package",
+      "filesChanged": 13,
+      "linesChanged": 767
+    },
+    {
+      "hash": "27218dd4",
+      "date": "2026-05-21",
+      "author": "zxsheather",
+      "subject": "Record random stairs stress test outcome",
+      "filesChanged": 7,
+      "linesChanged": 718
+    },
+    {
+      "hash": "1d2c96d1",
+      "date": "2026-05-21",
+      "author": "zxsheather",
+      "subject": "Add random stairs stress test runner",
+      "filesChanged": 10,
+      "linesChanged": 849
+    },
+    {
+      "hash": "9770746a",
+      "date": "2026-05-21",
+      "author": "zxsheather",
+      "subject": "Record first-hidden SN diagnostic",
+      "filesChanged": 10,
+      "linesChanged": 219
+    },
+    {
+      "hash": "0a34a725",
+      "date": "2026-05-21",
+      "author": "zxsheather",
+      "subject": "Add hidden-only SN diagnostic",
+      "filesChanged": 10,
+      "linesChanged": 265
+    },
+    {
+      "hash": "523c5de1",
+      "date": "2026-05-21",
+      "author": "zxsheather",
+      "subject": "Record SN reduced-budget diagnostics",
+      "filesChanged": 10,
+      "linesChanged": 284
+    },
+    {
+      "hash": "51e01313",
+      "date": "2026-05-21",
+      "author": "zxsheather",
+      "subject": "Add SN replacement diagnostic runner",
+      "filesChanged": 9,
+      "linesChanged": 524
+    },
+    {
+      "hash": "f9c5211d",
+      "date": "2026-05-21",
+      "author": "zxsheather",
+      "subject": "Close PID limited ablation branch",
+      "filesChanged": 11,
+      "linesChanged": 304
+    },
+    {
+      "hash": "f64b4c6f",
+      "date": "2026-05-21",
+      "author": "zxsheather",
+      "subject": "Freeze aligned MuJoCo SC-PPO evidence",
+      "filesChanged": 23,
+      "linesChanged": 1917
+    },
+    {
+      "hash": "f7007dc3",
+      "date": "2026-05-20",
+      "author": "zxsheather",
+      "subject": "Repair baseline formal-compare workflow",
+      "filesChanged": 24,
+      "linesChanged": 3067
+    },
+    {
+      "hash": "dfcdbb56",
+      "date": "2026-05-18",
+      "author": "zxsheather",
+      "subject": "Prototype SN diagnostic path for SC-PPO",
+      "filesChanged": 7,
+      "linesChanged": 637
+    },
+    {
+      "hash": "12a69de9",
+      "date": "2026-05-18",
+      "author": "zxsheather",
+      "subject": "Document next-step SC-PPO direction",
+      "filesChanged": 6,
+      "linesChanged": 340
+    },
+    {
+      "hash": "32e99359",
+      "date": "2026-05-15",
+      "author": "zxsheather",
+      "subject": "Finalize SC-PPO report draft and add report figures",
+      "filesChanged": 19,
+      "linesChanged": 2108
+    },
+    {
+      "hash": "8e25a889",
+      "date": "2026-05-15",
+      "author": "zxsheather",
+      "subject": "Add SC-PPO constraint sampling probes",
+      "filesChanged": 5,
+      "linesChanged": 268
+    },
+    {
+      "hash": "b8b18d89",
+      "date": "2026-05-15",
+      "author": "zxsheather",
+      "subject": "Add MuJoCo terrain repair-stage profile",
+      "filesChanged": 5,
+      "linesChanged": 217
+    },
+    {
+      "hash": "fc1e4e92",
+      "date": "2026-05-15",
+      "author": "zxsheather",
+      "subject": "Repair MuJoCo terrain protocol semantics",
+      "filesChanged": 5,
+      "linesChanged": 233
+    },
+    {
+      "hash": "6ab3a3b3",
+      "date": "2026-05-15",
+      "author": "zxsheather",
+      "subject": "Add MuJoCo sim2sim evaluator and freeze current transfer results",
+      "filesChanged": 4,
+      "linesChanged": 712
+    },
+    {
+      "hash": "2ab8849e",
+      "date": "2026-05-14",
+      "author": "zxsheather",
+      "subject": "Document multi-seed repaired PID mainline results",
+      "filesChanged": 2,
+      "linesChanged": 211
+    },
+    {
+      "hash": "3ce82461",
+      "date": "2026-05-14",
+      "author": "zxsheather",
+      "subject": "Repair PID constraint updates and add replay tooling",
+      "filesChanged": 4,
+      "linesChanged": 331
+    },
+    {
+      "hash": "74bf1176",
+      "date": "2026-05-14",
+      "author": "zxsheather",
+      "subject": "Add SC-PPO constraint diagnostics and dual probe configs",
+      "filesChanged": 14,
+      "linesChanged": 1319
+    },
+    {
+      "hash": "ce04e5eb",
+      "date": "2026-05-14",
+      "author": "zxsheather",
+      "subject": "Integrate SC-PPO constraint training",
+      "filesChanged": 9,
+      "linesChanged": 1112
+    },
+    {
+      "hash": "a3ed146b",
+      "date": "2026-05-14",
+      "author": "zxsheather",
+      "subject": "Add bounded heuristic baseline sweep",
+      "filesChanged": 7,
+      "linesChanged": 592
+    },
+    {
+      "hash": "56bc2747",
+      "date": "2026-05-14",
+      "author": "zxsheather",
+      "subject": "Split vanilla PPO and heuristic baseline configs",
+      "filesChanged": 10,
+      "linesChanged": 359
+    },
+    {
+      "hash": "830fb017",
+      "date": "2026-05-14",
+      "author": "zxsheather",
+      "subject": "Standardize smooth-control evaluation metrics",
+      "filesChanged": 7,
+      "linesChanged": 328
+    },
+    {
+      "hash": "7770016c",
+      "date": "2026-05-14",
+      "author": "zxsheather",
+      "subject": "Add Vanilla PPO baseline scaffold",
+      "filesChanged": 10,
+      "linesChanged": 852
+    },
+    {
+      "hash": "f22eacc4",
+      "date": "2026-05-14",
+      "author": "zxsheather",
+      "subject": "initial commit",
+      "filesChanged": 7,
+      "linesChanged": 760
+    }
+  ],
+  "revertCommits": [],
+  "monthlyCommitCounts": {
+    "2026-05": 58
+  },
+  "contributors": {
+    "zxsheather": 54,
+    "Xiang Zhuo": 4
+  }
+}
