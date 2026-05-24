@@ -1,7 +1,7 @@
 {
   "project": "SCO-humanoid",
   "generated": "2026-05-24",
-  "description": "A short, high-intensity research history: from Vanilla PPO and shared metrics, through SC-PPO mainline closure and protocol repair, into a frozen archival branch with post-freeze diagnostics and architecture probes.",
+  "description": "A curated project-wide research history: key commits, issue-tracked decisions, merged backports, and major post-freeze exploration lines. It is not a strict git DAG and it is not an exhaustive list of every transient helper branch.",
   "nodes": [
     {
       "id": "repo-bootstrap",
@@ -124,14 +124,74 @@
       "summary": "After mainline closure, MuJoCo alignment, PID ablation, SN diagnostics, and stairs failure, `main` was frozen as an archival research handoff branch."
     },
     {
+      "id": "random-stairs-protocol-repair",
+      "title": "Random-Stairs Protocol Repair Family",
+      "date": "2026-05-21",
+      "type": "experiment",
+      "outcome": "failure",
+      "tags": ["random-stairs", "protocol-repair", "terrain-side"],
+      "parent": "research-delivery-freeze",
+      "summary": "A post-freeze family of five bounded random-stairs repair lines, from composition moderation to decoupled stair-band rewriting, still ended in universal collapse and closed the small-repair reading."
+    },
+    {
+      "id": "structured-stairs-redesign",
+      "title": "Structured-Stairs Redesign",
+      "date": "2026-05-21",
+      "type": "experiment",
+      "outcome": "failure",
+      "tags": ["random-stairs", "terrain-redesign", "structured-stairs"],
+      "parent": "random-stairs-protocol-repair",
+      "summary": "The first topology-level random-stairs redesign replaced pyramid stairs with a bounded structured staircase, but the full 3-seed selected-checkpoint run still collapsed for every method."
+    },
+    {
+      "id": "stair-gate-redesign",
+      "title": "Stair-Gate Redesign",
+      "date": "2026-05-21",
+      "type": "experiment",
+      "outcome": "failure",
+      "tags": ["random-stairs", "terrain-redesign", "stair-gate"],
+      "parent": "structured-stairs-redesign",
+      "summary": "A second, more aggressive stair-gate redesign returned the robot to flat ground after a bounded obstacle, but even that semantic change did not move any selected checkpoint out of full collapse."
+    },
+    {
+      "id": "anisotropic-constraint-diagnostic",
+      "title": "Anisotropic Constraint Diagnostic",
+      "date": "2026-05-22",
+      "type": "experiment",
+      "outcome": "failure",
+      "tags": ["anisotropic-constraint", "constraint-shape", "negative"],
+      "parent": "research-delivery-freeze",
+      "summary": "A bounded post-freeze anisotropic local-sensitivity branch repaired its own reporting loophole but still ended task-invalid, closing the shape-only repair direction and directly motivating objective-mismatch diagnosis."
+    },
+    {
       "id": "objective-mismatch-diagnostic",
       "title": "Objective Mismatch Diagnostic",
       "date": "2026-05-22",
       "type": "experiment",
       "outcome": "mixed",
       "tags": ["post-freeze", "diagnostic", "alignment"],
-      "parent": "research-delivery-freeze",
+      "parent": "anisotropic-constraint-diagnostic",
       "summary": "Post-freeze instrumentation showed a repeatable tension: higher local-sensitivity cost often co-traveled with better task validity but rougher behavior."
+    },
+    {
+      "id": "action-rate-constraint-diagnostic",
+      "title": "Action-Rate Constraint Diagnostic",
+      "date": "2026-05-22",
+      "type": "experiment",
+      "outcome": "failure",
+      "tags": ["action-rate", "objective-side", "negative"],
+      "parent": "objective-mismatch-diagnostic",
+      "summary": "A bounded action-rate-constrained SC-PPO branch first exposed threshold scale mismatch, then still collapsed after one calibrated follow-up, closing this objective-side replacement as another negative diagnostic."
+    },
+    {
+      "id": "sn-task-stabilized-diagnostic",
+      "title": "SN Task-Stabilized Diagnostic",
+      "date": "2026-05-22",
+      "type": "experiment",
+      "outcome": "failure",
+      "tags": ["spectral-normalization", "task-stabilized", "negative"],
+      "parent": "research-delivery-freeze",
+      "summary": "A first-hidden-layer spectral-normalization stabilizer was layered onto task-valid SC-PPO 3.8, but the bounded single-seed feasibility run still remained fully collapsed and was closed without 3-seed promotion."
     },
     {
       "id": "behavior-trace-metrics",
@@ -144,13 +204,23 @@
       "summary": "Trace capture added LDLJ/SPARC-like metrics and showed independent smoothness signals can complicate, not simply confirm, the existing local-sensitivity story."
     },
     {
+      "id": "action-scaling-line",
+      "title": "Action-Side Scaling Line",
+      "date": "2026-05-23",
+      "type": "experiment",
+      "outcome": "failure",
+      "tags": ["replacement-line", "action-scaling", "non-architectural"],
+      "parent": "action-rate-constraint-diagnostic",
+      "summary": "A same-question action-side scaling replacement was closed negative under the canonical rough-terrain entry, so the repo moved on to a cleaner output-side variant instead of reopening nearby scaling schedules."
+    },
+    {
       "id": "output-scaling-line",
       "title": "Output-Side Scaling Line",
       "date": "2026-05-23",
       "type": "experiment",
       "outcome": "failure",
-      "tags": ["architecture-line", "output-scaling", "replacement"],
-      "parent": "research-delivery-freeze",
+      "tags": ["replacement-line", "output-scaling", "non-architectural"],
+      "parent": "action-scaling-line",
       "summary": "A clean output-side scaling replacement line was opened after action-side scaling failed, but the canonical 3-seed run still missed the shared entry gate."
     },
     {

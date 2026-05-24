@@ -1,6 +1,7 @@
 {
   "extracted": "2026-05-24T12:39:30.767524",
   "repository": "/home/zhuoxiang/SCO-humanoid",
+  "scope": "Partial raw extraction from reachable git commits. The rendered history tree is a curated project-wide view and may also summarize issue-tracked or local exploration lines that are not represented one-to-one in this file.",
   "tags": [],
   "mergeCommits": [
     {

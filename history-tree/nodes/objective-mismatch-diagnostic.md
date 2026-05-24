@@ -30,4 +30,6 @@ Issue [`#19`](https://github.com/zxsheather/SCO-humanoid/issues/19) opens after 
 
 - This branch did not create a new method line.
 - It did sharpen the next question, which led directly to [behavior-trace-metrics](../nodes/behavior-trace-metrics.md).
-- It also gave the repo a stronger justification for post-freeze architecture experiments rather than tiny threshold tweaks.
+- It also fed two different post-freeze follow-up families:
+  - [action-rate-constraint-diagnostic](../nodes/action-rate-constraint-diagnostic.md)
+  - later non-architectural replacement lines beginning with [action-scaling-line](../nodes/action-scaling-line.md)

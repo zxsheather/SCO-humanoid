@@ -31,5 +31,7 @@ The Spectral Normalization line starts with issue [`#11`](https://github.com/zxs
 ## Results and Impact
 
 - The current SN-only path was closed.
-- Future SN work was pushed into a different "task-stabilized recipe" direction rather than more blind toggles.
+- Future SN work was pushed into a different
+  [sn-task-stabilized-diagnostic](../nodes/sn-task-stabilized-diagnostic.md) direction rather than
+  more blind toggles.
 - The next bounded follow-up on `main` became [random-stairs-transfer-failure](../nodes/random-stairs-transfer-failure.md), not more SN retries.

@@ -3,7 +3,7 @@
 - **Date**: 2026-05-23
 - **Type**: experiment
 - **Outcome**: failure
-- **Tags**: architecture-line, output-scaling, replacement
+- **Tags**: replacement-line, output-scaling, non-architectural
 
 ## Timeline and Background
 
@@ -23,9 +23,7 @@ Issue [`#33`](https://github.com/zxsheather/SCO-humanoid/issues/33) opens after 
 ## Decision Process
 
 - The repo treated this as a clean same-question failure, not as proof that nearby output-scale schedules should be reopened immediately.
-- Branch nuance:
-  - the local branch name `output-scaling-line` now points at `main`
-  - the durable historical record is therefore mostly in issue `#33` and the later umbrella probe branch commit `82d6032`
+- The durable public record is issue `#33` plus its artifact pointer, not a claim that the output-side family should stay warm for near-term neighborhood retry.
 
 ## Results and Impact
 

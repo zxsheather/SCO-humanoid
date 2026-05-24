@@ -26,5 +26,7 @@ Issue [`#7`](https://github.com/zxsheather/SCO-humanoid/issues/7) asked whether 
 ## Results and Impact
 
 - The current stairs-only protocol was closed negative on `main`.
-- Any moderated or repaired stairs protocol was deferred to separate post-freeze work rather than folded back into the frozen package.
+- Any moderated or repaired stairs protocol was deferred to separate
+  [random-stairs-protocol-repair](../nodes/random-stairs-protocol-repair.md) work rather than
+  folded back into the frozen package.
 - This node is one of the explicit prerequisites later cited in [research-delivery-freeze](../nodes/research-delivery-freeze.md).

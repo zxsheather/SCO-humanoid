@@ -37,6 +37,5 @@ Issue [`#35`](https://github.com/zxsheather/SCO-humanoid/issues/35) opens immedi
 
 - This is the only open issue in the current history tree.
 - It marks the current frontier of post-freeze architecture exploration.
-- Branch nuance:
-  - there is no separate current local `layernorm` branch ref
-  - the surviving code evidence appears bundled into local branch tip `82d6032` on `orthogonal-actor-line`
+- The stable public record is issue `#35` plus its formal-summary artifact and bounded `0.75`
+  repair follow-up.

@@ -13,6 +13,7 @@ a:hover { text-decoration: underline; }
 .header { background: #161b22; border-bottom: 1px solid #30363d; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
 .header h1 { font-size: 18px; font-weight: 600; }
 .header .subtitle { font-size: 12px; color: #8b949e; }
+.header .scope-note { font-size: 11px; color: #6e7681; margin-top: 4px; max-width: 900px; }
 
 .toolbar { display: flex; gap: 8px; padding: 8px 24px; background: #0d1117; border-bottom: 1px solid #21262d; flex-wrap: wrap; align-items: center; }
 .toolbar input[type="text"] { background: #21262d; border: 1px solid #30363d; border-radius: 6px; padding: 5px 10px; color: #c9d1d9; font-size: 12px; width: 180px; outline: none; }
@@ -82,6 +83,7 @@ svg { display: block; }
   <div>
     <h1>SCO-humanoid &mdash; Project History Tree</h1>
     <div class="subtitle">Scroll to zoom &middot; Drag to pan &middot; Click a node to see details</div>
+    <div class="scope-note">Curated project-wide tree: major commits, issue-tracked decisions, merged backports, and decision-changing exploration lines. Not a strict git DAG and not an exhaustive list of every transient helper branch.</div>
   </div>
 </div>
 <div class="toolbar" id="toolbar">
@@ -99,7 +101,7 @@ svg { display: block; }
     <div class="zoom-hint" id="zoom-hint"></div>
   </div>
   <div class="detail-panel" id="detail-panel">
-    <div class="detail-empty">Select a node from the tree to view its details.</div>
+    <div class="detail-empty">Select a node from the tree to view its details. This view is a curated project history, not a strict commit-only graph.</div>
   </div>
 </div>
 <div class="tooltip" id="tooltip"></div>

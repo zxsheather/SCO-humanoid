@@ -15,10 +15,7 @@ Issue [`#34`](https://github.com/zxsheather/SCO-humanoid/issues/34) is the repo'
   - canonical orthogonal low-gain actor probe with `output_gain = 0.50`
   - gain-isolation follow-up with `output_gain = 1.00`
 - Both remained collapsed with `fall_rate = 1.0`.
-- Branch detail from git:
-  - local branch `orthogonal-actor-line` is the only branch ahead of `main`
-  - tip commit [`82d6032`](https://github.com/zxsheather/SCO-humanoid/commit/82d6032) touches 36 files and is broader than the branch name suggests
-  - it bundles formal probe infrastructure for action scaling, output scaling, orthogonal actor, and LayerNorm actor
+- The stable public record of closure is the issue `#34` comment thread plus the two artifact summaries it cites.
 
 ## Decision Process
 
