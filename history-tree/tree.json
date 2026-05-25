@@ -398,6 +398,66 @@
       ],
       "parent": "layernorm-reliability-probes",
       "summary": "ScaledLinear.forward was changed from super().forward() to F.linear() to resolve torch.jit.script compatibility, enabling MuJoCo export for all replacement-mechanism models that use scaled output layers."
+    },
+    {
+      "id": "action-scaling-mujoco-replay",
+      "title": "Action Scaling MuJoCo Replay",
+      "date": "2026-05-25",
+      "type": "experiment",
+      "outcome": "failure",
+      "tags": [
+        "mujoco",
+        "cross-engine",
+        "action-scaling",
+        "collapse"
+      ],
+      "parent": "action-scaling-line",
+      "summary": "MuJoCo isaac_mainline replay: all three seeds collapsed (fall=1.0), joint_acceleration 12.7x worse than Isaac (1836 vs 144), action_jitter 8.3. Extreme cross-engine smoothness degradation."
+    },
+    {
+      "id": "output-scaling-mujoco-replay",
+      "title": "Output Scaling MuJoCo Replay",
+      "date": "2026-05-25",
+      "type": "experiment",
+      "outcome": "failure",
+      "tags": [
+        "mujoco",
+        "cross-engine",
+        "output-scaling",
+        "collapse"
+      ],
+      "parent": "output-scaling-line",
+      "summary": "MuJoCo isaac_mainline replay: all three seeds collapsed (fall=1.0), joint_acceleration 4.1x worse than Isaac (500 vs 121)."
+    },
+    {
+      "id": "cross-engine-degradation-table",
+      "title": "Cross-Engine Degradation Analysis",
+      "date": "2026-05-25",
+      "type": "analysis",
+      "outcome": "success",
+      "tags": [
+        "cross-engine",
+        "degradation",
+        "paper",
+        "signature-figure"
+      ],
+      "parent": "layernorm-mujoco-replay",
+      "summary": "Complete cross-engine degradation table across 5 methods: SC-PPO (1.08x), heuristic (1.01x), LayerNorm (3.5x), Action Scaling (12.7x), Output Scaling (4.1x). Jacobian constraint and heuristic penalty are the only mechanisms that preserve smoothness across engines."
+    },
+    {
+      "id": "sensitivity-causal-chain",
+      "title": "Jacobian Sensitivity Causal Chain",
+      "date": "2026-05-25",
+      "type": "analysis",
+      "outcome": "success",
+      "tags": [
+        "sensitivity",
+        "causal-chain",
+        "checkpoint-sweep",
+        "paper"
+      ],
+      "parent": "cross-engine-degradation-table",
+      "summary": "Checkpoint-sweep analysis reveals LayerNorm needs 3x higher Jacobian sensitivity (10.7 vs 3.6) to achieve task stability, directly explaining the 3.5x MuJoCo degradation. SC-PPO's PID-Lagrangian keeps sensitivity at 3.6 throughout training."
     }
   ]
 }

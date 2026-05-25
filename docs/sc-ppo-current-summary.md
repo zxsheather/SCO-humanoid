@@ -130,5 +130,6 @@ The first #7 stairs-only selected-checkpoint stress test is now complete:
 - [SC-PPO PID-limited ablation](./sc-ppo-pid-limited-ablation.md)
 - [SC-PPO SN feasibility diagnostic](./sc-ppo-sn-feasibility-diagnostic.md)
 - [Random-stairs selected-checkpoint stress test](./random-stairs-selected-checkpoint-stress.md)
+- [Cross-engine smoothness degradation analysis](./sc-ppo-cross-engine-degradation.md)
 - [Final research delivery checklist](./reproduction/final-research-delivery-checklist.md)
 - [ADR 0001: freeze research delivery before new protocol repair](./adr/0001-freeze-research-delivery-before-new-protocol-repair.md)
