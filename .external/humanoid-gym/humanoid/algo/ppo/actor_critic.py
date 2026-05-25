@@ -31,6 +31,7 @@
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.distributions import Normal
 from torch.nn.utils import parametrizations, spectral_norm
 
@@ -41,10 +42,7 @@ class ScaledLinear(nn.Linear):
         self.output_scale = float(output_scale)
 
     def forward(self, input):
-        output = super().forward(input)
-        if self.output_scale == 1.0:
-            return output
-        return output * self.output_scale
+        return F.linear(input, self.weight, self.bias) * self.output_scale
 
 
 class ActorCritic(nn.Module):
