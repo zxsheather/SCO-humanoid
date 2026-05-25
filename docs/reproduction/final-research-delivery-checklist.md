@@ -80,11 +80,13 @@ $PYTHON_BIN -m unittest \
   tests.test_baseline_common \
   tests.test_behavior_trace_metrics \
   tests.test_checkpoint_sweep_recovery \
+  tests.test_formal_comparison_runner \
   tests.test_baseline_protocol_failfast
 ```
 
-These targeted tests cover the shared `load_run` resolution fix plus the merged objective-mismatch
-and behavior-smoothness checkpoint diagnostics now carried on `main`.
+These targeted tests cover the shared `load_run` resolution fix, repo-root config-path resolution
+for the formal comparison wrapper, plus the merged objective-mismatch and behavior-smoothness
+checkpoint diagnostics now carried on `main`.
 
 ## Bounded Post-Freeze Diagnostic Backports on `main`
 

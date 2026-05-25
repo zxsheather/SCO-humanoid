@@ -107,6 +107,7 @@ $PYTHON_BIN -m unittest \
   tests.test_baseline_common \
   tests.test_behavior_trace_metrics \
   tests.test_checkpoint_sweep_recovery \
+  tests.test_formal_comparison_runner \
   tests.test_baseline_protocol_failfast
 git diff --check
 ```
@@ -260,6 +261,8 @@ env -u DISPLAY CUDA_VISIBLE_DEVICES=1 \
 The wrapper now:
 
 - resolves real `run_dir` paths from manifests when needed
+- resolves repo-relative `configs/...json` paths against the repo root, so train/evaluate wrappers
+  do not depend on the caller's current working directory
 - tolerates the common Isaac/X11 cleanup case where artifacts are written before a non-zero exit
   code on process teardown
 
