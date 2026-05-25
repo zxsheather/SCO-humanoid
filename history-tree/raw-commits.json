@@ -1,5 +1,5 @@
 {
-  "extracted": "2026-05-25T14:07:12.758915",
+  "extracted": "2026-05-25T15:26:28.222116",
   "repository": "/home/zhuoxiang/SCO-humanoid",
   "scope": "Partial raw extraction from reachable git commits. The rendered history tree is a curated project-wide view and may also summarize issue-tracked or local exploration lines that are not represented one-to-one in this file.",
   "tags": [],
@@ -317,6 +317,14 @@
       "subject": "Fix ScaledLinear TorchScript export and record MuJoCo cross-engine replay",
       "filesChanged": 2,
       "linesChanged": 10
+    },
+    {
+      "hash": "b238f2a",
+      "date": "2026-05-25",
+      "author": "zxsheather",
+      "subject": "Add cross-engine smoothness robustness glossary terms",
+      "filesChanged": 1,
+      "linesChanged": 9
     }
   ],
   "revertCommits": [],

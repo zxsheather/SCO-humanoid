@@ -239,6 +239,13 @@ class XBotLCfgPPO(LeggedRobotCfgPPO):
         actor_spectral_norm_output_layer = True
         actor_spectral_norm_layer_scope = "all"
         actor_spectral_norm_coeff = 1.0
+        actor_orthogonal_parametrization = False
+        actor_orthogonal_output_layer = True
+        actor_orthogonal_layer_scope = "all"
+        actor_layer_norm = False
+        actor_layer_norm_output_layer = False
+        actor_layer_norm_layer_scope = "hidden"
+        actor_output_gain = 1.0
 
     class algorithm(LeggedRobotCfgPPO.algorithm):
         entropy_coef = 0.001

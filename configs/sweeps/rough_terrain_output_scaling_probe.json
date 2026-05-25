@@ -1,0 +1,16 @@
+{
+  "name": "rough_terrain_output_scaling_probe",
+  "analysis_root": "artifacts/analysis/rough_terrain_output_scaling_probe",
+  "seeds": [11, 17, 23],
+  "train_num_envs": 512,
+  "eval_num_envs": 32,
+  "max_iterations": 400,
+  "episodes": 20,
+  "candidates": [
+    {
+      "id": "output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp",
+      "label": "Output-scaling PPO probe (threshold=3.8, quantile=0.90, PID lower-bound clamp)",
+      "config": "configs/methods/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp.json"
+    }
+  ]
+}

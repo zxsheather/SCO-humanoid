@@ -1,0 +1,16 @@
+{
+  "name": "rough_terrain_orthogonal_actor_probe",
+  "analysis_root": "artifacts/analysis/rough_terrain_orthogonal_actor_probe",
+  "seeds": [11, 17, 23],
+  "train_num_envs": 512,
+  "eval_num_envs": 32,
+  "max_iterations": 400,
+  "episodes": 20,
+  "candidates": [
+    {
+      "id": "orthogonal_actor_output_gain_0500_formal_probe",
+      "label": "Orthogonal low-gain actor PPO probe (all actor layers orthogonal, output_gain=0.50)",
+      "config": "configs/methods/orthogonal_actor_output_gain_0500_formal_probe.json"
+    }
+  ]
+}

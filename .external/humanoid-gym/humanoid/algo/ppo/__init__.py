@@ -32,6 +32,8 @@
 
 from .ppo import PPO
 from .sc_ppo import SCPPO
+from .action_scaling_ppo import ActionScalingPPO
+from .output_scaling_ppo import OutputScalingPPO
 from .on_policy_runner import OnPolicyRunner
 from .actor_critic import ActorCritic
 from .rollout_storage import RolloutStorage

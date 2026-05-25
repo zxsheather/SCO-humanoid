@@ -26,6 +26,22 @@ Tracked freeze summary:
 
 - `artifacts/analysis/final_research_delivery_freeze/summary.json`
 
+## Main-Branch Posture
+
+`main` is now a `冻结主档案分支`.
+
+Allowed bounded backports on `main`:
+
+- `冻结边界章节` updates that refine freeze-boundary wording without reopening the main narrative
+- reusable evaluation or diagnostic infrastructure that strengthens artifact interpretation across
+  completed lines
+
+Disallowed on `main`:
+
+- rerunning training or replay to generate new evidence
+- backporting mechanism-specific negative branches as if they were part of the frozen mainline
+- reopening moderated stairs, SN recipe redesign, or new algorithm lines inside the frozen package
+
 ## Freeze Validation
 
 Use the project Python environment:
@@ -56,6 +72,43 @@ git diff --check
 
 These checks validate environment wiring, unit-level experiment utilities, JSON parseability, and
 patch hygiene. They do not validate new scientific evidence.
+
+Minimal targeted regression for the post-freeze reusable backports:
+
+```bash
+$PYTHON_BIN -m unittest \
+  tests.test_baseline_common \
+  tests.test_behavior_trace_metrics \
+  tests.test_checkpoint_sweep_recovery \
+  tests.test_formal_comparison_runner \
+  tests.test_baseline_protocol_failfast
+```
+
+These targeted tests cover the shared `load_run` resolution fix, repo-root config-path resolution
+for the formal comparison wrapper, plus the merged objective-mismatch and behavior-smoothness
+checkpoint diagnostics now carried on `main`.
+
+## Bounded Post-Freeze Diagnostic Backports on `main`
+
+These merged diagnostics are part of the current frozen package as reusable evaluation or
+diagnostic infrastructure, not as a reopened algorithm mainline:
+
+- `objective mismatch diagnostic`:
+  - canonical doc: `docs/sc-ppo-objective-mismatch-diagnostic.md`
+  - canonical derived output: `checkpoint_diagnostic_alignment.json`
+  - checkpoint-sweep support: eval/train constraint ranges, correlations, and collapsed-task-floor
+    summaries
+- `behavior smoothness diagnostic`:
+  - canonical doc: `docs/sc-ppo-behavior-smoothness-metric-diagnostic.md`
+  - canonical derived outputs: `episode_traces_checkpoint_<N>.json`,
+    `behavior_smoothness_metrics_checkpoint_<N>.json`,
+    `behavior_smoothness_metrics_selected.json`
+  - checkpoint-sweep support: per-episode trace capture plus selected-checkpoint smoothness
+    summaries
+- `shared run-dir cleanup`:
+  - canonical support file: `scripts/baseline/_common.py`
+  - purpose: accept historical repo-relative `logs/...` style `load_run` paths under the configured
+    `Humanoid-Gym` root
 
 ## Evidence Layer 1: Isaac Rough-Terrain Mainline
 

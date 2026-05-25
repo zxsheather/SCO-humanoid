@@ -1,0 +1,57 @@
+{
+  "name": "orthogonal_actor_output_gain_0500_formal_probe_rough_terrain",
+  "method": {
+    "id": "orthogonal_actor_ppo",
+    "label": "Orthogonal low-gain actor PPO probe (all actor layers orthogonal, output_gain=0.50)",
+    "family": "replacement_method",
+    "smoothness_strategy": "orthogonal_low_gain_actor_architecture"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_orthogonal_actor_probe",
+  "run_name": "orthogonal_actor_output_gain_0500_formal_probe_rough_terrain",
+  "artifacts_root": "artifacts/methods/orthogonal_actor_probe",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "training": {
+    "headless": true,
+    "num_envs": 512,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0"
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 32,
+    "episodes": 20,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 123145,
+    "metric_schema_version": 2,
+    "constraint_logging": {
+      "collect_local_sensitivity": true,
+      "local_sensitivity_threshold": 3.8,
+      "sample_envs": 4,
+      "sample_every_n_steps": 20,
+      "sidecar_metrics_filename": "constraint_metrics.json",
+      "multiplier_trace_filename": "lagrange_multiplier_trace.json"
+    }
+  },
+  "overrides": {
+    "env": {
+      "rewards.scales.action_smoothness": 0.0,
+      "rewards.scales.dof_acc": 0.0,
+      "rewards.scales.base_acc": 0.0,
+      "rewards.scales.dof_vel": 0.0
+    },
+    "train": {
+      "runner.algorithm_class_name": "PPO",
+      "policy.actor_spectral_norm": false,
+      "policy.actor_orthogonal_parametrization": true,
+      "policy.actor_orthogonal_output_layer": true,
+      "policy.actor_orthogonal_layer_scope": "all",
+      "policy.actor_output_gain": 0.5
+    }
+  }
+}

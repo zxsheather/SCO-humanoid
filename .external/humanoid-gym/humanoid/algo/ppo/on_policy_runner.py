@@ -38,6 +38,8 @@ from collections import deque
 from datetime import datetime
 from .ppo import PPO
 from .sc_ppo import SCPPO
+from .action_scaling_ppo import ActionScalingPPO
+from .output_scaling_ppo import OutputScalingPPO
 from .actor_critic import ActorCritic
 from humanoid.algo.vec_env import VecEnv
 from torch.utils.tensorboard import SummaryWriter
@@ -297,7 +299,7 @@ class OnPolicyRunner:
 
     def load(self, path, load_optimizer=True):
         loaded_dict = torch.load(path, map_location=self.device)
-        self.alg.actor_critic.load_state_dict(loaded_dict["model_state_dict"])
+        self.alg.actor_critic.load_state_dict(loaded_dict["model_state_dict"], strict=False)
         if load_optimizer:
             self.alg.optimizer.load_state_dict(loaded_dict["optimizer_state_dict"])
         self.alg.load_extra_state_dict(loaded_dict.get("alg_extra_state_dict"))

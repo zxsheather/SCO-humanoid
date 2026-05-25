@@ -22,6 +22,8 @@ class BaselineError(RuntimeError):
 
 def load_config(config_path: str | Path | None = None) -> dict[str, Any]:
     path = Path(config_path) if config_path else DEFAULT_CONFIG
+    if not path.is_absolute():
+        path = (REPO_ROOT / path).resolve()
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
 

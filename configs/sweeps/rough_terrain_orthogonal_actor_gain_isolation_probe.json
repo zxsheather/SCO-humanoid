@@ -1,0 +1,16 @@
+{
+  "name": "rough_terrain_orthogonal_actor_gain_isolation_probe",
+  "analysis_root": "artifacts/analysis/rough_terrain_orthogonal_actor_gain_isolation_probe",
+  "seeds": [11, 17, 23],
+  "train_num_envs": 512,
+  "eval_num_envs": 32,
+  "max_iterations": 400,
+  "episodes": 20,
+  "candidates": [
+    {
+      "id": "orthogonal_actor_output_gain_1000_gain_isolation_probe",
+      "label": "Orthogonal actor PPO gain-isolation probe (all actor layers orthogonal, output_gain=1.00)",
+      "config": "configs/methods/orthogonal_actor_output_gain_1000_gain_isolation_probe.json"
+    }
+  ]
+}
