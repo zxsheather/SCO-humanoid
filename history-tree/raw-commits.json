@@ -1,5 +1,5 @@
 {
-  "extracted": "2026-05-24T12:39:30.767524",
+  "extracted": "2026-05-25T14:07:12.758915",
   "repository": "/home/zhuoxiang/SCO-humanoid",
   "scope": "Partial raw extraction from reachable git commits. The rendered history tree is a curated project-wide view and may also summarize issue-tracked or local exploration lines that are not represented one-to-one in this file.",
   "tags": [],
@@ -269,6 +269,54 @@
       "subject": "initial commit",
       "filesChanged": 7,
       "linesChanged": 760
+    },
+    {
+      "hash": "82d6032a",
+      "date": "2026-05-24",
+      "author": "zxsheather",
+      "subject": "Add replacement-mechanism formal probe suite",
+      "filesChanged": 36,
+      "linesChanged": 3172
+    },
+    {
+      "hash": "d8ccdc3",
+      "date": "2026-05-24",
+      "author": "zxsheather",
+      "subject": "Fix formal wrapper config resolution",
+      "filesChanged": 2,
+      "linesChanged": 15
+    },
+    {
+      "hash": "a7ce0e0",
+      "date": "2026-05-25",
+      "author": "zxsheather",
+      "subject": "Add layernorm reliability probe scaffold",
+      "filesChanged": 3,
+      "linesChanged": 85
+    },
+    {
+      "hash": "478a2f4",
+      "date": "2026-05-25",
+      "author": "zxsheather",
+      "subject": "Add layernorm low-noise reliability probe",
+      "filesChanged": 3,
+      "linesChanged": 84
+    },
+    {
+      "hash": "0732a4c",
+      "date": "2026-05-25",
+      "author": "zxsheather",
+      "subject": "Complete LayerNorm actor reliability challenge: 3/4 levers closed negative, epochs=3 passes Isaac internal challenge",
+      "filesChanged": 8,
+      "linesChanged": 311
+    },
+    {
+      "hash": "158aa6a",
+      "date": "2026-05-25",
+      "author": "zxsheather",
+      "subject": "Fix ScaledLinear TorchScript export and record MuJoCo cross-engine replay",
+      "filesChanged": 2,
+      "linesChanged": 10
     }
   ],
   "revertCommits": [],
