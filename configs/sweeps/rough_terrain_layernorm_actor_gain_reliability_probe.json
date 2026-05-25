@@ -1,0 +1,16 @@
+{
+  "name": "rough_terrain_layernorm_actor_gain_reliability_probe",
+  "analysis_root": "artifacts/analysis/rough_terrain_layernorm_actor_gain_reliability_probe",
+  "seeds": [11, 17, 23],
+  "train_num_envs": 512,
+  "eval_num_envs": 32,
+  "max_iterations": 400,
+  "episodes": 20,
+  "candidates": [
+    {
+      "id": "layernorm_actor_output_gain_0750_fixed_schedule_reliability_probe",
+      "label": "LayerNorm actor PPO reliability probe (hidden actor LayerNorm, output_gain=0.75, fixed PPO schedule)",
+      "config": "configs/methods/layernorm_actor_output_gain_0750_fixed_schedule_reliability_probe.json"
+    }
+  ]
+}
