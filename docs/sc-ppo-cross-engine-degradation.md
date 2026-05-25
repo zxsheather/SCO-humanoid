@@ -71,6 +71,65 @@ sensitivity directly amplifies MuJoCo contact-dynamics differences.
    sensitivity during training may serve as an implicit regularizer against
    simulator-specific artifacts.
 
+## PID-Lagrange Multiplier Dynamics
+
+The SC-PPO 3.8 checkpoint sweep reveals the Lagrange multiplier stays near zero
+(~0.0-0.009) after the initial checkpoint (cp0 = 0.287, the `lambda_init` value).
+The quantile(0.90) constraint cost (`cost_update`) hovers in the 3.4-3.8 range,
+at or just below the 3.8 threshold. Since the error term (cost - threshold) is
+near zero or negative, the PID controller does not need to raise the multiplier.
+
+```
+cp   multiplier  cost_update  train_viol   trace_len
+0      0.2870      0.3084      0.0000           1
+100    0.0012      3.7481      0.1198         101
+200    0.0031      3.5637      0.0573         201
+300    0.0000      3.6175      0.0312         301
+400    0.0005      3.6290      0.0781         400
+```
+
+The PID-Lagrangian multiplier effectively acts as a safety mechanism: the policy
+naturally finds a solution within the constraint boundary (sensitivity ~3.6 < 3.8),
+so active penalty is rarely needed. When the `cost_update` briefly exceeds threshold
+(e.g., seed17 cp200: 3.80, multiplier rises to 0.009), the PID controller provides
+gentle corrective pressure.
+
+In contrast, LayerNorm epochs=3 has no constraint, and sensitivity climbs freely to
+10.74. If a threshold of 3.8 were hypothetically enforced on LayerNorm, the error
+would be ~6.9 and the multiplier would rise dramatically — likely causing training
+collapse similar to the three failed reliability levers (fixed_schedule, low_noise,
+low_kl) that indirectly constrained sensitivity too much.
+
+## Metric-Specific Degradation: Policy-Level vs Physics-Level Amplification
+
+Breaking down the cross-engine degradation by metric reveals WHERE the amplification
+occurs:
+
+| Method | jitter factor | jnt_acc factor | Primary Amplification |
+| --- | ---: | ---: | --- |
+| Heuristic | 0.90x | 1.01x | None |
+| SC-PPO 3.8 | 1.05x | 1.08x | None |
+| Action Scaling | 27.58x | 12.73x | **Policy-level** |
+| Output Scaling | 4.88x | 4.12x | **Policy-level** |
+| LayerNorm epochs=3 | 6.41x | 3.50x | **Policy-level** |
+
+For all three non-Jacobian methods, `action_jitter` inflates MORE than
+`joint_acceleration` in MuJoCo. This means the primary amplification happens at the
+**policy output level**: high Jacobian sensitivity causes the policy to produce
+jittery actions in response to MuJoCo's observation distribution, and these
+jittery actions then drive elevated joint acceleration through physics.
+
+The causal chain:
+
+```
+High policy sensitivity (10.7 vs 3.6)
+  → Observation differences amplified into action jitter (6-28x)
+    → Joint acceleration elevated through contact dynamics (3-13x)
+```
+
+The fact that jitter factor > jnt_acc factor for every non-Jacobian method confirms
+the propagation direction is policy → physics, not physics → policy.
+
 ## Canonical Artifacts
 
 - SC-PPO 3.8 checkpoint sweep:
