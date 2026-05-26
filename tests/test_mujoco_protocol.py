@@ -2,6 +2,8 @@ import sys
 import unittest
 from pathlib import Path
 
+import numpy as np
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 BASELINE_DIR = REPO_ROOT / "scripts" / "baseline"
@@ -25,6 +27,33 @@ class _TrimeshTerrainCfg:
 
 class _TrimeshCfg:
     terrain = _TrimeshTerrainCfg()
+
+
+class _FakeContact:
+    geom1 = 1
+    geom2 = 2
+    dist = 0.012
+    pos = np.array([0.1, 0.2, 0.3], dtype=np.double)
+
+
+class _FakeData:
+    ncon = 1
+    contact = [_FakeContact()]
+    xpos = np.array([[0.0, 0.0, 0.9]], dtype=np.double)
+    ctrl = np.array([0.7, -0.4], dtype=np.double)
+
+
+class _FakeMujoco:
+    class mjtObj:
+        mjOBJ_GEOM = "geom"
+
+    @staticmethod
+    def mj_id2name(_model, _obj_type, geom_id):
+        return {1: "left_foot", 2: "floor"}.get(geom_id)
+
+    @staticmethod
+    def mj_contactForce(_model, _data, _contact_id, out):
+        out[:] = np.array([3.0, 4.0, 0.0, 0.1, 0.2, 0.3], dtype=np.double)
 
 
 class MuJoCoProtocolTests(unittest.TestCase):
@@ -95,6 +124,49 @@ class MuJoCoProtocolTests(unittest.TestCase):
         self.assertIn('file="', xml_text)
         self.assertIn('size="50 50 0.06 0.02"', xml_text)
         self.assertIn('uneven.png', xml_text)
+
+    def test_trace_step_limit_is_inclusive_of_requested_count(self) -> None:
+        self.assertTrue(mujoco_eval.should_record_trace_step(1, 1))
+        self.assertTrue(mujoco_eval.should_record_trace_step(1024, 1024))
+        self.assertFalse(mujoco_eval.should_record_trace_step(1025, 1024))
+        self.assertFalse(mujoco_eval.should_record_trace_step(1, 0))
+
+    def test_build_trace_step_records_control_and_contact_schema(self) -> None:
+        step = mujoco_eval.build_trace_step(
+            step_count=1,
+            action=np.array([0.1, -0.2], dtype=np.double),
+            prev_action=np.array([0.0, 0.1], dtype=np.double),
+            dq_before=np.array([1.0, 2.0], dtype=np.double),
+            dq_after=np.array([1.4, 1.0], dtype=np.double),
+            control_dt=0.2,
+            target_q=np.array([0.3, -0.6], dtype=np.double),
+            tau=np.array([0.7, -0.4], dtype=np.double),
+            data=_FakeData(),
+            base_body_id=0,
+            base_lin_vel_after=np.array([0.4, 0.0, 0.0], dtype=np.double),
+            base_ang_vel_after=np.array([0.0, 0.0, 0.1], dtype=np.double),
+            model=object(),
+            mujoco=_FakeMujoco(),
+        )
+
+        self.assertEqual(step["control_tau"], [0.7, -0.4])
+        self.assertEqual(step["applied_control"], [0.7, -0.4])
+        self.assertEqual(step["target_joint_position"], [0.3, -0.6])
+        self.assertAlmostEqual(step["action_jitter_l2"], float(np.linalg.norm([0.1, -0.3])))
+        self.assertEqual(step["contact_count"], 1)
+        self.assertEqual(len(step["contacts"]), 1)
+        contact = step["contacts"][0]
+        self.assertEqual(contact["geom1_name"], "left_foot")
+        self.assertEqual(contact["geom2_name"], "floor")
+        self.assertEqual(contact["force_torque"], [3.0, 4.0, 0.0, 0.1, 0.2, 0.3])
+        self.assertAlmostEqual(contact["force_norm"], 5.0)
+        self.assertEqual(contact["position"], [0.1, 0.2, 0.3])
+
+    def test_update_trace_manifest_clears_stale_path_when_disabled(self) -> None:
+        manifest = {"mujoco_trace_path": "old_trace.json", "other": 1}
+        mujoco_eval.update_trace_manifest(manifest, trace_path=None)
+        self.assertNotIn("mujoco_trace_path", manifest)
+        self.assertEqual(manifest["other"], 1)
 
 
 if __name__ == "__main__":

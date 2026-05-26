@@ -39,6 +39,7 @@ VALID_TERRAIN_MODES = ("isaac_mainline", "plane", "hfield_moderate", "hfield_str
 # Keep the original stress footprint and only compress the vertical envelope, so the moderate
 # profile is a true softened variant of the same terrain instead of a slope-amplified rescaling.
 HFIELD_MODERATE_SIZE = (50.0, 50.0, 0.06, 0.02)
+MAX_TRACE_CONTACTS = 16
 
 
 def summarize(values: list[float]) -> tuple[float | None, float | None]:
@@ -296,6 +297,93 @@ def reset_episode_state(
     mujoco.mj_forward(model, data)
 
 
+def should_record_trace_step(step_count: int, trace_max_steps: int) -> bool:
+    return int(trace_max_steps) > 0 and int(step_count) <= int(trace_max_steps)
+
+
+def _geom_name(model, mujoco, geom_id: int) -> str | None:
+    name = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_GEOM, int(geom_id))
+    return str(name) if name is not None else None
+
+
+def extract_contact_trace(model, data, mujoco, *, max_contacts: int = MAX_TRACE_CONTACTS) -> dict[str, Any]:
+    contact_count = int(getattr(data, "ncon", 0) or 0)
+    contacts: list[dict[str, Any]] = []
+    for contact_id in range(min(contact_count, max(0, int(max_contacts)))):
+        contact = data.contact[contact_id]
+        force_torque = np.zeros(6, dtype=np.double)
+        mujoco.mj_contactForce(model, data, contact_id, force_torque)
+        contact_force = force_torque[:3]
+        contact_torque = force_torque[3:]
+        contacts.append(
+            {
+                "contact_id": contact_id,
+                "geom1": int(contact.geom1),
+                "geom2": int(contact.geom2),
+                "geom1_name": _geom_name(model, mujoco, int(contact.geom1)),
+                "geom2_name": _geom_name(model, mujoco, int(contact.geom2)),
+                "distance": float(contact.dist),
+                "position": np.asarray(contact.pos, dtype=np.double).tolist(),
+                "force_torque": force_torque.tolist(),
+                "normal_force": float(force_torque[0]),
+                "tangent_force_l2": float(np.linalg.norm(force_torque[1:3])),
+                "force_norm": float(np.linalg.norm(contact_force)),
+                "torque_norm": float(np.linalg.norm(contact_torque)),
+            }
+        )
+    return {
+        "contact_count": contact_count,
+        "contacts_truncated": contact_count > len(contacts),
+        "contacts": contacts,
+    }
+
+
+def build_trace_step(
+    *,
+    step_count: int,
+    action: np.ndarray,
+    prev_action: np.ndarray,
+    dq_before: np.ndarray,
+    dq_after: np.ndarray,
+    control_dt: float,
+    target_q: np.ndarray,
+    tau: np.ndarray,
+    data,
+    base_body_id: int,
+    base_lin_vel_after: np.ndarray,
+    base_ang_vel_after: np.ndarray,
+    model,
+    mujoco,
+) -> dict[str, Any]:
+    joint_acceleration = (dq_after - dq_before) / control_dt
+    action_delta = action - prev_action
+    contact_trace = extract_contact_trace(model, data, mujoco)
+    return {
+        "step": int(step_count),
+        "time": float(step_count * control_dt),
+        "action": action.tolist(),
+        "action_delta": action_delta.tolist(),
+        "action_jitter_l2": float(np.linalg.norm(action_delta)),
+        "target_joint_position": target_q.tolist(),
+        "control_tau": tau.tolist(),
+        "applied_control": np.asarray(getattr(data, "ctrl", tau), dtype=np.double).tolist(),
+        "joint_velocity": dq_after.tolist(),
+        "joint_acceleration": joint_acceleration.tolist(),
+        "joint_acceleration_l2": float(np.linalg.norm(joint_acceleration)),
+        "base_position_z": float(data.xpos[base_body_id][2]),
+        "base_linear_velocity": base_lin_vel_after.tolist(),
+        "base_angular_velocity": base_ang_vel_after.tolist(),
+        **contact_trace,
+    }
+
+
+def update_trace_manifest(manifest: dict[str, Any], *, trace_path: str | None) -> None:
+    if trace_path is None:
+        manifest.pop("mujoco_trace_path", None)
+        return
+    manifest["mujoco_trace_path"] = trace_path
+
+
 def run_episode(
     policy,
     cfg: Any,
@@ -344,6 +432,7 @@ def run_episode(
     step_count = 0
     count_lowlevel = 0
     prev_action = np.zeros_like(action)
+    tau = np.zeros_like(action)
     fall = False
 
     # Per-timestep trace capture (optional)
@@ -405,20 +494,27 @@ def run_episode(
         returns += float(base_lin_vel_after[0]) - (linear_error + yaw_error)
         step_count += 1
 
-        prev_action = action.copy()
+        if trace is not None and should_record_trace_step(step_count, trace_max_steps):
+            trace.append(
+                build_trace_step(
+                    step_count=step_count,
+                    action=action,
+                    prev_action=prev_action,
+                    dq_before=dq_before,
+                    dq_after=dq_after,
+                    control_dt=control_dt,
+                    target_q=target_q,
+                    tau=tau,
+                    data=data,
+                    base_body_id=base_body_id,
+                    base_lin_vel_after=base_lin_vel_after,
+                    base_ang_vel_after=base_ang_vel_after,
+                    model=model,
+                    mujoco=mujoco,
+                )
+            )
 
-        # Capture per-timestep trace
-        if trace is not None and step_count < trace_max_steps:
-            step_trace: dict = {
-                "step": step_count,
-                "action": action.tolist(),
-                "joint_velocity": dq_after.tolist(),
-                "joint_acceleration": ((dq_after - dq_before) / control_dt).tolist(),
-                "base_position_z": float(data.xpos[base_body_id][2]),
-                "base_linear_velocity": base_lin_vel_after.tolist(),
-                "base_angular_velocity": base_ang_vel_after.tolist(),
-            }
-            trace.append(step_trace)
+        prev_action = action.copy()
 
         base_height = float(data.xpos[base_body_id][2])
         if base_height < cfg.eval.fall_height_threshold:
@@ -580,6 +676,10 @@ def main() -> int:
     capture_traces = bool(args.capture_traces)
     trace_max_episodes = int(args.trace_max_episodes)
     trace_max_steps = int(args.trace_max_steps)
+    if trace_max_episodes < 0:
+        raise BaselineError("--trace-max-episodes must be non-negative.")
+    if trace_max_steps < 0:
+        raise BaselineError("--trace-max-steps must be non-negative.")
 
     episode_returns: list[float] = []
     tracking_errors: list[float] = []
@@ -616,6 +716,7 @@ def main() -> int:
             all_traces.append({
                 "episode_index": episode_idx,
                 "fell": result["fell"],
+                "early_fall": result["fell"],
                 "steps": result["steps"],
                 "trace": result["trace"],
             })
@@ -712,6 +813,7 @@ def main() -> int:
             "command_dyaw": float(args.command_dyaw),
             "sim_duration": float(args.sim_duration),
             "control_dt": float(cfg.control.decimation * cfg.sim.dt),
+            "sampling_timestep": float(cfg.control.decimation * cfg.sim.dt),
             "control_decimation": int(cfg.control.decimation),
             "sim_timestep": float(cfg.sim.dt),
             "trace_max_episodes": trace_max_episodes,
@@ -721,8 +823,10 @@ def main() -> int:
         }
         trace_path = output_dir / args.trace_output_name
         write_json(trace_path, trace_payload)
-        manifest["mujoco_trace_path"] = relative_to_repo(trace_path)
+        update_trace_manifest(manifest, trace_path=relative_to_repo(trace_path))
         print(f"Wrote {relative_to_repo(trace_path)}")
+    else:
+        update_trace_manifest(manifest, trace_path=None)
 
     write_json(manifest_path, manifest)
 
