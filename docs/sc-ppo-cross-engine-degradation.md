@@ -235,6 +235,101 @@ This reveals smoothness as two-dimensional:
 **Artifacts**: `scppo38_trace20_seed{11,17,23}` and `ln_ep3_trace20_seed{11,17,23}`
 under their respective `artifacts/methods/` directories.
 
+## Dynamic vs Kinematic Smoothness: Two Dimensions of Motion Quality
+
+### Metric definitions and physical interpretation
+
+The repo now distinguishes two families of smoothness metrics that capture
+different physical behaviors:
+
+**Dynamic smoothness** (force/torque level):
+- `joint_acceleration_l2_mean`: L2 norm of joint angular acceleration,
+  proportional to joint torque rate-of-change. Captures the physical "jerkiness"
+  that stresses actuators and transfers vibration to the robot structure.
+- `action_jitter_l2_mean`: L2 norm of adjacent-timestep action differences.
+  Captures whether the policy output itself oscillates at high frequency.
+
+**Kinematic smoothness** (trajectory shape level):
+- `joint_position_ldlj_mean` (Log Dimensionless Jerk): Integral of squared
+  joint jerk (third derivative of position), normalized by movement duration
+  and amplitude. Measures how "graceful" joint trajectories appear
+  independent of the forces required to produce them.
+- `joint_velocity_sparc_mean` (Spectral Arc Length): Frequency-domain measure
+  of joint velocity profile complexity. Lower (more negative) values indicate
+  simpler, smoother velocity spectra with fewer high-frequency components.
+
+### Observed disagreement
+
+The 20-episode trace comparison between SC-PPO 3.8 and LayerNorm epochs=3
+revealed a split:
+
+| Dimension | Metric | SC-PPO 3.8 | LayerNorm | Winner |
+| --- | --- | ---: | ---: | --- |
+| Dynamic | jnt_acc | 115.9 | 172.0 | SC-PPO (+48% better) |
+| Dynamic | jitter | 0.22 | 0.52 | SC-PPO (+135% better) |
+| Kinematic | LDLJ | -28.35 | -29.69 | LayerNorm (+4.8% better) |
+| Kinematic | SPARC | -25.54 | -32.28 | LayerNorm (+26.4% better) |
+
+LayerNorm produces kinematically smoother joint trajectories while requiring
+substantially higher joint accelerations and more jittery actions. SC-PPO
+produces dynamically smoother behavior while its joint trajectories are
+slightly less kinematically smooth.
+
+### Physical interpretation
+
+The LayerNorm architecture normalizes hidden-layer activations, which has
+a natural low-pass filtering effect on the network output: high-frequency
+components in the policy computation are attenuated before reaching the
+action output. This produces smooth joint position/velocity profiles
+(kinematic smoothness) even when the underlying torque signals are noisy.
+
+SC-PPO's Jacobian constraint operates at a different level: it directly
+limits the policy's sensitivity to observation changes, reducing the
+amplification of sensor noise and simulator artifacts. This suppresses
+high-frequency torque oscillations (dynamic smoothness) but does not
+inherently smooth the joint trajectory shape — the policy may still
+produce complex but low-amplitude joint motions.
+
+The two mechanisms optimize different aspects of motion quality because
+they intervene at different points in the control pipeline:
+
+```
+Observation → [LayerNorm: smooths activations] → Action → Torque → Joint motion
+Observation → [Jacobian: limits sensitivity]     → Action → Torque → Joint motion
+```
+
+### Connection to cross-engine robustness
+
+The dynamic-vs-kinematic split connects directly to the paper's core claim.
+When policies are replayed in MuJoCo, dynamic smoothness metrics show the
+largest degradation for non-Jacobian methods (3-13x worse jnt_acc).
+Kinematic smoothness, while informative for characterizing motion quality,
+does not predict cross-engine transfer stability — it measures the output
+shape, not the underlying force generation process that interacts with the
+physics engine's contact solver.
+
+The Jacobian constraint's value for cross-engine transfer lies in its direct
+effect on dynamic smoothness: by limiting the policy's sensitivity to
+observation perturbations, it prevents the simulator-specific contact
+dynamics from being amplified into large torque oscillations. Kinematic
+smoothing (via LayerNorm or similar architectural constraints) may improve
+the visual quality of motion but does not provide the same cross-engine
+robustness.
+
+### Limitations
+
+- Trace sample size is 5 episodes per seed (captured from 20-episode
+  evaluation runs). LDLJ/SPARC variance across episodes has not been
+  systematically characterized.
+- The trace comparison uses selected checkpoints (SC-PPO: 300/300/400,
+  LayerNorm: 400/400/400). Checkpoint-dependent variation in kinematic
+  metrics has not been sweep-characterized.
+- LDLJ and SPARC are kinematic metrics originally developed for human
+  movement analysis. Their applicability to humanoid robot locomotion
+  as paper-grade evidence has not been validated against external standards.
+- Only two methods were compared at trace level. Action/Output Scaling's
+  kinematic smoothness (likely poor due to high jitter) is unknown.
+
 ## Canonical Artifacts
 
 - SC-PPO 3.8 checkpoint sweep:
