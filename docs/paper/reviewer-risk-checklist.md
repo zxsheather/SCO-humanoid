@@ -50,8 +50,8 @@ Each risk is rated by severity and the strength of the current response.
 **Current response**: ADEQUATE
 - Acknowledged as limitation
 - MuJoCo replay provides intermediate sim-to-sim validation
-- Jacobian constraint as sim-to-real regularization is presented
-  as a hypothesis, not a proven claim
+- Jacobian constraint is presented as a sim-to-sim regularization
+  hypothesis; any sim-to-real relevance remains speculative
 - **Gap**: No hardware experiments
 
 ## Method Concerns
@@ -101,25 +101,28 @@ Each risk is rated by severity and the strength of the current response.
 - Checkpoint-sweep selection is documented and reproducible
 - **Gap**: No universal fix for SC-PPO final-checkpoint reliability
 
-### R11: "Sensitivity → degradation correlation is only 2 data points"
+### R11: "Sensitivity → degradation correlation is only 2 clean data points"
 **Severity**: MEDIUM
 **Current response**: ADEQUATE
 - SC-PPO (3.6, ×1.08) and LayerNorm (10.7, ×3.5) are the two
-  points with both sensitivity and MuJoCo data
+  clean points with both sensitivity and non-collapsed MuJoCo data
 - Action/Output Scaling sensitivity ranges are known (5.6-9.4)
   but their MuJoCo degradation is confounded by collapse (fall=1.0)
 - Trend is suggestive but not statistically robust
-- Acknowledged as preliminary finding, not proven law
+- Acknowledged as aggregate-level mechanism evidence, not time-series
+  causal proof or a statistically established law
 
 ## Narrative Concerns
 
 ### R12: "The paper has too many negative results — what's the positive story?"
 **Severity**: LOW
 **Current response**: GOOD
-- Positive: SC-PPO beats heuristic on Isaac, transfers smoothness
-  to MuJoCo
+- Positive: SC-PPO beats the revised heuristic anchor on Isaac rough-
+  terrain task/smoothness metrics and shows low joint-acceleration
+  degradation in MuJoCo
 - Negative results (8 alternatives failed) serve as evidence FOR
-  the uniqueness of Jacobian constraint, not as failures of the project
+  the robustness of the Jacobian-constraint path relative to tested
+  non-Jacobian replacements, not as failures of the project
 - Plain dual vs PID: positive result for PID
 - Dynamic vs kinematic: positive result for both dimensions
 

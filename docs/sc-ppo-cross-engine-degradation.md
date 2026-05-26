@@ -19,10 +19,11 @@ See also: [Paper manuscript skeleton](./paper/manuscript-skeleton.md),
 All MuJoCo replays use the shared `isaac_mainline` protocol: 20 episodes × 20s,
 `joint_reset_noise = 0.1`, selected-checkpoint replay.
 
-## Causal Chain: Sensitivity → Cross-Engine Degradation
+## Evidence Chain: Sensitivity → Cross-Engine Degradation
 
 The Isaac-side `local_sensitivity` (Jacobian Frobenius norm of the policy) at the
-evaluated checkpoint predicts the cross-engine degradation factor:
+evaluated checkpoint tracks the cross-engine degradation factor in the completed
+SC-PPO vs LayerNorm comparison:
 
 | Method | Isaac sensitivity (cp400) | Degradation Factor |
 | --- | ---: | ---: |
@@ -30,8 +31,9 @@ evaluated checkpoint predicts the cross-engine degradation factor:
 | LayerNorm epochs=3 | 10.74 | ×3.5 |
 
 The ratio of sensitivities (~3×) closely matches the ratio of degradation factors (~3.2×),
-supporting the hypothesis that higher policy Jacobian sensitivity amplifies cross-engine
-physics differences.
+supporting the hypothesis that higher policy Jacobian sensitivity amplifies
+cross-engine physics differences. This is aggregate-level mechanism evidence, not
+time-series causal proof.
 
 ## SC-PPO 3.8 Sensitivity Evolution (checkpoint sweep)
 
@@ -59,20 +61,25 @@ cp   sensitivity  violation   jnt_acc   fall_rate
 ```
 
 Without a Jacobian constraint, sensitivity climbs freely. Task acquisition at cp300
-requires sensitivity ≈ 10, approximately 3× the SC-PPO level. This elevated
-sensitivity directly amplifies MuJoCo contact-dynamics differences.
+coincides with sensitivity ≈ 10, approximately 3× the SC-PPO level. The completed
+MuJoCo replay is consistent with this elevated sensitivity amplifying contact-
+dynamics differences, but the current artifacts do not localize the amplification
+at individual timesteps.
 
 ## Interpretation
 
 1. Jacobian-based `local_sensitivity` constraint at `threshold = 3.8` provides
-   cross-engine smoothness robustness that alternative mechanisms cannot replicate.
+   cross-engine smoothness robustness that the replayed non-Jacobian replacement
+   mechanisms do not replicate. The heuristic action-rate baseline also preserves
+   smoothness across this replay, so the paper claim should not be framed as
+   SC-PPO's exclusive cross-engine win over the heuristic.
 
 2. The mechanism appears to be: lower policy Jacobian sensitivity → smaller amplification
    of cross-engine observation-distribution differences → preserved behavior-level smoothness.
 
-3. This finding is actionable for sim-to-real transfer: constraining policy Jacobian
-   sensitivity during training may serve as an implicit regularizer against
-   simulator-specific artifacts.
+3. This finding is actionable for sim-to-sim validation: constraining policy
+   Jacobian sensitivity during training may serve as an implicit regularizer
+   against simulator-specific artifacts. Real-robot transfer remains untested.
 
 ## PID-Lagrange Multiplier Dynamics
 
@@ -116,13 +123,13 @@ occurs:
 | Output Scaling | 4.88x | 4.12x | **Policy-level** |
 | LayerNorm epochs=3 | 6.41x | 3.50x | **Policy-level** |
 
-For all three non-Jacobian methods, `action_jitter` inflates more than
-`joint_acceleration` in MuJoCo. This is consistent with a **policy-output amplification**
-reading: high Jacobian sensitivity can turn MuJoCo observation-distribution differences
-into jittery actions, and those jittery actions can then drive elevated joint acceleration
-through the physics rollout.
+For all three replayed non-Jacobian replacement methods, `action_jitter` inflates
+more than `joint_acceleration` in MuJoCo. This is consistent with a
+**policy-output amplification** reading: high Jacobian sensitivity can turn MuJoCo
+observation-distribution differences into jittery actions, and those jittery
+actions can then drive elevated joint acceleration through the physics rollout.
 
-The causal chain:
+The hypothesized mechanism chain:
 
 ```
 High policy sensitivity (10.7 vs 3.6)
@@ -130,9 +137,10 @@ High policy sensitivity (10.7 vs 3.6)
     → Joint acceleration elevated through contact dynamics (3-13x)
 ```
 
-The fact that jitter factor > jnt_acc factor for every non-Jacobian method supports
-the policy → physics reading, but it should not be treated as a time-series causal proof
-until the optional MuJoCo per-timestep trace work is completed.
+The fact that jitter factor > jnt_acc factor for every replayed non-Jacobian
+replacement method supports the policy → physics reading, but it should not be
+treated as a time-series causal proof until the optional MuJoCo per-timestep trace
+work is completed.
 
 ## Constraint Threshold Sensitivity
 
@@ -298,9 +306,9 @@ the metric family that currently tracks cross-engine dynamic degradation. It mea
 trajectory shape, while the degradation table is dominated by command and joint
 acceleration amplification under a different contact solver.
 
-The Jacobian constraint's value for the current paper claim lies in its direct
-effect on dynamic smoothness: by limiting local policy sensitivity, it reduces
-the conversion of simulator-specific perturbations into large command and joint-
+The Jacobian constraint's value for the current paper claim lies in its observed
+effect on dynamic smoothness: lower local policy sensitivity is associated with
+less conversion of simulator-specific perturbations into large command and joint-
 acceleration changes. Kinematic smoothing via LayerNorm may improve the visual
 or trajectory-shape quality of motion, but the completed evidence shows it does
 not provide the same cross-engine dynamic-smoothness robustness.

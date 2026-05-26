@@ -7,30 +7,33 @@
 
 Alternative:
 
-> Smoothness Is Not One Number: Why Jacobian Constraints Transfer Across
-> Simulators and Architectural Alternatives Do Not
+> Smoothness Is Not One Number: Dynamic Smoothness and Cross-Engine
+> Robustness in Humanoid Locomotion
 
 ## Abstract (working)
 
 We investigate whether hard-constraint policy optimization can produce
 smoother humanoid locomotion than heuristic reward shaping, and whether
-the resulting smoothness transfers across physics simulators. We compare
+the resulting smoothness survives cross-engine replay. We compare
 SC-PPO—a PPO variant that constrains the policy's Jacobian sensitivity
-via PID-Lagrangian optimization—against a strong heuristic baseline and
+via PID-Lagrangian optimization—against a revised heuristic baseline and
 eight alternative smoothness mechanisms (architectural, scaling-based,
-and constraint-shape variants). On Isaac Gym rough-terrain locomotion,
-SC-PPO achieves better velocity tracking, lower fall rate, and lower
-joint acceleration than the heuristic baseline. When policies are
-replayed in MuJoCo, only SC-PPO (1.08x degradation) and the heuristic
-baseline (1.01x) preserve smoothness; all non-Jacobian mechanisms
-exhibit severe degradation (3.5x–12.7x). The policy's Jacobian
-sensitivity level at the training checkpoint predicts the cross-engine
-degradation factor, suggesting that Jacobian constraints serve as
-implicit sim-to-sim regularization. We further show that smoothness
-is at least two-dimensional: architectural constraints (LayerNorm)
-improve kinematic smoothness (LDLJ/SPARC) while Jacobian constraints
-improve dynamic smoothness (joint acceleration, action jitter), and
-only dynamic smoothness predicts cross-engine transfer stability.
+constraint-object, and constraint-shape variants). On Isaac Gym rough-
+terrain locomotion, SC-PPO improves velocity tracking, fall rate, joint
+acceleration, and action jitter relative to the heuristic baseline. In
+MuJoCo replay, SC-PPO does not dominate the heuristic on task metrics;
+instead, the defensible cross-engine claim is about smoothness
+degradation. SC-PPO (1.08x) and the heuristic baseline (1.01x) preserve
+joint-acceleration smoothness, while the replayed non-Jacobian
+replacement mechanisms degrade substantially (3.5x–12.7x). Policy
+Jacobian sensitivity at the evaluated checkpoint tracks this degradation
+pattern, suggesting that Jacobian constraints can act as implicit
+sim-to-sim regularization. We further show that smoothness is at least
+two-dimensional: architectural constraints (LayerNorm) improve
+kinematic smoothness (LDLJ/SPARC), while Jacobian constraints improve
+dynamic smoothness (joint acceleration, action jitter), and the current
+evidence links the dynamic metrics more directly to cross-engine
+smoothness robustness.
 
 ## 1. Introduction
 
@@ -49,10 +52,11 @@ only dynamic smoothness predicts cross-engine transfer stability.
    Jacobian sensitivity bounds during training
 2. Systematic comparison against heuristic baseline and 8 alternative
    smoothness mechanisms under shared evaluation protocol
-3. Cross-engine (Isaac → MuJoCo) replay revealing that Jacobian
-   constraints uniquely preserve smoothness across simulators
-4. Sensitivity → degradation causal chain: policy Jacobian norm
-   predicts cross-engine degradation factor
+3. Cross-engine (Isaac → MuJoCo) replay showing that Jacobian
+   constraints preserve smoothness similarly to a heuristic action-rate
+   penalty, while replayed non-Jacobian replacements do not
+4. Sensitivity → degradation evidence chain: policy Jacobian norm
+   tracks cross-engine degradation factor in the completed comparisons
 5. Demonstration that smoothness is two-dimensional: dynamic
    (force-level) vs kinematic (trajectory-level)
 
@@ -128,7 +132,8 @@ only dynamic smoothness predicts cross-engine transfer stability.
 - Action-rate hard constraint
 - Spectral Normalization (SN) actor
 - Orthogonal actor
-- LayerNorm actor (reached Isaac internal challenge, failed MuJoCo)
+- LayerNorm actor (reached Isaac internal challenge, failed MuJoCo
+  smoothness transfer)
 - Action-side scaling
 - Output-side scaling
 - Plain dual ascent (SC-PPO without PID)
@@ -137,52 +142,58 @@ only dynamic smoothness predicts cross-engine transfer stability.
 
 ### 5.1 Isaac rough-terrain main result
 
-[Table 1: 3-method comparison, selected-checkpoint aggregate]
-[Figure 1: Isaac main result bar chart]
+[Table 1: revised heuristic vs SC-PPO selected-checkpoint aggregate]
+[Figure 5: task-vs-dynamic-smoothness separation]
 
-- SC-PPO 3.8 beats heuristic on all shared metrics
+- SC-PPO 3.8 beats the revised heuristic anchor on velocity tracking,
+  fall rate, joint acceleration, and action jitter; episode return is
+  treated as supplemental and effectively tied
 - Vanilla PPO collapses (selected=0/0/0)
 
 ### 5.2 Cross-engine degradation
 
 [Table 2: 5-method degradation table]
-[Figure 2: Cross-engine degradation bar chart + factor plot]
+[Figure 1: cross-engine degradation bar chart + factor plot]
 
-- Only Jacobian constraint and heuristic penalty preserve smoothness
-- Non-Jacobian mechanisms: 3.5x–12.7x degradation
+- Among the replayed methods, only Jacobian constraint and heuristic
+  penalty preserve joint-acceleration smoothness
+- Replayed non-Jacobian replacements: 3.5x–12.7x degradation
 - Action/Output Scaling also collapse (fall=1.0) in MuJoCo
 
-### 5.3 Sensitivity → degradation causal chain
+### 5.3 Sensitivity → degradation evidence chain
 
-[Table 3: Sensitivity vs degradation factor]
-[Figure 3: Sensitivity → degradation scatter with trend line]
+[Data 1: sensitivity vs degradation factor]
+[Figure 2: sensitivity → degradation scatter with trend line]
 
 - SC-PPO sensitivity ~3.6 → 1.08x degradation
 - LayerNorm sensitivity ~10.7 → 3.5x degradation
 - Ratio of sensitivities (~3x) matches ratio of degradation factors (~3.2x)
+- Treat this as aggregate-level mechanism evidence, not time-series
+  causal proof until optional MuJoCo per-timestep traces are collected
 
 ### 5.4 PID-Lagrange multiplier dynamics
 
-[Table 4: Multiplier evolution across checkpoints]
+[Source table: SC-PPO 3.8 checkpoint sweep summaries]
 
 - Multiplier stays near zero: constraint is naturally satisfied
 - PID acts as safety mechanism, not active enforcement
 
 ### 5.5 Dynamic vs kinematic smoothness
 
-[Table 5: LDLJ/SPARC comparison]
+[Table 6: LDLJ/SPARC comparison]
 [Figure 4: LDLJ/SPARC bar chart]
 
 - LayerNorm wins kinematic smoothness (LDLJ, SPARC)
 - SC-PPO wins dynamic smoothness (jnt_acc, jitter)
-- Only dynamic smoothness predicts cross-engine transfer
+- Dynamic smoothness is the metric family that currently tracks the
+  cross-engine degradation pattern
 - Discussion of control-pipeline intervention points
 
 ### 5.6 Ablation studies
 
-- Threshold sensitivity: effective window [3.6, 3.8)
-- PID vs plain dual ascent: PID provides cross-seed stability
-- SC-PPO epochs=3 reliability repair: mixed result
+- Threshold sensitivity: effective window [3.6, 3.8) (Table 3)
+- PID vs plain dual ascent: PID provides cross-seed stability (Table 4)
+- SC-PPO epochs=3 reliability repair: mixed result (Table 5)
 
 ## 6. Discussion
 
@@ -198,12 +209,14 @@ only dynamic smoothness predicts cross-engine transfer stability.
 
 - Dynamic (force-level) vs kinematic (trajectory-level)
 - Both are valid but predict different properties
-- Cross-engine transfer stability is a dynamic-smoothness property
+- In the completed comparisons, cross-engine degradation is tracked by
+  dynamic smoothness metrics more than by kinematic smoothness metrics
 
 ### 6.3 Practical implications
 
-- Jacobian constraint as implicit sim-to-real regularizer
-- No need for domain randomization or system identification
+- Jacobian constraint as a candidate implicit sim-to-sim regularizer
+- Current evidence does not replace domain randomization, system
+  identification, or hardware validation
 - Threshold tuning is narrow but reproducible
 
 ## 7. Limitations
@@ -242,39 +255,48 @@ only dynamic smoothness predicts cross-engine transfer stability.
 
 SC-PPO's Jacobian-based local-sensitivity constraint, enforced via
 PID-Lagrangian optimization, produces smoother humanoid locomotion than
-heuristic reward shaping on Isaac Gym rough terrain. Critically, this
-smoothness transfers to MuJoCo with minimal degradation (1.08x), while
-all tested non-Jacobian alternative mechanisms degrade severely
-(3.5x–12.7x). The policy's Jacobian sensitivity at the training
-checkpoint quantitatively predicts the cross-engine degradation factor,
-supporting the hypothesis that Jacobian constraints serve as implicit
-sim-to-sim regularization. These findings suggest that constraining
-policy input-output sensitivity may be a broadly applicable strategy
-for improving the transferability of learned locomotion policies.
+heuristic reward shaping on Isaac Gym rough terrain under the shared
+rough-terrain metric schema. In MuJoCo replay, the stronger claim is not
+that SC-PPO beats the heuristic baseline across task metrics; it is that
+SC-PPO preserves its selected-checkpoint joint-acceleration smoothness
+with low degradation (1.08x), while the replayed non-Jacobian
+replacement mechanisms degrade substantially (3.5x–12.7x). The policy's
+Jacobian sensitivity at the evaluated checkpoint tracks the degradation
+factor, supporting the hypothesis that Jacobian constraints serve as
+implicit sim-to-sim regularization. These findings suggest that
+constraining policy input-output sensitivity is a promising strategy for
+improving the cross-engine robustness of learned locomotion policies,
+subject to the checkpoint, seed-count, terrain, and hardware-validation
+limitations documented below.
 
 ## Appendix A: Figure/Table Index
 
-| # | Type | Content | Source |
-| --- | --- | --- | --- |
-| T1 | Table | Isaac main result (3 methods) | `artifacts/analysis/rough_terrain_formal_protocol_revision_long_budget/comparison_summary.json` |
-| T2 | Table | Cross-engine degradation (5 methods) | `paper_figures_data.json` |
-| T3 | Table | Sensitivity vs degradation | `paper_figures_data.json` |
-| T4 | Table | PID multiplier dynamics | SC-PPO 3.8 checkpoint sweep summaries |
-| T5 | Table | LDLJ/SPARC comparison | Trace `behavior_smoothness_metrics_selected.json` files |
-| F1 | Figure | Isaac main result bar chart | `generate_paper_figures.py` (existing) |
-| F2 | Figure | Cross-engine degradation bars + factors | `figure_cross_engine_degradation.png` |
-| F3 | Figure | Sensitivity → degradation scatter | `figure_sensitivity_vs_degradation.png` |
-| F4 | Figure | LDLJ/SPARC kinematic vs dynamic | `figure_ldlj_sparc.png` |
-| F5 | Figure | Sensitivity evolution | `figure_sensitivity_evolution.png` |
-| F6 | Figure | Threshold sensitivity | Data from report docs; generation script TBD |
+All generated paper figures/tables are reproducible with:
 
-All figures reproducible via: `python scripts/analysis/generate_paper_figures.py`
+```bash
+/TinyNAS2024/zhuoxiang/sco-humanoid/bin/python scripts/analysis/generate_paper_figures.py
+```
+
+| # | Type | Content | Source / generation command |
+| --- | --- | --- | --- |
+| T1 | Table | Isaac main result, revised heuristic vs SC-PPO | `artifacts/analysis/rough_terrain_formal_protocol_revision_long_budget/comparison_summary.json`; SC-PPO rows from `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed{11,17,23}/checkpoint_sweep_summary.json` |
+| T2 | Table | Cross-engine degradation, 5 methods | `artifacts/analysis/paper_figures/table_cross_engine_degradation.md`, generated by `scripts/analysis/generate_paper_figures.py` |
+| T3 | Table | Threshold sensitivity | `artifacts/analysis/paper_figures/table_threshold_sensitivity.md`, generated by `scripts/analysis/generate_paper_figures.py` |
+| T4 | Table | Plain dual ascent vs PID-Lagrangian | `artifacts/analysis/paper_figures/table_plain_dual_vs_pid.md`, generated by `scripts/analysis/generate_paper_figures.py` |
+| T5 | Table | SC-PPO epochs=3 reliability repair | `artifacts/analysis/paper_figures/table_scppo_epochs3_repair.md`, generated by `scripts/analysis/generate_paper_figures.py` |
+| T6 | Table | LayerNorm dynamic-vs-kinematic trade-off | `artifacts/analysis/paper_figures/table_layernorm_tradeoff_ldlj_sparc.md`, generated by `scripts/analysis/generate_paper_figures.py` |
+| F1 | Figure | Cross-engine degradation bars and factors | `artifacts/analysis/paper_figures/figure_cross_engine_degradation.png`, generated by `scripts/analysis/generate_paper_figures.py` |
+| F2 | Figure | Sensitivity vs degradation scatter | `artifacts/analysis/paper_figures/figure_sensitivity_vs_degradation.png`, generated by `scripts/analysis/generate_paper_figures.py` |
+| F3 | Figure | Sensitivity evolution | `artifacts/analysis/paper_figures/figure_sensitivity_evolution.png`, generated by `scripts/analysis/generate_paper_figures.py` |
+| F4 | Figure | Dynamic-vs-kinematic smoothness | `artifacts/analysis/paper_figures/figure_ldlj_sparc.png`, generated by `scripts/analysis/generate_paper_figures.py` |
+| F5 | Figure | Task-vs-dynamic-smoothness separation | `artifacts/analysis/paper_figures/figure_task_vs_smoothness.png`, generated by `scripts/analysis/generate_paper_figures.py` |
+| D1 | Data | Structured figure/table data and provenance | `artifacts/analysis/paper_figures/paper_figures_data.json`; output manifest in `artifacts/analysis/paper_figures/manifest.json` |
 
 ## Appendix B: Artifact Map
 
 | Evidence layer | Canonical artifact path |
 | --- | --- |
-| Isaac main result | `artifacts/analysis/rough_terrain_formal_protocol_revision_long_budget/comparison_summary.json` |
+| Revised heuristic Isaac main result | `artifacts/analysis/rough_terrain_formal_protocol_revision_long_budget/comparison_summary.json` |
 | SC-PPO 3.8 checkpoint sweep | `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_..._iter400_seed{11,17,23}/checkpoint_sweep_summary.json` |
 | Heuristic MuJoCo | `artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/..._seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` |
 | SC-PPO MuJoCo | `artifacts/methods/sc_ppo_pid_probe/..._seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` |
@@ -287,7 +309,7 @@ All figures reproducible via: `python scripts/analysis/generate_paper_figures.py
 | Plain dual ascent | `artifacts/analysis/rough_terrain_plain_dual_probe/comparison_summary.json` |
 | SC-PPO epochs=3 | `artifacts/analysis/rough_terrain_sc_ppo_epochs3_probe/comparison_summary.json` |
 | LDLJ/SPARC traces | `artifacts/methods/sc_ppo_pid_probe/scppo38_trace20_seed{11,17,23}/behavior_smoothness_metrics_selected.json` |
-| Paper figures | `python scripts/analysis/generate_paper_figures.py` |
+| Paper figures/tables | `/TinyNAS2024/zhuoxiang/sco-humanoid/bin/python scripts/analysis/generate_paper_figures.py`; outputs under `artifacts/analysis/paper_figures/` |
 | Cross-engine analysis | `docs/sc-ppo-cross-engine-degradation.md` |
 
 ## Appendix C: Reproduction Commands
