@@ -146,3 +146,43 @@ the propagation direction is policy → physics, not physics → policy.
 
 - Output Scaling MuJoCo:
   `artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
+
+## Plain Dual Ascent (PPO-Lagrangian) Comparison
+
+A full 3-seed comparison of SC-PPO with plain dual ascent (`update_mode = "dual"`,
+`dual_lr = 0.01`) vs PID-Lagrangian was run under the canonical rough-terrain entry.
+
+| Seed | sel cp | fin cp | fall_rate | vel_err | jnt_acc | jitter |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 11 | 400 | 400 | 0.00 | 0.44 | 115.9 | 0.22 |
+| 17 | 300 | 400 | 0.25 | 0.54 | 124.9 | 0.24 |
+| 23 | 0 | 400 | 1.00 | 1.34 | 84.1 | 0.01 |
+
+Selected-checkpoint aggregate: `fall_rate = 0.42`, `jnt_acc = 108.3`, `jitter = 0.16`.
+
+**Key finding**: Plain dual ascent is not universally collapsed — seed11 succeeds with
+`selected = final = 400` and performance comparable to PID-Lagrangian. But seed23 fails
+catastrophically (`selected checkpoint = 0`). PID-Lagrangian's primary value is cross-seed
+stability: it prevents the seed-level catastrophic failure that plain dual ascent exhibits.
+The single-seed diagnostic (seed11 cp100, fall=1.0) was misleading — that seed later
+learned through the dual ascent path, suggesting the initial collapse was a training-phase
+issue rather than a fundamental infeasibility.
+
+**Canonical artifact**: `artifacts/analysis/rough_terrain_plain_dual_probe/comparison_summary.json`
+
+## Canonical Artifacts
+
+- SC-PPO 3.8 checkpoint sweep:
+  `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed{11,17,23}/checkpoint_sweep_summary.json`
+
+- LayerNorm epochs=3 checkpoint sweep:
+  `artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed{11,17,23}/checkpoint_sweep_summary.json`
+
+- MuJoCo replay metrics:
+  `artifacts/methods/{method}_probe/{run_name}_seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
+
+- Action Scaling MuJoCo:
+  `artifacts/methods/action_scaling_probe/action_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
+
+- Output Scaling MuJoCo:
+  `artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`

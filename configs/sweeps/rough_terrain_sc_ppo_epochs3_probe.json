@@ -1,0 +1,16 @@
+{
+  "name": "rough_terrain_sc_ppo_epochs3_probe",
+  "analysis_root": "artifacts/analysis/rough_terrain_sc_ppo_epochs3_probe",
+  "seeds": [11, 17, 23],
+  "train_num_envs": 512,
+  "eval_num_envs": 32,
+  "max_iterations": 400,
+  "episodes": 20,
+  "candidates": [
+    {
+      "id": "sc_ppo_threshold_38_epochs3",
+      "label": "SC-PPO reliability probe (threshold=3.8, PID-Lagrangian, num_learning_epochs=3)",
+      "config": "configs/methods/sc_ppo_threshold_38_epochs3.json"
+    }
+  ]
+}
