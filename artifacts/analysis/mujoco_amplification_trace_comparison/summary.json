@@ -1,0 +1,645 @@
+{
+  "method_summaries": [
+    {
+      "action_jitter_l2": {
+        "max": 1.6893295049667358,
+        "mean": 0.23519655972353423,
+        "p95": 0.5294001549482346
+      },
+      "contact_count": {
+        "max": 6,
+        "mean": 2.814236111111111,
+        "p95": 5.0
+      },
+      "control_tau_l2": {
+        "max": 290.1662709854935,
+        "mean": 87.76848395706915,
+        "p95": 137.6860674716416
+      },
+      "correlations": {
+        "action_jitter_vs_joint_acceleration": 0.41861054559441757,
+        "contact_force_vs_joint_acceleration": 0.401264124479598,
+        "control_tau_vs_joint_acceleration": 0.22113673907854745
+      },
+      "episode_steps_mean_from_metrics": 1984.7833333333335,
+      "fall_rate_mean_from_metrics": 0.016666666666666666,
+      "joint_acceleration_l2": {
+        "max": 1480.7640076858909,
+        "mean": 129.02486985559528,
+        "p95": 339.1117089734763
+      },
+      "joint_spike_contact_fraction": 0.9522776572668112,
+      "joint_spike_count": 461,
+      "joint_spike_mean_action_jitter": 0.3932063817323609,
+      "joint_spike_mean_contact_force": 424.70392774546616,
+      "joint_spike_mean_control_tau": 109.49579961419539,
+      "joint_spike_p95_threshold": 339.1117089734763,
+      "max_contact_force": {
+        "max": 2450.9919428846792,
+        "mean": 266.8969280486928,
+        "p95": 461.5107024565
+      },
+      "method_id": "scppo38",
+      "mujoco_action_jitter_mean": 0.23126014733549827,
+      "mujoco_joint_acceleration_mean": 125.54107484645753,
+      "source_count": 3,
+      "top_joint_spikes": [
+        {
+          "action_jitter_l2": 0.26943498849868774,
+          "contact_count": 2,
+          "control_tau_l2": 112.89004403403086,
+          "episode_index": 0,
+          "fell": true,
+          "joint_acceleration_l2": 1480.7640076858909,
+          "max_contact_force": 1547.1814562533223,
+          "max_normal_force": 1254.710294446492,
+          "method_id": "scppo38",
+          "seed": 11,
+          "step": 977,
+          "time": 9.77
+        },
+        {
+          "action_jitter_l2": 0.3323453962802887,
+          "contact_count": 1,
+          "control_tau_l2": 144.04824934603624,
+          "episode_index": 2,
+          "fell": false,
+          "joint_acceleration_l2": 1239.8394930961697,
+          "max_contact_force": 627.6624915538616,
+          "max_normal_force": 612.509194903008,
+          "method_id": "scppo38",
+          "seed": 11,
+          "step": 723,
+          "time": 7.23
+        },
+        {
+          "action_jitter_l2": 0.3448176383972168,
+          "contact_count": 1,
+          "control_tau_l2": 130.15831867250677,
+          "episode_index": 0,
+          "fell": true,
+          "joint_acceleration_l2": 1235.3257322885804,
+          "max_contact_force": 572.3215366982902,
+          "max_normal_force": 557.5002811372788,
+          "method_id": "scppo38",
+          "seed": 11,
+          "step": 978,
+          "time": 9.78
+        },
+        {
+          "action_jitter_l2": 0.5969985127449036,
+          "contact_count": 2,
+          "control_tau_l2": 109.60207612969894,
+          "episode_index": 1,
+          "fell": false,
+          "joint_acceleration_l2": 1229.3470021675357,
+          "max_contact_force": 164.1871272299722,
+          "max_normal_force": 144.95193750105506,
+          "method_id": "scppo38",
+          "seed": 23,
+          "step": 488,
+          "time": 4.88
+        },
+        {
+          "action_jitter_l2": 0.6094006299972534,
+          "contact_count": 1,
+          "control_tau_l2": 70.12824521995854,
+          "episode_index": 0,
+          "fell": true,
+          "joint_acceleration_l2": 1153.8197130036287,
+          "max_contact_force": 1118.2027632312106,
+          "max_normal_force": 1015.9946835290733,
+          "method_id": "scppo38",
+          "seed": 11,
+          "step": 902,
+          "time": 9.02
+        },
+        {
+          "action_jitter_l2": 0.5911206603050232,
+          "contact_count": 3,
+          "control_tau_l2": 89.65917580037025,
+          "episode_index": 1,
+          "fell": false,
+          "joint_acceleration_l2": 1151.400538362085,
+          "max_contact_force": 1448.0914945929294,
+          "max_normal_force": 1076.3579311612345,
+          "method_id": "scppo38",
+          "seed": 23,
+          "step": 487,
+          "time": 4.87
+        },
+        {
+          "action_jitter_l2": 0.3161119222640991,
+          "contact_count": 2,
+          "control_tau_l2": 130.35956924517853,
+          "episode_index": 2,
+          "fell": false,
+          "joint_acceleration_l2": 1146.3864700682377,
+          "max_contact_force": 1509.2749134768387,
+          "max_normal_force": 1121.8352082650326,
+          "method_id": "scppo38",
+          "seed": 11,
+          "step": 722,
+          "time": 7.22
+        },
+        {
+          "action_jitter_l2": 0.7881027460098267,
+          "contact_count": 2,
+          "control_tau_l2": 155.8662352801007,
+          "episode_index": 0,
+          "fell": true,
+          "joint_acceleration_l2": 1102.3056119618568,
+          "max_contact_force": 743.2315921378089,
+          "max_normal_force": 742.150657443923,
+          "method_id": "scppo38",
+          "seed": 11,
+          "step": 812,
+          "time": 8.120000000000001
+        },
+        {
+          "action_jitter_l2": 0.36014270782470703,
+          "contact_count": 2,
+          "control_tau_l2": 152.23807628851188,
+          "episode_index": 2,
+          "fell": false,
+          "joint_acceleration_l2": 1100.0350623910813,
+          "max_contact_force": 1514.290192117038,
+          "max_normal_force": 1125.5630355200913,
+          "method_id": "scppo38",
+          "seed": 11,
+          "step": 724,
+          "time": 7.24
+        },
+        {
+          "action_jitter_l2": 0.2890508770942688,
+          "contact_count": 1,
+          "control_tau_l2": 52.386357379916994,
+          "episode_index": 2,
+          "fell": false,
+          "joint_acceleration_l2": 1004.6417882309125,
+          "max_contact_force": 878.9371483751969,
+          "max_normal_force": 737.7959601091882,
+          "method_id": "scppo38",
+          "seed": 11,
+          "step": 519,
+          "time": 5.19
+        }
+      ],
+      "trace_episode_count": 9,
+      "trace_steps": 9216
+    },
+    {
+      "action_jitter_l2": {
+        "max": 7.889461994171143,
+        "mean": 3.2117868406118224,
+        "p95": 6.251197814941406
+      },
+      "contact_count": {
+        "max": 6,
+        "mean": 2.329861111111111,
+        "p95": 4.0
+      },
+      "control_tau_l2": {
+        "max": 310.5108367079056,
+        "mean": 128.6629433838082,
+        "p95": 220.98592311046602
+      },
+      "correlations": {
+        "action_jitter_vs_joint_acceleration": 0.7082394527865433,
+        "contact_force_vs_joint_acceleration": 0.06301260259141925,
+        "control_tau_vs_joint_acceleration": 0.3293497681929439
+      },
+      "episode_steps_mean_from_metrics": 2000.0,
+      "fall_rate_mean_from_metrics": 0.0,
+      "joint_acceleration_l2": {
+        "max": 3114.835999166246,
+        "mean": 574.7882935662219,
+        "p95": 1319.9393054784782
+      },
+      "joint_spike_contact_fraction": 0.8438177874186551,
+      "joint_spike_count": 461,
+      "joint_spike_mean_action_jitter": 5.974876706727787,
+      "joint_spike_mean_contact_force": 308.62925247185547,
+      "joint_spike_mean_control_tau": 148.09681328460786,
+      "joint_spike_p95_threshold": 1319.9393054784782,
+      "max_contact_force": {
+        "max": 3498.043938507314,
+        "mean": 320.2442857672377,
+        "p95": 617.2491839001245
+      },
+      "method_id": "layernorm_ep3",
+      "mujoco_action_jitter_mean": 3.3284627353896377,
+      "mujoco_joint_acceleration_mean": 602.5776397319815,
+      "source_count": 3,
+      "top_joint_spikes": [
+        {
+          "action_jitter_l2": 5.876712322235107,
+          "contact_count": 0,
+          "control_tau_l2": 92.94574240721107,
+          "episode_index": 1,
+          "fell": false,
+          "joint_acceleration_l2": 3114.835999166246,
+          "max_contact_force": 0.0,
+          "max_normal_force": 0.0,
+          "method_id": "layernorm_ep3",
+          "seed": 11,
+          "step": 9,
+          "time": 0.09
+        },
+        {
+          "action_jitter_l2": 5.05333137512207,
+          "contact_count": 0,
+          "control_tau_l2": 120.09534788924265,
+          "episode_index": 1,
+          "fell": false,
+          "joint_acceleration_l2": 2572.759497753418,
+          "max_contact_force": 0.0,
+          "max_normal_force": 0.0,
+          "method_id": "layernorm_ep3",
+          "seed": 11,
+          "step": 8,
+          "time": 0.08
+        },
+        {
+          "action_jitter_l2": 5.1029157638549805,
+          "contact_count": 0,
+          "control_tau_l2": 100.47986547427887,
+          "episode_index": 0,
+          "fell": false,
+          "joint_acceleration_l2": 2385.2682965891768,
+          "max_contact_force": 0.0,
+          "max_normal_force": 0.0,
+          "method_id": "layernorm_ep3",
+          "seed": 11,
+          "step": 9,
+          "time": 0.09
+        },
+        {
+          "action_jitter_l2": 6.524960994720459,
+          "contact_count": 2,
+          "control_tau_l2": 114.49948550211685,
+          "episode_index": 2,
+          "fell": false,
+          "joint_acceleration_l2": 2339.281905776723,
+          "max_contact_force": 302.83017555811006,
+          "max_normal_force": 296.87371863894697,
+          "method_id": "layernorm_ep3",
+          "seed": 17,
+          "step": 206,
+          "time": 2.06
+        },
+        {
+          "action_jitter_l2": 6.442378997802734,
+          "contact_count": 2,
+          "control_tau_l2": 154.56468601841766,
+          "episode_index": 2,
+          "fell": false,
+          "joint_acceleration_l2": 2331.0925286367956,
+          "max_contact_force": 356.3626227160504,
+          "max_normal_force": 344.78229004035825,
+          "method_id": "layernorm_ep3",
+          "seed": 17,
+          "step": 205,
+          "time": 2.05
+        },
+        {
+          "action_jitter_l2": 6.245234966278076,
+          "contact_count": 2,
+          "control_tau_l2": 105.72172917252466,
+          "episode_index": 2,
+          "fell": false,
+          "joint_acceleration_l2": 2315.6253231664637,
+          "max_contact_force": 269.6826205566422,
+          "max_normal_force": 258.6585788348269,
+          "method_id": "layernorm_ep3",
+          "seed": 17,
+          "step": 204,
+          "time": 2.04
+        },
+        {
+          "action_jitter_l2": 5.14054536819458,
+          "contact_count": 0,
+          "control_tau_l2": 209.84990598598847,
+          "episode_index": 2,
+          "fell": false,
+          "joint_acceleration_l2": 2312.217900233028,
+          "max_contact_force": 0.0,
+          "max_normal_force": 0.0,
+          "method_id": "layernorm_ep3",
+          "seed": 11,
+          "step": 8,
+          "time": 0.08
+        },
+        {
+          "action_jitter_l2": 6.09488582611084,
+          "contact_count": 2,
+          "control_tau_l2": 99.00627664981947,
+          "episode_index": 2,
+          "fell": false,
+          "joint_acceleration_l2": 2267.768624842767,
+          "max_contact_force": 216.38775650283029,
+          "max_normal_force": 206.3510559199061,
+          "method_id": "layernorm_ep3",
+          "seed": 17,
+          "step": 714,
+          "time": 7.140000000000001
+        },
+        {
+          "action_jitter_l2": 6.462165832519531,
+          "contact_count": 2,
+          "control_tau_l2": 102.59652797204977,
+          "episode_index": 0,
+          "fell": false,
+          "joint_acceleration_l2": 2245.6889460338784,
+          "max_contact_force": 231.1609145065084,
+          "max_normal_force": 220.8295315662298,
+          "method_id": "layernorm_ep3",
+          "seed": 17,
+          "step": 711,
+          "time": 7.11
+        },
+        {
+          "action_jitter_l2": 6.711259841918945,
+          "contact_count": 3,
+          "control_tau_l2": 115.91016699584178,
+          "episode_index": 2,
+          "fell": false,
+          "joint_acceleration_l2": 2243.039904093487,
+          "max_contact_force": 223.6501459491129,
+          "max_normal_force": 220.65576337190384,
+          "method_id": "layernorm_ep3",
+          "seed": 17,
+          "step": 969,
+          "time": 9.69
+        }
+      ],
+      "trace_episode_count": 9,
+      "trace_steps": 9216
+    },
+    {
+      "action_jitter_l2": {
+        "max": 22.2576904296875,
+        "mean": 9.22822975224687,
+        "p95": 16.38570261001587
+      },
+      "contact_count": {
+        "max": 6,
+        "mean": 0.8603202846975089,
+        "p95": 3.0
+      },
+      "control_tau_l2": {
+        "max": 474.4820129521747,
+        "mean": 263.35617363253505,
+        "p95": 381.44934588624557
+      },
+      "correlations": {
+        "action_jitter_vs_joint_acceleration": 0.6589083948732016,
+        "contact_force_vs_joint_acceleration": -0.03488557504837405,
+        "control_tau_vs_joint_acceleration": 0.37209950812717557
+      },
+      "episode_steps_mean_from_metrics": 252.29999999999998,
+      "fall_rate_mean_from_metrics": 1.0,
+      "joint_acceleration_l2": {
+        "max": 5972.11134788936,
+        "mean": 1843.5973120656358,
+        "p95": 3552.512882451476
+      },
+      "joint_spike_contact_fraction": 0.23893805309734514,
+      "joint_spike_count": 113,
+      "joint_spike_mean_action_jitter": 15.599231104935164,
+      "joint_spike_mean_contact_force": 486.53846836839165,
+      "joint_spike_mean_control_tau": 317.72137254886803,
+      "joint_spike_p95_threshold": 3552.512882451476,
+      "max_contact_force": {
+        "max": 12461.7906505957,
+        "mean": 451.4999033103398,
+        "p95": 1418.3236304691018
+      },
+      "method_id": "action_scaling",
+      "mujoco_action_jitter_mean": 8.304573822900247,
+      "mujoco_joint_acceleration_mean": 1835.589658006913,
+      "source_count": 3,
+      "top_joint_spikes": [
+        {
+          "action_jitter_l2": 16.903717041015625,
+          "contact_count": 0,
+          "control_tau_l2": 267.42575767325775,
+          "episode_index": 1,
+          "fell": true,
+          "joint_acceleration_l2": 5972.11134788936,
+          "max_contact_force": 0.0,
+          "max_normal_force": 0.0,
+          "method_id": "action_scaling",
+          "seed": 11,
+          "step": 188,
+          "time": 1.8800000000000001
+        },
+        {
+          "action_jitter_l2": 20.68111228942871,
+          "contact_count": 0,
+          "control_tau_l2": 323.924376364886,
+          "episode_index": 0,
+          "fell": true,
+          "joint_acceleration_l2": 5795.271827617926,
+          "max_contact_force": 0.0,
+          "max_normal_force": 0.0,
+          "method_id": "action_scaling",
+          "seed": 11,
+          "step": 112,
+          "time": 1.12
+        },
+        {
+          "action_jitter_l2": 9.98993968963623,
+          "contact_count": 0,
+          "control_tau_l2": 277.0379439688923,
+          "episode_index": 1,
+          "fell": true,
+          "joint_acceleration_l2": 5698.753121777319,
+          "max_contact_force": 0.0,
+          "max_normal_force": 0.0,
+          "method_id": "action_scaling",
+          "seed": 17,
+          "step": 62,
+          "time": 0.62
+        },
+        {
+          "action_jitter_l2": 20.56561279296875,
+          "contact_count": 0,
+          "control_tau_l2": 305.09799891306665,
+          "episode_index": 0,
+          "fell": true,
+          "joint_acceleration_l2": 5660.535501078079,
+          "max_contact_force": 0.0,
+          "max_normal_force": 0.0,
+          "method_id": "action_scaling",
+          "seed": 11,
+          "step": 110,
+          "time": 1.1
+        },
+        {
+          "action_jitter_l2": 20.991212844848633,
+          "contact_count": 0,
+          "control_tau_l2": 391.37564020458245,
+          "episode_index": 0,
+          "fell": true,
+          "joint_acceleration_l2": 5562.908308232141,
+          "max_contact_force": 0.0,
+          "max_normal_force": 0.0,
+          "method_id": "action_scaling",
+          "seed": 11,
+          "step": 105,
+          "time": 1.05
+        },
+        {
+          "action_jitter_l2": 20.4876766204834,
+          "contact_count": 0,
+          "control_tau_l2": 380.2140666433775,
+          "episode_index": 0,
+          "fell": true,
+          "joint_acceleration_l2": 5530.683462155124,
+          "max_contact_force": 0.0,
+          "max_normal_force": 0.0,
+          "method_id": "action_scaling",
+          "seed": 11,
+          "step": 113,
+          "time": 1.1300000000000001
+        },
+        {
+          "action_jitter_l2": 21.349225997924805,
+          "contact_count": 0,
+          "control_tau_l2": 387.7420947355111,
+          "episode_index": 0,
+          "fell": true,
+          "joint_acceleration_l2": 5524.11049960447,
+          "max_contact_force": 0.0,
+          "max_normal_force": 0.0,
+          "method_id": "action_scaling",
+          "seed": 11,
+          "step": 103,
+          "time": 1.03
+        },
+        {
+          "action_jitter_l2": 19.850467681884766,
+          "contact_count": 0,
+          "control_tau_l2": 386.471918957641,
+          "episode_index": 0,
+          "fell": true,
+          "joint_acceleration_l2": 5497.318001896984,
+          "max_contact_force": 0.0,
+          "max_normal_force": 0.0,
+          "method_id": "action_scaling",
+          "seed": 11,
+          "step": 109,
+          "time": 1.09
+        },
+        {
+          "action_jitter_l2": 20.38287353515625,
+          "contact_count": 0,
+          "control_tau_l2": 392.7693074110675,
+          "episode_index": 0,
+          "fell": true,
+          "joint_acceleration_l2": 5489.172359611249,
+          "max_contact_force": 0.0,
+          "max_normal_force": 0.0,
+          "method_id": "action_scaling",
+          "seed": 11,
+          "step": 111,
+          "time": 1.11
+        },
+        {
+          "action_jitter_l2": 21.948026657104492,
+          "contact_count": 0,
+          "control_tau_l2": 401.9412699212622,
+          "episode_index": 0,
+          "fell": true,
+          "joint_acceleration_l2": 5388.790316804814,
+          "max_contact_force": 0.0,
+          "max_normal_force": 0.0,
+          "method_id": "action_scaling",
+          "seed": 11,
+          "step": 101,
+          "time": 1.01
+        }
+      ],
+      "trace_episode_count": 9,
+      "trace_steps": 2248
+    }
+  ],
+  "protocol": {
+    "base_xy_noise": 0.0,
+    "command_dyaw": 0.0,
+    "command_vx": 0.4,
+    "command_vy": 0.0,
+    "episodes": 20,
+    "joint_reset_noise": 0.1,
+    "sim_duration": 20.0,
+    "terrain_mode": "isaac_mainline",
+    "trace_max_episodes": 3,
+    "trace_max_steps": 1024
+  },
+  "source_artifacts": [
+    {
+      "checkpoint": 300,
+      "method_id": "scppo38",
+      "metrics_path": "artifacts/methods/sc_ppo_pid_probe/scppo38_mujoco_amp_trace_seed11/metrics_mujoco_amplification_trace_20ep_20s_noise01.json",
+      "seed": 11,
+      "trace_path": "artifacts/methods/sc_ppo_pid_probe/scppo38_mujoco_amp_trace_seed11/mujoco_amplification_trace_3ep_20s_noise01.json"
+    },
+    {
+      "checkpoint": 300,
+      "method_id": "scppo38",
+      "metrics_path": "artifacts/methods/sc_ppo_pid_probe/scppo38_mujoco_amp_trace_seed17/metrics_mujoco_amplification_trace_20ep_20s_noise01.json",
+      "seed": 17,
+      "trace_path": "artifacts/methods/sc_ppo_pid_probe/scppo38_mujoco_amp_trace_seed17/mujoco_amplification_trace_3ep_20s_noise01.json"
+    },
+    {
+      "checkpoint": 400,
+      "method_id": "scppo38",
+      "metrics_path": "artifacts/methods/sc_ppo_pid_probe/scppo38_mujoco_amp_trace_seed23/metrics_mujoco_amplification_trace_20ep_20s_noise01.json",
+      "seed": 23,
+      "trace_path": "artifacts/methods/sc_ppo_pid_probe/scppo38_mujoco_amp_trace_seed23/mujoco_amplification_trace_3ep_20s_noise01.json"
+    },
+    {
+      "checkpoint": 400,
+      "method_id": "layernorm_ep3",
+      "metrics_path": "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_ep3_mujoco_amp_trace_seed11/metrics_mujoco_amplification_trace_20ep_20s_noise01.json",
+      "seed": 11,
+      "trace_path": "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_ep3_mujoco_amp_trace_seed11/mujoco_amplification_trace_3ep_20s_noise01.json"
+    },
+    {
+      "checkpoint": 400,
+      "method_id": "layernorm_ep3",
+      "metrics_path": "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_ep3_mujoco_amp_trace_seed17/metrics_mujoco_amplification_trace_20ep_20s_noise01.json",
+      "seed": 17,
+      "trace_path": "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_ep3_mujoco_amp_trace_seed17/mujoco_amplification_trace_3ep_20s_noise01.json"
+    },
+    {
+      "checkpoint": 400,
+      "method_id": "layernorm_ep3",
+      "metrics_path": "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_ep3_mujoco_amp_trace_seed23/metrics_mujoco_amplification_trace_20ep_20s_noise01.json",
+      "seed": 23,
+      "trace_path": "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_ep3_mujoco_amp_trace_seed23/mujoco_amplification_trace_3ep_20s_noise01.json"
+    },
+    {
+      "checkpoint": 400,
+      "method_id": "action_scaling",
+      "metrics_path": "artifacts/methods/action_scaling_probe/action_scaling_mujoco_amp_trace_seed11/metrics_mujoco_amplification_trace_20ep_20s_noise01.json",
+      "seed": 11,
+      "trace_path": "artifacts/methods/action_scaling_probe/action_scaling_mujoco_amp_trace_seed11/mujoco_amplification_trace_3ep_20s_noise01.json"
+    },
+    {
+      "checkpoint": 400,
+      "method_id": "action_scaling",
+      "metrics_path": "artifacts/methods/action_scaling_probe/action_scaling_mujoco_amp_trace_seed17/metrics_mujoco_amplification_trace_20ep_20s_noise01.json",
+      "seed": 17,
+      "trace_path": "artifacts/methods/action_scaling_probe/action_scaling_mujoco_amp_trace_seed17/mujoco_amplification_trace_3ep_20s_noise01.json"
+    },
+    {
+      "checkpoint": 400,
+      "method_id": "action_scaling",
+      "metrics_path": "artifacts/methods/action_scaling_probe/action_scaling_mujoco_amp_trace_seed23/metrics_mujoco_amplification_trace_20ep_20s_noise01.json",
+      "seed": 23,
+      "trace_path": "artifacts/methods/action_scaling_probe/action_scaling_mujoco_amp_trace_seed23/mujoco_amplification_trace_3ep_20s_noise01.json"
+    }
+  ]
+}

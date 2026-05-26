@@ -4,7 +4,8 @@ This note records the quantitative cross-engine (Isaac → MuJoCo) smoothness de
 evidence across five smoothness mechanisms, forming the backbone of the paper's core claim.
 
 See also: [Paper manuscript skeleton](./paper/manuscript-skeleton.md),
-[Reviewer risk checklist](./paper/reviewer-risk-checklist.md).
+[Reviewer risk checklist](./paper/reviewer-risk-checklist.md),
+[MuJoCo amplification trace comparison](./sc-ppo-mujoco-amplification-trace-comparison.md).
 
 ## Degradation Table
 
@@ -62,9 +63,10 @@ cp   sensitivity  violation   jnt_acc   fall_rate
 
 Without a Jacobian constraint, sensitivity climbs freely. Task acquisition at cp300
 coincides with sensitivity ≈ 10, approximately 3× the SC-PPO level. The completed
-MuJoCo replay is consistent with this elevated sensitivity amplifying contact-
-dynamics differences, but the current artifacts do not localize the amplification
-at individual timesteps.
+MuJoCo replay is consistent with this elevated sensitivity amplifying policy-output
+and physics-rollout differences. The issue #49 trace follow-up localizes the
+largest action-jitter and joint-acceleration tails, but remains correlational
+rather than intervention-level causal proof.
 
 ## Interpretation
 
@@ -134,13 +136,20 @@ The hypothesized mechanism chain:
 ```
 High policy sensitivity (10.7 vs 3.6)
   → Observation differences amplified into action jitter (6-28x)
-    → Joint acceleration elevated through contact dynamics (3-13x)
+    → Joint acceleration elevated through the physics rollout (3-13x)
 ```
 
 The fact that jitter factor > jnt_acc factor for every replayed non-Jacobian
-replacement method supports the policy → physics reading, but it should not be
-treated as a time-series causal proof until the optional MuJoCo per-timestep trace
-work is completed.
+replacement method supports the policy → physics reading. The matched MuJoCo
+amplification trace comparison strengthens that reading: `Action Scaling` and
+`LayerNorm` have high jitter/joint-acceleration correlation (`0.659` and `0.708`)
+with weak contact-force correlation (`-0.035` and `0.063`), while `SC-PPO 3.8`
+keeps much smaller jitter and joint-acceleration tails. This argues against a
+contact-only explanation and supports a policy-output/control-stream amplification
+interpretation, still not a formal time-series causal proof.
+
+See `docs/sc-ppo-mujoco-amplification-trace-comparison.md` for the issue #49
+trace tables and artifact paths.
 
 ## Constraint Threshold Sensitivity
 
@@ -324,11 +333,12 @@ not provide the same cross-engine dynamic-smoothness robustness.
 - LDLJ and SPARC are kinematic metrics originally developed for human
   movement analysis. Their applicability to humanoid robot locomotion
   as paper-grade evidence has not been validated against external standards.
-- Only two methods were compared at trace level. Action/Output Scaling's
+- Only two methods were compared at LDLJ/SPARC trace level. Action/Output Scaling's
   kinematic smoothness (likely poor due to high jitter) is unknown.
-- The current policy → physics amplification reading is aggregate-level evidence.
-  Per-timestep MuJoCo traces are still needed to localize action and joint-acceleration
-  spikes around contacts.
+- The policy → physics amplification reading now has per-timestep MuJoCo trace
+  support, but the trace analysis is correlational. It localizes action-jitter,
+  control-tau, contact, and joint-acceleration coupling; it does not prove an
+  intervention-level causal chain.
 
 ## Canonical Artifacts
 
@@ -355,3 +365,10 @@ not provide the same cross-engine dynamic-smoothness robustness.
 
 - LayerNorm trade-off table:
   `artifacts/analysis/paper_figures/table_layernorm_tradeoff_ldlj_sparc.md`
+
+- MuJoCo amplification trace comparison:
+  `docs/sc-ppo-mujoco-amplification-trace-comparison.md`
+
+- MuJoCo amplification compact summaries:
+  `artifacts/analysis/mujoco_amplification_trace_comparison/summary.json`
+  and `artifacts/analysis/mujoco_amplification_trace_comparison/summary.md`

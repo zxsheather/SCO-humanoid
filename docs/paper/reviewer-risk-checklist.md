@@ -109,7 +109,10 @@ Each risk is rated by severity and the strength of the current response.
 - Action/Output Scaling sensitivity ranges are known (5.6-9.4)
   but their MuJoCo degradation is confounded by collapse (fall=1.0)
 - Trend is suggestive but not statistically robust
-- Acknowledged as aggregate-level mechanism evidence, not time-series
+- Matched MuJoCo traces add time-series support for policy-output/control-stream
+  amplification: high-degradation methods show high jitter/joint-acceleration
+  correlation with weak contact-force correlation
+- Still acknowledged as correlational evidence, not an intervention-level
   causal proof or a statistically established law
 
 ## Narrative Concerns

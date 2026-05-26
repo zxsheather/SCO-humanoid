@@ -18,6 +18,10 @@ artifacts/analysis/sn_replacement_diagnostic/*
 !artifacts/analysis/final_research_delivery_freeze/
 artifacts/analysis/final_research_delivery_freeze/*
 !artifacts/analysis/final_research_delivery_freeze/summary.json
+!artifacts/analysis/mujoco_amplification_trace_comparison/
+artifacts/analysis/mujoco_amplification_trace_comparison/*
+!artifacts/analysis/mujoco_amplification_trace_comparison/summary.json
+!artifacts/analysis/mujoco_amplification_trace_comparison/summary.md
 
 .vscode/
 .claude/
