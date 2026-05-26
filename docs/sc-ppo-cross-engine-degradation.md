@@ -3,6 +3,9 @@
 This note records the quantitative cross-engine (Isaac → MuJoCo) smoothness degradation
 evidence across five smoothness mechanisms, forming the backbone of the paper's core claim.
 
+See also: [Paper manuscript skeleton](./paper/manuscript-skeleton.md),
+[Reviewer risk checklist](./paper/reviewer-risk-checklist.md).
+
 ## Degradation Table
 
 | Method | Isaac jnt_acc | MuJoCo jnt_acc | Degradation Factor | Isaac fall | MuJoCo fall |
