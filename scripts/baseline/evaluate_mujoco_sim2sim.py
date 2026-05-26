@@ -309,6 +309,8 @@ def run_episode(
     command_dyaw: float,
     joint_reset_noise: float,
     base_xy_noise: float,
+    capture_trace: bool = False,
+    trace_max_steps: int = 1024,
 ):
     model = mujoco.MjModel.from_xml_path(str(mujoco_model_path))
     model.opt.timestep = cfg.sim.dt
@@ -343,6 +345,9 @@ def run_episode(
     count_lowlevel = 0
     prev_action = np.zeros_like(action)
     fall = False
+
+    # Per-timestep trace capture (optional)
+    trace: list[dict] | None = [] if capture_trace else None
 
     action_scale = cfg.control.action_scale
     control_dt = cfg.control.decimation * cfg.sim.dt
@@ -402,20 +407,35 @@ def run_episode(
 
         prev_action = action.copy()
 
+        # Capture per-timestep trace
+        if trace is not None and step_count < trace_max_steps:
+            step_trace: dict = {
+                "step": step_count,
+                "action": action.tolist(),
+                "joint_velocity": dq_after.tolist(),
+                "joint_acceleration": ((dq_after - dq_before) / control_dt).tolist(),
+                "base_position_z": float(data.xpos[base_body_id][2]),
+                "base_linear_velocity": base_lin_vel_after.tolist(),
+                "base_angular_velocity": base_ang_vel_after.tolist(),
+            }
+            trace.append(step_trace)
+
         base_height = float(data.xpos[base_body_id][2])
         if base_height < cfg.eval.fall_height_threshold:
             fall = True
             break
 
-    denom = max(step_count, 1)
-    return {
+    result = {
         "episode_return": returns,
-        "velocity_tracking_error": tracking_error_sum / denom,
-        "joint_acceleration_l2": joint_accel_sum / denom,
-        "action_jitter_l2": action_jitter_sum / denom,
+        "velocity_tracking_error": tracking_error_sum / max(step_count, 1),
+        "joint_acceleration_l2": joint_accel_sum / max(step_count, 1),
+        "action_jitter_l2": action_jitter_sum / max(step_count, 1),
         "fell": fall,
         "steps": step_count,
     }
+    if trace is not None:
+        result["trace"] = trace
+    return result
 
 
 def main() -> int:
@@ -472,6 +492,28 @@ def main() -> int:
         "--manifest-slot",
         default=None,
         help="Optional manifest key under mujoco_metrics_runs for preserving multiple MuJoCo eval variants.",
+    )
+    parser.add_argument(
+        "--capture-traces",
+        action="store_true",
+        help="Enable per-timestep trace capture for amplification diagnosis. Disabled by default.",
+    )
+    parser.add_argument(
+        "--trace-max-episodes",
+        type=int,
+        default=3,
+        help="Maximum number of episodes to capture traces for (default: 3).",
+    )
+    parser.add_argument(
+        "--trace-max-steps",
+        type=int,
+        default=1024,
+        help="Maximum number of timesteps per episode trace (default: 1024).",
+    )
+    parser.add_argument(
+        "--trace-output-name",
+        default="mujoco_episode_traces.json",
+        help="Artifact filename for the per-timestep trace JSON (default: mujoco_episode_traces.json).",
     )
     args = parser.parse_args()
 
@@ -535,14 +577,20 @@ def main() -> int:
     mujoco_model_path = materialize_mujoco_model(protocol)
     rng = np.random.default_rng(int(args.seed))
 
+    capture_traces = bool(args.capture_traces)
+    trace_max_episodes = int(args.trace_max_episodes)
+    trace_max_steps = int(args.trace_max_steps)
+
     episode_returns: list[float] = []
     tracking_errors: list[float] = []
     joint_accels: list[float] = []
     action_jitters: list[float] = []
     fell_flags: list[bool] = []
     episode_lengths: list[int] = []
+    all_traces: list[dict] = []
 
-    for _ in range(args.episodes):
+    for episode_idx in range(args.episodes):
+        ep_capture = capture_traces and episode_idx < trace_max_episodes
         result = run_episode(
             policy,
             cfg,
@@ -555,6 +603,8 @@ def main() -> int:
             command_dyaw=float(args.command_dyaw),
             joint_reset_noise=float(args.joint_reset_noise),
             base_xy_noise=float(args.base_xy_noise),
+            capture_trace=ep_capture,
+            trace_max_steps=trace_max_steps,
         )
         episode_returns.append(result["episode_return"])
         tracking_errors.append(result["velocity_tracking_error"])
@@ -562,6 +612,13 @@ def main() -> int:
         action_jitters.append(result["action_jitter_l2"])
         fell_flags.append(bool(result["fell"]))
         episode_lengths.append(int(result["steps"]))
+        if "trace" in result:
+            all_traces.append({
+                "episode_index": episode_idx,
+                "fell": result["fell"],
+                "steps": result["steps"],
+                "trace": result["trace"],
+            })
 
     return_mean, return_std = summarize(episode_returns)
     tracking_mean, tracking_std = summarize(tracking_errors)
@@ -639,6 +696,34 @@ def main() -> int:
         "metrics": metrics,
     }
     manifest["mujoco_metrics_runs"] = mujoco_metrics_runs
+
+    # Save per-timestep traces when enabled
+    if capture_traces and all_traces:
+        trace_payload = {
+            "metric_schema_version": metrics["metric_schema_version"],
+            "method_id": metrics["method_id"],
+            "method_label": metrics["method_label"],
+            "evaluation_backend": "mujoco_sim2sim",
+            "checkpoint": int(args.checkpoint) if args.checkpoint is not None else None,
+            "load_run": args.load_run,
+            "terrain_mode": protocol["terrain_mode"],
+            "command_vx": float(args.command_vx),
+            "command_vy": float(args.command_vy),
+            "command_dyaw": float(args.command_dyaw),
+            "sim_duration": float(args.sim_duration),
+            "control_dt": float(cfg.control.decimation * cfg.sim.dt),
+            "control_decimation": int(cfg.control.decimation),
+            "sim_timestep": float(cfg.sim.dt),
+            "trace_max_episodes": trace_max_episodes,
+            "trace_max_steps": trace_max_steps,
+            "episode_count": len(all_traces),
+            "episodes": all_traces,
+        }
+        trace_path = output_dir / args.trace_output_name
+        write_json(trace_path, trace_payload)
+        manifest["mujoco_trace_path"] = relative_to_repo(trace_path)
+        print(f"Wrote {relative_to_repo(trace_path)}")
+
     write_json(manifest_path, manifest)
 
     print(f"Wrote {relative_to_repo(metrics_path)}")
