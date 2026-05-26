@@ -287,6 +287,7 @@ Current status and next step:
 - [docs/sc-ppo-current-summary.md](docs/sc-ppo-current-summary.md)
 - [docs/sc-ppo-current-blockers.md](docs/sc-ppo-current-blockers.md)
 - [docs/sc-ppo-next-step-direction.md](docs/sc-ppo-next-step-direction.md)
+- [docs/sc-ppo-cross-engine-degradation.md](docs/sc-ppo-cross-engine-degradation.md)
 - [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
 
 Post-freeze reusable diagnostics on `main`:
@@ -320,30 +321,56 @@ If you are new to the repo, the fastest way to build context is:
 
 ## Current repo state
 
-The repo has completed `科研交付冻结 / 仓库内科研交付包`.
+The repo completed `科研交付冻结 / 仓库内科研交付包` and then ran a bounded post-freeze
+exploration cycle under `同命题主线挑战`. The paper direction has shifted from a pure `方法优于启发式`
+claim toward a broader cross-engine smoothness degradation study.
 
-`main` should now be read as the frozen internal research delivery package rather than as an active
-experiment branch:
+### Completed mainline
 
-- Isaac rough-terrain: `SC-PPO 3.8` supports the current `方法优于启发式` claim against the revised
-  heuristic anchor
-- `MuJoCo isaac_mainline`: aligned replay is `混合外部验证结论`
-- `PID有限消融`: closed as limited mechanism support for `PID-Lagrangian正式方案`, not a new mainline
-- `SN`: the bounded `替代机制可行性诊断` is closed negative; full-actor `smoke`, `short`,
-  `medium`, hidden-layer-only `medium`, hidden-layer-only `coeff = 2.0`, and first-hidden-only
-  `medium` reduced-budget runs completed but collapsed, so the repo should not continue blind
-  SN-only architecture toggles
-- `#7 随机阶梯`: closed as a selected-checkpoint stress test; all three methods collapse under the
-  first stairs-only random-stairs protocol, so it records direct transfer failure rather than a
-  task-valid method ranking
-- post-freeze reusable diagnostics now included on `main`: objective-mismatch checkpoint alignment
-  and behavior-smoothness trace summaries
-- future moderated random-stairs, terrain protocol repair, or task-stabilized SN work should be
-  opened as separate post-freeze branches rather than modifying the frozen package on `main`
+- Isaac rough-terrain: `SC-PPO 3.8` supports `方法优于启发式` against the revised heuristic anchor
+- `MuJoCo isaac_mainline`: `混合外部验证结论`
+- `PID有限消融`: closed, supports `PID-Lagrangian正式方案`
 
-Tracked freeze references:
+### Post-freeze exploration (all closed)
 
-- [artifacts/analysis/final_research_delivery_freeze/summary.json](artifacts/analysis/final_research_delivery_freeze/summary.json)
-- [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
-- [docs/sc-ppo-objective-mismatch-diagnostic.md](docs/sc-ppo-objective-mismatch-diagnostic.md)
-- [docs/sc-ppo-behavior-smoothness-metric-diagnostic.md](docs/sc-ppo-behavior-smoothness-metric-diagnostic.md)
+Eight alternative smoothness mechanisms were tested under the same-question boundary:
+
+| Family | Line | Isaac Result | MuJoCo Result |
+| --- | --- | --- | --- |
+| Constraint-shape | Anisotropic local-sensitivity | Collapsed | — |
+| Constrained-object | Action-rate hard constraint | Collapsed | — |
+| Architectural | SN (spectral norm) | Collapsed | — |
+| Architectural | Orthogonal actor | Collapsed | — |
+| Architectural | **LayerNorm actor** | **3/3 task-valid** | **jnt_acc 3.5x worse** |
+| Non-architectural | Action-side scaling | Partial (fall=0.37) | Collapsed, jnt_acc 12.7x worse |
+| Non-architectural | Output-side scaling | Partial (fall=0.43) | Collapsed, jnt_acc 4.1x worse |
+| Method-family | Plain dual ascent | Partial (fall=0.42) | — |
+
+### Cross-engine degradation (paper core claim)
+
+Five methods were replayed in MuJoCo under the shared `isaac_mainline` protocol:
+
+| Method | Isaac jnt_acc | MuJoCo jnt_acc | Degradation |
+| --- | ---: | ---: | ---: |
+| Heuristic baseline | 120 | 121 | ×1.01 |
+| SC-PPO 3.8 | 116 | 126 | ×1.08 |
+| LayerNorm epochs=3 | 172 | 603 | ×3.5 |
+| Action Scaling | 144 | 1836 | ×12.7 |
+| Output Scaling | 121 | 500 | ×4.1 |
+
+Jacobian-based constraint and heuristic action-rate penalty are the only mechanisms
+that preserve smoothness across engines. Jacobian sensitivity at the policy level
+predicts the degradation factor: SC-PPO's ~3.6 sensitivity yields ~1.08x degradation,
+while LayerNorm's ~10.7 sensitivity yields ~3.5x degradation.
+
+### Paper-direction analysis
+
+- Lagrange multiplier dynamics: PID multiplier stays near zero, acting as safety mechanism
+- Constraint threshold sensitivity: effective window is [3.6, 3.8)
+- LDLJ/SPARC trace comparison: kinematic vs dynamic smoothness as two dimensions
+- SC-PPO epochs=3 reliability repair: mixed result, does not universally fix final-checkpoint issue
+
+Full analysis: [docs/sc-ppo-cross-engine-degradation.md](docs/sc-ppo-cross-engine-degradation.md)
+
+`main` operates as a `冻结主档案分支`: backports limited to `冻结边界章节` updates and
+reusable evaluation/diagnostic infrastructure.

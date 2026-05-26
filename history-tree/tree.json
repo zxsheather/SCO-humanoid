@@ -1,6 +1,6 @@
 {
   "project": "SCO-humanoid",
-  "generated": "2026-05-25",
+  "generated": "2026-05-26",
   "description": "A curated project-wide research history: key commits, issue-tracked decisions, merged backports, and major post-freeze exploration lines. It is not a strict git DAG and it is not an exhaustive list of every transient helper branch.",
   "nodes": [
     {
@@ -458,6 +458,50 @@
       ],
       "parent": "cross-engine-degradation-table",
       "summary": "Checkpoint-sweep analysis reveals LayerNorm needs 3x higher Jacobian sensitivity (10.7 vs 3.6) to achieve task stability, directly explaining the 3.5x MuJoCo degradation. SC-PPO's PID-Lagrangian keeps sensitivity at 3.6 throughout training."
+    },
+    {
+      "id": "plain-dual-comparison",
+      "title": "Plain Dual Ascent (PPO-Lagrangian) Comparison",
+      "date": "2026-05-26",
+      "type": "experiment",
+      "outcome": "mixed",
+      "tags": [
+        "sota-baseline",
+        "dual-ascent",
+        "pid-ablation"
+      ],
+      "parent": "pid-limited-ablation",
+      "summary": "Full 3-seed plain dual ascent comparison: seed11 succeeds (sel=fin=400, fall=0.0), seed23 collapses (sel=0). PID-Lagrangian provides cross-seed stability that plain dual ascent lacks."
+    },
+    {
+      "id": "scppo-epochs3-repair",
+      "title": "SC-PPO epochs=3 Reliability Repair",
+      "date": "2026-05-26",
+      "type": "experiment",
+      "outcome": "failure",
+      "tags": [
+        "sc-ppo",
+        "reliability",
+        "epochs",
+        "negative"
+      ],
+      "parent": "sensitivity-causal-chain",
+      "summary": "Applying num_learning_epochs=3 to SC-PPO 3.8 produced mixed results (seed11 improved, seed23 degraded), confirming Jacobian constraint interacts differently with training schedule than LayerNorm architecture."
+    },
+    {
+      "id": "trace-ldlj-sparc-comparison",
+      "title": "LDLJ/SPARC Trace Comparison",
+      "date": "2026-05-26",
+      "type": "analysis",
+      "outcome": "mixed",
+      "tags": [
+        "trace-metrics",
+        "ldlj",
+        "sparc",
+        "kinematic-smoothness"
+      ],
+      "parent": "sensitivity-causal-chain",
+      "summary": "20-episode trace comparison reveals smoothness as two-dimensional: LayerNorm wins on kinematic smoothness (LDLJ/SPARC), SC-PPO wins on dynamic smoothness (jnt_acc/jitter). The two mechanism families optimize different aspects of motion quality."
     }
   ]
 }

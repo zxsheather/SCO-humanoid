@@ -117,6 +117,41 @@ The first #7 stairs-only selected-checkpoint stress test is now complete:
 - the next useful random-stairs step is protocol repair or moderation, but it should be opened as a
   separate post-freeze branch rather than folded back into `main`
 
+## Post-freeze exploration (all closed under `同命题主线挑战`)
+
+After the freeze, eight alternative smoothness mechanisms were tested. All are now closed:
+
+| Family | Line | Isaac | MuJoCo |
+| --- | --- | --- | --- |
+| Constraint-shape | Anisotropic local-sensitivity | Collapsed | — |
+| Constrained-object | Action-rate hard constraint | Collapsed | — |
+| Architectural | SN | Collapsed | — |
+| Architectural | Orthogonal actor | Collapsed | — |
+| Architectural | LayerNorm actor | 3/3 valid | 3.5x degradation |
+| Non-architectural | Action scaling | Partial | 12.7x degradation |
+| Non-architectural | Output scaling | Partial | 4.1x degradation |
+| Method-family | Plain dual ascent | Partial (seed23 collapsed) | — |
+
+LayerNorm epochs=3 is the only architecture-side result to pass the full Isaac internal challenge
+(selected=final=400 on all seeds), but it trades away smoothness for task performance.
+
+## Cross-engine degradation (paper core claim)
+
+Five methods replayed in MuJoCo `isaac_mainline`:
+
+| Method | Isaac jnt_acc | MuJoCo jnt_acc | Degradation |
+| --- | ---: | ---: | ---: |
+| Heuristic baseline | 120 | 121 | ×1.01 |
+| SC-PPO 3.8 | 116 | 126 | ×1.08 |
+| LayerNorm epochs=3 | 172 | 603 | ×3.5 |
+| Action Scaling | 144 | 1836 | ×12.7 |
+| Output Scaling | 121 | 500 | ×4.1 |
+
+Only Jacobian constraint and heuristic action-rate penalty preserve smoothness across engines.
+The Jacobian sensitivity level predicts the degradation factor.
+
+Full cross-engine analysis: [SC-PPO cross-engine degradation](./sc-ppo-cross-engine-degradation.md)
+
 ## Detailed references
 
 - [SC-PPO report-grade status](./sc-ppo-report-status.md)

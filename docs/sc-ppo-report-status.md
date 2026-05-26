@@ -271,6 +271,37 @@ Canonical freeze references:
 - [Final research delivery checklist](./reproduction/final-research-delivery-checklist.md)
 - [ADR 0001: freeze research delivery before new protocol repair](./adr/0001-freeze-research-delivery-before-new-protocol-repair.md)
 
+## Post-Freeze Exploration & Cross-Engine Degradation
+
+After the freeze, eight alternative smoothness mechanisms were tested under `同命题主线挑战`.
+All are now closed. The central paper-direction finding is the cross-engine degradation pattern:
+
+### Cross-engine degradation table
+
+| Method | Isaac jnt_acc | MuJoCo jnt_acc | Degradation |
+| --- | ---: | ---: | ---: |
+| Heuristic baseline | 120 | 121 | ×1.01 |
+| SC-PPO 3.8 | 116 | 126 | ×1.08 |
+| LayerNorm epochs=3 | 172 | 603 | ×3.5 |
+| Action Scaling | 144 | 1836 | ×12.7 |
+| Output Scaling | 121 | 500 | ×4.1 |
+
+Jacobian constraint and heuristic action-rate penalty are the only mechanisms
+that preserve smoothness across engines.
+
+### Supporting analysis
+
+- Jacobian sensitivity causal chain: SC-PPO keeps sensitivity at ~3.6; LayerNorm
+  needs ~10.7 for task acquisition, explaining the ~3.5× degradation
+- PID-Lagrange multiplier dynamics: multiplier stays near zero, acting as safety
+  mechanism rather than active enforcement
+- Constraint threshold sensitivity: effective window is [3.6, 3.8)
+- LDLJ/SPARC trace: LayerNorm wins on kinematic smoothness, SC-PPO wins on
+  dynamic smoothness — revealing smoothness as two-dimensional
+- SC-PPO epochs=3 repair: mixed result (seed11 improved, seed23 degraded)
+
+Full analysis: [SC-PPO cross-engine degradation](./sc-ppo-cross-engine-degradation.md)
+
 ## What Is Not Supported
 
 The repo still does not support the following claims:
@@ -283,8 +314,11 @@ The repo still does not support the following claims:
 - that the `PID有限消融` proves every PID term is independently necessary
 - that the current `SN-only` branch is a task-valid replacement mechanism
 - that the first stairs-only random-stairs protocol supports a task-valid method ranking
+- that any non-Jacobian replacement mechanism tested so far (LayerNorm, action/output scaling,
+  orthogonal actor) provides cross-engine smoothness robustness comparable to SC-PPO
+- that `num_learning_epochs = 3` universally fixes final-checkpoint reliability for SC-PPO
 
-The completed local controls still reinforce that boundary:
+The completed local controls and post-freeze exploration reinforce that boundary:
 
 - repaired `threshold = 4.0` fails to match the `3.8` mainline and includes `seed23 -> checkpoint 0`
 - `threshold = 3.6 + full_batch` looked promising on `seed11`, but its formal promotion attempt
@@ -292,6 +326,8 @@ The completed local controls still reinforce that boundary:
   - `seed11 -> checkpoint 350`
   - `seed17 -> checkpoint 350`
   - `seed23 -> checkpoint 0`
+- SC-PPO epochs=3: seed11 improved (sel 300→400) but seed23 degraded (sel 400→300)
+- Plain dual ascent: seed11 succeeds but seed23 collapses (sel=0)
 
 ## Recommended citation pattern
 
@@ -302,3 +338,11 @@ When summarizing the current project state, the safest compact wording is:
 English-safe wording:
 
 `On the current Isaac rough-terrain task, repaired PID-Lagrangian SC-PPO (threshold = 3.8) remains the strongest completed method line in the repo. The frozen baseline refresh first collapsed Vanilla PPO and the bounded heuristic action-rate family to checkpoint 0, the repaired-budget follow-up then narrowed the old heuristic winner to 0 / 0 / 200, and the completed revised long-budget protocol finally repaired that heuristic row to 350 / 300 / 350. So the repo now again has a defensible 3-seed heuristic formal anchor, and SC-PPO 3.8 remains better than that anchor on velocity tracking, fall rate, joint acceleration, and action jitter under the shared Isaac metric schema. However, the aligned MuJoCo isaac_mainline replay does not preserve that ordering: the revised heuristic anchor is better on task stability, velocity tracking, episode length, and joint acceleration, while SC-PPO 3.8 is only slightly better on action jitter. The external-validation reading should therefore be reported as mixed evidence rather than as a cross-engine SC-PPO advantage.`
+
+**Post-freeze paper-direction summary (Chinese)**:
+
+`冻结后，仓库在 同命题主线挑战 下系统测试了 8 种替代平滑机制（各向异性约束形状、动作时间变化率硬约束、SN、正交actor、LayerNorm actor、动作缩放、输出缩放、plain dual ascent），全部闭合为负向或混合结果。其中 LayerNorm actor（num_learning_epochs=3）是唯一通过 Isaac 内部挑战（3/3 selected=final=400）的架构侧候选，但其跨引擎 replay 显示关节加速度退化为 SC-PPO 3.8 的 3.5 倍。5 方法的跨引擎退化表（Heuristic ×1.01、SC-PPO ×1.08、LayerNorm ×3.5、Action Scaling ×12.7、Output Scaling ×4.1）构成了论文的核心证据：Jacobian 约束和启发式动作惩罚是仅有的两种能跨引擎保持平滑性的机制。Jacobian sensitivity 水平预测退化因子（SC-PPO ~3.6 → ×1.08；LayerNorm ~10.7 → ×3.5），支持 "约束 policy Jacobian sensitivity 是隐式 sim-to-sim 正则化" 的核心主张。`
+
+**Post-freeze paper-direction summary (English)**:
+
+`After the freeze, the repo systematically tested 8 alternative smoothness mechanisms under the same-question boundary (anisotropic constraint shape, action-rate hard constraint, SN, orthogonal actor, LayerNorm actor, action scaling, output scaling, plain dual ascent). All closed as negative or mixed. LayerNorm actor (num_learning_epochs=3) is the only architecture-side candidate to pass the full Isaac internal challenge (3/3 selected=final=400), but its cross-engine replay shows 3.5x worse joint acceleration than SC-PPO 3.8. The 5-method cross-engine degradation table (Heuristic ×1.01, SC-PPO ×1.08, LayerNorm ×3.5, Action Scaling ×12.7, Output Scaling ×4.1) forms the paper's core evidence: Jacobian constraint and heuristic action-rate penalty are the only mechanisms that preserve smoothness across engines. Jacobian sensitivity level predicts the degradation factor (SC-PPO ~3.6 → ×1.08; LayerNorm ~10.7 → ×3.5), supporting the core thesis that constraining policy Jacobian sensitivity serves as implicit sim-to-sim regularization.`
