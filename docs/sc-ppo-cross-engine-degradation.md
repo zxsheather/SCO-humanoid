@@ -113,11 +113,11 @@ occurs:
 | Output Scaling | 4.88x | 4.12x | **Policy-level** |
 | LayerNorm epochs=3 | 6.41x | 3.50x | **Policy-level** |
 
-For all three non-Jacobian methods, `action_jitter` inflates MORE than
-`joint_acceleration` in MuJoCo. This means the primary amplification happens at the
-**policy output level**: high Jacobian sensitivity causes the policy to produce
-jittery actions in response to MuJoCo's observation distribution, and these
-jittery actions then drive elevated joint acceleration through physics.
+For all three non-Jacobian methods, `action_jitter` inflates more than
+`joint_acceleration` in MuJoCo. This is consistent with a **policy-output amplification**
+reading: high Jacobian sensitivity can turn MuJoCo observation-distribution differences
+into jittery actions, and those jittery actions can then drive elevated joint acceleration
+through the physics rollout.
 
 The causal chain:
 
@@ -127,8 +127,9 @@ High policy sensitivity (10.7 vs 3.6)
     → Joint acceleration elevated through contact dynamics (3-13x)
 ```
 
-The fact that jitter factor > jnt_acc factor for every non-Jacobian method confirms
-the propagation direction is policy → physics, not physics → policy.
+The fact that jitter factor > jnt_acc factor for every non-Jacobian method supports
+the policy → physics reading, but it should not be treated as a time-series causal proof
+until the optional MuJoCo per-timestep trace work is completed.
 
 ## Constraint Threshold Sensitivity
 
@@ -152,23 +153,6 @@ regimes. The effective window for this task is approximately [3.6, 3.8).
 This narrow sensitivity window supports the claim that `threshold=3.8`
 was not cherry-picked from a broad range — it is the only value in the
 tested neighborhood that produces consistent cross-seed results.
-
-## Canonical Artifacts
-
-- SC-PPO 3.8 checkpoint sweep:
-  `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed{11,17,23}/checkpoint_sweep_summary.json`
-
-- LayerNorm epochs=3 checkpoint sweep:
-  `artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed{11,17,23}/checkpoint_sweep_summary.json`
-
-- MuJoCo replay metrics:
-  `artifacts/methods/{method}_probe/{run_name}_seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
-
-- Action Scaling MuJoCo:
-  `artifacts/methods/action_scaling_probe/action_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
-
-- Output Scaling MuJoCo:
-  `artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
 
 ## Plain Dual Ascent (PPO-Lagrangian) Comparison
 
@@ -244,10 +228,13 @@ different physical behaviors:
 
 **Dynamic smoothness** (force/torque level):
 - `joint_acceleration_l2_mean`: L2 norm of joint angular acceleration,
-  proportional to joint torque rate-of-change. Captures the physical "jerkiness"
-  that stresses actuators and transfers vibration to the robot structure.
+  used here as a dynamic loading and actuation-smoothness proxy. It is related to
+  torque demand through the robot dynamics, but it is not itself a torque-rate metric.
+  It captures rapid joint-level accelerations that can stress actuators and transfer
+  vibration to the robot structure.
 - `action_jitter_l2_mean`: L2 norm of adjacent-timestep action differences.
-  Captures whether the policy output itself oscillates at high frequency.
+  Captures whether the policy command stream itself changes abruptly from one control
+  step to the next.
 
 **Kinematic smoothness** (trajectory shape level):
 - `joint_position_ldlj_mean` (Log Dimensionless Jerk): Integral of squared
@@ -256,7 +243,8 @@ different physical behaviors:
   independent of the forces required to produce them.
 - `joint_velocity_sparc_mean` (Spectral Arc Length): Frequency-domain measure
   of joint velocity profile complexity. Lower (more negative) values indicate
-  simpler, smoother velocity spectra with fewer high-frequency components.
+  simpler velocity spectra with fewer high-frequency components. In this repo's
+  sign convention, more negative aggregate values are interpreted as smoother.
 
 ### Observed disagreement
 
@@ -277,24 +265,23 @@ slightly less kinematically smooth.
 
 ### Physical interpretation
 
-The LayerNorm architecture normalizes hidden-layer activations, which has
-a natural low-pass filtering effect on the network output: high-frequency
-components in the policy computation are attenuated before reaching the
-action output. This produces smooth joint position/velocity profiles
-(kinematic smoothness) even when the underlying torque signals are noisy.
+The LayerNorm architecture normalizes hidden-layer activations at each policy step.
+The current evidence should be read empirically rather than as proof of a temporal
+low-pass filter: the normalized actor can produce smoother joint position/velocity
+profiles in the captured traces, but it still permits larger action-to-action changes
+and higher joint accelerations.
 
-SC-PPO's Jacobian constraint operates at a different level: it directly
-limits the policy's sensitivity to observation changes, reducing the
-amplification of sensor noise and simulator artifacts. This suppresses
-high-frequency torque oscillations (dynamic smoothness) but does not
-inherently smooth the joint trajectory shape — the policy may still
-produce complex but low-amplitude joint motions.
+SC-PPO's Jacobian constraint operates at a different level: it limits the policy's
+local sensitivity to observation changes, reducing the amplification of sensor noise
+and simulator artifacts into command changes. This suppresses dynamic oscillation
+proxies such as action jitter and joint acceleration, but it does not necessarily
+optimize trajectory-shape metrics such as LDLJ or SPARC.
 
 The two mechanisms optimize different aspects of motion quality because
 they intervene at different points in the control pipeline:
 
 ```
-Observation → [LayerNorm: smooths activations] → Action → Torque → Joint motion
+Observation → [LayerNorm: normalizes activations] → Action → Torque → Joint motion
 Observation → [Jacobian: limits sensitivity]     → Action → Torque → Joint motion
 ```
 
@@ -303,18 +290,17 @@ Observation → [Jacobian: limits sensitivity]     → Action → Torque → Joi
 The dynamic-vs-kinematic split connects directly to the paper's core claim.
 When policies are replayed in MuJoCo, dynamic smoothness metrics show the
 largest degradation for non-Jacobian methods (3-13x worse jnt_acc).
-Kinematic smoothness, while informative for characterizing motion quality,
-does not predict cross-engine transfer stability — it measures the output
-shape, not the underlying force generation process that interacts with the
-physics engine's contact solver.
+Kinematic smoothness, while informative for characterizing motion quality, is not
+the metric family that currently tracks cross-engine dynamic degradation. It measures
+trajectory shape, while the degradation table is dominated by command and joint
+acceleration amplification under a different contact solver.
 
-The Jacobian constraint's value for cross-engine transfer lies in its direct
-effect on dynamic smoothness: by limiting the policy's sensitivity to
-observation perturbations, it prevents the simulator-specific contact
-dynamics from being amplified into large torque oscillations. Kinematic
-smoothing (via LayerNorm or similar architectural constraints) may improve
-the visual quality of motion but does not provide the same cross-engine
-robustness.
+The Jacobian constraint's value for the current paper claim lies in its direct
+effect on dynamic smoothness: by limiting local policy sensitivity, it reduces
+the conversion of simulator-specific perturbations into large command and joint-
+acceleration changes. Kinematic smoothing via LayerNorm may improve the visual
+or trajectory-shape quality of motion, but the completed evidence shows it does
+not provide the same cross-engine dynamic-smoothness robustness.
 
 ### Limitations
 
@@ -329,6 +315,9 @@ robustness.
   as paper-grade evidence has not been validated against external standards.
 - Only two methods were compared at trace level. Action/Output Scaling's
   kinematic smoothness (likely poor due to high jitter) is unknown.
+- The current policy → physics amplification reading is aggregate-level evidence.
+  Per-timestep MuJoCo traces are still needed to localize action and joint-acceleration
+  spikes around contacts.
 
 ## Canonical Artifacts
 
@@ -346,3 +335,12 @@ robustness.
 
 - Output Scaling MuJoCo:
   `artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
+
+- Paper figure/table generation:
+  `/TinyNAS2024/zhuoxiang/sco-humanoid/bin/python scripts/analysis/generate_paper_figures.py`
+
+- Dynamic-vs-kinematic figure:
+  `artifacts/analysis/paper_figures/figure_task_vs_smoothness.png`
+
+- LayerNorm trade-off table:
+  `artifacts/analysis/paper_figures/table_layernorm_tradeoff_ldlj_sparc.md`
