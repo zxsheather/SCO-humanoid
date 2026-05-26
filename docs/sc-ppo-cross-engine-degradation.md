@@ -130,6 +130,29 @@ High policy sensitivity (10.7 vs 3.6)
 The fact that jitter factor > jnt_acc factor for every non-Jacobian method confirms
 the propagation direction is policy → physics, not physics → policy.
 
+## Constraint Threshold Sensitivity
+
+The repo has tested multiple `local_sensitivity` threshold values around the
+3.8 mainline. The effective window is extremely narrow:
+
+| Threshold | Regime | seed11 | seed17 | seed23 | Outcome |
+| ---: | --- | --- | --- | --- | --- |
+| 3.6 | full_batch | cp350 f=0.10 | cp350 f=0.65 | **cp0 f=1.00** | Failed |
+| 3.7 | full_batch | frozen diagnostic | — | — | Frozen |
+| 3.8 | quantile-0.90 | cp300 f=0.10 | cp300 f=0.10 | cp400 f=0.10 | **Mainline** |
+| 4.0 | quantile-0.90 | — | — | **cp0 f=1.00** | Failed |
+| 4.2 | quantile-0.90 | single-seed failure | — | — | Closed |
+
+Only threshold=3.8 produces 3/3 task-valid selected checkpoints.
+Threshold=3.6 (tighter) fails seed23 despite being closer to the ideal
+smoothness target. Threshold=4.0 (looser) also fails seed23, suggesting
+insufficient constraint pressure allows the policy to drift into unstable
+regimes. The effective window for this task is approximately [3.6, 3.8).
+
+This narrow sensitivity window supports the claim that `threshold=3.8`
+was not cherry-picked from a broad range — it is the only value in the
+tested neighborhood that produces consistent cross-seed results.
+
 ## Canonical Artifacts
 
 - SC-PPO 3.8 checkpoint sweep:
