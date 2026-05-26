@@ -1,0 +1,16 @@
+{
+  "name": "rough_terrain_plain_dual_probe",
+  "analysis_root": "artifacts/analysis/rough_terrain_plain_dual_probe",
+  "seeds": [11, 17, 23],
+  "train_num_envs": 512,
+  "eval_num_envs": 32,
+  "max_iterations": 400,
+  "episodes": 20,
+  "candidates": [
+    {
+      "id": "sc_ppo_threshold_38_lambda_05_quantile_090_dual_001",
+      "label": "SC-PPO plain dual ascent (threshold=3.8, lambda_init=0.5, dual_lr=0.01)",
+      "config": "configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_dual_001.json"
+    }
+  ]
+}
