@@ -36,6 +36,7 @@ from _overrides import apply_method_overrides  # noqa: E402
 
 
 VALID_TERRAIN_MODES = ("isaac_mainline", "plane", "hfield_moderate", "hfield_stress")
+VALID_ACTUATOR_PROXY_MODES = ("none", "action_lowpass")
 # Keep the original stress footprint and only compress the vertical envelope, so the moderate
 # profile is a true softened variant of the same terrain instead of a slope-amplified rescaling.
 HFIELD_MODERATE_SIZE = (50.0, 50.0, 0.06, 0.02)
@@ -89,6 +90,54 @@ def pd_control(
     kd: np.ndarray,
 ) -> np.ndarray:
     return (target_q - q) * kp + (target_dq - dq) * kd
+
+
+def build_actuator_proxy_config(
+    *,
+    mode: str,
+    lowpass_time_constant: float,
+    control_dt: float,
+) -> dict[str, Any]:
+    normalized_mode = mode.strip().lower().replace("-", "_")
+    if normalized_mode not in VALID_ACTUATOR_PROXY_MODES:
+        raise BaselineError(
+            f"Unsupported actuator proxy mode={mode!r}. "
+            f"Expected one of: {', '.join(VALID_ACTUATOR_PROXY_MODES)}."
+        )
+    if control_dt <= 0.0:
+        raise BaselineError("control_dt must be positive for actuator proxy setup.")
+    if lowpass_time_constant < 0.0:
+        raise BaselineError("--actuator-lowpass-time-constant must be non-negative.")
+
+    alpha = 1.0
+    if normalized_mode == "action_lowpass" and lowpass_time_constant > 0.0:
+        alpha = control_dt / (lowpass_time_constant + control_dt)
+
+    return {
+        "mode": normalized_mode,
+        "lowpass_time_constant": float(lowpass_time_constant),
+        "lowpass_alpha": float(alpha),
+        "control_dt": float(control_dt),
+        "interpretation": (
+            "No actuator proxy; policy command is applied directly."
+            if normalized_mode == "none"
+            else "First-order low-pass filter on policy action before PD target generation."
+        ),
+    }
+
+
+def apply_actuator_proxy_action(
+    policy_action: np.ndarray,
+    prev_applied_action: np.ndarray,
+    proxy_config: dict[str, Any],
+) -> np.ndarray:
+    mode = proxy_config["mode"]
+    if mode == "none":
+        return policy_action.copy()
+    if mode == "action_lowpass":
+        alpha = float(proxy_config["lowpass_alpha"])
+        return alpha * policy_action + (1.0 - alpha) * prev_applied_action
+    raise BaselineError(f"Unsupported actuator proxy mode during rollout: {mode!r}")
 
 
 def build_pd_gains(cfg: Any, actuator_names: list[str]) -> tuple[np.ndarray, np.ndarray]:
@@ -343,6 +392,8 @@ def build_trace_step(
     step_count: int,
     action: np.ndarray,
     prev_action: np.ndarray,
+    applied_action: np.ndarray | None = None,
+    prev_applied_action: np.ndarray | None = None,
     dq_before: np.ndarray,
     dq_after: np.ndarray,
     control_dt: float,
@@ -355,8 +406,13 @@ def build_trace_step(
     model,
     mujoco,
 ) -> dict[str, Any]:
+    if applied_action is None:
+        applied_action = action
+    if prev_applied_action is None:
+        prev_applied_action = prev_action
     joint_acceleration = (dq_after - dq_before) / control_dt
     action_delta = action - prev_action
+    applied_action_delta = applied_action - prev_applied_action
     contact_trace = extract_contact_trace(model, data, mujoco)
     return {
         "step": int(step_count),
@@ -364,6 +420,10 @@ def build_trace_step(
         "action": action.tolist(),
         "action_delta": action_delta.tolist(),
         "action_jitter_l2": float(np.linalg.norm(action_delta)),
+        "applied_action": applied_action.tolist(),
+        "applied_action_delta": applied_action_delta.tolist(),
+        "applied_action_jitter_l2": float(np.linalg.norm(applied_action_delta)),
+        "action_lag_l2": float(np.linalg.norm(action - applied_action)),
         "target_joint_position": target_q.tolist(),
         "control_tau": tau.tolist(),
         "applied_control": np.asarray(getattr(data, "ctrl", tau), dtype=np.double).tolist(),
@@ -397,6 +457,7 @@ def run_episode(
     command_dyaw: float,
     joint_reset_noise: float,
     base_xy_noise: float,
+    actuator_proxy_config: dict[str, Any] | None = None,
     capture_trace: bool = False,
     trace_max_steps: int = 1024,
 ):
@@ -420,6 +481,7 @@ def run_episode(
 
     target_q = np.zeros((cfg.env.num_actions,), dtype=np.double)
     action = np.zeros((cfg.env.num_actions,), dtype=np.double)
+    applied_action = np.zeros((cfg.env.num_actions,), dtype=np.double)
     target_dq = np.zeros((cfg.env.num_actions,), dtype=np.double)
     hist_obs: deque[np.ndarray] = deque()
     for _ in range(cfg.env.frame_stack):
@@ -429,9 +491,12 @@ def run_episode(
     tracking_error_sum = 0.0
     joint_accel_sum = 0.0
     action_jitter_sum = 0.0
+    applied_action_jitter_sum = 0.0
+    action_lag_sum = 0.0
     step_count = 0
     count_lowlevel = 0
     prev_action = np.zeros_like(action)
+    prev_applied_action = np.zeros_like(action)
     tau = np.zeros_like(action)
     fall = False
 
@@ -441,6 +506,12 @@ def run_episode(
     action_scale = cfg.control.action_scale
     control_dt = cfg.control.decimation * cfg.sim.dt
     total_control_steps = int(cfg.eval.sim_duration / control_dt)
+    if actuator_proxy_config is None:
+        actuator_proxy_config = build_actuator_proxy_config(
+            mode="none",
+            lowpass_time_constant=0.0,
+            control_dt=control_dt,
+        )
 
     for _ in range(total_control_steps):
         q_all, dq_all, quat_xyzw, base_lin_vel, base_ang_vel, _ = get_obs(data)
@@ -472,7 +543,9 @@ def run_episode(
         with torch.inference_mode():
             action = policy(torch.tensor(policy_input))[0].detach().cpu().numpy()
         action = np.clip(action, -cfg.normalization.clip_actions, cfg.normalization.clip_actions)
-        target_q = action * action_scale + target_q_default
+        applied_action = apply_actuator_proxy_action(action, prev_applied_action, actuator_proxy_config)
+        applied_action = np.clip(applied_action, -cfg.normalization.clip_actions, cfg.normalization.clip_actions)
+        target_q = applied_action * action_scale + target_q_default
 
         for _ in range(cfg.control.decimation):
             q_all, dq_all, _, _, _, _ = get_obs(data)
@@ -491,6 +564,8 @@ def run_episode(
         tracking_error_sum += linear_error + yaw_error
         joint_accel_sum += float(np.linalg.norm((dq_after - dq_before) / control_dt))
         action_jitter_sum += float(np.linalg.norm(action - prev_action))
+        applied_action_jitter_sum += float(np.linalg.norm(applied_action - prev_applied_action))
+        action_lag_sum += float(np.linalg.norm(action - applied_action))
         returns += float(base_lin_vel_after[0]) - (linear_error + yaw_error)
         step_count += 1
 
@@ -500,6 +575,8 @@ def run_episode(
                     step_count=step_count,
                     action=action,
                     prev_action=prev_action,
+                    applied_action=applied_action,
+                    prev_applied_action=prev_applied_action,
                     dq_before=dq_before,
                     dq_after=dq_after,
                     control_dt=control_dt,
@@ -515,6 +592,7 @@ def run_episode(
             )
 
         prev_action = action.copy()
+        prev_applied_action = applied_action.copy()
 
         base_height = float(data.xpos[base_body_id][2])
         if base_height < cfg.eval.fall_height_threshold:
@@ -526,6 +604,8 @@ def run_episode(
         "velocity_tracking_error": tracking_error_sum / max(step_count, 1),
         "joint_acceleration_l2": joint_accel_sum / max(step_count, 1),
         "action_jitter_l2": action_jitter_sum / max(step_count, 1),
+        "applied_action_jitter_l2": applied_action_jitter_sum / max(step_count, 1),
+        "action_lag_l2": action_lag_sum / max(step_count, 1),
         "fell": fall,
         "steps": step_count,
     }
@@ -611,6 +691,21 @@ def main() -> int:
         default="mujoco_episode_traces.json",
         help="Artifact filename for the per-timestep trace JSON (default: mujoco_episode_traces.json).",
     )
+    parser.add_argument(
+        "--actuator-proxy-mode",
+        choices=VALID_ACTUATOR_PROXY_MODES,
+        default="none",
+        help=(
+            "Optional simulator-side actuator proxy. 'action_lowpass' applies a first-order low-pass "
+            "filter to policy actions before PD target generation."
+        ),
+    )
+    parser.add_argument(
+        "--actuator-lowpass-time-constant",
+        type=float,
+        default=0.05,
+        help="Time constant in seconds for --actuator-proxy-mode=action_lowpass (default: 0.05).",
+    )
     args = parser.parse_args()
 
     config = load_config(args.config)
@@ -672,6 +767,12 @@ def main() -> int:
     protocol = resolve_mujoco_protocol(cfg, LEGGED_GYM_ROOT_DIR, terrain_mode=requested_terrain_mode)
     mujoco_model_path = materialize_mujoco_model(protocol)
     rng = np.random.default_rng(int(args.seed))
+    control_dt = float(cfg.control.decimation * cfg.sim.dt)
+    actuator_proxy_config = build_actuator_proxy_config(
+        mode=args.actuator_proxy_mode,
+        lowpass_time_constant=float(args.actuator_lowpass_time_constant),
+        control_dt=control_dt,
+    )
 
     capture_traces = bool(args.capture_traces)
     trace_max_episodes = int(args.trace_max_episodes)
@@ -685,6 +786,8 @@ def main() -> int:
     tracking_errors: list[float] = []
     joint_accels: list[float] = []
     action_jitters: list[float] = []
+    applied_action_jitters: list[float] = []
+    action_lags: list[float] = []
     fell_flags: list[bool] = []
     episode_lengths: list[int] = []
     all_traces: list[dict] = []
@@ -703,6 +806,7 @@ def main() -> int:
             command_dyaw=float(args.command_dyaw),
             joint_reset_noise=float(args.joint_reset_noise),
             base_xy_noise=float(args.base_xy_noise),
+            actuator_proxy_config=actuator_proxy_config,
             capture_trace=ep_capture,
             trace_max_steps=trace_max_steps,
         )
@@ -710,6 +814,8 @@ def main() -> int:
         tracking_errors.append(result["velocity_tracking_error"])
         joint_accels.append(result["joint_acceleration_l2"])
         action_jitters.append(result["action_jitter_l2"])
+        applied_action_jitters.append(result["applied_action_jitter_l2"])
+        action_lags.append(result["action_lag_l2"])
         fell_flags.append(bool(result["fell"]))
         episode_lengths.append(int(result["steps"]))
         if "trace" in result:
@@ -725,6 +831,8 @@ def main() -> int:
     tracking_mean, tracking_std = summarize(tracking_errors)
     joint_accel_mean, joint_accel_std = summarize(joint_accels)
     action_jitter_mean, action_jitter_std = summarize(action_jitters)
+    applied_action_jitter_mean, applied_action_jitter_std = summarize(applied_action_jitters)
+    action_lag_mean, action_lag_std = summarize(action_lags)
 
     method_cfg = config.get("method", {})
     metrics = {
@@ -740,8 +848,13 @@ def main() -> int:
         "joint_acceleration_l2_std": joint_accel_std,
         "action_jitter_l2_mean": action_jitter_mean,
         "action_jitter_l2_std": action_jitter_std,
+        "applied_action_jitter_l2_mean": applied_action_jitter_mean,
+        "applied_action_jitter_l2_std": applied_action_jitter_std,
+        "action_lag_l2_mean": action_lag_mean,
+        "action_lag_l2_std": action_lag_std,
         "episode_return_mean": return_mean,
         "episode_return_std": return_std,
+        "actuator_proxy": actuator_proxy_config,
         "mujoco_eval": {
             "checkpoint": int(args.checkpoint) if args.checkpoint is not None else None,
             "load_run": args.load_run,
@@ -764,6 +877,7 @@ def main() -> int:
             "base_xy_noise": float(args.base_xy_noise),
             "seed": int(args.seed),
             "episode_steps_mean": statistics.fmean(episode_lengths) if episode_lengths else None,
+            "actuator_proxy": actuator_proxy_config,
         },
     }
 
@@ -787,6 +901,7 @@ def main() -> int:
         "mujoco_model_template_path": relative_to_repo(protocol["mujoco_model_template_path"]),
         "materialized_mujoco_model_path": relative_to_repo(mujoco_model_path),
         "hfield_size_override": list(protocol["hfield_size_override"]) if protocol["hfield_size_override"] else None,
+        "actuator_proxy": actuator_proxy_config,
     }
     manifest_slot = args.manifest_slot or Path(args.output_name).stem
     mujoco_metrics_runs = manifest.get("mujoco_metrics_runs")
@@ -812,10 +927,11 @@ def main() -> int:
             "command_vy": float(args.command_vy),
             "command_dyaw": float(args.command_dyaw),
             "sim_duration": float(args.sim_duration),
-            "control_dt": float(cfg.control.decimation * cfg.sim.dt),
-            "sampling_timestep": float(cfg.control.decimation * cfg.sim.dt),
+            "control_dt": control_dt,
+            "sampling_timestep": control_dt,
             "control_decimation": int(cfg.control.decimation),
             "sim_timestep": float(cfg.sim.dt),
+            "actuator_proxy": actuator_proxy_config,
             "trace_max_episodes": trace_max_episodes,
             "trace_max_steps": trace_max_steps,
             "episode_count": len(all_traces),

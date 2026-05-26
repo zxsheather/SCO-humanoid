@@ -1,0 +1,171 @@
+{
+  "method_summaries": [
+    {
+      "degradation": {
+        "applied_vs_raw_proxy_jitter_factor": 0.6645313394253212,
+        "episode_steps_delta": -50.61666666666679,
+        "fall_rate_delta": 0.05,
+        "joint_acceleration_factor": 0.8286369193932062,
+        "raw_action_jitter_factor": 1.107575858744696,
+        "velocity_tracking_error_delta": -0.007713473013060801
+      },
+      "method_id": "scppo38",
+      "nominal": {
+        "action_jitter_l2": 0.23126014733549827,
+        "episode_steps": 1984.7833333333335,
+        "fall_rate": 0.016666666666666666,
+        "joint_acceleration_l2": 125.54107484645753,
+        "velocity_tracking_error": 0.49097706856943374
+      },
+      "proxy": {
+        "action_jitter_l2": 0.2561381562785394,
+        "action_lag_l2": 0.8510591345380494,
+        "applied_action_jitter_l2": 0.17021183206971005,
+        "episode_steps": 1934.1666666666667,
+        "fall_rate": 0.06666666666666667,
+        "joint_acceleration_l2": 104.0279695180805,
+        "velocity_tracking_error": 0.48326359555637294
+      },
+      "source_count": 3
+    },
+    {
+      "degradation": {
+        "applied_vs_raw_proxy_jitter_factor": 0.6579726405615858,
+        "episode_steps_delta": -232.4333333333334,
+        "fall_rate_delta": 0.25,
+        "joint_acceleration_factor": 1.0487226856216953,
+        "raw_action_jitter_factor": 1.2050918192038853,
+        "velocity_tracking_error_delta": 0.1595909321007456
+      },
+      "method_id": "heuristic",
+      "nominal": {
+        "action_jitter_l2": 0.2451940458958198,
+        "episode_steps": 2000.0,
+        "fall_rate": 0.0,
+        "joint_acceleration_l2": 120.73387004956287,
+        "velocity_tracking_error": 0.418757430495736
+      },
+      "proxy": {
+        "action_jitter_l2": 0.2954813388265544,
+        "action_lag_l2": 0.972093154105523,
+        "applied_action_jitter_l2": 0.19441863674438062,
+        "episode_steps": 1767.5666666666666,
+        "fall_rate": 0.25,
+        "joint_acceleration_l2": 126.61634844387834,
+        "velocity_tracking_error": 0.5783483625964816
+      },
+      "source_count": 3
+    },
+    {
+      "degradation": {
+        "applied_vs_raw_proxy_jitter_factor": 0.2740734111618689,
+        "episode_steps_delta": -428.01666666666665,
+        "fall_rate_delta": 0.3333333333333333,
+        "joint_acceleration_factor": 0.2306520128910866,
+        "raw_action_jitter_factor": 0.3252780134510084,
+        "velocity_tracking_error_delta": 0.17561878245479795
+      },
+      "method_id": "layernorm_ep3",
+      "nominal": {
+        "action_jitter_l2": 3.3284627353896377,
+        "episode_steps": 2000.0,
+        "fall_rate": 0.0,
+        "joint_acceleration_l2": 602.5776397319815,
+        "velocity_tracking_error": 0.44671712420472814
+      },
+      "proxy": {
+        "action_jitter_l2": 1.0826757464132506,
+        "action_lag_l2": 1.4836631305326582,
+        "applied_action_jitter_l2": 0.29673263500170216,
+        "episode_steps": 1571.9833333333333,
+        "fall_rate": 0.3333333333333333,
+        "joint_acceleration_l2": 138.98574552734155,
+        "velocity_tracking_error": 0.6223359066595261
+      },
+      "source_count": 3
+    }
+  ],
+  "metric_files": {
+    "nominal": "metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "proxy": "metrics_mujoco_actuator_lowpass_tau005_20ep_20s_noise01.json"
+  },
+  "protocol": {
+    "actuator_lowpass_time_constant": 0.05,
+    "actuator_proxy_mode": "action_lowpass",
+    "base_xy_noise": 0.0,
+    "command_dyaw": 0.0,
+    "command_vx": 0.4,
+    "command_vy": 0.0,
+    "control_dt": 0.01,
+    "episodes": 20,
+    "joint_reset_noise": 0.1,
+    "lowpass_alpha": 0.16666666666666666,
+    "sim_duration": 20.0,
+    "terrain_mode": "isaac_mainline"
+  },
+  "source_artifacts": [
+    {
+      "checkpoint": 300,
+      "method_id": "scppo38",
+      "nominal_metrics_path": "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+      "proxy_metrics_path": "artifacts/methods/sc_ppo_pid_probe/scppo38_mujoco_actuator_lowpass_tau005_seed11/metrics_mujoco_actuator_lowpass_tau005_20ep_20s_noise01.json",
+      "seed": 11
+    },
+    {
+      "checkpoint": 300,
+      "method_id": "scppo38",
+      "nominal_metrics_path": "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+      "proxy_metrics_path": "artifacts/methods/sc_ppo_pid_probe/scppo38_mujoco_actuator_lowpass_tau005_seed17/metrics_mujoco_actuator_lowpass_tau005_20ep_20s_noise01.json",
+      "seed": 17
+    },
+    {
+      "checkpoint": 400,
+      "method_id": "scppo38",
+      "nominal_metrics_path": "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+      "proxy_metrics_path": "artifacts/methods/sc_ppo_pid_probe/scppo38_mujoco_actuator_lowpass_tau005_seed23/metrics_mujoco_actuator_lowpass_tau005_20ep_20s_noise01.json",
+      "seed": 23
+    },
+    {
+      "checkpoint": 350,
+      "method_id": "heuristic",
+      "nominal_metrics_path": "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+      "proxy_metrics_path": "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_mujoco_actuator_lowpass_tau005_seed11/metrics_mujoco_actuator_lowpass_tau005_20ep_20s_noise01.json",
+      "seed": 11
+    },
+    {
+      "checkpoint": 300,
+      "method_id": "heuristic",
+      "nominal_metrics_path": "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+      "proxy_metrics_path": "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_mujoco_actuator_lowpass_tau005_seed17/metrics_mujoco_actuator_lowpass_tau005_20ep_20s_noise01.json",
+      "seed": 17
+    },
+    {
+      "checkpoint": 350,
+      "method_id": "heuristic",
+      "nominal_metrics_path": "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+      "proxy_metrics_path": "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_mujoco_actuator_lowpass_tau005_seed23/metrics_mujoco_actuator_lowpass_tau005_20ep_20s_noise01.json",
+      "seed": 23
+    },
+    {
+      "checkpoint": 400,
+      "method_id": "layernorm_ep3",
+      "nominal_metrics_path": "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+      "proxy_metrics_path": "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_ep3_mujoco_actuator_lowpass_tau005_seed11/metrics_mujoco_actuator_lowpass_tau005_20ep_20s_noise01.json",
+      "seed": 11
+    },
+    {
+      "checkpoint": 400,
+      "method_id": "layernorm_ep3",
+      "nominal_metrics_path": "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+      "proxy_metrics_path": "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_ep3_mujoco_actuator_lowpass_tau005_seed17/metrics_mujoco_actuator_lowpass_tau005_20ep_20s_noise01.json",
+      "seed": 17
+    },
+    {
+      "checkpoint": 400,
+      "method_id": "layernorm_ep3",
+      "nominal_metrics_path": "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+      "proxy_metrics_path": "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_ep3_mujoco_actuator_lowpass_tau005_seed23/metrics_mujoco_actuator_lowpass_tau005_20ep_20s_noise01.json",
+      "seed": 23
+    }
+  ]
+}

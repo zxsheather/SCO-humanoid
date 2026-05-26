@@ -152,6 +152,25 @@ The Jacobian sensitivity level predicts the degradation factor.
 
 Full cross-engine analysis: [SC-PPO cross-engine degradation](./sc-ppo-cross-engine-degradation.md)
 
+## Actuator-proxy stress (bounded sim-to-real proxy)
+
+Issue #54 adds a MuJoCo actuator-bandwidth proxy without retraining: a `50 ms`
+first-order low-pass filter between the policy action and the PD target.
+
+Under this proxy, `SC-PPO 3.8` is the most stable of the three replayed rows:
+
+| Method | Proxy fall | Proxy vel err | Proxy jnt_acc | Proxy raw jitter | Proxy applied jitter |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| SC-PPO 3.8 | 0.067 | 0.483 | 104.0 | 0.256 | 0.170 |
+| revised heuristic | 0.250 | 0.578 | 126.6 | 0.295 | 0.194 |
+| LayerNorm epochs=3 | 0.333 | 0.622 | 139.0 | 1.083 | 0.297 |
+
+The result supports the sim-to-real-motivated smoothness discussion, but only
+within a simulator-side proxy boundary. It is not calibrated actuator modeling
+and not real-robot validation.
+
+Full note: [MuJoCo actuator-proxy stress test](./sc-ppo-actuator-proxy-stress.md)
+
 ## Detailed references
 
 - [SC-PPO report-grade status](./sc-ppo-report-status.md)
@@ -166,5 +185,6 @@ Full cross-engine analysis: [SC-PPO cross-engine degradation](./sc-ppo-cross-eng
 - [SC-PPO SN feasibility diagnostic](./sc-ppo-sn-feasibility-diagnostic.md)
 - [Random-stairs selected-checkpoint stress test](./random-stairs-selected-checkpoint-stress.md)
 - [Cross-engine smoothness degradation analysis](./sc-ppo-cross-engine-degradation.md)
+- [MuJoCo actuator-proxy stress test](./sc-ppo-actuator-proxy-stress.md)
 - [Final research delivery checklist](./reproduction/final-research-delivery-checklist.md)
 - [ADR 0001: freeze research delivery before new protocol repair](./adr/0001-freeze-research-delivery-before-new-protocol-repair.md)

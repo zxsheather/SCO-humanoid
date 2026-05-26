@@ -298,6 +298,10 @@ that preserve smoothness across engines.
 - Constraint threshold sensitivity: effective window is [3.6, 3.8)
 - LDLJ/SPARC trace: LayerNorm wins on kinematic smoothness, SC-PPO wins on
   dynamic smoothness — revealing smoothness as two-dimensional
+- Actuator low-pass proxy stress: SC-PPO has the lowest proxy fall rate, lowest
+  velocity error, lowest dynamic smoothness metrics, and smallest episode-length
+  loss among SC-PPO, revised heuristic, and LayerNorm under a 50 ms action
+  low-pass path
 - SC-PPO epochs=3 repair: mixed result (seed11 improved, seed23 degraded)
 
 Full analysis: [SC-PPO cross-engine degradation](./sc-ppo-cross-engine-degradation.md)

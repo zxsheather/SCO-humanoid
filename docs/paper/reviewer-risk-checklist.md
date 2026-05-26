@@ -50,6 +50,9 @@ Each risk is rated by severity and the strength of the current response.
 **Current response**: ADEQUATE
 - Acknowledged as limitation
 - MuJoCo replay provides intermediate sim-to-sim validation
+- Actuator low-pass proxy stress adds bounded non-ideal control-path evidence:
+  SC-PPO has the lowest proxy fall rate and smallest episode-length loss among
+  SC-PPO, revised heuristic, and LayerNorm
 - Jacobian constraint is presented as a sim-to-sim regularization
   hypothesis; any sim-to-real relevance remains speculative
 - **Gap**: No hardware experiments

@@ -131,11 +131,43 @@ class MuJoCoProtocolTests(unittest.TestCase):
         self.assertFalse(mujoco_eval.should_record_trace_step(1025, 1024))
         self.assertFalse(mujoco_eval.should_record_trace_step(1, 0))
 
+    def test_action_lowpass_proxy_filters_policy_action(self) -> None:
+        proxy = mujoco_eval.build_actuator_proxy_config(
+            mode="action-lowpass",
+            lowpass_time_constant=0.03,
+            control_dt=0.01,
+        )
+        self.assertEqual(proxy["mode"], "action_lowpass")
+        self.assertAlmostEqual(proxy["lowpass_alpha"], 0.25)
+
+        applied = mujoco_eval.apply_actuator_proxy_action(
+            np.array([1.0, -1.0], dtype=np.double),
+            np.array([0.2, -0.2], dtype=np.double),
+            proxy,
+        )
+        np.testing.assert_allclose(applied, np.array([0.4, -0.4], dtype=np.double))
+
+    def test_no_actuator_proxy_applies_policy_action_directly(self) -> None:
+        proxy = mujoco_eval.build_actuator_proxy_config(
+            mode="none",
+            lowpass_time_constant=0.05,
+            control_dt=0.01,
+        )
+        policy_action = np.array([0.7, -0.1], dtype=np.double)
+        applied = mujoco_eval.apply_actuator_proxy_action(
+            policy_action,
+            np.array([0.0, 0.0], dtype=np.double),
+            proxy,
+        )
+        np.testing.assert_allclose(applied, policy_action)
+
     def test_build_trace_step_records_control_and_contact_schema(self) -> None:
         step = mujoco_eval.build_trace_step(
             step_count=1,
             action=np.array([0.1, -0.2], dtype=np.double),
             prev_action=np.array([0.0, 0.1], dtype=np.double),
+            applied_action=np.array([0.05, -0.1], dtype=np.double),
+            prev_applied_action=np.array([0.0, 0.05], dtype=np.double),
             dq_before=np.array([1.0, 2.0], dtype=np.double),
             dq_after=np.array([1.4, 1.0], dtype=np.double),
             control_dt=0.2,
@@ -151,8 +183,11 @@ class MuJoCoProtocolTests(unittest.TestCase):
 
         self.assertEqual(step["control_tau"], [0.7, -0.4])
         self.assertEqual(step["applied_control"], [0.7, -0.4])
+        self.assertEqual(step["applied_action"], [0.05, -0.1])
         self.assertEqual(step["target_joint_position"], [0.3, -0.6])
         self.assertAlmostEqual(step["action_jitter_l2"], float(np.linalg.norm([0.1, -0.3])))
+        self.assertAlmostEqual(step["applied_action_jitter_l2"], float(np.linalg.norm([0.05, -0.15])))
+        self.assertAlmostEqual(step["action_lag_l2"], float(np.linalg.norm([0.05, -0.1])))
         self.assertEqual(step["contact_count"], 1)
         self.assertEqual(len(step["contacts"]), 1)
         contact = step["contacts"][0]

@@ -22,6 +22,10 @@ artifacts/analysis/final_research_delivery_freeze/*
 artifacts/analysis/mujoco_amplification_trace_comparison/*
 !artifacts/analysis/mujoco_amplification_trace_comparison/summary.json
 !artifacts/analysis/mujoco_amplification_trace_comparison/summary.md
+!artifacts/analysis/mujoco_actuator_proxy_stress/
+artifacts/analysis/mujoco_actuator_proxy_stress/*
+!artifacts/analysis/mujoco_actuator_proxy_stress/summary.json
+!artifacts/analysis/mujoco_actuator_proxy_stress/summary.md
 
 .vscode/
 .claude/
