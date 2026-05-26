@@ -288,6 +288,8 @@ Current status and next step:
 - [docs/sc-ppo-current-blockers.md](docs/sc-ppo-current-blockers.md)
 - [docs/sc-ppo-next-step-direction.md](docs/sc-ppo-next-step-direction.md)
 - [docs/sc-ppo-cross-engine-degradation.md](docs/sc-ppo-cross-engine-degradation.md)
+- [docs/paper/arxiv-workshop-manuscript.md](docs/paper/arxiv-workshop-manuscript.md)
+- [docs/paper/manuscript-skeleton.md](docs/paper/manuscript-skeleton.md)
 - [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
 
 Post-freeze reusable diagnostics on `main`:
