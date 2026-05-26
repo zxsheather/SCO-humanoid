@@ -3,9 +3,8 @@
 Draft status: `arXiv / workshop-first` manuscript draft.
 
 This draft is derived from `docs/paper/manuscript-skeleton.md` and the frozen
-post-exploration evidence package. It is not a LaTeX submission yet. Citation
-keys are placeholders and should be replaced with the final bibliography before
-submission.
+post-exploration evidence package. It is not a LaTeX submission yet. Citations
+use Pandoc-style keys backed by `docs/paper/references.bib`.
 
 ## Abstract
 
@@ -103,10 +102,12 @@ CPO/OmniSafe baseline in the current package.
 Constrained reinforcement learning treats task reward and safety or resource
 costs as separate objectives, typically by optimizing a constrained Markov
 decision process. Classical examples include constrained policy optimization
-and PPO-Lagrangian variants [Achiam17; Ray19]. In robotics, Lagrangian methods
-are attractive because they allow reward terms and physical limits to be
-controlled separately. Recent humanoid work also uses constrained optimization
-to regulate energy or other hardware-relevant quantities [ECO].
+and PPO-Lagrangian variants [@Achiam2017CPO; @Ray2019SafetyGym]. PID-style
+Lagrangian updates further address oscillation and overshoot in constrained
+deep RL [@Stooke2020PID]. In robotics, Lagrangian methods are attractive
+because they allow reward terms and physical limits to be controlled
+separately. Recent humanoid work also uses constrained optimization to regulate
+energy or other hardware-relevant quantities [@Huang2026ECO].
 
 This work follows the Lagrangian direction but changes the constrained quantity.
 Instead of constraining energy directly, SC-PPO constrains the local sensitivity
@@ -126,32 +127,33 @@ policy map.
 
 Another line of work constrains neural-network smoothness through architectural
 or normalization mechanisms, including spectral normalization, LayerNorm, and
-orthogonal parametrization [Miyato18; Ba17]. Such mechanisms can reduce some
-forms of instability, but they do not necessarily constrain the full
-observation-to-action Jacobian in the task distribution. The repository tests
-several of these alternatives as replacement mechanisms. Most collapse before
-becoming task-valid; LayerNorm is task-valid but suffers large MuJoCo
-dynamic-smoothness degradation.
+orthogonal parametrization [@Miyato2018SN; @Ba2016LayerNorm].
+Lipschitz-constrained policies are a more direct route for smooth humanoid
+locomotion because they penalize or constrain the policy map itself
+[@Chen2024LCP]. This repo tests several architectural and scaling alternatives
+as replacement mechanisms. Most collapse before becoming task-valid; LayerNorm
+is task-valid but suffers large MuJoCo dynamic-smoothness degradation.
 
 ### 2.3 Cross-engine and sim-to-real validation
 
 Cross-engine replay is not real-world validation, but it is a useful
 intermediate stress test. Isaac Gym and MuJoCo differ in contact modeling,
-integration details, and numerical behavior. A policy that is smooth only under
-one simulator may amplify these differences into jittery actions or large joint
-accelerations in another simulator. This paper uses Isaac Gym for training and
-rough-terrain evaluation, then replays selected checkpoints in MuJoCo under an
-aligned `isaac_mainline` protocol. The paper also includes a bounded MuJoCo
-actuator low-pass proxy stress test, but explicitly does not claim hardware
-transfer.
+integration details, and numerical behavior [@Makoviychuk2021IsaacGym;
+@Todorov2012MuJoCo]. A policy that is smooth only under one simulator may
+amplify these differences into jittery actions or large joint accelerations in
+another simulator. This paper uses the Humanoid-Gym training and sim-to-sim
+scaffold [@Gu2024HumanoidGym], with Isaac Gym for training and rough-terrain
+evaluation, then replays selected checkpoints in MuJoCo under an aligned
+`isaac_mainline` protocol. The paper also includes a bounded MuJoCo actuator
+low-pass proxy stress test, but explicitly does not claim hardware transfer.
 
 ## 3. Method: SC-PPO
 
 ### 3.1 Constrained formulation
 
 Let pi_theta(a | o) be a policy mapping observations o to actions a. Standard
-PPO optimizes a task objective J_R(theta). SC-PPO introduces a constraint cost
-J_C(theta) and optimizes the Lagrangian objective
+PPO optimizes a task objective J_R(theta) [@Schulman2017PPO]. SC-PPO introduces
+a constraint cost J_C(theta) and optimizes the Lagrangian objective
 
 ```text
 L(theta, lambda) = J_R(theta) - lambda * (J_C(theta) - d),
@@ -611,6 +613,7 @@ Generated paper figures and tables are reproducible with:
 | T4 | Plain dual vs PID table | `artifacts/analysis/paper_figures/table_plain_dual_vs_pid.md` |
 | T5 | SC-PPO epochs=3 repair table | `artifacts/analysis/paper_figures/table_scppo_epochs3_repair.md` |
 | T6 | LayerNorm trade-off table | `artifacts/analysis/paper_figures/table_layernorm_tradeoff_ldlj_sparc.md` |
+| B1 | Draft bibliography | `docs/paper/references.bib` |
 
 ## Appendix B. Reproduction entrypoints
 
@@ -651,7 +654,7 @@ $PYTHON_BIN scripts/analysis/analyze_mujoco_actuator_proxy_stress.py
 
 ## Appendix C. Submission checklist
 
-- Replace citation placeholders with BibTeX keys.
+- Verify bibliography metadata and venue formatting in `docs/paper/references.bib`.
 - Convert Markdown figures to LaTeX figure environments.
 - Decide whether the target format is workshop short paper, workshop full paper,
   or arXiv technical report.

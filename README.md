@@ -290,6 +290,7 @@ Current status and next step:
 - [docs/sc-ppo-cross-engine-degradation.md](docs/sc-ppo-cross-engine-degradation.md)
 - [docs/paper/arxiv-workshop-manuscript.md](docs/paper/arxiv-workshop-manuscript.md)
 - [docs/paper/manuscript-skeleton.md](docs/paper/manuscript-skeleton.md)
+- [docs/paper/references.bib](docs/paper/references.bib)
 - [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
 
 Post-freeze reusable diagnostics on `main`:
