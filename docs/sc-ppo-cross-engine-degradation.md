@@ -193,6 +193,48 @@ issue rather than a fundamental infeasibility.
 
 **Canonical artifact**: `artifacts/analysis/rough_terrain_plain_dual_probe/comparison_summary.json`
 
+## SC-PPO Final-Checkpoint Reliability Repair (epochs=3)
+
+Applying `num_learning_epochs = 3` to SC-PPO 3.8 did not universally fix
+final-checkpoint reliability:
+
+| Seed | epochs=2 sel | epochs=3 sel | Change |
+| ---: | ---: | ---: | --- |
+| 11 | 300 | **400** | Improved |
+| 17 | 300 | 300 | Unchanged |
+| 23 | **400** | 300 | Degraded |
+
+Selected-checkpoint aggregate: `fall_rate = 0.28` (vs 0.10 for epochs=2),
+`jnt_acc = 169.1` (vs 115.9), `jitter = 0.32` (vs 0.22). Both smoothness
+metrics worsened with more epochs, suggesting the Jacobian constraint +
+double-backward path interacts negatively with increased per-batch optimization.
+
+This contrasts with LayerNorm, where epochs=3 was universally beneficial
+(selected=final=400 on all seeds). The difference reinforces that the two
+mechanism families respond differently to training-schedule changes.
+
+**Artifact**: `artifacts/analysis/rough_terrain_sc_ppo_epochs3_probe/comparison_summary.json`
+
+## LDLJ/SPARC Trace Comparison (20-episode)
+
+Systematic trace-level smoothness comparison using 5 captured episodes per seed:
+
+| Method | jnt_acc | jitter | LDLJ | SPARC |
+| --- | ---: | ---: | ---: | ---: |
+| SC-PPO 3.8 | 115.9 | 0.22 | -28.35 | -25.54 |
+| LayerNorm epochs=3 | 172.0 | 0.52 | -29.69 | -32.28 |
+
+LDLJ and SPARC measure kinematic smoothness (joint trajectory quality).
+LayerNorm is 4.8% better on LDLJ and 26.4% better on SPARC, despite being
+48% worse on joint acceleration and 135% worse on action jitter.
+
+This reveals smoothness as two-dimensional:
+- **Kinematic** (LDLJ, SPARC): LayerNorm wins — architecture filters high-frequency motion
+- **Dynamic** (jnt_acc, jitter): SC-PPO wins — Jacobian constraint limits force oscillation
+
+**Artifacts**: `scppo38_trace20_seed{11,17,23}` and `ln_ep3_trace20_seed{11,17,23}`
+under their respective `artifacts/methods/` directories.
+
 ## Canonical Artifacts
 
 - SC-PPO 3.8 checkpoint sweep:
