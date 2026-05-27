@@ -20,7 +20,7 @@ selection rule.
 
 | # | Method | Config |
 |---|--------|--------|
-| 1 | SC-PPO 3.8 (PID-Lagrangian, threshold=3.8) | `configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp.json` |
+| 1 | SC-PPO 3.8 (PID-Lagrangian, threshold=3.8) | `configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_extended_seeds.json` |
 | 2 | Revised heuristic anchor (action_rate=-0.0050) | `configs/methods/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget.json` |
 
 ## Protocol

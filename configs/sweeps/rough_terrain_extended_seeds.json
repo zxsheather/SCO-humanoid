@@ -14,7 +14,7 @@
     {
       "id": "sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp",
       "label": "SC-PPO 3.8 (PID-Lagrangian, extended seeds)",
-      "config": "configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp.json"
+      "config": "configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_extended_seeds.json"
     },
     {
       "id": "heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget",
