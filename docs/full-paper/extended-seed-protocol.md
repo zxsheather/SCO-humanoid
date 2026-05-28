@@ -48,6 +48,7 @@ Historical 3-seed MuJoCo record (11, 17, 23) is preserved as-is.
 - Sweep config: `configs/sweeps/rough_terrain_extended_seeds.json`
 - Launch script: `scripts/baseline/run_extended_seeds_formal.sh`
 - Analysis root: `artifacts/analysis/rough_terrain_extended_seeds/`
+- Result note: `docs/full-paper/extended-seed-results.md`
 
 ## Launch
 
