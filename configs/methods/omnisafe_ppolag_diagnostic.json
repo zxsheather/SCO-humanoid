@@ -1,0 +1,88 @@
+{
+  "name": "omnisafe_ppolag_jacobian_diagnostic",
+  "method": {
+    "id": "omnisafe_ppolag_jacobian",
+    "label": "OmniSafe PPO-Lag diagnostic (Jacobian cost bridge)",
+    "family": "external_constrained_rl",
+    "smoothness_strategy": "omnisafe_lagrange_policy_local_sensitivity"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_omnisafe_ppolag_diagnostic",
+  "run_name": "omnisafe_ppolag_jacobian_diagnostic",
+  "artifacts_root": "artifacts/methods/omnisafe_ppolag_diagnostic",
+  "evaluation_protocol": "rough_terrain_checkpoint_sweep_v2",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "training": {
+    "headless": true,
+    "num_envs": 512,
+    "num_steps_per_env": 24,
+    "max_iterations": 400,
+    "save_interval": 100,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "actor_hidden_sizes": [512, 256, 128],
+    "critic_hidden_sizes": [512, 256, 128],
+    "activation": "tanh",
+    "init_noise_std": 1.0,
+    "learning_rate": 0.001,
+    "clip_param": 0.2,
+    "gamma": 0.99,
+    "lam": 0.95,
+    "value_loss_coef": 1.0,
+    "entropy_coef": 0.01,
+    "num_learning_epochs": 5,
+    "num_mini_batches": 4,
+    "max_grad_norm": 1.0,
+    "use_clipped_value_loss": true,
+    "schedule": "fixed",
+    "desired_kl": 0.01
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 32,
+    "episodes": 20,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 123145,
+    "metric_schema_version": 2,
+    "constraint_logging": {
+      "collect_local_sensitivity": true,
+      "local_sensitivity_threshold": 3.8,
+      "sample_envs": 4,
+      "sample_every_n_steps": 20,
+      "sidecar_metrics_filename": "constraint_metrics.json",
+      "multiplier_trace_filename": "lagrange_multiplier_trace.json"
+    }
+  },
+  "omnisafe": {
+    "checkpoint_dir": "artifacts/methods/omnisafe_ppolag_diagnostic/checkpoints",
+    "actor_hidden_sizes": [512, 256, 128],
+    "actor_activation": "tanh",
+    "cost_config": {
+      "cost_source": "policy_local_sensitivity_jacobian",
+      "threshold": 3.8,
+      "cost_aggregation": "quantile",
+      "cost_quantile": 0.9,
+      "subsample_obs": 8,
+      "lambda_optimizer": "SGD",
+      "lambda_lr": 0.01,
+      "lagrangian_upper_bound": 5.0
+    }
+  },
+  "selection": {
+    "tracking_tolerance": 0.1,
+    "fall_tolerance": 0.05
+  },
+  "overrides": {
+    "env": {
+      "rewards.scales.action_smoothness": 0.0,
+      "rewards.scales.dof_acc": 0.0,
+      "rewards.scales.base_acc": 0.0,
+      "rewards.scales.dof_vel": 0.0
+    }
+  }
+}

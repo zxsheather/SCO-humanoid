@@ -1,0 +1,21 @@
+{
+  "_description": "Bounded OmniSafe PPO-Lag diagnostic (#63). Runs seeds {23,29,31} with the approved Jacobian/local-sensitivity cost bridge and shared checkpoint-sweep evaluator. Diagnostic only; it does not replace the #51 five-seed SC-PPO record.",
+  "name": "rough_terrain_omnisafe_ppolag_diagnostic",
+  "analysis_root": "artifacts/analysis/rough_terrain_omnisafe_ppolag_diagnostic",
+  "seeds": [23, 29, 31],
+  "train_num_envs": 512,
+  "eval_num_envs": 32,
+  "max_iterations": 400,
+  "episodes": 20,
+  "checkpoints": [0, 100, 200, 300, 400],
+  "candidate": {
+    "id": "omnisafe_ppolag_jacobian",
+    "label": "OmniSafe PPO-Lag diagnostic (Jacobian cost bridge)",
+    "config": "configs/methods/omnisafe_ppolag_diagnostic.json"
+  },
+  "_comparison_anchors": {
+    "extended_seed_summary": "artifacts/analysis/rough_terrain_extended_seeds/comparison_summary.json",
+    "anchor_seed_slice": [23, 29, 31]
+  },
+  "_gate": "If all three selected checkpoints are task-valid, this can justify expanded external-baseline budget. If collapsed or unstable, record the negative result and do not promote #53."
+}
