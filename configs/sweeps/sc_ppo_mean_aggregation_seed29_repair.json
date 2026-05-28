@@ -1,0 +1,20 @@
+{
+  "_description": "Bounded SC-PPO-family diagnostic for #57. Changes only cost_aggregation from quantile(0.90) to mean and runs seeds 23/29/31 before any full five-seed rerun.",
+  "name": "sc_ppo_mean_aggregation_seed29_repair",
+  "analysis_root": "artifacts/analysis/sc_ppo_mean_aggregation_seed29_repair",
+  "seeds": [23, 29, 31],
+  "train_num_envs": 512,
+  "eval_num_envs": 32,
+  "max_iterations": 400,
+  "episodes": 20,
+  "candidates": [
+    {
+      "id": "sc_ppo_mean_aggregation_seed29_repair",
+      "label": "SC-PPO 3.8 PID-Lagrangian (mean aggregation, seed29 repair diagnostic)",
+      "config": "configs/methods/sc_ppo_threshold_38_lambda_05_mean_pid_lower_bound_clamp_seed29_repair.json"
+    }
+  ],
+  "_decision_issue": "#56",
+  "_execution_issue": "#57",
+  "_promotion_rule": "This diagnostic passes only if seeds 23, 29, and 31 all satisfy the final-checkpoint gates documented in docs/full-paper/extended-seed-results.md. Passing this diagnostic permits a full 11/17/23/29/31 rerun; it does not supersede #51 by itself."
+}
