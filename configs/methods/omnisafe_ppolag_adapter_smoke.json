@@ -1,0 +1,38 @@
+{
+  "name": "omnisafe_ppolag_adapter_smoke",
+  "method": {
+    "id": "omnisafe_ppolag_adapter_smoke",
+    "label": "OmniSafe PPO-Lag adapter smoke (non-canonical zero cost)",
+    "family": "external_constrained_rl",
+    "smoothness_strategy": "omnisafe_ppolag_adapter_smoke"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_omnisafe_ppolag_smoke",
+  "run_name": "omnisafe_ppolag_adapter_smoke",
+  "artifacts_root": "artifacts/methods/omnisafe_ppolag_adapter_smoke",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "training": {
+    "headless": true,
+    "num_envs": 2,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0"
+  },
+  "smoke": {
+    "steps": 1,
+    "cost_source": "non_canonical_zero_smoke",
+    "cost_is_canonical": false,
+    "note": "This smoke cost only verifies the OmniSafe custom-environment tuple contract. The faithful Jacobian/local-sensitivity cost bridge belongs to #61."
+  },
+  "overrides": {
+    "env": {
+      "rewards.scales.action_smoothness": 0.0,
+      "rewards.scales.dof_acc": 0.0,
+      "rewards.scales.base_acc": 0.0,
+      "rewards.scales.dof_vel": 0.0
+    }
+  }
+}
