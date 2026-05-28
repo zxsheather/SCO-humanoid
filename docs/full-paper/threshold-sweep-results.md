@@ -89,8 +89,8 @@ different threshold or a per-seed adaptive scheme could work.
 
 **The threshold lever is closed as a negative result.** The diagnosis is:
 
-> SC-PPO exhibits inherent seed sensitivity: the optimal threshold varies
-> across seeds, and no single value simultaneously satisfies the promotion
+> In this bounded diagnostic, SC-PPO exhibits seed-dependent threshold
+> sensitivity: no tested shared value simultaneously satisfies the promotion
 > gates for seeds 23, 29, and 31. Lower thresholds over-constrain seeds
 > 23/31; higher thresholds under-constrain seed 31.
 
