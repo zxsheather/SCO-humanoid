@@ -1,0 +1,21 @@
+{
+  "name": "omnisafe_ppolag_cost_bridge_smoke",
+  "method": {
+    "id": "omnisafe_ppolag_cost_bridge_smoke",
+    "label": "OmniSafe PPO-Lag cost bridge smoke (#61)",
+    "family": "external_constrained_rl",
+    "smoothness_strategy": "omnisafe_ppolag_cost_bridge"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_omnisafe_ppolag_smoke",
+  "run_name": "omnisafe_ppolag_cost_bridge_smoke",
+  "artifacts_root": "artifacts/methods/omnisafe_ppolag_cost_bridge_smoke",
+  "_smoke": {
+    "issue": "#61",
+    "purpose": "Verify Jacobian cost → OmniSafe Lagrange multiplier bridge is numerically functional.",
+    "cost_is_canonical": true,
+    "cost_source": "policy_local_sensitivity_jacobian",
+    "multiplier_backend": "omnisafe_lagrange",
+    "note": "Non-training diagnostic; uses randomly-initialized ActorCritic with dummy observations."
+  }
+}
