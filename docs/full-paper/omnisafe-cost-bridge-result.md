@@ -6,57 +6,80 @@
 
 ## Status
 
-The OmniSafe PPO-Lag cost bridge smoke test passed. The Jacobian local-sensitivity
-cost is computable and feeds faithfully into OmniSafe's Lagrange multiplier
-update. Numerical values are finite and the multiplier behaves correctly.
+The repaired #61 smoke passes as a bounded component bridge:
 
-## Smoke Result
+- it instantiates the real Humanoid-Gym rough-terrain task;
+- it resets and steps one seeded environment;
+- it computes the SC-PPO policy-local-sensitivity/Jacobian cost on the real
+  policy observation tensor;
+- it feeds that scalar cost into OmniSafe's `Lagrange` multiplier component;
+- it records reward, cost, multiplier, and violation-rate diagnostics.
 
+This is not a full OmniSafe PPO-Lag training baseline. It proves the cost and
+multiplier component can be bridged, while preserving the #59 boundary that a
+faithful full PPO-Lag baseline needs an algorithm/update hook rather than a pure
+environment adapter.
+
+## Repaired Smoke Result
+
+Command:
+
+```bash
+PYTHON_BIN=/TinyNAS2024/zhuoxiang/sco-humanoid/bin/python \
+  scripts/baseline/run_omnisafe_cost_bridge_smoke.sh \
+  --run-name=omnisafe_ppolag_cost_bridge_smoke_seed23_repaired \
+  --num-envs=1 \
+  --seed=23 \
+  --rl-device=cuda:0 \
+  --sim-device=cuda:0 \
+  --write-failure-artifact
 ```
-Jacobian cost = 0.2886 (threshold=3.8)
-multiplier: 0.5000 → 0.4649
-constraint_error = -3.5114
-cost_is_canonical = true
-cost_source = policy_local_sensitivity_jacobian
-```
 
-The multiplier decreases (0.5 → 0.465) because the randomly-initialized network
-produces Jacobian cost (0.29) far below the threshold (3.8). This is correct:
-gradient ascent on λ moves toward zero when the constraint is satisfied.
+Artifact:
 
-## Equivalence Finding
+`artifacts/methods/omnisafe_ppolag_cost_bridge_smoke/omnisafe_ppolag_cost_bridge_smoke_seed23_repaired/omnisafe_cost_bridge_smoke.json`
 
-OmniSafe's Lagrange multiplier update is mathematically equivalent to SC-PPO's
-plain dual ascent mode:
+Observed values:
 
-| Component | OmniSafe Lagrange | SC-PPO Plain Dual |
-|-----------|-------------------|-------------------|
-| Update rule | `λ += lr * (Jc - d)` via SGD | `λ += η * (Jc - d)` |
-| Clamping | `λ.clamp_(0, upper)` | `clamp(λ, 0, λ_max)` |
-| Cost | Jacobian (bridged) | Jacobian (native) |
+| Field | Value |
+| --- | ---: |
+| observation shape | `[1, 705]` |
+| privileged observation shape | `[1, 219]` |
+| action shape | `[1, 12]` |
+| reward mean | `0.0352` |
+| Jacobian cost update | `0.3559` |
+| threshold | `3.8` |
+| violation rate | `0.0000` |
+| multiplier | `0.5000 -> 0.4656` |
+| constraint error | `-3.4441` |
 
-With `lr = η` and `upper = λ_max`, the two are identical. SC-PPO's existing
-plain dual ascent comparison (#51) already covers this baseline. The only
-functional difference is optimizer choice (SGD vs Adam), which is a minor
-implementation detail, not an algorithmic distinction.
+The multiplier decreases because the local-sensitivity cost is below the
+threshold. This matches OmniSafe's Lagrange update direction.
 
-## Conclusion
+The direct Python process still exits with the known Isaac Gym teardown
+segmentation fault after writing the complete artifact. The shell wrapper treats
+that as successful only when `status=complete` is present in the artifact.
 
-The cost bridge is **feasible but not a distinct external baseline**. OmniSafe
-PPO-Lag with the Jacobian cost bridge would produce results equivalent to
-SC-PPO's existing plain dual ascent row. Running a full training sweep would
-consume GPU budget without adding new evidence beyond the already-completed
-plain-dual-vs-PID comparison.
+## Boundary
 
-**Recommendation: close #53 as "equivalent to existing evidence"** rather than
-running expensive OmniSafe training diagnostics (#62, #63). The Lagrange
-multiplier comparison (dual ascent vs PID) is already present in the current
-evidence package.
+OmniSafe `PPOLag` consumes environment-side costs and builds cost advantages from
+rollout buffers. The SC-PPO cost is actor-internal: it is computed from the
+current policy Jacobian on policy observations during the PPO update. A pure
+custom-environment adapter cannot provide this cost faithfully.
 
-## Artifacts
+The repaired bridge therefore exercises only the reusable OmniSafe Lagrange
+component. It does not claim that a full OmniSafe PPO-Lag baseline has been run
+or that #53 is answered by a new external training result.
 
-- Bridge module: `scripts/baseline/_omnisafe_bridge.py`
-- Smoke script: `scripts/baseline/run_omnisafe_cost_bridge_smoke.py`
-- Shell wrapper: `scripts/baseline/run_omnisafe_cost_bridge_smoke.sh`
-- Config: `configs/methods/omnisafe_ppolag_cost_bridge_smoke.json`
-- Smoke artifact: `artifacts/methods/omnisafe_ppolag_cost_bridge_smoke/.../omnisafe_cost_bridge_smoke.json`
+## Consequence
+
+#61 should be considered complete as a feasibility/bridge smoke:
+
+- canonical Jacobian cost is computable on real Humanoid-Gym observations;
+- reward, cost, multiplier, and violation diagnostics are finite;
+- no action-rate, torque, fall, or other proxy cost is used.
+
+For #53, the next decision is explicit: either implement a narrow OmniSafe
+algorithm/update hook that exposes actor observations during PPO-Lag training, or
+close the external PPO-Lag baseline as too invasive for this paper. Do not cite
+the #61 component smoke as an external baseline result.

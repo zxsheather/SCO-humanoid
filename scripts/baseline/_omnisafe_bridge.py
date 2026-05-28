@@ -119,10 +119,11 @@ def compute_jacobian_cost(
     actor_critic: Any,
     obs_batch: torch.Tensor,
     *,
+    threshold: float = 3.8,
     subsample_obs: int = 8,
     cost_aggregation: str = "quantile",
     cost_quantile: float = 0.9,
-    epsilon: float = 1e-8,
+    epsilon: float = 1e-6,
 ) -> Dict[str, Any]:
     """Compute the policy Jacobian Frobenius-norm cost on an observation batch.
 
@@ -132,6 +133,7 @@ def compute_jacobian_cost(
     Args:
         actor_critic: The ``ActorCritic`` module (must expose ``act_inference``).
         obs_batch: Observation tensor, shape ``[N, obs_dim]``.
+        threshold: Sensitivity threshold for violation-rate diagnostics.
         subsample_obs: Maximum observations to subsample for cost (≤ N).
         cost_aggregation: ``"mean"``, ``"max"``, or ``"quantile"``.
         cost_quantile: Quantile for aggregation (only if ``quantile``).
@@ -183,14 +185,20 @@ def compute_jacobian_cost(
         cost_for_update = cost_mean
     elif cost_aggregation == "max":
         cost_for_update = cost_max
-    else:
+    elif cost_aggregation == "quantile":
         cost_for_update = cost_quantile_val
+    else:
+        raise ValueError(f"Unsupported cost_aggregation: {cost_aggregation}")
+
+    violation_rate = float((local_sensitivity > threshold).float().mean().item())
 
     return {
         "cost_mean": cost_mean,
         "cost_max": cost_max,
         "cost_quantile": cost_quantile_val,
         "cost_for_update": cost_for_update,
+        "violation_rate": violation_rate,
+        "threshold": float(threshold),
         "sample_count": int(sampled_obs.shape[0]),
         "per_sample_costs": local_sensitivity.detach().cpu().tolist(),
     }
@@ -205,6 +213,11 @@ def run_bridge_smoke(
     multiplier_init: float = 0.5,
     lambda_lr: float = 0.01,
     lambda_optimizer: str = "SGD",
+    lagrangian_upper_bound: float = 5.0,
+    subsample_obs: int = 8,
+    cost_aggregation: str = "quantile",
+    cost_quantile: float = 0.9,
+    epsilon: float = 1e-6,
 ) -> Dict[str, Any]:
     """Run a single-cycle smoke test of the full bridge.
 
@@ -220,18 +233,31 @@ def run_bridge_smoke(
         multiplier_init: Initial λ value.
         lambda_lr: Multiplier learning rate.
         lambda_optimizer: ``"SGD"`` or ``"Adam"``.
+        lagrangian_upper_bound: Upper clamp bound for λ.
+        subsample_obs: Maximum observations to sample for the Jacobian cost.
+        cost_aggregation: ``"mean"``, ``"max"``, or ``"quantile"``.
+        cost_quantile: Quantile for the update statistic.
+        epsilon: Numerical floor used by the local-sensitivity norm.
 
     Returns:
         Dict with cost metrics, multiplier diagnostics, and bridge status.
     """
-    cost_result = compute_jacobian_cost(actor_critic, obs_batch)
+    cost_result = compute_jacobian_cost(
+        actor_critic,
+        obs_batch,
+        threshold=threshold,
+        subsample_obs=subsample_obs,
+        cost_aggregation=cost_aggregation,
+        cost_quantile=cost_quantile,
+        epsilon=epsilon,
+    )
 
     lagrange = _create_lagrange(
         cost_limit=threshold,
         lagrangian_multiplier_init=multiplier_init,
         lambda_lr=lambda_lr,
         lambda_optimizer=lambda_optimizer,
-        lagrangian_upper_bound=5.0,
+        lagrangian_upper_bound=lagrangian_upper_bound,
     )
 
     update_result = update_omnisafe_multiplier(

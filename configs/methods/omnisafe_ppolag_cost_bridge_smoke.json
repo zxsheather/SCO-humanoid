@@ -10,12 +10,41 @@
   "experiment_name": "ecolab_omnisafe_ppolag_smoke",
   "run_name": "omnisafe_ppolag_cost_bridge_smoke",
   "artifacts_root": "artifacts/methods/omnisafe_ppolag_cost_bridge_smoke",
-  "_smoke": {
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "training": {
+    "headless": true,
+    "num_envs": 1,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0"
+  },
+  "smoke": {
     "issue": "#61",
-    "purpose": "Verify Jacobian cost → OmniSafe Lagrange multiplier bridge is numerically functional.",
+    "purpose": "Verify real Humanoid-Gym policy observations can feed the Jacobian cost into OmniSafe's Lagrange multiplier component.",
+    "seed": 23,
+    "threshold": 3.8,
+    "subsample_obs": 1,
+    "cost_aggregation": "quantile",
+    "cost_quantile": 0.9,
+    "epsilon": 1e-6,
+    "multiplier_init": 0.5,
+    "lambda_lr": 0.01,
+    "lambda_optimizer": "SGD",
+    "lagrangian_upper_bound": 5.0,
     "cost_is_canonical": true,
     "cost_source": "policy_local_sensitivity_jacobian",
     "multiplier_backend": "omnisafe_lagrange",
-    "note": "Non-training diagnostic; uses randomly-initialized ActorCritic with dummy observations."
+    "note": "One-step non-training diagnostic. Uses real Humanoid-Gym observations and rewards, but only exercises OmniSafe's Lagrange component; full PPOLag training integration remains invasive."
+  },
+  "overrides": {
+    "env": {
+      "rewards.scales.action_smoothness": 0.0,
+      "rewards.scales.dof_acc": 0.0,
+      "rewards.scales.base_acc": 0.0,
+      "rewards.scales.dof_vel": 0.0
+    }
   }
 }
