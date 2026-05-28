@@ -1,0 +1,42 @@
+{
+  "_description": "SC-PPO threshold sweep diagnostic (#58). Tests thresholds 3.6/3.7/4.0 against baseline 3.8 on seeds {23,29,31} to find whether seed29 failure is threshold-specific. Only the threshold value differs from the #51 extended-seeds 3.8 config; all other parameters are held constant.",
+  "name": "rough_terrain_threshold_sweep_diagnostic",
+  "analysis_root": "artifacts/analysis/rough_terrain_threshold_sweep_diagnostic",
+  "seeds": [23, 29, 31],
+  "_baseline_threshold": 3.8,
+  "_sweep_thresholds": [3.6, 3.7, 4.0],
+  "_diagnostic_scope": "Does NOT replace the #51 five-seed record. If any threshold passes all gates, a full {11,17,23,29,31} rerun is required before any replacement claim.",
+  "train_num_envs": 512,
+  "eval_num_envs": 32,
+  "max_iterations": 400,
+  "episodes": 20,
+  "candidates": [
+    {
+      "id": "sc_ppo_threshold_36_lambda_05_quantile_090_pid_lower_bound_clamp",
+      "label": "SC-PPO threshold=3.6 (threshold sweep diagnostic)",
+      "config": "configs/methods/sc_ppo_threshold_36_lambda_05_quantile_090_pid_lower_bound_clamp_extended_seeds.json"
+    },
+    {
+      "id": "sc_ppo_threshold_37_lambda_05_quantile_090_pid_lower_bound_clamp",
+      "label": "SC-PPO threshold=3.7 (threshold sweep diagnostic)",
+      "config": "configs/methods/sc_ppo_threshold_37_lambda_05_quantile_090_pid_lower_bound_clamp_extended_seeds.json"
+    },
+    {
+      "id": "sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp",
+      "label": "SC-PPO threshold=3.8 (baseline, reused from #51)",
+      "config": "configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_extended_seeds.json"
+    },
+    {
+      "id": "sc_ppo_threshold_40_lambda_05_quantile_090_pid_lower_bound_clamp",
+      "label": "SC-PPO threshold=4.0 (threshold sweep diagnostic)",
+      "config": "configs/methods/sc_ppo_threshold_40_lambda_05_quantile_090_pid_lower_bound_clamp_extended_seeds.json"
+    }
+  ],
+  "_promotion_gates": {
+    "seed29_must": "recover at least half the smoothness gap to the heuristic seed29 (jnt_acc <= 172.7) while preserving task floor (fall <= 0.600, vel_err <= 0.684)",
+    "seed31_must": "not regress beyond guard band from #51 SC-PPO seed31 (jnt_acc <= 125.8, fall <= 0.050, vel_err <= 0.479)",
+    "seed23_must": "preserve canonical final-checkpoint within guard band (jnt_acc <= 126.8, fall <= 0.150, vel_err <= 0.711)"
+  },
+  "_next_step_if_pass": "Run full {11,17,23,29,31} matrix with the best threshold before making any replacement claim.",
+  "_next_step_if_fail": "Record negative result, close the threshold lever, do not expand to a broader sweep."
+}
