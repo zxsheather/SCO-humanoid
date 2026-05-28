@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -14,9 +15,11 @@ if str(BASELINE_DIR) not in sys.path:
 
 try:
     import _omnisafe_bridge as bridge  # noqa: E402
+    import _omnisafe_policy_loader as policy_loader  # noqa: E402
     import _omnisafe_ppolag_jacobian_hook as ppolag_hook  # noqa: E402
 except ModuleNotFoundError:
     bridge = None
+    policy_loader = None
     ppolag_hook = None
 
 
@@ -92,6 +95,27 @@ class OmniSafeBridgeTests(unittest.TestCase):
         cost.cost_tensor.backward()
         self.assertIsNotNone(actor.linear.weight.grad)
         self.assertGreater(float(actor.linear.weight.grad.abs().sum().item()), 0.0)
+
+    @unittest.skipIf(policy_loader is None, "OmniSafe policy loader module is unavailable.")
+    def test_omnisafe_policy_checkpoint_roundtrip(self) -> None:
+        actor = policy_loader.create_gaussian_actor(obs_dim=3, act_dim=2, hidden_sizes=[4], device="cpu")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            checkpoint_path = Path(tmpdir) / "model_0.pt"
+            policy_loader.save_omnisafe_policy_checkpoint(
+                checkpoint_path,
+                actor,
+                checkpoint=0,
+                seed=23,
+                cost_config={"threshold": 3.8},
+            )
+            policy, metadata = policy_loader.load_omnisafe_policy_checkpoint(checkpoint_path, device="cpu")
+
+        action = policy(torch.zeros(1, 3))
+
+        self.assertEqual(list(action.shape), [1, 2])
+        self.assertEqual(metadata["checkpoint"], 0)
+        self.assertEqual(metadata["seed"], 23)
+        self.assertEqual(metadata["cost_config"]["threshold"], 3.8)
 
 
 if __name__ == "__main__":

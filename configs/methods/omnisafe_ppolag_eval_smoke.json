@@ -1,0 +1,59 @@
+{
+  "name": "omnisafe_ppolag_eval_smoke",
+  "method": {
+    "id": "omnisafe_ppolag_eval_smoke",
+    "label": "OmniSafe PPO-Lag policy evaluation smoke (#62)",
+    "family": "external_constrained_rl",
+    "smoothness_strategy": "omnisafe_ppolag_jacobian_update_hook"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_omnisafe_ppolag_smoke",
+  "run_name": "omnisafe_ppolag_eval_smoke",
+  "artifacts_root": "artifacts/methods/omnisafe_ppolag_eval_smoke",
+  "evaluation_protocol": "rough_terrain_checkpoint_sweep_v2",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 1,
+    "episodes": 1,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 123145,
+    "metric_schema_version": 2,
+    "constraint_logging": {
+      "collect_local_sensitivity": true,
+      "local_sensitivity_threshold": 3.8,
+      "sample_envs": 1,
+      "sample_every_n_steps": 20,
+      "sidecar_metrics_filename": "constraint_metrics.json",
+      "multiplier_trace_filename": "lagrange_multiplier_trace.json"
+    }
+  },
+  "omnisafe": {
+    "checkpoint_dir": "artifacts/methods/omnisafe_ppolag_eval_smoke/fixture_checkpoints",
+    "actor_hidden_sizes": [64, 64],
+    "actor_activation": "tanh",
+    "cost_config": {
+      "cost_source": "policy_local_sensitivity_jacobian",
+      "threshold": 3.8,
+      "cost_aggregation": "quantile",
+      "cost_quantile": 0.9
+    }
+  },
+  "selection": {
+    "tracking_tolerance": 0.1,
+    "fall_tolerance": 0.05
+  },
+  "overrides": {
+    "env": {
+      "rewards.scales.action_smoothness": 0.0,
+      "rewards.scales.dof_acc": 0.0,
+      "rewards.scales.base_acc": 0.0,
+      "rewards.scales.dof_vel": 0.0
+    }
+  }
+}
