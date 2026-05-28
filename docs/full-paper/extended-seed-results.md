@@ -145,3 +145,14 @@ matrix with the same selection rule before making any replacement claim. If any
 diagnostic seed fails, record the mean-aggregation lever as a negative result
 and do not start the external constrained-RL baseline until the SC-PPO repair
 path is explicitly closed or superseded.
+
+## Mean-Aggregation Diagnostic Result (#57)
+
+The first repair diagnostic completed and failed. Changing
+`cost_aggregation = quantile(0.90)` to `mean` did not repair seed29 and did not
+preserve the canonical final-checkpoint guard: seed23 final checkpoint failed,
+seed29 became rougher and less stable than the #51 row, and seed31 collapsed
+across all evaluated checkpoints.
+
+See `docs/full-paper/sc-ppo-mean-aggregation-seed29-repair.md`. The #51
+five-seed audit remains the current full-paper robustness record.
