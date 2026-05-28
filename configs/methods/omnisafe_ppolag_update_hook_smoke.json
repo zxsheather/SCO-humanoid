@@ -1,0 +1,52 @@
+{
+  "name": "omnisafe_ppolag_update_hook_smoke",
+  "method": {
+    "id": "omnisafe_ppolag_update_hook_smoke",
+    "label": "OmniSafe PPO-Lag Jacobian update-hook smoke (#65)",
+    "family": "external_constrained_rl",
+    "smoothness_strategy": "omnisafe_ppolag_jacobian_update_hook"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_omnisafe_ppolag_smoke",
+  "run_name": "omnisafe_ppolag_update_hook_smoke",
+  "artifacts_root": "artifacts/methods/omnisafe_ppolag_update_hook_smoke",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "training": {
+    "headless": true,
+    "num_envs": 1,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0"
+  },
+  "smoke": {
+    "issue": "#65",
+    "purpose": "Verify a bounded OmniSafe PPO-Lag actor-update hook can add the canonical Jacobian penalty to actor loss and update OmniSafe's Lagrange multiplier on real Humanoid-Gym observations.",
+    "seed": 23,
+    "threshold": 3.8,
+    "subsample_obs": 1,
+    "cost_aggregation": "quantile",
+    "cost_quantile": 0.9,
+    "epsilon": 1e-6,
+    "multiplier_init": 0.5,
+    "lambda_lr": 0.01,
+    "lambda_optimizer": "SGD",
+    "lagrangian_upper_bound": 5.0,
+    "actor_hidden_sizes": [64, 64],
+    "actor_activation": "tanh",
+    "actor_lr": 0.0003,
+    "cost_is_canonical": true,
+    "cost_source": "policy_local_sensitivity_jacobian",
+    "note": "One-update diagnostic only; checkpoint-producing training remains downstream."
+  },
+  "overrides": {
+    "env": {
+      "rewards.scales.action_smoothness": 0.0,
+      "rewards.scales.dof_acc": 0.0,
+      "rewards.scales.base_acc": 0.0,
+      "rewards.scales.dof_vel": 0.0
+    }
+  }
+}

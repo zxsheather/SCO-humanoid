@@ -14,8 +14,10 @@ if str(BASELINE_DIR) not in sys.path:
 
 try:
     import _omnisafe_bridge as bridge  # noqa: E402
+    import _omnisafe_ppolag_jacobian_hook as ppolag_hook  # noqa: E402
 except ModuleNotFoundError:
     bridge = None
+    ppolag_hook = None
 
 
 class LinearActor:
@@ -24,6 +26,20 @@ class LinearActor:
 
     def act_inference(self, obs: torch.Tensor) -> torch.Tensor:
         return obs @ self.weight.t()
+
+    def parameters(self):
+        return []
+
+
+class LinearOmniSafeStyleActor(torch.nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.linear = torch.nn.Linear(2, 2, bias=False)
+        with torch.no_grad():
+            self.linear.weight.copy_(torch.tensor([[1.0, 0.0], [0.0, 2.0]]))
+
+    def forward(self, obs: torch.Tensor):
+        return torch.distributions.Normal(self.linear(obs), torch.ones(2, device=obs.device))
 
 
 @unittest.skipIf(bridge is None, "OmniSafe is not installed in this Python environment.")
@@ -57,6 +73,25 @@ class OmniSafeBridgeTests(unittest.TestCase):
 
         self.assertLess(result.multiplier, result.multiplier_before)
         self.assertAlmostEqual(result.constraint_error, -3.5, places=5)
+
+    @unittest.skipIf(ppolag_hook is None, "OmniSafe PPO-Lag hook module is unavailable.")
+    def test_ppolag_hook_cost_is_differentiable_to_actor_params(self) -> None:
+        actor = LinearOmniSafeStyleActor()
+        obs = torch.ones(4, 2)
+
+        cost = ppolag_hook.compute_differentiable_jacobian_cost(
+            actor,
+            obs,
+            threshold=2.0,
+            subsample_obs=0,
+            cost_aggregation="mean",
+        )
+
+        self.assertAlmostEqual(cost.cost_for_update, 5.0**0.5, places=5)
+        self.assertEqual(cost.violation_rate, 1.0)
+        cost.cost_tensor.backward()
+        self.assertIsNotNone(actor.linear.weight.grad)
+        self.assertGreater(float(actor.linear.weight.grad.abs().sum().item()), 0.0)
 
 
 if __name__ == "__main__":
