@@ -94,3 +94,54 @@ late-acquisition instability. A bounded first probe should keep the full-paper
 audit seed set fixed and test whether the SC-PPO family can avoid the
 `task-valid but dynamically rough` final seed29 solution without changing the
 historical workshop claim.
+
+## Repair Decision (#56)
+
+SC-PPO-family repair is approved only as a bounded diagnostic. The #51
+five-seed record remains the current full-paper audit result unless a later
+full five-seed rerun supersedes it explicitly.
+
+The first repair lever should be a single objective-side change:
+
+- Start from
+  `configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_extended_seeds.json`.
+- Change only `algorithm.constraint.cost_aggregation` from `quantile` to `mean`.
+- Keep `threshold = 3.8`, `subsample_obs = 8`, PID gains, `pid_integral_mode =
+  lower_bound_clamp`, `lambda_init = 0.5`, disabled heuristic smoothness rewards,
+  and the existing evaluation metric schema unchanged.
+
+Rationale: the seed29 and seed31 constraint traces are similar and both end
+with near-zero multipliers, so the current evidence does not support a pure
+multiplier-integral root cause. Threshold-neighborhood evidence is also already
+narrow and fragile. Changing aggregation while holding `threshold = 3.8` fixed
+is the smallest objective-side test of whether the tail-sensitive training
+target is contributing to late rough task acquisition.
+
+The first diagnostic seed set is `23 / 29 / 31`, not all five seeds. Seed29 is
+the failure surface, seed31 is the added-seed non-regression guard, and seed23
+is the canonical seed most sensitive to previous threshold-side failures. This
+diagnostic cannot replace the #51 record by itself.
+
+Checkpoint grid: evaluate `{0, 100, 200, 300, 400}` with 32 envs and 20 episodes
+per checkpoint, matching the #51 SC-PPO grid.
+
+Promotion gate for the diagnostic:
+
+- `seed29` must recover at least half of the smoothness gap to the revised
+  heuristic seed29 checkpoint while preserving the current task floor:
+  `joint_acceleration_l2_mean <= 172.7`, `action_jitter_l2_mean <= 0.351`,
+  `velocity_tracking_error_mean <= 0.684`, and `fall_rate <= 0.600`.
+- `seed31` must not regress beyond a small guard band from the current SC-PPO
+  final checkpoint: `joint_acceleration_l2_mean <= 125.8`,
+  `action_jitter_l2_mean <= 0.263`, `velocity_tracking_error_mean <= 0.479`,
+  and `fall_rate <= 0.050`.
+- `seed23` must preserve the current canonical final checkpoint within the same
+  guard band: `joint_acceleration_l2_mean <= 126.8`,
+  `action_jitter_l2_mean <= 0.232`, `velocity_tracking_error_mean <= 0.711`,
+  and `fall_rate <= 0.150`.
+
+If the diagnostic passes all three seeds, run the full `11 / 17 / 23 / 29 / 31`
+matrix with the same selection rule before making any replacement claim. If any
+diagnostic seed fails, record the mean-aggregation lever as a negative result
+and do not start the external constrained-RL baseline until the SC-PPO repair
+path is explicitly closed or superseded.
