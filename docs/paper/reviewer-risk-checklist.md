@@ -5,6 +5,21 @@ Each risk is rated by severity and the strength of the current response.
 
 ## Core Claims
 
+### R0: "Your new LCP baseline is stronger than SC-PPO — what is the paper claiming?"
+**Severity**: HIGH
+**Current response**: GOOD
+- The full-paper claim has been narrowed to a mechanism-level result about
+  policy-local-sensitivity regularization.
+- LCP-style soft Jacobian/Lipschitz regularization is positioned as the closest
+  SOTA-adjacent same-task comparison and the strongest current
+  smoothness/stability row.
+- SC-PPO is retained as the repo's hard-constraint PID-Lagrangian mechanism,
+  useful for understanding constraint enforcement and seed sensitivity.
+- We explicitly avoid claiming that SC-PPO beats SOTA or is the strongest
+  current method.
+- **Gap**: The LCP implementation is local and same-task, not official
+  checkpoint/code parity.
+
 ### R1: "The constraint threshold 3.8 is cherry-picked"
 **Severity**: HIGH
 **Current response**: GOOD
@@ -24,17 +39,25 @@ Each risk is rated by severity and the strength of the current response.
   NOT about SC-PPO beating heuristic in MuJoCo
 - The degradation pattern (SC-PPO 1.08x vs alternatives 3.5-12.7x)
   does not depend on SC-PPO "winning" MuJoCo
+- Full-paper LCP replay strengthens the mechanism claim: LCP reaches
+  `joint_acc=117.425` and `jitter=0.195` over five MuJoCo seeds, and on the
+  shared `11/17/23` anchor slice has lower joint acceleration and jitter than
+  both SC-PPO and the revised heuristic.
+- The LCP row still does not dominate every task-side metric: the revised
+  heuristic has slightly better MuJoCo velocity and return on `11/17/23`.
 - **Gap**: No physical explanation for why heuristic transfers
   task performance better than SC-PPO in MuJoCo
 
 ### R3: "Results are only 3 seeds — not statistically significant"
 **Severity**: MEDIUM
-**Current response**: ADEQUATE
-- 3 seeds is standard for locomotion RL papers
-- Per-seed checkpoint sweeps provide within-seed characterization
+**Current response**: GOOD
+- The full-paper Isaac audit now uses 5 seeds for SC-PPO, revised heuristic,
+  and LCP.
+- Per-seed checkpoint sweeps provide within-seed characterization.
 - Selected-checkpoint aggregate reported with mean ± std
-- **Gap**: No formal statistical test (t-test, bootstrap CI)
-- **Mitigation option** (deferred): extended-seed matrix (#50, #51)
+- **Gap**: MuJoCo anchors are mixed: LCP has 5-seed replay, while existing
+  SC-PPO/heuristic anchors cover `11/17/23`.
+- **Gap**: No formal statistical test (t-test, bootstrap CI).
 
 ### R4: "You only tested on one robot and one terrain"
 **Severity**: MEDIUM
@@ -77,12 +100,16 @@ Each risk is rated by severity and the strength of the current response.
 
 ### R8: "Why not compare against CPO / other constrained RL methods?"
 **Severity**: MEDIUM
-**Current response**: ADEQUATE
+**Current response**: GOOD
 - CPO assessed as 2-3 week implementation effort, deferred
 - Plain dual ascent provides within-family Lagrangian comparison
 - 8 alternative mechanism comparisons provide breadth
-- Acknowledged as limitation
-- **Mitigation option** (deferred): external baseline (#52, #53)
+- LCP-style soft Jacobian/Lipschitz regularization is now the closest
+  SOTA-adjacent same-task baseline.
+- OmniSafe PPO-Lag migration was tested as a bounded framework diagnostic and
+  collapsed; this is reported as an interface mismatch, not as external CRL
+  failing broadly.
+- Acknowledged limitation: no official LCP checkpoint parity and no CPO row.
 
 ## Analysis Concerns
 
@@ -123,14 +150,17 @@ Each risk is rated by severity and the strength of the current response.
 ### R12: "The paper has too many negative results — what's the positive story?"
 **Severity**: LOW
 **Current response**: GOOD
-- Positive: SC-PPO beats the revised heuristic anchor on Isaac rough-
-  terrain task/smoothness metrics and shows low joint-acceleration
-  degradation in MuJoCo
+- Positive: policy-local-sensitivity regularization is the useful mechanism.
+- Positive: LCP-style soft regularization passes the five-seed Isaac hard gate
+  and preserves dynamic smoothness in MuJoCo.
+- Positive: SC-PPO explains hard-constraint behavior and reveals why PID-style
+  constraint enforcement is interpretable but seed-sensitive.
 - Negative results (8 alternatives failed) serve as evidence FOR
   the robustness of the Jacobian-constraint path relative to tested
   non-Jacobian replacements, not as failures of the project
 - Plain dual vs PID: positive result for PID
 - Dynamic vs kinematic: positive result for both dimensions
+- OmniSafe is a framework-boundary diagnostic, not a failed SOTA comparison.
 
 ### R13: "The cross-engine degradation table has different checkpoint bases"
 **Severity**: LOW

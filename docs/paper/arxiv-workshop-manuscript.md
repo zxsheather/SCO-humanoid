@@ -2,6 +2,13 @@
 
 Draft status: `arXiv / workshop-first` manuscript draft.
 
+Full-paper status note (#71): this document preserves the workshop-era
+SC-PPO-centered narrative. That narrative is superseded for full-paper work by
+`docs/full-paper/full-paper-narrative-integration.md`: frame the paper as a
+mechanism-level comparison of policy-local-sensitivity regularization, with
+LCP-style soft Jacobian/Lipschitz regularization as the closest SOTA-adjacent
+baseline and OmniSafe PPO-Lag as a diagnostic-only framework-interface result.
+
 This draft is derived from `docs/paper/manuscript-skeleton.md` and the frozen
 post-exploration evidence package. It is not a LaTeX submission yet. Citations
 use Pandoc-style keys backed by `docs/paper/references.bib`.

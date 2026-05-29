@@ -109,12 +109,17 @@ scheduling). Simple parameter sweeps are insufficient.
 
 ## Next Steps
 
+Supersession note (#71): these next steps were written before the LCP baseline
+path was selected and completed. The current full-paper framing is recorded in
+`docs/full-paper/full-paper-narrative-integration.md`: LCP-style soft
+Jacobian/Lipschitz regularization is the closest SOTA-adjacent baseline, and
+OmniSafe is a diagnostic-only framework-interface result.
+
 - Accept SC-PPO seed sensitivity as a documented method-level limitation.
-- #53 (external constrained-RL baseline) remains a human decision. Revisit
-  only after a human selects one specific external baseline (CPO, OmniSafe,
-  or other) and approves the integration budget. The baseline should be
-  framed as an independent comparison point, not as validation of SC-PPO
-  dominance.
+- Historical #53 note: external constrained-RL baseline work required a
+  specific human-selected baseline and approved integration budget. The later
+  decision selected LCP-style soft Jacobian/Lipschitz regularization rather
+  than OmniSafe as the SOTA-adjacent comparison point.
 - Frame the full-paper narrative around the honest finding: Jacobian
   constraints work well for most seeds but show higher cross-seed variance
   than heuristic reward shaping.

@@ -85,9 +85,14 @@ partially task-valid gait at the end, and that gait is dynamically rough.
 
 ## Full-Paper Consequence
 
-The current full-paper path should not proceed directly to an external
-constrained-RL baseline. Adding a CPO/OmniSafe-style baseline now would compare
-against an SC-PPO row whose five-seed robustness is already weakened.
+Supersession note (#71): this section records the immediate #51 decision before
+the later external-baseline work. It has been superseded by #66-#70: OmniSafe
+was treated as a diagnostic-only framework migration, and the formal external
+comparison proceeded through an LCP-style soft Jacobian/Lipschitz baseline.
+
+At the time, the full-paper path was paused before starting a generic
+CPO/OmniSafe-style baseline, because that would have compared against an
+SC-PPO row whose five-seed robustness was already weakened.
 
 The next useful work is a narrow diagnostic/repair branch for seed29-style
 late-acquisition instability. A bounded first probe should keep the full-paper
