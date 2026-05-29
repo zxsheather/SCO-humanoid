@@ -44,21 +44,28 @@ Each risk is rated by severity and the strength of the current response.
 
 ### R2: "MuJoCo is mixed evidence — SC-PPO doesn't win there"
 **Severity**: HIGH
-**Current response**: ADEQUATE
-- We acknowledge this openly: heuristic wins on task metrics,
-  SC-PPO only on action jitter in MuJoCo
-- The paper claim is about cross-engine smoothness robustness,
-  NOT about SC-PPO beating heuristic in MuJoCo
-- The degradation pattern (SC-PPO 1.08x vs alternatives 3.5-12.7x)
-  does not depend on SC-PPO "winning" MuJoCo
+**Current response**: GOOD
+- We acknowledge this openly: the full-paper MuJoCo claim is mixed and
+  mechanism-level, not a claim that SC-PPO or LCP dominates every metric.
 - Matched five-seed MuJoCo replay sharpens the mechanism claim: LCP reaches
   `joint_acc=117.425` and `jitter=0.195`, much better than SC-PPO
   (`joint_acc=159.718`, `jitter=0.322`).
 - The LCP row does not dominate the revised heuristic: the heuristic has lower
   MuJoCo joint acceleration (`111.615`) and better return, while LCP has lower
   action jitter.
-- **Gap**: No physical explanation for why heuristic transfers
-  task performance better than SC-PPO in MuJoCo
+- The mixed-evidence mechanism note
+  `docs/full-paper/mujoco-mixed-evidence-mechanism.md` decomposes this by
+  seed and metric. LCP wins per-seed action jitter on `3/5` seeds; the revised
+  heuristic wins aggregate joint acceleration and return in every leave-one-seed
+  split.
+- Cross-metric checks support the explanation: action jitter and joint
+  acceleration are coupled but not identical, while return is more tied to
+  velocity tracking and seed-specific rollout behavior.
+- SC-PPO's poor aggregate is outlier-amplified by seed 29, but the
+  LCP-vs-heuristic trade-off remains after excluding that seed.
+- **Gap**: The mechanism note is still aggregate/correlational. It does not
+  provide an intervention-level LCP-vs-heuristic causal trace or hardware
+  validation.
 
 ### R3: "Results are only 3 seeds — not statistically significant"
 **Severity**: MEDIUM

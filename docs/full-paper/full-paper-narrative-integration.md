@@ -31,6 +31,8 @@ Generated paper-facing tables:
 - T0d OmniSafe diagnostic: `artifacts/analysis/paper_figures/table_omnisafe_diagnostic.md`
 - Statistical robustness audit: `docs/full-paper/statistical-robustness-results.md`
 - Selected-vs-final checkpoint audit: `docs/full-paper/selected-vs-final-checkpoint-robustness.md`
+- Matched MuJoCo mixed-evidence mechanism note:
+  `docs/full-paper/mujoco-mixed-evidence-mechanism.md`
 
 Five-seed Isaac selected-checkpoint comparison:
 
@@ -83,6 +85,10 @@ Claims that remain defensible:
 - LCP is close to final-checkpoint stable under the current five-seed protocol;
   selected-vs-final dependence is mainly a concern for SC-PPO dynamic
   smoothness and heuristic task validity.
+- Matched MuJoCo evidence is mixed but mechanistically interpretable: LCP is
+  the cleanest policy-output/action-jitter row, while the revised heuristic is
+  better on aggregate joint acceleration and return; leave-one-seed checks
+  preserve that split.
 - SC-PPO shows that hard policy-Jacobian constraints can improve dynamic
   smoothness on the original three-seed slice, but five-seed evidence exposes
   seed sensitivity.
@@ -101,6 +107,8 @@ Claims to avoid:
 - Do not say LCP dominates the revised heuristic across all metrics; matched
   five-seed MuJoCo shows the heuristic is better on joint acceleration and
   return.
+- Do not turn the matched MuJoCo mechanism note into causal proof; it is an
+  aggregate decomposition with correlation and leave-one-seed checks.
 - Do not describe the five-seed bootstrap audit as a large-sample
   significance test.
 - Do not say OmniSafe/CPO/external constrained RL fails.
