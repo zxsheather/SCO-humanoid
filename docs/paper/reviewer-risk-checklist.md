@@ -65,10 +65,10 @@ Each risk is rated by severity and the strength of the current response.
 **Current response**: GOOD
 - The full-paper Isaac audit now uses 5 seeds for SC-PPO, revised heuristic,
   and LCP.
+- Matched selected-checkpoint MuJoCo replay now also covers the same five
+  seeds for LCP, SC-PPO, and the revised heuristic.
 - Per-seed checkpoint sweeps provide within-seed characterization.
 - Selected-checkpoint aggregate reported with mean ± std
-- **Gap**: MuJoCo anchors are mixed: LCP has 5-seed replay, while existing
-  SC-PPO/heuristic anchors cover `11/17/23`.
 - **Gap**: No formal statistical test (t-test, bootstrap CI).
 
 ### R4: "You only tested on one robot and one terrain"
@@ -180,6 +180,10 @@ Each risk is rated by severity and the strength of the current response.
 ### R13: "The cross-engine degradation table has different checkpoint bases"
 **Severity**: LOW
 **Current response**: GOOD
+- The old cross-engine degradation table is now marked as historical
+  workshop-era evidence in the generated manifest.
+- The primary full-paper evidence uses separate generated T0/T0b tables for
+  five-seed Isaac and matched five-seed MuJoCo selected-checkpoint replay.
 - Table explicitly marks selected-checkpoint vs final-checkpoint rows
 - SC-PPO uses selected checkpoints (300/300/400)
 - LayerNorm uses final checkpoints (400/400/400)

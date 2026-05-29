@@ -35,12 +35,41 @@ except ModuleNotFoundError as exc:
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_OUTPUT = REPO_ROOT / "artifacts" / "analysis" / "paper_figures"
 SEEDS = [11, 17, 23]
+FULL_SEEDS = [11, 17, 23, 29, 31]
+DIAGNOSTIC_SEEDS = [23, 29, 31]
 METRIC_KEYS = [
     "joint_acceleration_l2_mean",
     "action_jitter_l2_mean",
     "velocity_tracking_error_mean",
     "fall_rate",
 ]
+
+FULL_PAPER_EXTENDED_SUMMARY = (
+    "artifacts/analysis/rough_terrain_extended_seeds/comparison_summary.json"
+)
+LCP_FORMAL_SUMMARY = (
+    "artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json"
+)
+LCP_WEIGHT_SUMMARIES = {
+    "0.001": "artifacts/analysis/rough_terrain_lcp_weight_sensitivity_diagnostic/w0001/comparison_summary.json",
+    "0.002": "artifacts/analysis/rough_terrain_lcp_soft_jacobian_diagnostic/comparison_summary.json",
+    "0.004": "artifacts/analysis/rough_terrain_lcp_weight_sensitivity_diagnostic/w0004/comparison_summary.json",
+}
+OMNISAFE_DIAGNOSTIC_SUMMARY = (
+    "artifacts/analysis/rough_terrain_omnisafe_ppolag_diagnostic/comparison_summary.json"
+)
+LCP_MUJOCO_BASE = (
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/"
+    "lcp_soft_jacobian_penalty_diagnostic"
+)
+SCPPO_MUJOCO_BASE = (
+    "artifacts/methods/sc_ppo_pid_probe/"
+    "sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400"
+)
+HEURISTIC_MUJOCO_BASE = (
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/"
+    "heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -143,10 +172,25 @@ def fmt(value, digits: int = 3) -> str:
     return f"{float(value):.{digits}f}"
 
 
-def checkpoint_map_str(value: dict | None) -> str:
+def checkpoint_map_str(value: dict | None, seeds: list[int] | None = None) -> str:
     if not value:
         return ""
-    return " / ".join(str(value.get(str(seed), "")) for seed in SEEDS)
+    seed_order = seeds or SEEDS
+    return " / ".join(str(value.get(str(seed), "")) for seed in seed_order)
+
+
+def seeds_str(seeds: list[int]) -> str:
+    return " / ".join(str(seed) for seed in seeds)
+
+
+def compact_source_list(paths: list[str]) -> str:
+    seen: set[str] = set()
+    ordered = []
+    for path in paths:
+        if path and path not in seen:
+            seen.add(path)
+            ordered.append(path)
+    return "; ".join(ordered)
 
 
 def source_list_from_metadata(meta: dict, basis: str) -> str:
@@ -431,6 +475,325 @@ def assemble_ldlj_sparc_data():
             "layernorm": "artifacts/methods/layernorm_actor_gain_reliability_probe/ln_ep3_trace20_seed{11,17,23}/behavior_smoothness_metrics_selected.json",
         },
     }
+
+
+# ---------------------------------------------------------------------------
+# Full-paper mechanism-comparison data assembly
+# ---------------------------------------------------------------------------
+
+def iter_per_seed(per_seed) -> list[tuple[str, dict]]:
+    if isinstance(per_seed, dict):
+        return sorted(per_seed.items(), key=lambda item: int(item[0]))
+    return sorted(((str(item["seed"]), item) for item in per_seed), key=lambda item: int(item[0]))
+
+
+def metrics_block(seed_record: dict, basis: str) -> dict:
+    return seed_record.get(basis) or seed_record.get(f"{basis}_metrics") or {}
+
+
+def checkpoint_for_basis(seed_record: dict, basis: str) -> int | None:
+    key = f"{basis}_checkpoint"
+    if seed_record.get(key) is not None:
+        return int(seed_record[key])
+    metrics = metrics_block(seed_record, basis)
+    checkpoint = metrics.get("checkpoint")
+    return int(checkpoint) if checkpoint is not None else None
+
+
+def metric_values_from_summary(summary: dict, basis: str, metric_key: str, seeds: list[int]) -> list[float]:
+    values = []
+    wanted = {str(seed) for seed in seeds}
+    for seed, seed_record in iter_per_seed(summary.get("per_seed", {})):
+        if seed not in wanted:
+            continue
+        value = metrics_block(seed_record, basis).get(metric_key)
+        if value is not None:
+            values.append(value)
+    return values
+
+
+def first_not_none(*values):
+    for value in values:
+        if value is not None:
+            return value
+    return None
+
+
+def policy_sensitivity_values_from_summary(summary: dict, basis: str, seeds: list[int]) -> list[float]:
+    values = []
+    wanted = {str(seed) for seed in seeds}
+    for seed, seed_record in iter_per_seed(summary.get("per_seed", {})):
+        if seed not in wanted:
+            continue
+        metrics = metrics_block(seed_record, basis)
+        value = first_not_none(
+            metrics.get("eval_policy_local_sensitivity_cost_mean"),
+            metrics.get("policy_local_sensitivity_cost_mean"),
+            metrics.get("constraint_metrics", {}).get("policy_local_sensitivity_cost_mean"),
+        )
+        if value is not None:
+            values.append(value)
+    return values
+
+
+def violation_values_from_summary(summary: dict, basis: str, seeds: list[int]) -> list[float]:
+    values = []
+    wanted = {str(seed) for seed in seeds}
+    for seed, seed_record in iter_per_seed(summary.get("per_seed", {})):
+        if seed not in wanted:
+            continue
+        metrics = metrics_block(seed_record, basis)
+        value = first_not_none(
+            metrics.get("eval_constraint_violation_rate"),
+            metrics.get("constraint_violation_rate"),
+            metrics.get("constraint_metrics", {}).get("constraint_violation_rate"),
+        )
+        if value is not None:
+            values.append(value)
+    return values
+
+
+def fmt_values(values: list[float], digits: int = 3) -> str:
+    if not values:
+        return ""
+    mean = statistics.fmean(values)
+    std = statistics.pstdev(values) if len(values) > 1 else 0.0
+    return f"{fmt(mean, digits)} +/- {fmt(std, digits)}"
+
+
+def source_paths_from_summary(summary_path: str, summary: dict, basis: str, seeds: list[int]) -> str:
+    sources = [summary_path]
+    wanted = {str(seed) for seed in seeds}
+    for seed, seed_record in iter_per_seed(summary.get("per_seed", {})):
+        if seed not in wanted:
+            continue
+        metrics = metrics_block(seed_record, basis)
+        sources.extend([
+            seed_record.get(f"{basis}_metrics_path"),
+            metrics.get("metrics_path"),
+            seed_record.get("checkpoint_sweep_summary_path"),
+            seed_record.get("summary_path"),
+            seed_record.get("training_status_path"),
+        ])
+    return compact_source_list([source for source in sources if source])
+
+
+def checkpoints_from_summary(summary: dict, basis: str, seeds: list[int]) -> dict[str, int]:
+    checkpoints = {}
+    wanted = {str(seed) for seed in seeds}
+    for seed, seed_record in iter_per_seed(summary.get("per_seed", {})):
+        if seed not in wanted:
+            continue
+        checkpoint = checkpoint_for_basis(seed_record, basis)
+        if checkpoint is not None:
+            checkpoints[seed] = checkpoint
+    return checkpoints
+
+
+def statuses_from_summary(summary: dict, seeds: list[int]) -> dict[str, str]:
+    statuses = {}
+    wanted = {str(seed) for seed in seeds}
+    for seed, seed_record in iter_per_seed(summary.get("per_seed", {})):
+        if seed in wanted and seed_record.get("selection_status") is not None:
+            statuses[seed] = seed_record["selection_status"]
+    return statuses
+
+
+def mechanism_summary_row(
+    label: str,
+    summary_path: str,
+    summary: dict,
+    seeds: list[int],
+    basis: str = "selected",
+    evidence_tier: str = "primary",
+    extra: dict | None = None,
+) -> dict:
+    row = {
+        "method": label,
+        "evidence_tier": evidence_tier,
+        "checkpoint_basis": basis,
+        "seeds": seeds_str(seeds),
+        "checkpoints": checkpoint_map_str(checkpoints_from_summary(summary, basis, seeds), seeds),
+        "selection_statuses": checkpoint_map_str(statuses_from_summary(summary, seeds), seeds),
+        "fall_rate": fmt_values(metric_values_from_summary(summary, basis, "fall_rate", seeds)),
+        "velocity_error": fmt_values(metric_values_from_summary(summary, basis, "velocity_tracking_error_mean", seeds)),
+        "joint_acceleration": fmt_values(metric_values_from_summary(summary, basis, "joint_acceleration_l2_mean", seeds)),
+        "action_jitter": fmt_values(metric_values_from_summary(summary, basis, "action_jitter_l2_mean", seeds)),
+        "episode_return": fmt_values(metric_values_from_summary(summary, basis, "episode_return_mean", seeds)),
+        "policy_sensitivity": fmt_values(policy_sensitivity_values_from_summary(summary, basis, seeds)),
+        "violation_rate": fmt_values(violation_values_from_summary(summary, basis, seeds)),
+        "source_artifacts": source_paths_from_summary(summary_path, summary, basis, seeds),
+    }
+    if extra:
+        row.update(extra)
+    return row
+
+
+def candidate_by_id(summary: dict, candidate_id: str) -> dict:
+    for candidate in summary.get("candidates", []):
+        if candidate.get("id") == candidate_id:
+            return candidate
+    raise KeyError(f"Candidate {candidate_id} not found in {summary.get('comparison_name', '<unknown>')}")
+
+
+def build_full_paper_isaac_rows() -> list[dict]:
+    lcp = read_json(require_path(REPO_ROOT / LCP_FORMAL_SUMMARY, "LCP formal comparison summary"))
+    extended = read_json(require_path(REPO_ROOT / FULL_PAPER_EXTENDED_SUMMARY, "extended-seed comparison summary"))
+    scppo = candidate_by_id(extended, "sc_ppo")
+    heuristic = candidate_by_id(extended, "heuristic_smoothing")
+
+    return [
+        mechanism_summary_row(
+            "LCP-style soft Jacobian/Lipschitz penalty",
+            LCP_FORMAL_SUMMARY,
+            lcp,
+            FULL_SEEDS,
+            evidence_tier="primary_full_paper",
+            extra={"method_family": "soft_policy_sensitivity_regularization"},
+        ),
+        mechanism_summary_row(
+            "SC-PPO 3.8 PID-Lagrangian",
+            FULL_PAPER_EXTENDED_SUMMARY,
+            scppo,
+            FULL_SEEDS,
+            evidence_tier="primary_full_paper",
+            extra={"method_family": "hard_policy_sensitivity_constraint"},
+        ),
+        mechanism_summary_row(
+            "Revised heuristic action-rate penalty",
+            FULL_PAPER_EXTENDED_SUMMARY,
+            heuristic,
+            FULL_SEEDS,
+            evidence_tier="primary_full_paper",
+            extra={"method_family": "reward_shaping_anchor"},
+        ),
+    ]
+
+
+def selected_checkpoints_for_mujoco() -> dict[str, dict[str, int]]:
+    lcp = read_json(require_path(REPO_ROOT / LCP_FORMAL_SUMMARY, "LCP formal comparison summary"))
+    extended = read_json(require_path(REPO_ROOT / FULL_PAPER_EXTENDED_SUMMARY, "extended-seed comparison summary"))
+    return {
+        "lcp": checkpoints_from_summary(lcp, "selected", FULL_SEEDS),
+        "scppo": candidate_by_id(extended, "sc_ppo").get("selected_checkpoints", {}),
+        "heuristic": candidate_by_id(extended, "heuristic_smoothing").get("selected_checkpoints", {}),
+    }
+
+
+def build_mujoco_row(
+    label: str,
+    method_key: str,
+    base: str,
+    summary_path: str,
+    checkpoints: dict[str, int],
+    method_family: str,
+) -> dict:
+    metrics_by_key: dict[str, list[float]] = {
+        "fall_rate": [],
+        "velocity_tracking_error_mean": [],
+        "joint_acceleration_l2_mean": [],
+        "action_jitter_l2_mean": [],
+        "episode_return_mean": [],
+    }
+    sources = [summary_path]
+    for seed in FULL_SEEDS:
+        path = REPO_ROOT / f"{base}_seed{seed}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json"
+        require_path(path, f"{label} MuJoCo metrics for seed {seed}")
+        sources.append(str(path.relative_to(REPO_ROOT)))
+        data = read_json(path)
+        for key in metrics_by_key:
+            value = data.get(key)
+            if value is not None:
+                metrics_by_key[key].append(value)
+
+    return {
+        "method": label,
+        "method_family": method_family,
+        "evidence_tier": "primary_full_paper",
+        "checkpoint_basis": "selected-checkpoint MuJoCo replay",
+        "seeds": seeds_str(FULL_SEEDS),
+        "checkpoints": checkpoint_map_str(checkpoints, FULL_SEEDS),
+        "fall_rate": fmt_values(metrics_by_key["fall_rate"]),
+        "velocity_error": fmt_values(metrics_by_key["velocity_tracking_error_mean"]),
+        "joint_acceleration": fmt_values(metrics_by_key["joint_acceleration_l2_mean"]),
+        "action_jitter": fmt_values(metrics_by_key["action_jitter_l2_mean"]),
+        "episode_return": fmt_values(metrics_by_key["episode_return_mean"]),
+        "source_artifacts": compact_source_list(sources),
+        "method_key": method_key,
+    }
+
+
+def build_matched_mujoco_rows() -> list[dict]:
+    checkpoints = selected_checkpoints_for_mujoco()
+    return [
+        build_mujoco_row(
+            "LCP-style soft Jacobian/Lipschitz penalty",
+            "lcp",
+            LCP_MUJOCO_BASE,
+            LCP_FORMAL_SUMMARY,
+            checkpoints["lcp"],
+            "soft_policy_sensitivity_regularization",
+        ),
+        build_mujoco_row(
+            "SC-PPO 3.8 PID-Lagrangian",
+            "scppo",
+            SCPPO_MUJOCO_BASE,
+            FULL_PAPER_EXTENDED_SUMMARY,
+            checkpoints["scppo"],
+            "hard_policy_sensitivity_constraint",
+        ),
+        build_mujoco_row(
+            "Revised heuristic action-rate penalty",
+            "heuristic",
+            HEURISTIC_MUJOCO_BASE,
+            FULL_PAPER_EXTENDED_SUMMARY,
+            checkpoints["heuristic"],
+            "reward_shaping_anchor",
+        ),
+    ]
+
+
+def build_lcp_weight_sensitivity_rows() -> list[dict]:
+    rows = []
+    for weight, summary_path in LCP_WEIGHT_SUMMARIES.items():
+        summary = read_json(require_path(REPO_ROOT / summary_path, f"LCP weight={weight} summary"))
+        rows.append(
+            mechanism_summary_row(
+                f"LCP-style soft penalty weight={weight}",
+                summary_path,
+                summary,
+                DIAGNOSTIC_SEEDS,
+                evidence_tier="diagnostic_local_weight_grid",
+                extra={
+                    "lcp_weight": weight,
+                    "method_family": "soft_policy_sensitivity_regularization",
+                },
+            )
+        )
+    return rows
+
+
+def build_omnisafe_diagnostic_rows() -> list[dict]:
+    summary = read_json(require_path(REPO_ROOT / OMNISAFE_DIAGNOSTIC_SUMMARY, "OmniSafe diagnostic summary"))
+    rows = []
+    for basis in ["selected", "final"]:
+        rows.append(
+            mechanism_summary_row(
+                "OmniSafe PPO-Lag migration diagnostic",
+                OMNISAFE_DIAGNOSTIC_SUMMARY,
+                summary,
+                DIAGNOSTIC_SEEDS,
+                basis=basis,
+                evidence_tier="diagnostic_only",
+                extra={
+                    "method_family": "external_framework_migration",
+                    "diagnostic_only": str(summary.get("diagnostic_only", True)),
+                    "status": summary.get("status", ""),
+                    "claim_boundary": summary.get("claim_boundary", ""),
+                },
+            )
+        )
+    return rows
 
 
 # ---------------------------------------------------------------------------
@@ -831,9 +1194,92 @@ def build_layernorm_tradeoff_rows(methods: list[dict], ldlj_data: dict) -> list[
     return rows
 
 
+TABLE_DESCRIPTIONS = {
+    "full_paper_isaac_mechanism_comparison": (
+        "T0 primary full-paper five-seed Isaac mechanism comparison: "
+        "LCP-style soft penalty, SC-PPO PID-Lagrangian, and revised heuristic"
+    ),
+    "matched_mujoco_mechanism_comparison": (
+        "T0b primary full-paper matched five-seed MuJoCo selected-checkpoint replay comparison"
+    ),
+    "lcp_weight_sensitivity": (
+        "T0c diagnostic LCP coefficient sensitivity grid for weights 0.001, 0.002, and 0.004"
+    ),
+    "omnisafe_diagnostic": (
+        "Diagnostic-only OmniSafe PPO-Lag migration summary; not a promoted baseline"
+    ),
+    "cross_engine_degradation": (
+        "Historical workshop-era 3-seed five-method selected-checkpoint degradation table"
+    ),
+    "threshold_sensitivity": "Historical workshop-era SC-PPO threshold sensitivity table",
+    "plain_dual_vs_pid": (
+        "Historical workshop-era plain dual ascent vs PID-Lagrangian selected/final table"
+    ),
+    "scppo_epochs3_repair": (
+        "Historical workshop-era SC-PPO epochs=3 reliability repair selected/final table"
+    ),
+    "layernorm_tradeoff_ldlj_sparc": (
+        "Historical workshop-era LayerNorm trade-off and LDLJ/SPARC table"
+    ),
+}
+
+
+def source_artifacts_from_rows(rows: list[dict]) -> list[str]:
+    sources = []
+    for row in rows:
+        for source in str(row.get("source_artifacts", "")).split(";"):
+            source = source.strip()
+            if source:
+                sources.append(source)
+    return sorted(set(sources))
+
+
 def write_paper_tables(methods: list[dict], threshold_data: dict, ldlj_data: dict, output_dir: Path) -> dict:
     """Write Markdown/CSV tables and return their structured rows."""
     table_specs = {}
+
+    full_headers = [
+        "method", "method_family", "evidence_tier", "checkpoint_basis", "seeds",
+        "checkpoints", "selection_statuses", "fall_rate", "velocity_error",
+        "joint_acceleration", "action_jitter", "episode_return",
+        "policy_sensitivity", "violation_rate", "source_artifacts",
+    ]
+    table_specs["full_paper_isaac_mechanism_comparison"] = (
+        build_full_paper_isaac_rows(),
+        full_headers,
+    )
+
+    mujoco_headers = [
+        "method", "method_family", "evidence_tier", "checkpoint_basis", "seeds",
+        "checkpoints", "fall_rate", "velocity_error", "joint_acceleration",
+        "action_jitter", "episode_return", "source_artifacts",
+    ]
+    table_specs["matched_mujoco_mechanism_comparison"] = (
+        build_matched_mujoco_rows(),
+        mujoco_headers,
+    )
+
+    lcp_weight_headers = [
+        "method", "method_family", "evidence_tier", "lcp_weight", "checkpoint_basis",
+        "seeds", "checkpoints", "selection_statuses", "fall_rate", "velocity_error",
+        "joint_acceleration", "action_jitter", "episode_return", "policy_sensitivity",
+        "violation_rate", "source_artifacts",
+    ]
+    table_specs["lcp_weight_sensitivity"] = (
+        build_lcp_weight_sensitivity_rows(),
+        lcp_weight_headers,
+    )
+
+    omnisafe_headers = [
+        "method", "method_family", "evidence_tier", "diagnostic_only", "status",
+        "checkpoint_basis", "seeds", "checkpoints", "selection_statuses",
+        "fall_rate", "velocity_error", "joint_acceleration", "action_jitter",
+        "episode_return", "claim_boundary", "source_artifacts",
+    ]
+    table_specs["omnisafe_diagnostic"] = (
+        build_omnisafe_diagnostic_rows(),
+        omnisafe_headers,
+    )
 
     cross_headers = [
         "method", "isaac_checkpoint_basis", "mujoco_checkpoint_basis",
@@ -891,8 +1337,10 @@ def write_paper_tables(methods: list[dict], threshold_data: dict, ldlj_data: dic
         outputs[name] = {
             "csv": csv_path.name,
             "markdown": md_path.name,
+            "description": TABLE_DESCRIPTIONS.get(name, name.replace("_", " ")),
             "headers": headers,
             "rows": rows,
+            "source_artifacts": source_artifacts_from_rows(rows),
         }
         print(f"  Saved table_{name}.csv and table_{name}.md")
 
@@ -946,8 +1394,8 @@ def main():
     # Save structured data
     print("\n[7/7] Saving structured data...")
     paper_data = {
-        "generated": "2026-05-26",
-        "description": "Paper-grade figures and tables for cross-engine smoothness degradation study",
+        "generated": "2026-05-29",
+        "description": "Paper-grade figures and tables for mechanism-comparison smooth humanoid control study",
         "methods": methods,
         "sensitivity_evolution": {k: {str(cp): v for cp, v in evolution[k].items()}
                                   for k in ["scppo", "layernorm"]},
@@ -977,25 +1425,26 @@ def main():
     print(f"  Saved paper_figures_data.json")
 
     # Manifest
+    figure_outputs = [
+        {"file": "figure_cross_engine_degradation.png", "description": "Historical workshop-era cross-engine degradation bar chart (5 methods)"},
+        {"file": "figure_sensitivity_evolution.png", "description": "Historical workshop-era sensitivity evolution during training (SC-PPO vs LayerNorm)"},
+        {"file": "figure_sensitivity_vs_degradation.png", "description": "Historical workshop-era sensitivity-to-degradation scatter plot with trend line"},
+        {"file": "figure_ldlj_sparc.png", "description": "Historical workshop-era LDLJ/SPARC kinematic vs dynamic smoothness comparison"},
+        {"file": "figure_task_vs_smoothness.png", "description": "Historical workshop-era task metrics separated from dynamic smoothness metrics"},
+    ]
+    table_outputs = []
+    for table in tables.values():
+        for output_key in ["markdown", "csv"]:
+            table_outputs.append({
+                "file": table[output_key],
+                "description": table["description"],
+                "source_artifacts": table["source_artifacts"],
+            })
+
     manifest = {
-        "generated": "2026-05-26",
+        "generated": "2026-05-29",
         "script": "scripts/analysis/generate_paper_figures.py",
-        "outputs": [
-            {"file": "figure_cross_engine_degradation.png", "description": "Cross-engine degradation bar chart (5 methods)"},
-            {"file": "figure_sensitivity_evolution.png", "description": "Sensitivity evolution during training (SC-PPO vs LayerNorm)"},
-            {"file": "figure_sensitivity_vs_degradation.png", "description": "Sensitivity → degradation scatter plot with trend line"},
-            {"file": "figure_ldlj_sparc.png", "description": "LDLJ/SPARC kinematic vs dynamic smoothness comparison"},
-            {"file": "figure_task_vs_smoothness.png", "description": "Task metrics separated from dynamic smoothness metrics"},
-            {"file": "table_cross_engine_degradation.md", "description": "Five-method selected-checkpoint degradation table with source artifacts"},
-            {"file": "table_cross_engine_degradation.csv", "description": "CSV version of cross-engine degradation table"},
-            {"file": "table_threshold_sensitivity.md", "description": "Threshold sensitivity table"},
-            {"file": "table_threshold_sensitivity.csv", "description": "CSV version of threshold sensitivity table"},
-            {"file": "table_plain_dual_vs_pid.md", "description": "Plain dual ascent vs PID-Lagrangian selected/final table"},
-            {"file": "table_plain_dual_vs_pid.csv", "description": "CSV version of plain dual ascent vs PID-Lagrangian table"},
-            {"file": "table_scppo_epochs3_repair.md", "description": "SC-PPO epochs=3 reliability repair selected/final table"},
-            {"file": "table_scppo_epochs3_repair.csv", "description": "CSV version of SC-PPO epochs=3 reliability repair table"},
-            {"file": "table_layernorm_tradeoff_ldlj_sparc.md", "description": "LayerNorm trade-off and LDLJ/SPARC table"},
-            {"file": "table_layernorm_tradeoff_ldlj_sparc.csv", "description": "CSV version of LayerNorm trade-off and LDLJ/SPARC table"},
+        "outputs": figure_outputs + table_outputs + [
             {"file": "paper_figures_data.json", "description": "Structured JSON data with source-artifact traceability"},
         ],
     }

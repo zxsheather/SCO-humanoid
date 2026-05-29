@@ -23,6 +23,13 @@ Recommended positioning:
 
 ## Evidence Summary
 
+Generated paper-facing tables:
+
+- T0 Isaac: `artifacts/analysis/paper_figures/table_full_paper_isaac_mechanism_comparison.md`
+- T0b MuJoCo: `artifacts/analysis/paper_figures/table_matched_mujoco_mechanism_comparison.md`
+- T0c LCP weight diagnostic: `artifacts/analysis/paper_figures/table_lcp_weight_sensitivity.md`
+- T0d OmniSafe diagnostic: `artifacts/analysis/paper_figures/table_omnisafe_diagnostic.md`
+
 Five-seed Isaac selected-checkpoint comparison:
 
 | Method | Seeds | Selected ckpts | Fall | Vel. err | Jnt acc | Jitter | Return |
@@ -107,7 +114,8 @@ Claims to avoid:
 
 - Rewrite the manuscript abstract/introduction around mechanism comparison, not
   SC-PPO dominance.
-- Add LCP formal result tables as the primary full-paper baseline comparison.
+- Use generated T0/T0b/T0c tables as the primary full-paper comparison and
+  diagnostic evidence.
 - Move OmniSafe into a short negative-diagnostic paragraph in related
   work/discussion, not the main baseline table.
 - Keep the workshop-era SC-PPO three-seed claim only as historical/contextual

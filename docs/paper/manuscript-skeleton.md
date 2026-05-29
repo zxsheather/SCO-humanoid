@@ -173,7 +173,9 @@ row dominates every metric.
 
 ### 5.1 Five-seed Isaac full-paper audit
 
-[Table 1: LCP vs SC-PPO vs revised heuristic, five-seed selected aggregate]
+[T0/Table 1: LCP vs SC-PPO vs revised heuristic, five-seed selected
+aggregate; generated as
+`artifacts/analysis/paper_figures/table_full_paper_isaac_mechanism_comparison.md`]
 
 - LCP-style soft penalty: selected `300/400/400/400/400`,
   `fall=0.000`, `vel_err=0.490`, `jnt_acc=117.331`,
@@ -190,7 +192,8 @@ row dominates every metric.
 
 ### 5.2 MuJoCo selected replay
 
-[Table 2: matched five-seed MuJoCo selected replay]
+[T0b/Table 2: matched five-seed MuJoCo selected replay; generated as
+`artifacts/analysis/paper_figures/table_matched_mujoco_mechanism_comparison.md`]
 
 - LCP five-seed MuJoCo selected replay: `fall=0.000`,
   `vel_err=0.406`, `jnt_acc=117.425`, `jitter=0.195`
@@ -241,12 +244,16 @@ row dominates every metric.
 - SC-PPO epochs=3 reliability repair: mixed result (Table 5)
 - LCP coefficient sensitivity: `0.002` is best in the narrow
   `0.001/0.002/0.004` diagnostic grid on seeds `23/29/31`
+  (T0c:
+  `artifacts/analysis/paper_figures/table_lcp_weight_sensitivity.md`)
 
 ### 5.7 OmniSafe migration diagnostic
 
 - Adapter, cost bridge, policy evaluator, and update-hook smokes passed
 - Three-seed OmniSafe PPO-Lag diagnostic collapsed:
   `fall=1.000`, `vel_err=1.468`, `return=4.386`
+- Generated diagnostic-only table:
+  `artifacts/analysis/paper_figures/table_omnisafe_diagnostic.md`
 - Interpretation: the drop-in PPO-Lag environment-cost interface is not
   faithful for this actor-internal Jacobian cost in the current stack
 - Boundary: do not cite this as external constrained RL broadly failing
@@ -309,8 +316,8 @@ row dominates every metric.
   checkpoint 300; the other four seeds select final checkpoint 400
 
 ### 7.3 Statistical scope
-- 5 seeds for Isaac full-paper audit; MuJoCo anchors are mixed between
-  5-seed LCP and existing 3-seed SC-PPO/heuristic rows
+- 5 seeds for Isaac full-paper audit and matched selected-checkpoint
+  MuJoCo replay for LCP, SC-PPO, and the revised heuristic
 - Single robot morphology (H1-class)
 - Single terrain type (rough terrain) for main result
 - Random stairs: all methods collapsed (transfer failure, not ranking)
@@ -356,9 +363,10 @@ All generated paper figures/tables are reproducible with:
 
 | # | Type | Content | Source / generation command |
 | --- | --- | --- | --- |
-| T0 | Table | Full-paper five-seed LCP/SC-PPO/heuristic audit | `docs/full-paper/lcp-soft-penalty-formal-results.md`; `artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json`; `artifacts/analysis/rough_terrain_extended_seeds/comparison_summary.json` |
-| T0b | Table | Matched five-seed MuJoCo selected replay | `docs/full-paper/matched-mujoco-anchor-results.md`; `artifacts/methods/*/*seed{11,17,23,29,31}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` |
-| T0c | Table | LCP coefficient sensitivity diagnostic | `docs/full-paper/lcp-weight-sensitivity-diagnostic-results.md`; `artifacts/analysis/rough_terrain_lcp_weight_sensitivity_diagnostic/{w0001,w0004}/comparison_summary.json`; `artifacts/analysis/rough_terrain_lcp_soft_jacobian_diagnostic/comparison_summary.json` |
+| T0 | Table | Full-paper five-seed LCP/SC-PPO/heuristic audit | `artifacts/analysis/paper_figures/table_full_paper_isaac_mechanism_comparison.md`, generated from `docs/full-paper/lcp-soft-penalty-formal-results.md`; `artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json`; `artifacts/analysis/rough_terrain_extended_seeds/comparison_summary.json` |
+| T0b | Table | Matched five-seed MuJoCo selected replay | `artifacts/analysis/paper_figures/table_matched_mujoco_mechanism_comparison.md`, generated from `docs/full-paper/matched-mujoco-anchor-results.md`; `artifacts/methods/*/*seed{11,17,23,29,31}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` |
+| T0c | Table | LCP coefficient sensitivity diagnostic | `artifacts/analysis/paper_figures/table_lcp_weight_sensitivity.md`, generated from `docs/full-paper/lcp-weight-sensitivity-diagnostic-results.md`; `artifacts/analysis/rough_terrain_lcp_weight_sensitivity_diagnostic/{w0001,w0004}/comparison_summary.json`; `artifacts/analysis/rough_terrain_lcp_soft_jacobian_diagnostic/comparison_summary.json` |
+| T0d | Table | OmniSafe PPO-Lag diagnostic-only summary | `artifacts/analysis/paper_figures/table_omnisafe_diagnostic.md`, generated from `docs/full-paper/omnisafe-ppolag-diagnostic-results.md`; `artifacts/analysis/rough_terrain_omnisafe_ppolag_diagnostic/comparison_summary.json` |
 | T1 | Table | Historical three-seed Isaac result, revised heuristic vs SC-PPO | `artifacts/analysis/rough_terrain_formal_protocol_revision_long_budget/comparison_summary.json`; SC-PPO rows from `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed{11,17,23}/checkpoint_sweep_summary.json` |
 | T2 | Table | Cross-engine degradation, 5 methods | `artifacts/analysis/paper_figures/table_cross_engine_degradation.md`, generated by `scripts/analysis/generate_paper_figures.py` |
 | T3 | Table | Threshold sensitivity | `artifacts/analysis/paper_figures/table_threshold_sensitivity.md`, generated by `scripts/analysis/generate_paper_figures.py` |
@@ -385,10 +393,10 @@ All generated paper figures/tables are reproducible with:
 | LCP Isaac five-seed summary | `artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json` |
 | LCP MuJoCo selected replay | `artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed{11,17,23,29,31}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` |
 | OmniSafe diagnostic result | `docs/full-paper/omnisafe-ppolag-diagnostic-results.md` |
-| Revised heuristic Isaac main result | `artifacts/analysis/rough_terrain_formal_protocol_revision_long_budget/comparison_summary.json` |
-| SC-PPO 3.8 checkpoint sweep | `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_..._iter400_seed{11,17,23}/checkpoint_sweep_summary.json` |
-| Heuristic MuJoCo | `artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/..._seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` |
-| SC-PPO MuJoCo | `artifacts/methods/sc_ppo_pid_probe/..._seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` |
+| Revised heuristic and SC-PPO Isaac five-seed summary | `artifacts/analysis/rough_terrain_extended_seeds/comparison_summary.json` |
+| SC-PPO 3.8 checkpoint sweep | `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_..._iter400_seed{11,17,23,29,31}/checkpoint_sweep_summary.json` |
+| Heuristic MuJoCo | `artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/..._seed{11,17,23,29,31}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` |
+| SC-PPO MuJoCo | `artifacts/methods/sc_ppo_pid_probe/..._seed{11,17,23,29,31}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` |
 | LayerNorm Isaac | `artifacts/methods/layernorm_actor_gain_reliability_probe/..._more_epochs_..._seed{11,17,23}/metrics_selected.json` |
 | LayerNorm MuJoCo | `artifacts/methods/layernorm_actor_gain_reliability_probe/..._more_epochs_..._seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` |
 | Action Scaling Isaac | `artifacts/methods/action_scaling_probe/..._seed{11,17,23}/metrics_selected.json` |
