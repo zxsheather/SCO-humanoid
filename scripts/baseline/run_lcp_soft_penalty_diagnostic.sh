@@ -14,6 +14,8 @@ RL_DEVICE="${RL_DEVICE:-cuda:0}"
 SIM_DEVICE="${SIM_DEVICE:-cuda:0}"
 ARTIFACT_ROOT="${ARTIFACT_ROOT:-artifacts/methods/lcp_soft_jacobian_penalty_diagnostic}"
 SUMMARY_DIR="${SUMMARY_DIR:-artifacts/analysis/rough_terrain_lcp_soft_jacobian_diagnostic}"
+ISSUE_ID="${ISSUE_ID:-#68}"
+RUN_LABEL="${RUN_LABEL:-LCP-style diagnostic}"
 
 mkdir -p "${SUMMARY_DIR}/logs"
 
@@ -72,7 +74,7 @@ print(manifest["run_dir"])
 PY
 }
 
-echo "=== LCP-style three-seed diagnostic (#68) ==="
+echo "=== ${RUN_LABEL} (${ISSUE_ID}) ==="
 echo "python: ${PYTHON_BIN}"
 echo "config: ${CONFIG}"
 echo "seeds: ${SEEDS}"
@@ -121,7 +123,7 @@ for seed in ${SEEDS}; do
   fi
 done
 
-"${PYTHON_BIN}" - "${ARTIFACT_ROOT}" "${SUMMARY_DIR}" "${RUN_PREFIX}" "${SEEDS}" <<'PY'
+"${PYTHON_BIN}" - "${ARTIFACT_ROOT}" "${SUMMARY_DIR}" "${RUN_PREFIX}" "${SEEDS}" "${ISSUE_ID}" <<'PY'
 import json
 import statistics
 import sys
@@ -131,6 +133,7 @@ artifact_root = Path(sys.argv[1])
 summary_dir = Path(sys.argv[2])
 run_prefix = sys.argv[3]
 seeds = [int(part) for part in sys.argv[4].split()]
+issue_id = sys.argv[5]
 metric_keys = [
     "fall_rate",
     "velocity_tracking_error_mean",
@@ -178,7 +181,7 @@ for seed in seeds:
 
 comparison_summary = {
     "method": "lcp_soft_jacobian_penalty",
-    "issue": "#68",
+    "issue": issue_id,
     "seeds": seeds,
     "selected_aggregate": aggregate(selected_rows),
     "final_aggregate": aggregate(final_rows),
