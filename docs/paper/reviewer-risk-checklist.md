@@ -15,10 +15,14 @@ Each risk is rated by severity and the strength of the current response.
   current local-sensitivity row.
 - SC-PPO is retained as the repo's hard-constraint PID-Lagrangian mechanism,
   useful for understanding constraint enforcement and seed sensitivity.
+- The related-work and claim-boundary map now makes the local LCP boundary
+  explicit: same-task LCP-style evidence, not official LCP code/checkpoint
+  parity.
 - We explicitly avoid claiming that SC-PPO beats SOTA or is the strongest
   current method.
-- **Gap**: The LCP implementation is local and same-task, not official
-  checkpoint/code parity.
+- **Gap**: Human still needs to approve the final method label
+  (`LCP-style`, `LCP-inspired`, or `soft Jacobian/Lipschitz penalty`) before
+  submission.
 
 ### R0b: "Is `lcp_weight=0.002` cherry-picked?"
 **Severity**: MEDIUM
@@ -136,6 +140,9 @@ Each risk is rated by severity and the strength of the current response.
 - OmniSafe PPO-Lag migration was tested as a bounded framework diagnostic and
   collapsed; this is reported as an interface mismatch, not as external CRL
   failing broadly.
+- The related-work map records why standard environment-side PPO-Lag does not
+  faithfully carry this actor-internal Jacobian cost without algorithm-level
+  hooks.
 - Acknowledged limitation: no official LCP checkpoint parity and no CPO row.
 
 ## Analysis Concerns

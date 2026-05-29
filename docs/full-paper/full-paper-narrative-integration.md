@@ -33,6 +33,8 @@ Generated paper-facing tables:
 - Selected-vs-final checkpoint audit: `docs/full-paper/selected-vs-final-checkpoint-robustness.md`
 - Matched MuJoCo mixed-evidence mechanism note:
   `docs/full-paper/mujoco-mixed-evidence-mechanism.md`
+- Related-work / claim-boundary map:
+  `docs/full-paper/related-work-claim-boundary-map.md`
 
 Five-seed Isaac selected-checkpoint comparison:
 
@@ -115,17 +117,22 @@ Claims to avoid:
 - Do not use the matched five-seed MuJoCo table as a universal LCP win: it is a
   win over SC-PPO on dynamic smoothness, but the revised heuristic remains
   better on joint acceleration and return.
+- Do not describe the local LCP-style baseline as official LCP code/checkpoint
+  parity.
 
 ## Recommended Paper Structure
 
 1. **Problem:** smooth control needs a metric and mechanism beyond action-rate
    reward shaping.
 2. **Mechanism family:** policy local sensitivity as the shared object.
-3. **Methods:** SC-PPO hard PID-Lagrangian constraint, LCP-style soft penalty,
+3. **Related work:** constrained RL for reward/cost separation,
+   Lipschitz/Jacobian policy regularization for smooth locomotion, and
+   sim-to-sim validation as an intermediate robustness check.
+4. **Methods:** SC-PPO hard PID-Lagrangian constraint, LCP-style soft penalty,
    revised heuristic, and failed/diagnostic OmniSafe bridge.
-4. **Results:** five-seed Isaac audit first, then MuJoCo selected replay, then
+5. **Results:** five-seed Isaac audit first, then MuJoCo selected replay, then
    mechanism diagnostics.
-5. **Discussion:** hard constraints are brittle across seeds; soft Jacobian
+6. **Discussion:** hard constraints are brittle across seeds; soft Jacobian
    regularization is stronger here; framework-level PPO-Lag migration is not a
    faithful drop-in for actor-internal Jacobian costs.
 
@@ -140,3 +147,7 @@ Claims to avoid:
 - Keep the workshop-era SC-PPO three-seed claim only as historical/contextual
   evidence unless the paper explicitly separates workshop and full-paper
   evidence tiers.
+- Before manuscript submission, approve the labels and placement listed in
+  `docs/full-paper/related-work-claim-boundary-map.md`: `LCP-style` wording,
+  whether to use `SOTA-adjacent`, whether OmniSafe belongs in main text or
+  appendix, and whether unimplemented CPO should be an explicit limitation.

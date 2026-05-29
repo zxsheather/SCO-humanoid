@@ -69,18 +69,43 @@ row dominates every metric.
 ## 2. Related Work
 
 ### 2.1 Constrained RL for control
-- CPO (Achiam et al. 2017), PPO-Lagrangian, reward-constrained RL
-- ECO framework for energy-constrained locomotion
+
+- Constrained RL separates task reward from costs or limits, as in CPO,
+  Safety Gym/PPO-Lagrangian practice, PID-Lagrangian methods, and OmniSafe
+  infrastructure [@Achiam2017CPO; @Ray2019SafetyGym; @Stooke2020PID;
+  @Ji2024OmniSafe]
+- Humanoid control work also uses constrained optimization to regulate
+  hardware-relevant quantities such as energy [@Huang2026ECO]
+- Paper boundary: SC-PPO belongs in this family because it uses a
+  Lagrangian-style policy-sensitivity cost, but the cost is actor-internal and
+  computed during policy updates; therefore a standard environment-side
+  PPO-Lag adapter is not a faithful drop-in baseline
 
 ### 2.2 Smoothness in locomotion
-- Action-rate penalties, torque-rate penalties
-- Spectral normalization, Lipschitz-constrained policies (LCP)
-- Architectural regularization (LayerNorm, orthogonal parametrization)
+
+- Engineering baselines usually penalize realized motion, such as action rate,
+  torque rate, or joint acceleration; the revised heuristic remains a strong
+  reward-shaping anchor, not a strawman
+- Lipschitz/Jacobian policy regularization acts on the policy map itself; LCP is
+  the closest SOTA-adjacent smooth humanoid mechanism family for this paper
+  [@Chen2024LCP]
+- Adjacent policy-smoothness approaches include spectral normalization,
+  SN-LCP-style variants, LayerNorm, and orthogonal actor parametrizations
+  [@Miyato2018SN; @Shin2025SNLCP; @Ba2016LayerNorm]
+- Paper boundary: the full-paper row is an LCP-style local same-task
+  reimplementation/adaptation under Humanoid-Gym rough terrain, not official LCP
+  checkpoint/code parity
 
 ### 2.3 Sim-to-sim and sim-to-real transfer
-- Domain randomization
-- System identification
-- Cross-engine evaluation as intermediate validation
+
+- Isaac Gym enables high-throughput humanoid training, while MuJoCo provides an
+  independent physics-engine replay stress test [@Makoviychuk2021IsaacGym;
+  @Todorov2012MuJoCo]
+- Humanoid-Gym supplies the locomotion training scaffold and motivates
+  zero-shot transfer evaluation [@Gu2024HumanoidGym]
+- Paper boundary: Isaac-to-MuJoCo replay is intermediate sim-to-sim evidence; it
+  does not replace domain randomization, system identification, or hardware
+  validation
 
 ## 3. Methods: Policy-Sensitivity Regularization
 
@@ -425,6 +450,7 @@ All generated paper figures/tables are reproducible with:
 | Evidence layer | Canonical artifact path |
 | --- | --- |
 | Full-paper narrative integration | `docs/full-paper/full-paper-narrative-integration.md` |
+| Related-work / claim-boundary map | `docs/full-paper/related-work-claim-boundary-map.md`; bibliography in `docs/paper/references.bib` |
 | Matched five-seed MuJoCo anchors | `docs/full-paper/matched-mujoco-anchor-results.md` |
 | Matched MuJoCo mixed-evidence mechanism note | `docs/full-paper/mujoco-mixed-evidence-mechanism.md`; `scripts/analysis/analyze_mujoco_mixed_evidence.py` |
 | Statistical robustness audit | `docs/full-paper/statistical-robustness-results.md`; `scripts/analysis/analyze_full_paper_statistics.py` |
