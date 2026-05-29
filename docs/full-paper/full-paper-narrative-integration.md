@@ -64,6 +64,9 @@ Claims that remain defensible:
 
 - LCP-style soft regularization is a strong same-task SOTA-adjacent
   policy-sensitivity baseline.
+- The formal LCP coefficient `0.002` is locally supported by the narrow #73
+  diagnostic: neighboring values `0.001` and `0.004` are both worse on the
+  `23/29/31` selected aggregate.
 - SC-PPO shows that hard policy-Jacobian constraints can improve dynamic
   smoothness on the original three-seed slice, but five-seed evidence exposes
   seed sensitivity.
@@ -77,6 +80,8 @@ Claims to avoid:
 - Do not say SC-PPO beats SOTA.
 - Do not say LCP is officially reproduced unless official task/code/checkpoint
   parity is established.
+- Do not claim global LCP hyperparameter optimality; #73 only tests the
+  immediate `0.001 / 0.002 / 0.004` neighborhood.
 - Do not say LCP dominates the revised heuristic across all metrics; matched
   five-seed MuJoCo shows the heuristic is better on joint acceleration and
   return.

@@ -20,6 +20,18 @@ Each risk is rated by severity and the strength of the current response.
 - **Gap**: The LCP implementation is local and same-task, not official
   checkpoint/code parity.
 
+### R0b: "Is `lcp_weight=0.002` cherry-picked?"
+**Severity**: MEDIUM
+**Current response**: ADEQUATE
+- Narrow coefficient diagnostic #73 compares `0.001 / 0.002 / 0.004` on seeds
+  `23/29/31` under the same checkpoint-sweep protocol.
+- `0.002` is best in that local grid on fall, velocity error, joint
+  acceleration, action jitter, and return.
+- `0.001` appears under-regularized; `0.004` lowers sensitivity but worsens the
+  aggregate policy through seed29 roughness.
+- **Gap**: This is not a broad hyperparameter sweep and does not prove global
+  optimality.
+
 ### R1: "The constraint threshold 3.8 is cherry-picked"
 **Severity**: HIGH
 **Current response**: GOOD
