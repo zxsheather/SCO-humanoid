@@ -69,7 +69,15 @@ Each risk is rated by severity and the strength of the current response.
   seeds for LCP, SC-PPO, and the revised heuristic.
 - Per-seed checkpoint sweeps provide within-seed characterization.
 - Selected-checkpoint aggregate reported with mean ± std
-- **Gap**: No formal statistical test (t-test, bootstrap CI).
+- A paired bootstrap uncertainty audit is now available in
+  `docs/full-paper/statistical-robustness-results.md`.
+- The audit reports seed-level paired deltas, bootstrap confidence intervals,
+  and rank-stability frequencies.
+- It supports conservative statements such as: LCP is clearly stronger than
+  SC-PPO on Isaac fall/velocity/return/sensitivity and MuJoCo action jitter;
+  joint-acceleration advantages are directional but have wide intervals.
+- **Gap**: This remains a five-seed descriptive uncertainty audit, not a
+  large-sample null-hypothesis significance claim.
 
 ### R4: "You only tested on one robot and one terrain"
 **Severity**: MEDIUM

@@ -29,6 +29,7 @@ Generated paper-facing tables:
 - T0b MuJoCo: `artifacts/analysis/paper_figures/table_matched_mujoco_mechanism_comparison.md`
 - T0c LCP weight diagnostic: `artifacts/analysis/paper_figures/table_lcp_weight_sensitivity.md`
 - T0d OmniSafe diagnostic: `artifacts/analysis/paper_figures/table_omnisafe_diagnostic.md`
+- Statistical robustness audit: `docs/full-paper/statistical-robustness-results.md`
 
 Five-seed Isaac selected-checkpoint comparison:
 
@@ -71,6 +72,10 @@ Claims that remain defensible:
 
 - LCP-style soft regularization is a strong same-task SOTA-adjacent
   policy-sensitivity baseline.
+- Paired bootstrap uncertainty supports the conservative claim that LCP is
+  stronger than SC-PPO on Isaac fall/velocity/return/sensitivity and MuJoCo
+  action jitter; joint-acceleration advantages over SC-PPO remain directional
+  rather than statistically clean under five seeds.
 - The formal LCP coefficient `0.002` is locally supported by the narrow #73
   diagnostic: neighboring values `0.001` and `0.004` are both worse on the
   `23/29/31` selected aggregate.
@@ -92,6 +97,8 @@ Claims to avoid:
 - Do not say LCP dominates the revised heuristic across all metrics; matched
   five-seed MuJoCo shows the heuristic is better on joint acceleration and
   return.
+- Do not describe the five-seed bootstrap audit as a large-sample
+  significance test.
 - Do not say OmniSafe/CPO/external constrained RL fails.
 - Do not use the matched five-seed MuJoCo table as a universal LCP win: it is a
   win over SC-PPO on dynamic smoothness, but the revised heuristic remains
