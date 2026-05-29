@@ -32,6 +32,7 @@
 
 from .ppo import PPO
 from .sc_ppo import SCPPO
+from .lcp_ppo import LCPPPO
 from .action_scaling_ppo import ActionScalingPPO
 from .output_scaling_ppo import OutputScalingPPO
 from .on_policy_runner import OnPolicyRunner

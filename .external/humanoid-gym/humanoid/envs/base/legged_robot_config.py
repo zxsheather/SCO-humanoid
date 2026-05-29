@@ -261,6 +261,13 @@ class LeggedRobotCfgPPO(BaseConfig):
             output_scale_max = 1.0
             output_scale_init = None
 
+        class lcp:
+            enabled = False
+            lcp_weight = 0.002
+            subsample_obs = 64
+            epsilon = 1e-12
+            local_sensitivity_threshold = 3.8
+
     class runner:
         policy_class_name = 'ActorCritic'
         algorithm_class_name = 'PPO'

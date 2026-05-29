@@ -1,0 +1,16 @@
+{
+  "_description": "Bounded LCP-style soft Jacobian penalty diagnostic (#67/#68). The implementation slice smokes one seed; the first real diagnostic should run seeds {23,29,31} with the shared checkpoint-sweep evaluator.",
+  "seeds": [23, 29, 31],
+  "checkpoints": [0, 100, 200, 300, 400],
+  "train_num_envs": 512,
+  "eval_num_envs": 32,
+  "episodes": 20,
+  "max_iterations": 400,
+  "candidates": [
+    {
+      "id": "lcp_soft_jacobian_penalty",
+      "label": "LCP-style soft Jacobian penalty (lambda_gp=0.002)",
+      "config": "configs/methods/lcp_soft_jacobian_penalty_diagnostic.json"
+    }
+  ]
+}
