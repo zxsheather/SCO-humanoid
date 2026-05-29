@@ -30,6 +30,7 @@ Generated paper-facing tables:
 - T0c LCP weight diagnostic: `artifacts/analysis/paper_figures/table_lcp_weight_sensitivity.md`
 - T0d OmniSafe diagnostic: `artifacts/analysis/paper_figures/table_omnisafe_diagnostic.md`
 - Statistical robustness audit: `docs/full-paper/statistical-robustness-results.md`
+- Selected-vs-final checkpoint audit: `docs/full-paper/selected-vs-final-checkpoint-robustness.md`
 
 Five-seed Isaac selected-checkpoint comparison:
 
@@ -79,6 +80,9 @@ Claims that remain defensible:
 - The formal LCP coefficient `0.002` is locally supported by the narrow #73
   diagnostic: neighboring values `0.001` and `0.004` are both worse on the
   `23/29/31` selected aggregate.
+- LCP is close to final-checkpoint stable under the current five-seed protocol;
+  selected-vs-final dependence is mainly a concern for SC-PPO dynamic
+  smoothness and heuristic task validity.
 - SC-PPO shows that hard policy-Jacobian constraints can improve dynamic
   smoothness on the original three-seed slice, but five-seed evidence exposes
   seed sensitivity.

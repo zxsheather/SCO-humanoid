@@ -143,13 +143,20 @@ Each risk is rated by severity and the strength of the current response.
 
 ### R10: "Selected-checkpoint dependence — why not use final checkpoint?"
 **Severity**: MEDIUM
-**Current response**: ADEQUATE
+**Current response**: GOOD
 - Acknowledged as limitation
-- SC-PPO 3.8 selected: 300/300/400 (not final)
+- Full-paper selected-vs-final audit is available in
+  `docs/full-paper/selected-vs-final-checkpoint-robustness.md`.
+- LCP is close to final-only behavior: selected `300/400/400/400/400`
+  versus final `400/400/400/400/400`, with small aggregate deltas.
+- SC-PPO 3.8 selected: `300/300/400/400/400`; final checkpoints improve
+  velocity/return but worsen joint acceleration and jitter.
+- Revised heuristic selected: `350/300/350/400/400`; final checkpoints
+  improve velocity/return slightly but increase fall rate and roughness.
 - epochs=3 repair: mixed result
 - LayerNorm epochs=3: selected=final=400, but degrades on smoothness
 - Checkpoint-sweep selection is documented and reproducible
-- **Gap**: No universal fix for SC-PPO final-checkpoint reliability
+- **Gap**: No universal fix for SC-PPO final-checkpoint dynamic smoothness
 
 ### R11: "Sensitivity → degradation correlation is only 2 clean data points"
 **Severity**: MEDIUM
