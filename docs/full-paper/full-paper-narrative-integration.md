@@ -25,6 +25,8 @@ Recommended positioning:
 
 Generated paper-facing tables:
 
+- Full-paper mechanism-comparison draft:
+  `docs/paper/full-paper-mechanism-comparison-draft.md`
 - T0 Isaac: `artifacts/analysis/paper_figures/table_full_paper_isaac_mechanism_comparison.md`
 - T0b MuJoCo: `artifacts/analysis/paper_figures/table_matched_mujoco_mechanism_comparison.md`
 - T0c LCP weight diagnostic: `artifacts/analysis/paper_figures/table_lcp_weight_sensitivity.md`
@@ -138,8 +140,8 @@ Claims to avoid:
 
 ## Next Writing Tasks
 
-- Rewrite the manuscript abstract/introduction around mechanism comparison, not
-  SC-PPO dominance.
+- Convert the Markdown draft into the target submission format after human
+  approval of the remaining label/placement decisions.
 - Use generated T0/T0b/T0c tables as the primary full-paper comparison and
   diagnostic evidence.
 - Move OmniSafe into a short negative-diagnostic paragraph in related

@@ -1,5 +1,8 @@
 # Paper Manuscript Skeleton
 
+Full-paper draft generated from this skeleton:
+`docs/paper/full-paper-mechanism-comparison-draft.md`.
+
 ## Title (working)
 
 > Policy Local Sensitivity Regularization for Smooth Humanoid Locomotion
@@ -449,6 +452,7 @@ All generated paper figures/tables are reproducible with:
 
 | Evidence layer | Canonical artifact path |
 | --- | --- |
+| Full-paper mechanism-comparison manuscript draft | `docs/paper/full-paper-mechanism-comparison-draft.md` |
 | Full-paper narrative integration | `docs/full-paper/full-paper-narrative-integration.md` |
 | Related-work / claim-boundary map | `docs/full-paper/related-work-claim-boundary-map.md`; bibliography in `docs/paper/references.bib` |
 | Matched five-seed MuJoCo anchors | `docs/full-paper/matched-mujoco-anchor-results.md` |
