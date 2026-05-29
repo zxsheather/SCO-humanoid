@@ -1,0 +1,60 @@
+{
+  "name": "lcp_soft_jacobian_penalty_weight_0001_diagnostic",
+  "method": {
+    "id": "lcp_soft_jacobian_penalty_w0001",
+    "label": "LCP-style soft Jacobian penalty (lambda_gp=0.001)",
+    "family": "sota_adjacent_baseline",
+    "smoothness_strategy": "fixed_soft_grad_log_prob_penalty"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_lcp_soft_penalty_weight_sensitivity",
+  "run_name": "lcp_soft_jacobian_penalty_weight_0001_diagnostic",
+  "artifacts_root": "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity",
+  "evaluation_protocol": "rough_terrain_checkpoint_sweep_v2",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "training": {
+    "headless": true,
+    "num_envs": 512,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0"
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 32,
+    "episodes": 20,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 123145,
+    "metric_schema_version": 2,
+    "constraint_logging": {
+      "collect_local_sensitivity": true,
+      "local_sensitivity_threshold": 3.8,
+      "sample_envs": 4,
+      "sample_every_n_steps": 20,
+      "sidecar_metrics_filename": "constraint_metrics.json",
+      "multiplier_trace_filename": "lcp_penalty_trace.json"
+    }
+  },
+  "overrides": {
+    "env": {
+      "rewards.scales.action_smoothness": 0.0,
+      "rewards.scales.dof_acc": 0.0,
+      "rewards.scales.base_acc": 0.0,
+      "rewards.scales.dof_vel": 0.0
+    },
+    "train": {
+      "runner.algorithm_class_name": "LCPPPO",
+      "runner.max_iterations": 400,
+      "runner.save_interval": 100,
+      "algorithm.lcp.enabled": true,
+      "algorithm.lcp.lcp_weight": 0.001,
+      "algorithm.lcp.subsample_obs": 64,
+      "algorithm.lcp.epsilon": 1e-12,
+      "algorithm.lcp.local_sensitivity_threshold": 3.8
+    }
+  }
+}
