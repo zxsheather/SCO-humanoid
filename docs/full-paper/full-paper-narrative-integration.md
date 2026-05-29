@@ -12,10 +12,10 @@ Recommended positioning:
   constraint behaves under PPO, PID multiplier control, checkpoint selection,
   and seed variation.
 - **LCP-style soft Jacobian/Lipschitz regularization** is the closest
-  SOTA-adjacent comparison for this project. It is now the strongest current
-  smoothness/stability baseline under the same Humanoid-Gym protocol, but it is
-  a local reimplementation and should not be described as an official LCP
-  benchmark or as a SOTA claim.
+  SOTA-adjacent policy-sensitivity comparison for this project. It is the
+  strongest current local-sensitivity baseline under the same Humanoid-Gym
+  protocol, but it is not a universal winner over the revised heuristic and
+  should not be described as an official LCP benchmark or as a SOTA claim.
 - **OmniSafe PPO-Lag** is a negative framework-interface diagnostic. The
   failure says that a drop-in environment-side PPO-Lag migration is not a
   faithful way to train this actor-internal Jacobian cost in the current stack.
@@ -33,12 +33,11 @@ Five-seed Isaac selected-checkpoint comparison:
 
 MuJoCo selected replay:
 
-| Method / slice | Seeds | Fall | Vel. err | Jnt acc | Jitter | Return |
+| Method | Seeds | Fall | Vel. err | Jnt acc | Jitter | Return |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
 | LCP-style soft penalty | `11/17/23/29/31` | `0.000` | `0.406` | `117.425` | `0.195` | `-599.108` |
-| LCP-style soft penalty | `11/17/23` | `0.000` | `0.429` | `112.498` | `0.178` | `-670.984` |
-| SC-PPO 3.8 PID anchor | `11/17/23` | `0.017` | `0.491` | `125.541` | `0.231` | `-647.674` |
-| Revised heuristic anchor | `11/17/23` | `0.000` | `0.419` | `120.734` | `0.245` | `-465.370` |
+| SC-PPO 3.8 PID | `11/17/23/29/31` | `0.010` | `0.471` | `159.718` | `0.322` | `-627.238` |
+| Revised heuristic | `11/17/23/29/31` | `0.000` | `0.406` | `111.615` | `0.226` | `-456.370` |
 
 OmniSafe diagnostic:
 
@@ -56,14 +55,15 @@ Preferred thesis:
 
 > Policy-local-sensitivity regularization is a useful lens for smooth humanoid
 > control, but the enforcement mechanism matters. A soft LCP-style
-> Jacobian/Lipschitz penalty is currently more robust than the repo's
-> PID-Lagrangian SC-PPO hard-constraint implementation, while a drop-in
-> OmniSafe PPO-Lag migration is not a faithful baseline for actor-internal
-> Jacobian costs.
+> Jacobian/Lipschitz penalty is more robust than the repo's PID-Lagrangian
+> SC-PPO hard-constraint implementation, while the revised heuristic remains a
+> highly competitive reward-shaping anchor and a drop-in OmniSafe PPO-Lag
+> migration is not a faithful baseline for actor-internal Jacobian costs.
 
 Claims that remain defensible:
 
-- LCP-style soft regularization is a strong same-task SOTA-adjacent baseline.
+- LCP-style soft regularization is a strong same-task SOTA-adjacent
+  policy-sensitivity baseline.
 - SC-PPO shows that hard policy-Jacobian constraints can improve dynamic
   smoothness on the original three-seed slice, but five-seed evidence exposes
   seed sensitivity.
@@ -77,10 +77,13 @@ Claims to avoid:
 - Do not say SC-PPO beats SOTA.
 - Do not say LCP is officially reproduced unless official task/code/checkpoint
   parity is established.
+- Do not say LCP dominates the revised heuristic across all metrics; matched
+  five-seed MuJoCo shows the heuristic is better on joint acceleration and
+  return.
 - Do not say OmniSafe/CPO/external constrained RL fails.
-- Do not use the five-seed LCP MuJoCo row as a matched five-seed win over
-  SC-PPO or the heuristic, because those MuJoCo anchors currently cover only
-  `11/17/23`.
+- Do not use the matched five-seed MuJoCo table as a universal LCP win: it is a
+  win over SC-PPO on dynamic smoothness, but the revised heuristic remains
+  better on joint acceleration and return.
 
 ## Recommended Paper Structure
 

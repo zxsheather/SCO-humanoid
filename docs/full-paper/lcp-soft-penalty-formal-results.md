@@ -4,6 +4,14 @@
 
 Status: `complete`.
 
+Supersession note (#72): after this note was written, the missing SC-PPO and
+revised-heuristic seeds `29/31` were replayed in MuJoCo. The matched five-seed
+MuJoCo interpretation is recorded in
+`docs/full-paper/matched-mujoco-anchor-results.md`. The updated read is more
+conservative: LCP remains much stronger than SC-PPO and has the lowest MuJoCo
+action jitter, but the revised heuristic is better on matched five-seed MuJoCo
+joint acceleration and return.
+
 Issue #69 explicitly approved promotion of the LCP-style soft Jacobian penalty
 line to a formal candidate. Issue #70 therefore ran the approved five-seed
 Isaac expansion on seeds `11 / 17 / 23 / 29 / 31`, then ran the conditional
@@ -99,9 +107,10 @@ selected Isaac checkpoint per seed.
 | SC-PPO 3.8 PID anchor | `11/17/23` | `0.017` | `0.491` | `125.541` | `0.231` | `-647.674` |
 | Revised heuristic anchor | `11/17/23` | `0.000` | `0.419` | `120.734` | `0.245` | `-465.370` |
 
-The existing SC-PPO and revised-heuristic MuJoCo anchors cover only
-`11/17/23`, so the five-seed LCP row should not be read as a matched five-seed
-MuJoCo win against those methods.
+Historical note: at #70 time, the SC-PPO and revised-heuristic MuJoCo anchors
+covered only `11/17/23`. Issue #72 later added the missing `29/31` replays;
+use `docs/full-paper/matched-mujoco-anchor-results.md` for the current matched
+five-seed MuJoCo comparison.
 
 Per-seed LCP MuJoCo rows:
 
@@ -149,11 +158,11 @@ Not defensible from #70 alone:
 
 Issue #70 is complete.
 
-The result changes the full-paper direction: LCP-style soft regularization is
-now the strongest current smoothness/stability baseline line, while SC-PPO
-remains useful as a Jacobian-constrained PID-Lagrangian mechanism but no longer
-supports a simple "SC-PPO beats alternatives" narrative. The next paper task
-should be #71: integrate LCP and OmniSafe evidence into the full-paper narrative
-and decide whether the manuscript presents SC-PPO as the main method, LCP as a
-stronger baseline, or a mechanism-level comparison centered on policy
-sensitivity.
+The result changes the full-paper direction: LCP-style soft regularization is a
+stronger local-sensitivity baseline than the current SC-PPO hard-constraint
+line, while SC-PPO remains useful as a Jacobian-constrained PID-Lagrangian
+mechanism but no longer supports a simple "SC-PPO beats alternatives"
+narrative. The subsequent #72 matched MuJoCo anchor read further clarifies that
+the revised heuristic remains highly competitive, so the paper should be framed
+as a mechanism-level comparison centered on policy sensitivity rather than as a
+single-method dominance claim.

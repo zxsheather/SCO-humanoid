@@ -17,18 +17,19 @@ SC-PPO, a PPO variant that constrains the policy Jacobian with a
 PID-Lagrangian multiplier; an LCP-style soft Jacobian/Lipschitz penalty
 as the closest SOTA-adjacent same-task baseline; and an OmniSafe
 PPO-Lag migration diagnostic. On the five-seed Isaac Gym rough-terrain
-audit, the LCP-style penalty is the strongest current smoothness and
-stability row (`fall=0.000`, `joint_acc=117.331`, `jitter=0.212`),
-while SC-PPO exposes useful but seed-sensitive hard-constraint behavior
-(`fall=0.170`, `joint_acc=142.955`, `jitter=0.277`). In aligned MuJoCo
-selected replay, LCP preserves dynamic smoothness (`joint_acc=117.425`
-over five seeds) and has lower joint acceleration and jitter than the
-available SC-PPO and heuristic three-seed anchors, but it does not
-dominate every task-side metric. The OmniSafe PPO-Lag attempt is a
+audit, the LCP-style penalty is the strongest current local-sensitivity
+baseline (`fall=0.000`, `joint_acc=117.331`, `jitter=0.212`), while
+SC-PPO exposes useful but seed-sensitive hard-constraint behavior
+(`fall=0.170`, `joint_acc=142.955`, `jitter=0.277`). In matched
+five-seed MuJoCo selected replay, LCP preserves dynamic smoothness
+(`joint_acc=117.425`, `jitter=0.195`) and is much stronger than SC-PPO,
+but the revised heuristic remains highly competitive and is better on
+MuJoCo joint acceleration and return. The OmniSafe PPO-Lag attempt is a
 framework-interface negative diagnostic, not evidence that external
 constrained RL broadly fails. The defensible full-paper claim is
 therefore mechanism-level: policy-local-sensitivity regularization is a
-useful smooth-control lens, but enforcement details matter.
+useful smooth-control lens, but enforcement details matter and no single
+row dominates every metric.
 
 ## 1. Introduction
 
@@ -87,7 +88,7 @@ useful smooth-control lens, but enforcement details matter.
 
 - SC-PPO is the repo's hard-constraint method line.
 - LCP-style soft penalty is the SOTA-adjacent baseline line and the
-  strongest current smoothness/stability result.
+  strongest current local-sensitivity baseline result.
 - OmniSafe PPO-Lag is a negative migration diagnostic, not a promoted
   baseline.
 
@@ -183,21 +184,23 @@ useful smooth-control lens, but enforcement details matter.
 - Revised heuristic: selected `350/300/350/400/400`,
   `fall=0.150`, `vel_err=0.705`, `jnt_acc=115.317`,
   `jitter=0.260`, `return=105.326`
-- Read: LCP is the strongest current smoothness/stability row; SC-PPO
-  is not a five-seed dominance result
+- Read: LCP is the strongest current local-sensitivity row and clearly
+  stronger than SC-PPO; the revised heuristic remains very competitive,
+  especially on joint acceleration
 
 ### 5.2 MuJoCo selected replay
 
-[Table 2: LCP five-seed replay and existing SC-PPO/heuristic anchors]
+[Table 2: matched five-seed MuJoCo selected replay]
 
 - LCP five-seed MuJoCo selected replay: `fall=0.000`,
   `vel_err=0.406`, `jnt_acc=117.425`, `jitter=0.195`
-- On the shared `11/17/23` anchor slice, LCP has lower MuJoCo joint
-  acceleration and jitter than both SC-PPO and the revised heuristic
-- The revised heuristic remains better than LCP on MuJoCo velocity and
-  return on the shared anchor slice
-- Boundary: existing SC-PPO and heuristic MuJoCo anchors cover only
-  `11/17/23`; do not claim a matched five-seed MuJoCo win over them
+- SC-PPO five-seed MuJoCo selected replay: `fall=0.010`,
+  `vel_err=0.471`, `jnt_acc=159.718`, `jitter=0.322`
+- Revised heuristic five-seed MuJoCo selected replay: `fall=0.000`,
+  `vel_err=0.406`, `jnt_acc=111.615`, `jitter=0.226`
+- Read: LCP has the best action jitter and is much stronger than
+  SC-PPO, while the revised heuristic is better on joint acceleration
+  and return
 
 ### 5.3 Sensitivity → degradation evidence chain
 
@@ -316,9 +319,9 @@ useful smooth-control lens, but enforcement details matter.
 - Only two methods compared at trace level
 
 ### 7.5 External baseline boundary
-- LCP-style soft regularization is the closest SOTA-adjacent baseline,
-  but it is a local same-task reimplementation rather than official
-  LCP checkpoint parity
+- LCP-style soft regularization is the closest SOTA-adjacent
+  policy-sensitivity baseline, but it is a local same-task
+  reimplementation rather than official LCP checkpoint parity
 - OmniSafe PPO-Lag is recorded as a negative framework-interface
   diagnostic, not a promoted baseline and not a result about external
   constrained RL broadly
@@ -326,19 +329,20 @@ useful smooth-control lens, but enforcement details matter.
 
 ## 8. Conclusion
 
-The full-paper result is not that SC-PPO beats SOTA. The stronger and
-more defensible conclusion is that policy-local-sensitivity
-regularization is a useful smooth-control mechanism, and that the
-enforcement mechanism matters. The LCP-style soft Jacobian/Lipschitz
-penalty is currently the strongest same-task smoothness/stability row in
-the five-seed Isaac audit and preserves dynamic smoothness in aligned
-MuJoCo replay. SC-PPO remains valuable as an interpretable
-PID-Lagrangian hard-constraint mechanism, but its five-seed result
-exposes seed sensitivity. OmniSafe PPO-Lag records a framework-interface
-boundary: a drop-in environment-side cost adapter is not a faithful
-baseline for actor-internal Jacobian costs. These findings support a
-mechanism-level paper about local sensitivity, not a broad SOTA or
-hardware-transfer claim.
+The full-paper result is not that SC-PPO beats SOTA, and it is not that
+LCP dominates every metric. The stronger and more defensible conclusion
+is that policy-local-sensitivity regularization is a useful
+smooth-control mechanism, and that the enforcement mechanism matters.
+The LCP-style soft Jacobian/Lipschitz penalty is currently the strongest
+same-task local-sensitivity baseline and preserves dynamic smoothness in
+aligned MuJoCo replay, while the revised heuristic remains a highly
+competitive reward-shaping anchor. SC-PPO remains valuable as an
+interpretable PID-Lagrangian hard-constraint mechanism, but its
+five-seed result exposes seed sensitivity. OmniSafe PPO-Lag records a
+framework-interface boundary: a drop-in environment-side cost adapter is
+not a faithful baseline for actor-internal Jacobian costs. These
+findings support a mechanism-level paper about local sensitivity, not a
+broad SOTA or hardware-transfer claim.
 
 ## Appendix A: Figure/Table Index
 
@@ -351,6 +355,7 @@ All generated paper figures/tables are reproducible with:
 | # | Type | Content | Source / generation command |
 | --- | --- | --- | --- |
 | T0 | Table | Full-paper five-seed LCP/SC-PPO/heuristic audit | `docs/full-paper/lcp-soft-penalty-formal-results.md`; `artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json`; `artifacts/analysis/rough_terrain_extended_seeds/comparison_summary.json` |
+| T0b | Table | Matched five-seed MuJoCo selected replay | `docs/full-paper/matched-mujoco-anchor-results.md`; `artifacts/methods/*/*seed{11,17,23,29,31}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` |
 | T1 | Table | Historical three-seed Isaac result, revised heuristic vs SC-PPO | `artifacts/analysis/rough_terrain_formal_protocol_revision_long_budget/comparison_summary.json`; SC-PPO rows from `artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed{11,17,23}/checkpoint_sweep_summary.json` |
 | T2 | Table | Cross-engine degradation, 5 methods | `artifacts/analysis/paper_figures/table_cross_engine_degradation.md`, generated by `scripts/analysis/generate_paper_figures.py` |
 | T3 | Table | Threshold sensitivity | `artifacts/analysis/paper_figures/table_threshold_sensitivity.md`, generated by `scripts/analysis/generate_paper_figures.py` |
@@ -371,6 +376,7 @@ All generated paper figures/tables are reproducible with:
 | Evidence layer | Canonical artifact path |
 | --- | --- |
 | Full-paper narrative integration | `docs/full-paper/full-paper-narrative-integration.md` |
+| Matched five-seed MuJoCo anchors | `docs/full-paper/matched-mujoco-anchor-results.md` |
 | LCP formal result note | `docs/full-paper/lcp-soft-penalty-formal-results.md` |
 | LCP Isaac five-seed summary | `artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json` |
 | LCP MuJoCo selected replay | `artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed{11,17,23,29,31}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` |

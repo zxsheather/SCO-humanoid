@@ -11,8 +11,8 @@ Each risk is rated by severity and the strength of the current response.
 - The full-paper claim has been narrowed to a mechanism-level result about
   policy-local-sensitivity regularization.
 - LCP-style soft Jacobian/Lipschitz regularization is positioned as the closest
-  SOTA-adjacent same-task comparison and the strongest current
-  smoothness/stability row.
+  SOTA-adjacent same-task policy-sensitivity comparison and the strongest
+  current local-sensitivity row.
 - SC-PPO is retained as the repo's hard-constraint PID-Lagrangian mechanism,
   useful for understanding constraint enforcement and seed sensitivity.
 - We explicitly avoid claiming that SC-PPO beats SOTA or is the strongest
@@ -39,12 +39,12 @@ Each risk is rated by severity and the strength of the current response.
   NOT about SC-PPO beating heuristic in MuJoCo
 - The degradation pattern (SC-PPO 1.08x vs alternatives 3.5-12.7x)
   does not depend on SC-PPO "winning" MuJoCo
-- Full-paper LCP replay strengthens the mechanism claim: LCP reaches
-  `joint_acc=117.425` and `jitter=0.195` over five MuJoCo seeds, and on the
-  shared `11/17/23` anchor slice has lower joint acceleration and jitter than
-  both SC-PPO and the revised heuristic.
-- The LCP row still does not dominate every task-side metric: the revised
-  heuristic has slightly better MuJoCo velocity and return on `11/17/23`.
+- Matched five-seed MuJoCo replay sharpens the mechanism claim: LCP reaches
+  `joint_acc=117.425` and `jitter=0.195`, much better than SC-PPO
+  (`joint_acc=159.718`, `jitter=0.322`).
+- The LCP row does not dominate the revised heuristic: the heuristic has lower
+  MuJoCo joint acceleration (`111.615`) and better return, while LCP has lower
+  action jitter.
 - **Gap**: No physical explanation for why heuristic transfers
   task performance better than SC-PPO in MuJoCo
 
@@ -151,8 +151,11 @@ Each risk is rated by severity and the strength of the current response.
 **Severity**: LOW
 **Current response**: GOOD
 - Positive: policy-local-sensitivity regularization is the useful mechanism.
-- Positive: LCP-style soft regularization passes the five-seed Isaac hard gate
-  and preserves dynamic smoothness in MuJoCo.
+- Positive: LCP-style soft regularization passes the five-seed Isaac hard gate,
+  preserves dynamic smoothness in MuJoCo, and clearly improves over the SC-PPO
+  hard-constraint row.
+- Positive: the revised heuristic remains a strong anchor, which makes the
+  comparison credible rather than strawman-like.
 - Positive: SC-PPO explains hard-constraint behavior and reveals why PID-style
   constraint enforcement is interpretable but seed-sensitive.
 - Negative results (8 alternatives failed) serve as evidence FOR
