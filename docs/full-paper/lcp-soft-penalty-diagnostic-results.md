@@ -2,16 +2,19 @@
 
 ## Status
 
-Status: `promote-to-human-decision`.
+Status: `promoted-to-formal-candidate`.
 
 The canonical three-seed LCP-style diagnostic completed on seeds `23 / 29 / 31`
 with checkpoint sweeps over `{0, 100, 200, 300, 400}`. All three seeds selected
 the final checkpoint `400`, all final checkpoints are task-valid, and no seed is
-collapsed. This clears the issue #68 三种子并行起步门槛 and should move to #69
-for the human decision on whether to spend five-seed and MuJoCo budget.
+collapsed. This clears the issue #68 三种子并行起步门槛.
+
+Human decision #69 approved promotion to 正式候选线. The approved next step is
+#70: run the formal five-seed Isaac expansion and, if the task-validity floor is
+preserved, the approved MuJoCo key replay.
 
 This is still Isaac-side diagnostic evidence only. It should not be described
-as a full-paper SOTA win until #69 approves formal expansion and #70 completes.
+as a full-paper SOTA win until #70 completes.
 
 ## Run
 
@@ -109,7 +112,7 @@ on all selected checkpoints, with aggregate mean `1.861` and violation rate
 
 ## Decision
 
-Classification: `promote-to-human-decision`.
+Classification: `promoted-to-formal-candidate`.
 
 Reasoning:
 
@@ -122,5 +125,6 @@ Reasoning:
   acceleration, especially seed `31`; this requires formal five-seed and MuJoCo
   validation before any full-paper SOTA claim.
 
-Next step: #69 should decide whether this LCP-style diagnostic earns formal
-candidate promotion. Do not start #70 until that human decision is recorded.
+Human decision #69 approved promotion. Next step: #70 may start formal
+five-seed expansion and conditional MuJoCo replay under the existing full-paper
+budget boundary.
