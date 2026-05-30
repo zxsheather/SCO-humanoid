@@ -3,6 +3,12 @@
 Full-paper draft generated from this skeleton:
 `docs/paper/full-paper-mechanism-comparison-draft.md`.
 
+Buildable venue-neutral LaTeX source:
+`docs/paper/full-paper.tex`.
+
+Build instructions:
+`docs/paper/full-paper-build.md`.
+
 ## Title (working)
 
 > Policy Local Sensitivity Regularization for Smooth Humanoid Locomotion

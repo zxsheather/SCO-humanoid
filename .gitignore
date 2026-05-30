@@ -29,3 +29,15 @@ artifacts/analysis/mujoco_actuator_proxy_stress/*
 
 .vscode/
 .claude/
+
+# LaTeX manuscript build outputs. Keep source files in git, but do not commit
+# generated submission artifacts.
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.pdf
+*.synctex.gz
