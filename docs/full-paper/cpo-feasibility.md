@@ -2,7 +2,7 @@
 
 Issue: [#80](https://github.com/zxsheather/SCO-humanoid/issues/80)
 Date: 2026-05-30
-Status: **Recommend DEFER** (#81/#82 pass; #83 bounded training runs but all evaluated checkpoints collapse)
+Status: **Recommend DEFER** (#84 accepted: diagnostic/future work only)
 
 ---
 
@@ -160,6 +160,17 @@ This means the implementation path is no longer blocked at the tensor or runner
 integration level, but the current diagnostic does not provide a task-valid CPO
 baseline.
 
+## 5.4 #84 evidence decision
+
+The #84 human decision accepts the conservative boundary: CPO remains a local
+CPO-style diagnostic and future-work item, not a current paper baseline. The
+evidence supports technical feasibility at the tensor, one-update, and tiny
+training-loop levels, but it does not support a task-valid CPO row.
+
+The current manuscript should not claim official CPO parity, should not add CPO
+to the primary comparison table, and should not describe the collapsed bounded
+diagnostic as evidence that CPO or external constrained RL broadly fails.
+
 ## 6. Recommendation: DEFER, do not reject as impossible
 
 CPO remains reviewer-relevant, but it should not block the current mechanism-comparison manuscript. The most accurate current conclusion is:
@@ -167,7 +178,8 @@ CPO remains reviewer-relevant, but it should not block the current mechanism-com
 - A pure environment-side CPO adapter is not faithful because the target cost is actor-internal.
 - A local or external CPO-style implementation with algorithm-level hooks is technically possible in principle.
 - The #81 tensor smoke and #82 one-update smoke pass, and #83 shows the update can run in the training loop.
-- The #83 bounded diagnostic collapses on all evaluated checkpoints, so no official CPO row or task-valid baseline should be claimed.
+- The #84 decision freezes this as diagnostic/future-work evidence for the
+  current manuscript rather than opening a multi-seed CPO expansion.
 
 For the current paper, the stronger position is to keep CPO as a limitation/future-work item while relying on:
 
@@ -178,7 +190,7 @@ For the current paper, the stronger position is to keep CPO as a limitation/futu
 
 ## 7. Follow-up
 
-No long CPO training should be launched from this issue. If CPO becomes essential for a future revision, create a separate bounded-training issue with this scope:
+No long or multi-seed CPO training should be launched from this issue. If CPO becomes essential for a future revision, create a separate bounded-training issue with this scope:
 
 - justify a larger budget than #83;
 - preserve exact CUDA memory and wall time;

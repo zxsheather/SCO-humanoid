@@ -20,6 +20,10 @@ Recommended positioning:
   failure says that a drop-in environment-side PPO-Lag migration is not a
   faithful way to train this actor-internal Jacobian cost in the current stack.
   It does not show that external constrained RL broadly fails.
+- **CPO** remains future-work evidence only. The #81/#82/#83 sequence shows that
+  a local CPO-style actor-internal update is technically possible at small
+  scale, but the bounded training diagnostic collapsed and should not be
+  promoted as a baseline.
 
 ## Evidence Summary
 
@@ -37,6 +41,8 @@ Generated paper-facing tables:
   `docs/full-paper/mujoco-mixed-evidence-mechanism.md`
 - Related-work / claim-boundary map:
   `docs/full-paper/related-work-claim-boundary-map.md`
+- CPO evidence decision:
+  `docs/full-paper/cpo-evidence-decision.md`
 
 Five-seed Isaac selected-checkpoint comparison:
 
@@ -101,6 +107,8 @@ Claims that remain defensible:
   and cross-engine degradation, but the current evidence is not a causal proof.
 - OmniSafe migration failure is an implementation/interface boundary, not a
   negative result about constrained RL in general.
+- CPO feasibility is answered conservatively: local CPO-style plumbing is
+  possible, but current evidence supports only diagnostic/future-work placement.
 
 Claims to avoid:
 
@@ -117,6 +125,8 @@ Claims to avoid:
 - Do not describe the five-seed bootstrap audit as a large-sample
   significance test.
 - Do not say OmniSafe/CPO/external constrained RL fails.
+- Do not put CPO in the main baseline table or describe the local diagnostic as
+  official CPO parity.
 - Do not use the matched five-seed MuJoCo table as a universal LCP win: it is a
   win over SC-PPO on dynamic smoothness, but the revised heuristic remains
   better on joint acceleration and return.
@@ -136,8 +146,9 @@ Claims to avoid:
 5. **Results:** five-seed Isaac audit first, then MuJoCo selected replay, then
    mechanism diagnostics.
 6. **Discussion:** hard constraints are brittle across seeds; soft Jacobian
-   regularization is stronger here; framework-level PPO-Lag migration is not a
-   faithful drop-in for actor-internal Jacobian costs.
+   regularization is stronger here; framework-level PPO-Lag and CPO-style
+   migration paths are not paper-ready baselines for actor-internal Jacobian
+   costs.
 
 ## Next Writing Tasks
 
@@ -154,4 +165,6 @@ Claims to avoid:
   `docs/full-paper/related-work-claim-boundary-map.md`: use `LCP-style soft
   Jacobian/Lipschitz penalty`, avoid SOTA-style wording in manuscript body, keep
   OmniSafe as a short main-text diagnostic with full table in appendix, and
-  mention CPO absence in limitations/future work rather than conclusion.
+  mention CPO absence in limitations/future work rather than conclusion. The #84
+  decision records that no multi-seed CPO expansion should be opened for the
+  current paper.

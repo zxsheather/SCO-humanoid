@@ -14,7 +14,9 @@ Accepted submission wording decisions:
   `closest literature-aligned policy-sensitivity baseline` instead.
 - Mention the OmniSafe diagnostic briefly in main-text discussion and place the
   full collapsed diagnostic table in the appendix.
-- State the absence of CPO in limitations/future work, not in the conclusion.
+- State the CPO evidence decision in limitations/future work, not in the
+  conclusion: local CPO-style diagnostics are technically possible but not
+  task-valid enough for a baseline.
 
 ## Abstract
 
@@ -421,7 +423,11 @@ reported as descriptive robustness evidence.
 
 External constrained-RL coverage remains incomplete. OmniSafe PPO-Lag was
 tested as a bounded interface diagnostic and collapsed, but this does not show
-that OmniSafe, PPO-Lag, CPO, or external constrained RL broadly fail.
+that OmniSafe, PPO-Lag, CPO, or external constrained RL broadly fail. A local
+CPO-style path was also tested through autograd/HVP, one-update, and bounded
+training-loop diagnostics. The tensor and one-update checks passed, and the
+training loop produced finite accepted updates, but every evaluated checkpoint
+collapsed. CPO is therefore future work rather than a current baseline.
 
 ## 8. Conclusion
 
@@ -474,6 +480,7 @@ Appendix:
 - Paired bootstrap CIs and rank stability.
 - Full selected-vs-final checkpoint details.
 - OmniSafe diagnostic table.
+- CPO-style local diagnostic decision.
 - Historical workshop-era three-seed SC-PPO evidence.
 - Closed alternative mechanisms.
 

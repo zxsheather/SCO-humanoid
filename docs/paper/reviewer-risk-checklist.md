@@ -136,8 +136,9 @@ Each risk is rated by severity and the strength of the current response.
   the actor-internal Jacobian cost. The #81 autograd/HVP and #82 one-update
   smokes pass, and #83 shows the local CPO-style update can run inside the
   training loop. The bounded #83 checkpoint sweep collapsed on all evaluated
-  checkpoints, so CPO remains a diagnostic/future-work line rather than a
-  promoted baseline.
+  checkpoints. The #84 human decision keeps CPO as a diagnostic/future-work
+  line rather than a promoted baseline, and rejects a multi-seed CPO expansion
+  for the current manuscript.
 - Plain dual ascent provides within-family Lagrangian comparison
 - 8 alternative mechanism comparisons provide breadth
 - LCP-style soft Jacobian/Lipschitz regularization is now the closest
