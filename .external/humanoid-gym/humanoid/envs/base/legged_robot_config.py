@@ -260,6 +260,14 @@ class LeggedRobotCfgPPO(BaseConfig):
             output_scale_min = 0.25
             output_scale_max = 1.0
             output_scale_init = None
+            cpo_max_kl = 0.01
+            cpo_cg_iters = 5
+            cpo_cg_residual_tol = 1e-10
+            cpo_hvp_damping = 0.1
+            cpo_line_search_backtracks = 5
+            cpo_line_search_shrink = 0.5
+            cpo_surrogate_tolerance = 1e-8
+            cpo_constraint_tolerance = 1e-6
 
         class lcp:
             enabled = False

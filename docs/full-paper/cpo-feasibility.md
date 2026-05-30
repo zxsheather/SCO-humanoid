@@ -2,7 +2,7 @@
 
 Issue: [#80](https://github.com/zxsheather/SCO-humanoid/issues/80)
 Date: 2026-05-30
-Status: **Recommend DEFER** (the #81 autograd/HVP and #82 one-update smokes pass, but training stability remains untested)
+Status: **Recommend DEFER** (#81/#82 pass; #83 bounded training runs but all evaluated checkpoints collapse)
 
 ---
 
@@ -147,14 +147,27 @@ This narrows the remaining risk to repeated-update behavior: rollout coupling,
 advantage quality, line-search reliability across updates, checkpoint quality,
 and training stability.
 
+## 5.3 #83 bounded diagnostic update
+
+The #83 bounded one-seed diagnostic completed with seed 23, 16 training
+environments, 3 iterations, checkpoints `0,1,2,3`, and 2 evaluation episodes per
+checkpoint. The local CPO-style updates were finite, line search accepted all
+three updates, and checkpoints were produced. However, the checkpoint sweep
+reported `selection_status=all_checkpoints_collapsed`: every evaluated
+checkpoint had `fall_rate=1.000`.
+
+This means the implementation path is no longer blocked at the tensor or runner
+integration level, but the current diagnostic does not provide a task-valid CPO
+baseline.
+
 ## 6. Recommendation: DEFER, do not reject as impossible
 
 CPO remains reviewer-relevant, but it should not block the current mechanism-comparison manuscript. The most accurate current conclusion is:
 
 - A pure environment-side CPO adapter is not faithful because the target cost is actor-internal.
 - A local or external CPO-style implementation with algorithm-level hooks is technically possible in principle.
-- The #81 tensor smoke and #82 one-update smoke pass, so the next risk is repeated-update training stability.
-- No official CPO row should be claimed until a bounded diagnostic demonstrates a coherent training path.
+- The #81 tensor smoke and #82 one-update smoke pass, and #83 shows the update can run in the training loop.
+- The #83 bounded diagnostic collapses on all evaluated checkpoints, so no official CPO row or task-valid baseline should be claimed.
 
 For the current paper, the stronger position is to keep CPO as a limitation/future-work item while relying on:
 
@@ -165,10 +178,10 @@ For the current paper, the stronger position is to keep CPO as a limitation/futu
 
 ## 7. Follow-up
 
-No long CPO training should be launched from this issue. If CPO becomes essential for a future revision, create a separate smoke-test issue with this scope:
+No long CPO training should be launched from this issue. If CPO becomes essential for a future revision, create a separate bounded-training issue with this scope:
 
-- local one-update CPO-style autograd/HVP smoke;
-- report exact CUDA memory and wall time;
-- no five-seed training;
+- justify a larger budget than #83;
+- preserve exact CUDA memory and wall time;
+- keep a single-seed gate before any multi-seed expansion;
 - no environment-side proxy costs;
 - no official CPO claim unless the modified algorithm path is documented.

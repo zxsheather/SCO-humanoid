@@ -1,0 +1,97 @@
+{
+  "name": "cpo_style_bounded_diagnostic",
+  "method": {
+    "id": "cpo_style_local",
+    "label": "Local CPO-style bounded diagnostic",
+    "family": "external_constrained_rl",
+    "smoothness_strategy": "policy_local_sensitivity_jacobian_cpo_style_update"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_cpo_style_diagnostic",
+  "run_name": "cpo_style_bounded_diagnostic",
+  "artifacts_root": "artifacts/methods/cpo_style_bounded_diagnostic",
+  "evaluation_protocol": "rough_terrain_checkpoint_sweep_v2",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "diagnostic_budget": {
+    "issue": "#83",
+    "seed": 23,
+    "max_iterations": 3,
+    "train_num_envs": 16,
+    "num_steps_per_env": 8,
+    "save_interval": 1,
+    "checkpoints": [0, 1, 2, 3],
+    "eval_num_envs": 4,
+    "eval_episodes": 2,
+    "stop_conditions": [
+      "training command exits without manifest",
+      "checkpoint sweep cannot produce checkpoint_sweep_summary.json",
+      "CPO trace contains non-finite update diagnostics"
+    ],
+    "boundary": "single-seed short diagnostic only; not a paper-ready baseline"
+  },
+  "training": {
+    "headless": true,
+    "num_envs": 16,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0"
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 4,
+    "episodes": 2,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 123145,
+    "metric_schema_version": 2,
+    "constraint_logging": {
+      "collect_local_sensitivity": true,
+      "local_sensitivity_threshold": 3.8,
+      "sample_envs": 4,
+      "sample_every_n_steps": 20,
+      "sidecar_metrics_filename": "constraint_metrics.json",
+      "multiplier_trace_filename": "cpo_update_trace.json"
+    }
+  },
+  "selection": {
+    "tracking_tolerance": 0.1,
+    "fall_tolerance": 0.05
+  },
+  "overrides": {
+    "env": {
+      "rewards.scales.action_smoothness": 0.0,
+      "rewards.scales.dof_acc": 0.0,
+      "rewards.scales.base_acc": 0.0,
+      "rewards.scales.dof_vel": 0.0
+    },
+    "train": {
+      "runner.algorithm_class_name": "CPOStylePPO",
+      "runner.max_iterations": 3,
+      "runner.save_interval": 1,
+      "runner.num_steps_per_env": 8,
+      "algorithm.num_learning_epochs": 1,
+      "algorithm.num_mini_batches": 1,
+      "algorithm.learning_rate": 0.0003,
+      "algorithm.entropy_coef": 0.0,
+      "algorithm.desired_kl": 0.01,
+      "algorithm.schedule": "fixed",
+      "algorithm.constraint.enabled": true,
+      "algorithm.constraint.threshold": 3.8,
+      "algorithm.constraint.subsample_obs": 8,
+      "algorithm.constraint.cost_aggregation": "quantile",
+      "algorithm.constraint.cost_quantile": 0.9,
+      "algorithm.constraint.epsilon": 1e-6,
+      "algorithm.constraint.cpo_max_kl": 0.01,
+      "algorithm.constraint.cpo_cg_iters": 5,
+      "algorithm.constraint.cpo_cg_residual_tol": 1e-10,
+      "algorithm.constraint.cpo_hvp_damping": 0.1,
+      "algorithm.constraint.cpo_line_search_backtracks": 5,
+      "algorithm.constraint.cpo_line_search_shrink": 0.5,
+      "algorithm.constraint.cpo_surrogate_tolerance": 1e-8,
+      "algorithm.constraint.cpo_constraint_tolerance": 1e-6
+    }
+  }
+}
