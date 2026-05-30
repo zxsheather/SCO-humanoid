@@ -131,7 +131,11 @@ Each risk is rated by severity and the strength of the current response.
 ### R8: "Why not compare against CPO / other constrained RL methods?"
 **Severity**: MEDIUM
 **Current response**: GOOD
-- CPO assessed as 2-3 week implementation effort, deferred
+- CPO feasibility formally assessed in `docs/full-paper/cpo-feasibility.md` (Issue #80, 2026-05-30).
+  Conclusion: **defer**: a pure environment-side CPO adapter would not faithfully carry
+  the actor-internal Jacobian cost, while a local/algorithm-hooked CPO-style update is
+  technically possible but high-risk and requires a bounded autograd/HVP smoke before any
+  baseline claim.
 - Plain dual ascent provides within-family Lagrangian comparison
 - 8 alternative mechanism comparisons provide breadth
 - LCP-style soft Jacobian/Lipschitz regularization is now the closest
