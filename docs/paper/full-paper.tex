@@ -34,8 +34,8 @@ observation perturbations into action changes. The paper compares three
 evidence lines under a shared Humanoid-Gym rough-terrain protocol: SC-PPO, a
 hard policy-Jacobian constraint with a PID-Lagrangian multiplier; an LCP-style
 soft Jacobian/Lipschitz penalty; and a revised action-rate heuristic. On a
-five-seed Isaac Gym audit, the LCP-style penalty is the strongest current
-local-sensitivity row, with zero fall rate, lower velocity error, lower action
+five-seed Isaac Gym audit, the LCP-style penalty is the strongest
+local-sensitivity row in this study, with zero fall rate, lower velocity error, lower action
 jitter, higher return, and much lower measured policy sensitivity than SC-PPO.
 SC-PPO remains useful as the hard-constraint mechanism that exposes
 enforcement and seed-sensitivity trade-offs. In matched five-seed MuJoCo replay,
@@ -76,7 +76,7 @@ therefore help smoothness, but different enforcement mechanisms may have
 different robustness.
 
 The evidence does not support a simple ``SC-PPO wins'' story. Instead, the
-strongest current result is a mechanism comparison. A soft LCP-style
+central result is a mechanism comparison. A soft LCP-style
 Jacobian/Lipschitz penalty is more robust than the current SC-PPO hard-constraint
 implementation. The revised heuristic remains a strong anchor, especially in
 matched MuJoCo joint acceleration and return. SC-PPO remains scientifically
@@ -198,7 +198,7 @@ claiming official parity.
 
 The heuristic row is PPO with a tuned action-rate penalty under the formal
 protocol revision. It represents the practical reward-shaping approach that the
-policy-sensitivity rows must beat or explain. Because it remains highly
+policy-sensitivity rows must compare against and explain. Because it remains highly
 competitive in MuJoCo, especially on joint acceleration and return, it is a
 strong anchor rather than a weak baseline.
 
@@ -242,7 +242,7 @@ other closed alternative mechanisms).
 
 Table~\ref{tab:isaac} shows the primary five-seed Isaac Gym
 selected-checkpoint comparison. The LCP-style soft penalty is the strongest
-current local-sensitivity row. It has zero fall rate, lower velocity error,
+local-sensitivity row in this audit. It has zero fall rate, lower velocity error,
 lower action jitter, higher return, and much lower measured policy sensitivity
 than SC-PPO. The heuristic remains competitive and is slightly better on Isaac
 joint acceleration.
@@ -269,8 +269,8 @@ The paired bootstrap audit supports the conservative statement that LCP is
 stronger than SC-PPO on Isaac fall, velocity error, return, and measured
 sensitivity. The joint-acceleration advantage over SC-PPO is directionally
 favorable but not clean under five seeds because the confidence interval
-overlaps zero. LCP also beats the heuristic on fall, velocity error, jitter,
-return, and sensitivity, while heuristic joint acceleration remains
+overlaps zero. Relative to the heuristic, LCP is better on Isaac fall, velocity
+error, jitter, return, and sensitivity, while heuristic joint acceleration remains
 metric-competitive.
 
 \subsection{Matched MuJoCo Replay}
@@ -346,9 +346,9 @@ into direct sensitivity metrics.
 
 The statistical robustness audit is descriptive rather than a large-sample
 significance test. With five seeds, it supports stable directions and
-uncertainty intervals, not binary claims. The strongest robust statement is:
-LCP is clearly stronger than the current SC-PPO hard-constraint row on Isaac
-fall, velocity error, return, sensitivity, and MuJoCo action jitter.
+uncertainty intervals, not binary claims. The most conservative robust statement
+is that LCP has stable advantages over the current SC-PPO hard-constraint row on
+Isaac fall, velocity error, return, sensitivity, and MuJoCo action jitter.
 
 The selected-vs-final checkpoint audit shows that LCP is close to final-only
 behavior. Only seed 11 selects checkpoint 300 instead of final checkpoint 400,
@@ -363,6 +363,17 @@ The LCP coefficient diagnostic tests weights 0.001, 0.002, and 0.004 on seeds
 velocity error, joint acceleration, action jitter, and return. This does not
 prove global hyperparameter optimality, but it shows that the main LCP row is
 not an isolated single-point accident in the immediate neighborhood.
+
+The SC-PPO threshold is also treated as a bounded diagnostic choice rather than
+as a globally optimized constant. A threshold diagnostic over nearby shared
+values found seed-dependent behavior: lower settings over-constrained some
+seeds, while looser settings repaired one seed but broke others. No tested
+shared threshold in that bounded grid passed all diagnostic gates. We therefore
+retain threshold 3.8 as the documented current hard-constraint row, not as proof
+that the threshold is globally optimal. A matched plain-dual diagnostic at the
+same threshold also collapsed, supporting PID-Lagrangian as the within-family
+formal SC-PPO line without proving that every PID term is independently
+necessary.
 
 \section{Discussion}
 
@@ -407,18 +418,25 @@ modeling, and hardware tests remain outside the current evidence.
 \section{Limitations}
 
 The LCP-style row is a local same-task adaptation, not official LCP
-code/checkpoint parity. The paper should not say official LCP is reproduced or
-beaten.
+code/checkpoint parity. We do not claim official LCP reproduction, official
+checkpoint parity, or superiority over the official LCP implementation.
 
 The primary evidence uses one robot morphology, one rough-terrain task, five
 training seeds, and selected-checkpoint evaluation. The selected-vs-final audit
 reduces this concern for LCP but does not eliminate checkpoint dependence for
-all methods.
+all methods. A random-stairs stress attempt was not task-valid enough to serve
+as multi-terrain evidence.
+
+The smoothness-mechanism hyperparameters are bounded local choices, not
+globally optimized constants. The LCP coefficient is supported by a narrow
+0.001/0.002/0.004 neighborhood test, and the SC-PPO threshold is supported only
+as the current documented hard-constraint row after a bounded diagnostic. Broad
+hyperparameter optimality remains outside this evidence package.
 
 MuJoCo replay is sim-to-sim evidence only. There is no real-robot validation,
 calibrated actuator model, system identification, or multi-terrain/multi-robot
-study. The actuator low-pass proxy stress test is diagnostic and should not be
-written as hardware evidence.
+study. The actuator low-pass proxy stress test is diagnostic and is not hardware
+evidence.
 
 The mechanism explanation remains local and partly correlational. The policy
 perturbation audit gives controlled local policy-output evidence, and the
@@ -440,18 +458,17 @@ collapsed. CPO is therefore future work rather than a current baseline.
 
 \section{Conclusion}
 
-This paper should not claim that SC-PPO is the strongest current method, and it
-should not claim that LCP dominates every metric. The defensible result is more
-specific: policy-local-sensitivity regularization is a useful mechanism for
-smooth humanoid control, and the enforcement mechanism matters. A fixed soft
-LCP-style Jacobian/Lipschitz penalty is the strongest current local-sensitivity
-row under the same Humanoid-Gym protocol. SC-PPO remains valuable because it
-shows how a hard policy-Jacobian constraint behaves under PID-Lagrangian
+The results do not identify a universally dominant method row. They support a
+narrower mechanism-level conclusion: policy-local-sensitivity regularization is
+a useful lens for smooth humanoid control, and the enforcement mechanism
+matters. A fixed soft LCP-style Jacobian/Lipschitz penalty is the strongest
+local-sensitivity row in this same-task audit. SC-PPO remains valuable because
+it shows how a hard policy-Jacobian constraint behaves under PID-Lagrangian
 enforcement, seed variation, checkpoint selection, and framework migration. The
 revised heuristic remains a strong reward-shaping anchor, especially in MuJoCo
 joint acceleration and return. OmniSafe PPO-Lag clarifies a framework boundary:
-actor-internal Jacobian costs require algorithm-level access and should not be
-reduced to environment-side proxy costs. Together, these results support a
+actor-internal Jacobian costs require algorithm-level access and cannot be
+faithfully reduced to environment-side proxy costs. Together, these results support a
 mechanism-comparison paper about local sensitivity, not a broad dominance or
 hardware-transfer claim.
 
@@ -511,5 +528,16 @@ SC-PPO-vs-heuristic frame and did not include the current LCP-style full-paper
 baseline, matched five-seed MuJoCo replay, statistical audit, checkpoint
 robustness audit, policy perturbation audit, or related-work claim-boundary
 map.
+
+\section{SC-PPO Family Diagnostics}
+
+The SC-PPO hard-constraint row uses threshold 3.8, quantile aggregation, and
+PID-Lagrangian multiplier updates. These settings should be read as the
+documented formal hard-constraint line rather than as exhaustive component
+optimization. The bounded threshold diagnostic found no shared nearby threshold
+that passed all diagnostic seed gates, and the matched plain-dual diagnostic
+collapsed at the same threshold. These results justify keeping the current
+PID-Lagrangian SC-PPO row for mechanism comparison, but they do not prove global
+threshold optimality or independent necessity of every PID term.
 
 \end{document}

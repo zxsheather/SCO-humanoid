@@ -7,6 +7,7 @@ full-paper mechanism-comparison draft.
 
 - `full-paper.tex`: root manuscript source.
 - `references.bib`: bibliography used by the manuscript.
+- `full-paper-red-team-notes.md`: reviewer-risk pass over the assembled source.
 - `Makefile`: convenience wrapper around `latexmk`.
 
 Generated PDFs and auxiliary LaTeX files are intentionally ignored by git. Do
