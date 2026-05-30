@@ -38,6 +38,7 @@ Defensible thesis:
 | SC-PPO | "SC-PPO contributes a hard-constraint/PID-Lagrangian enforcement path and exposes seed/checkpoint sensitivity." | "SC-PPO is the best method" or "SC-PPO beats SOTA" |
 | Heuristic | "The revised heuristic remains a highly competitive reward-shaping anchor and wins matched MuJoCo joint acceleration/return." | "The heuristic is weak" or "LCP dominates every metric" |
 | OmniSafe | "The OmniSafe PPO-Lag migration is a bounded framework-interface diagnostic for actor-internal Jacobian costs." | "OmniSafe fails" or "external constrained RL fails" |
+| CPO | "Local CPO-style diagnostics show technical feasibility at tiny scale, but the bounded training diagnostic collapsed; CPO remains future work." | "We evaluate official CPO" or "CPO/external constrained RL fails" |
 | MuJoCo | "Matched MuJoCo evidence is mixed but interpretable as a control-path metric split." | "MuJoCo proves causal transfer" or "MuJoCo preserves the full Isaac ranking" |
 | Statistics | "Five-seed bootstrap/leave-one audits support conservative descriptive claims." | "Large-sample statistical significance" |
 
@@ -137,9 +138,9 @@ These choices have been accepted for the current manuscript draft:
 - Mention the absence of CPO in limitations/future work rather than in the
   conclusion.
 
-Open planning note: CPO remains worth testing as a future external-CRL
-baseline, but it should be scoped as a new feasibility/implementation line
-rather than treated as missing evidence for the current draft.
+CPO decision note: #84 accepted the conservative boundary after #81/#82/#83.
+CPO should remain a local CPO-style diagnostic/future-work line for the current
+draft and should not be promoted to the main baseline table.
 
 ## Paper-Facing References
 
@@ -160,5 +161,6 @@ New/updated keys:
 - Matched MuJoCo mixed evidence: `docs/full-paper/mujoco-mixed-evidence-mechanism.md`
 - OmniSafe feasibility: `docs/full-paper/omnisafe-ppolag-feasibility.md`
 - OmniSafe diagnostic: `docs/full-paper/omnisafe-ppolag-diagnostic-results.md`
+- CPO evidence decision: `docs/full-paper/cpo-evidence-decision.md`
 - Narrative integration: `docs/full-paper/full-paper-narrative-integration.md`
 - Reviewer risks: `docs/paper/reviewer-risk-checklist.md`
