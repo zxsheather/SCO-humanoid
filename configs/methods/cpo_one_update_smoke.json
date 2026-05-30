@@ -1,0 +1,49 @@
+{
+  "name": "cpo_one_update_smoke",
+  "method": {
+    "id": "cpo_one_update_smoke",
+    "label": "Local one-update CPO-style prototype (#82)",
+    "family": "external_constrained_rl",
+    "smoothness_strategy": "policy_local_sensitivity_jacobian_cpo_style_update"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_cpo_smoke",
+  "run_name": "cpo_one_update_smoke_seed23",
+  "artifacts_root": "artifacts/methods/cpo_one_update_smoke",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "smoke": {
+    "issue": "#82",
+    "purpose": "Run exactly one local CPO-style constrained update attempt with the SC-PPO actor-internal Jacobian cost.",
+    "seed": 23,
+    "device": "auto",
+    "batch_size": 16,
+    "obs_dim": 705,
+    "critic_obs_dim": 219,
+    "num_actions": 12,
+    "actor_hidden_dims": [512, 256, 128],
+    "critic_hidden_dims": [768, 256, 128],
+    "activation": "elu",
+    "init_noise_std": 1.0,
+    "threshold": 3.8,
+    "subsample_obs": 8,
+    "cost_aggregation": "quantile",
+    "cost_quantile": 0.9,
+    "epsilon": 1e-6,
+    "max_kl": 0.01,
+    "cg_iters": 10,
+    "cg_residual_tol": 1e-10,
+    "hvp_damping": 0.1,
+    "line_search_backtracks": 6,
+    "line_search_shrink": 0.5,
+    "surrogate_tolerance": 1e-8,
+    "constraint_tolerance": 1e-6,
+    "observation_source": "synthetic_current_shape",
+    "cost_is_canonical": true,
+    "cost_source": "policy_local_sensitivity_jacobian",
+    "note": "One-update CPO-style local diagnostic only; no rollout, no training, no official CPO parity claim."
+  }
+}

@@ -2,7 +2,7 @@
 
 Issue: [#80](https://github.com/zxsheather/SCO-humanoid/issues/80)
 Date: 2026-05-30
-Status: **Recommend DEFER** (the #81 autograd/HVP smoke passes, but one-update and training stability remain untested)
+Status: **Recommend DEFER** (the #81 autograd/HVP and #82 one-update smokes pass, but training stability remains untested)
 
 ---
 
@@ -134,14 +134,27 @@ The result does not change the paper-facing boundary: no constrained update
 solve, line search, rollout-level estimator, training run, or official CPO row
 has been demonstrated yet.
 
+## 5.2 #82 one-update update
+
+The #82 local one-update CPO-style prototype passed on the same constructed
+current-shape actor and synthetic observation batch. It computed a reward
+surrogate gradient, Jacobian-cost constraint gradient, two KL Fisher-vector
+conjugate-gradient solves, a small dual decision, and a backtracking line search.
+The first line-search candidate was accepted under the configured KL and
+constraint checks.
+
+This narrows the remaining risk to repeated-update behavior: rollout coupling,
+advantage quality, line-search reliability across updates, checkpoint quality,
+and training stability.
+
 ## 6. Recommendation: DEFER, do not reject as impossible
 
 CPO remains reviewer-relevant, but it should not block the current mechanism-comparison manuscript. The most accurate current conclusion is:
 
 - A pure environment-side CPO adapter is not faithful because the target cost is actor-internal.
 - A local or external CPO-style implementation with algorithm-level hooks is technically possible in principle.
-- The #81 tensor smoke passes, so the next risk is the actual constrained update: CG, dual solve, line search, and training stability.
-- No official CPO row should be claimed until the one-update prototype and bounded diagnostic demonstrate a coherent update path.
+- The #81 tensor smoke and #82 one-update smoke pass, so the next risk is repeated-update training stability.
+- No official CPO row should be claimed until a bounded diagnostic demonstrates a coherent training path.
 
 For the current paper, the stronger position is to keep CPO as a limitation/future-work item while relying on:
 
