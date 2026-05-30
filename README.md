@@ -5,12 +5,14 @@ methods for smoother humanoid locomotion.
 
 `SCO` stands for `Smooth-Constrained-Optimization`.
 
-The current codebase uses `Humanoid-Gym` as the training backbone, evaluates methods under a shared
-metric schema, and compares:
+The current full-paper branch uses `Humanoid-Gym` as the training backbone, evaluates methods under
+a shared metric schema, and compares:
 
-- `Vanilla PPO`
-- `PPO + heuristic smoothing` via action-rate reward shaping
-- `SC-PPO` with a Jacobian-style smoothness constraint
+- `LCP-style soft Jacobian/Lipschitz penalty`
+- `SC-PPO 3.8` with a hard policy-local-sensitivity constraint and `PID-Lagrangian` enforcement
+- `PPO + heuristic smoothing` via a revised action-rate reward-shaping anchor
+- bounded diagnostics for `OmniSafe PPO-Lag`, local `CPO-style` updates, and historical alternative
+  smoothness mechanisms
 
 The project is organized as an experiment repo, not as a general-purpose framework. The main goal
 is reproducible evidence, comparative baselines, and report-grade analysis.
@@ -20,8 +22,9 @@ is reproducible evidence, comparative baselines, and report-grade analysis.
 Use this repo if you want to:
 
 - reproduce the current rough-terrain smooth-control experiments
-- inspect the evidence chain behind the current `SC-PPO` line
+- inspect the evidence chain behind the current full-paper mechanism-comparison line
 - rerun baseline sweeps, checkpoint selection, and MuJoCo replay under the same metric schema
+- build the current venue-neutral full-paper LaTeX manuscript source
 
 This repo is not designed as:
 
@@ -33,87 +36,77 @@ This repo is not designed as:
 
 The core question is:
 
-`Can a constrained smooth-control PPO variant produce smoother humanoid locomotion than heuristic reward shaping while keeping velocity-tracking performance usable?`
+`Is policy-local-sensitivity regularization a useful smooth-control mechanism for humanoid locomotion, and how do hard constraints, soft penalties, and reward-shaping anchors trade off under the same Isaac/MuJoCo protocol?`
 
 The current main task is rough-terrain velocity-tracking locomotion in Isaac Gym, with MuJoCo
 sim-to-sim replay used as external validation.
 
 ## Current status
 
-The strongest completed method line in the repo is:
+The active branch is `full-paper/extended-seeds`. The current paper package is a
+mechanism-comparison result, not an `SC-PPO beats all baselines` result.
 
-- `SC-PPO threshold = 3.8`
-- `PID-Lagrangian`
-- `pid_integral_mode = lower_bound_clamp`
-- `cost_aggregation = quantile(0.90)`
+Current thesis:
 
-Current selected-checkpoint aggregate over seeds `11`, `17`, and `23`:
+`Policy-local-sensitivity regularization is a useful smooth-control lens, but enforcement details matter and no single row dominates every metric.`
 
-- `velocity_tracking_error_mean = 0.6412 +- 0.0554`
-- `joint_acceleration_l2_mean = 115.9079 +- 6.9386`
-- `action_jitter_l2_mean = 0.2205 +- 0.0017`
-- `episode_return_mean = 100.2838 +- 2.7150`
-- `fall_rate = 0.1000 +- 0.0000`
+Primary five-seed Isaac selected-checkpoint comparison over seeds `11/17/23/29/31`:
 
-Important boundary:
+| Method | Selected ckpts | Fall | Vel. err | Jnt acc | Jitter | Return | Sens. |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| LCP-style soft penalty | `300/400/400/400/400` | `0.000` | `0.490` | `117.331` | `0.212` | `118.420` | `1.890` |
+| SC-PPO 3.8 PID | `300/300/400/400/400` | `0.170` | `0.606` | `142.955` | `0.277` | `99.349` | `3.630` |
+| Revised heuristic | `350/300/350/400/400` | `0.150` | `0.705` | `115.317` | `0.260` | `105.326` | `7.331` |
 
-- the method line above is currently the strongest completed line in the repo
-- the frozen baseline refresh showed that `Vanilla PPO` and the bounded heuristic action-rate
-  family (`-0.0005`, `-0.0020`, `-0.0050`) all collapse to `checkpoint 0` under the original
-  `64 envs x 400 iterations` formal-compare regime
-- the baseline-side protocol repair line then produced a revised long-budget heuristic anchor:
-  `action_rate = -0.0050`, `512 envs x 400 iterations`, selected checkpoints `350 / 300 / 350`
-- against that revised heuristic anchor, `SC-PPO 3.8` remains better on the shared Isaac
-  rough-terrain velocity-tracking, fall-rate, joint-acceleration, and action-jitter metrics
-- the aligned `MuJoCo isaac_mainline` replay is mixed external-validation evidence rather than an
-  `SC-PPO` cross-engine win: the revised heuristic is better on task-side metrics, while `SC-PPO
-  3.8` is only slightly better on action jitter
-- the `PID有限消融` follow-up is now closed as a limited mechanism diagnostic: a matched
-  `普通对偶上升` probe at `threshold = 3.8` collapses (`fall_rate = 1.0`), so it supports keeping
-  `PID-Lagrangian` as the formal `SC-PPO` line without expanding into full component attribution
+Matched five-seed MuJoCo selected replay:
 
-So the repo currently supports an Isaac-side `方法优于启发式` result, with `MuJoCo` reported as a
-`混合外部验证结论`.
+| Method | Fall | Vel. err | Jnt acc | Jitter | Return |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| LCP-style soft penalty | `0.000` | `0.406` | `117.425` | `0.195` | `-599.108` |
+| SC-PPO 3.8 PID | `0.010` | `0.471` | `159.718` | `0.322` | `-627.238` |
+| Revised heuristic | `0.000` | `0.406` | `111.615` | `0.226` | `-456.370` |
 
-`main` should now be read as a `冻结主档案分支`:
+Important boundaries:
 
-- it preserves the completed internal research delivery package
-- it may only absorb bounded backports for `冻结边界章节` updates and reusable evaluation or
-  diagnostic infrastructure
-- it should not reopen training, replay, or mechanism-specific branch work on `main`
+- `LCP-style` is a same-task local adaptation, not official LCP code/checkpoint parity.
+- `SC-PPO` is the hard-constraint/PID-Lagrangian mechanism row; it is useful for understanding
+  enforcement and seed/checkpoint sensitivity, not because it is the strongest row.
+- The revised heuristic remains a strong reward-shaping anchor and wins matched MuJoCo aggregate
+  joint acceleration and return.
+- MuJoCo evidence is mixed but interpretable as a control-path metric split: LCP is cleanest on
+  action jitter, while downstream joint acceleration and return depend on the full closed loop.
+- `OmniSafe PPO-Lag` and local `CPO-style` work are diagnostic/future-work material only; neither
+  is promoted to a main baseline.
+- There is no hardware validation, official LCP parity, broad hyperparameter sweep, or
+  multi-robot/multi-terrain evidence.
 
-For the most current interpretation, read:
+The buildable full-paper source is [docs/paper/full-paper.tex](docs/paper/full-paper.tex).
 
-- [docs/sc-ppo-report-status.md](docs/sc-ppo-report-status.md)
-- [docs/sc-ppo-current-summary.md](docs/sc-ppo-current-summary.md)
-- [docs/baselines/rough-terrain-formal-comparison.md](docs/baselines/rough-terrain-formal-comparison.md)
-- [docs/sc-ppo-pid-limited-ablation.md](docs/sc-ppo-pid-limited-ablation.md)
+The frozen `main` branch remains a `冻结主档案分支` for the older internal research delivery package.
+Historical SC-PPO-centered docs remain useful context, but they no longer carry the current
+full-paper claim.
 
 ## Fastest current handoff
 
-If you only need the current frozen-mainline answer, read:
+If you only need the current full-paper answer, read:
 
-1. [docs/sc-ppo-current-summary.md](docs/sc-ppo-current-summary.md)
-2. [docs/sc-ppo-report-status.md](docs/sc-ppo-report-status.md)
-3. [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
+1. [docs/paper/full-paper.tex](docs/paper/full-paper.tex)
+2. [docs/paper/full-paper-build.md](docs/paper/full-paper-build.md)
+3. [docs/paper/full-paper-red-team-notes.md](docs/paper/full-paper-red-team-notes.md)
+4. [docs/full-paper/full-paper-narrative-integration.md](docs/full-paper/full-paper-narrative-integration.md)
+5. [docs/paper/reviewer-risk-checklist.md](docs/paper/reviewer-risk-checklist.md)
+6. [docs/full-paper/related-work-claim-boundary-map.md](docs/full-paper/related-work-claim-boundary-map.md)
 
-Minimal frozen-package validation:
+Build the venue-neutral manuscript source:
 
 ```bash
-cd /home/zhuoxiang/SCO-humanoid
-export PYTHON_BIN=/TinyNAS2024/zhuoxiang/sco-humanoid/bin/python
-$PYTHON_BIN scripts/baseline/check_env.py
-$PYTHON_BIN -m unittest \
-  tests.test_baseline_common \
-  tests.test_behavior_trace_metrics \
-  tests.test_checkpoint_sweep_recovery \
-  tests.test_formal_comparison_runner \
-  tests.test_baseline_protocol_failfast
-git diff --check
+cd docs/paper
+make
+make clean
 ```
 
-Use [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
-for the broader frozen-package validation and canonical artifact index.
+Generated PDFs and LaTeX auxiliary files are intentionally ignored by git.
+Do not commit compiled submission packages.
 
 ## Quick start
 
@@ -131,13 +124,21 @@ bash scripts/baseline/bootstrap_humanoid_gym.sh
 python scripts/baseline/check_env.py
 ```
 
-### 3. Read the current frozen-mainline package
+### 3. Read or build the current full-paper package
 
 Start from:
 
-- [docs/sc-ppo-current-summary.md](docs/sc-ppo-current-summary.md)
-- [docs/sc-ppo-report-status.md](docs/sc-ppo-report-status.md)
-- [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
+- [docs/paper/full-paper.tex](docs/paper/full-paper.tex)
+- [docs/paper/full-paper-build.md](docs/paper/full-paper-build.md)
+- [docs/paper/full-paper-red-team-notes.md](docs/paper/full-paper-red-team-notes.md)
+
+To build:
+
+```bash
+cd docs/paper
+make
+make clean
+```
 
 ### 4. Historical experiment entrypoint
 
@@ -281,7 +282,19 @@ Baseline and comparison docs:
 - [docs/baselines/heuristic-action-rate-sweep.md](docs/baselines/heuristic-action-rate-sweep.md)
 - [docs/baselines/rough-terrain-formal-comparison.md](docs/baselines/rough-terrain-formal-comparison.md)
 
-Current status and next step:
+Full-paper manuscript and claim boundary:
+
+- [docs/paper/full-paper.tex](docs/paper/full-paper.tex)
+- [docs/paper/full-paper-build.md](docs/paper/full-paper-build.md)
+- [docs/paper/full-paper-red-team-notes.md](docs/paper/full-paper-red-team-notes.md)
+- [docs/paper/full-paper-mechanism-comparison-draft.md](docs/paper/full-paper-mechanism-comparison-draft.md)
+- [docs/paper/manuscript-skeleton.md](docs/paper/manuscript-skeleton.md)
+- [docs/paper/reviewer-risk-checklist.md](docs/paper/reviewer-risk-checklist.md)
+- [docs/full-paper/full-paper-narrative-integration.md](docs/full-paper/full-paper-narrative-integration.md)
+- [docs/full-paper/related-work-claim-boundary-map.md](docs/full-paper/related-work-claim-boundary-map.md)
+- [docs/paper/references.bib](docs/paper/references.bib)
+
+Historical workshop/frozen-mainline docs:
 
 - [docs/sc-ppo-report-status.md](docs/sc-ppo-report-status.md)
 - [docs/sc-ppo-current-summary.md](docs/sc-ppo-current-summary.md)
@@ -289,8 +302,6 @@ Current status and next step:
 - [docs/sc-ppo-next-step-direction.md](docs/sc-ppo-next-step-direction.md)
 - [docs/sc-ppo-cross-engine-degradation.md](docs/sc-ppo-cross-engine-degradation.md)
 - [docs/paper/arxiv-workshop-manuscript.md](docs/paper/arxiv-workshop-manuscript.md)
-- [docs/paper/manuscript-skeleton.md](docs/paper/manuscript-skeleton.md)
-- [docs/paper/references.bib](docs/paper/references.bib)
 - [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
 
 Post-freeze reusable diagnostics on `main`:
@@ -311,69 +322,41 @@ Post-freeze reusable diagnostics on `main`:
 If you are new to the repo, the fastest way to build context is:
 
 1. [CONTEXT.md](CONTEXT.md)
-2. [docs/sc-ppo-current-summary.md](docs/sc-ppo-current-summary.md)
-3. [docs/sc-ppo-report-status.md](docs/sc-ppo-report-status.md)
-4. [docs/baselines/rough-terrain-formal-comparison.md](docs/baselines/rough-terrain-formal-comparison.md)
-5. [docs/sc-ppo-next-step-direction.md](docs/sc-ppo-next-step-direction.md)
-6. [docs/sc-ppo-pid-limited-ablation.md](docs/sc-ppo-pid-limited-ablation.md)
-7. [docs/sc-ppo-sn-feasibility-diagnostic.md](docs/sc-ppo-sn-feasibility-diagnostic.md)
-8. [docs/sc-ppo-sn-prototype.md](docs/sc-ppo-sn-prototype.md)
-9. [docs/random-stairs-selected-checkpoint-stress.md](docs/random-stairs-selected-checkpoint-stress.md)
+2. [docs/paper/full-paper.tex](docs/paper/full-paper.tex)
+3. [docs/paper/full-paper-red-team-notes.md](docs/paper/full-paper-red-team-notes.md)
+4. [docs/full-paper/full-paper-narrative-integration.md](docs/full-paper/full-paper-narrative-integration.md)
+5. [docs/paper/reviewer-risk-checklist.md](docs/paper/reviewer-risk-checklist.md)
+6. [docs/full-paper/related-work-claim-boundary-map.md](docs/full-paper/related-work-claim-boundary-map.md)
+7. [docs/full-paper/statistical-robustness-results.md](docs/full-paper/statistical-robustness-results.md)
+8. [docs/full-paper/mujoco-mixed-evidence-mechanism.md](docs/full-paper/mujoco-mixed-evidence-mechanism.md)
+9. [docs/full-paper/policy-perturbation-audit.md](docs/full-paper/policy-perturbation-audit.md)
 10. [docs/reproduction/final-research-delivery-checklist.md](docs/reproduction/final-research-delivery-checklist.md)
 11. [docs/adr/0001-freeze-research-delivery-before-new-protocol-repair.md](docs/adr/0001-freeze-research-delivery-before-new-protocol-repair.md)
 
 ## Current repo state
 
-The repo completed `科研交付冻结 / 仓库内科研交付包` and then ran a bounded post-freeze
-exploration cycle under `同命题主线挑战`. The paper direction has shifted from a pure `方法优于启发式`
-claim toward a broader cross-engine smoothness degradation study.
+The repo completed `科研交付冻结 / 仓库内科研交付包` and then expanded onto
+`full-paper/extended-seeds`. The current branch now has:
 
-### Completed mainline
+- a buildable venue-neutral LaTeX manuscript package;
+- five-seed Isaac and matched five-seed MuJoCo comparisons for LCP-style, SC-PPO, and heuristic
+  rows;
+- paired bootstrap and selected-vs-final robustness audits;
+- a policy perturbation audit that supports the local policy-output mechanism;
+- bounded OmniSafe PPO-Lag and local CPO-style diagnostics kept out of the main baseline table;
+- a reviewer-risk pass recording the claim boundaries and remaining gaps.
 
-- Isaac rough-terrain: `SC-PPO 3.8` supports `方法优于启发式` against the revised heuristic anchor
-- `MuJoCo isaac_mainline`: `混合外部验证结论`
-- `PID有限消融`: closed, supports `PID-Lagrangian正式方案`
+The paper should be read as a mechanism comparison:
 
-### Post-freeze exploration (all closed)
+- positive: policy-local-sensitivity regularization is a useful lens for smooth humanoid control;
+- positive: LCP-style soft regularization is the strongest local-sensitivity row in this same-task
+  audit;
+- positive: the revised heuristic is a strong reward-shaping anchor and remains best on matched
+  MuJoCo aggregate joint acceleration and return;
+- diagnostic: SC-PPO exposes the hard-constraint/PID-Lagrangian enforcement trade-off;
+- diagnostic: OmniSafe/CPO paths clarify interface and future-work boundaries;
+- limitation: no official LCP parity, hardware validation, broad hyperparameter search,
+  multi-robot evidence, or multi-terrain evidence.
 
-Eight alternative smoothness mechanisms were tested under the same-question boundary:
-
-| Family | Line | Isaac Result | MuJoCo Result |
-| --- | --- | --- | --- |
-| Constraint-shape | Anisotropic local-sensitivity | Collapsed | — |
-| Constrained-object | Action-rate hard constraint | Collapsed | — |
-| Architectural | SN (spectral norm) | Collapsed | — |
-| Architectural | Orthogonal actor | Collapsed | — |
-| Architectural | **LayerNorm actor** | **3/3 task-valid** | **jnt_acc 3.5x worse** |
-| Non-architectural | Action-side scaling | Partial (fall=0.37) | Collapsed, jnt_acc 12.7x worse |
-| Non-architectural | Output-side scaling | Partial (fall=0.43) | Collapsed, jnt_acc 4.1x worse |
-| Method-family | Plain dual ascent | Partial (fall=0.42) | — |
-
-### Cross-engine degradation (paper core claim)
-
-Five methods were replayed in MuJoCo under the shared `isaac_mainline` protocol:
-
-| Method | Isaac jnt_acc | MuJoCo jnt_acc | Degradation |
-| --- | ---: | ---: | ---: |
-| Heuristic baseline | 120 | 121 | ×1.01 |
-| SC-PPO 3.8 | 116 | 126 | ×1.08 |
-| LayerNorm epochs=3 | 172 | 603 | ×3.5 |
-| Action Scaling | 144 | 1836 | ×12.7 |
-| Output Scaling | 121 | 500 | ×4.1 |
-
-Jacobian-based constraint and heuristic action-rate penalty are the only mechanisms
-that preserve smoothness across engines. Jacobian sensitivity at the policy level
-predicts the degradation factor: SC-PPO's ~3.6 sensitivity yields ~1.08x degradation,
-while LayerNorm's ~10.7 sensitivity yields ~3.5x degradation.
-
-### Paper-direction analysis
-
-- Lagrange multiplier dynamics: PID multiplier stays near zero, acting as safety mechanism
-- Constraint threshold sensitivity: effective window is [3.6, 3.8)
-- LDLJ/SPARC trace comparison: kinematic vs dynamic smoothness as two dimensions
-- SC-PPO epochs=3 reliability repair: mixed result, does not universally fix final-checkpoint issue
-
-Full analysis: [docs/sc-ppo-cross-engine-degradation.md](docs/sc-ppo-cross-engine-degradation.md)
-
-`main` operates as a `冻结主档案分支`: backports limited to `冻结边界章节` updates and
-reusable evaluation/diagnostic infrastructure.
+`main` operates as a `冻结主档案分支`; `full-paper/extended-seeds` is the current full-paper work
+branch.
