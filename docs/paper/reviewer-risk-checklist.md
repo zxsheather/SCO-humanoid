@@ -133,9 +133,10 @@ Each risk is rated by severity and the strength of the current response.
 **Current response**: GOOD
 - CPO feasibility formally assessed in `docs/full-paper/cpo-feasibility.md` (Issue #80, 2026-05-30).
   Conclusion: **defer**: a pure environment-side CPO adapter would not faithfully carry
-  the actor-internal Jacobian cost, while a local/algorithm-hooked CPO-style update is
-  technically possible but high-risk and requires a bounded autograd/HVP smoke before any
-  baseline claim.
+  the actor-internal Jacobian cost. The #81 local autograd/HVP smoke passes, so a
+  local/algorithm-hooked CPO-style update is technically plausible, but no
+  constrained update solve, line search, training run, or official CPO baseline has
+  been demonstrated yet.
 - Plain dual ascent provides within-family Lagrangian comparison
 - 8 alternative mechanism comparisons provide breadth
 - LCP-style soft Jacobian/Lipschitz regularization is now the closest

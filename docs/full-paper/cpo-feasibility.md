@@ -2,7 +2,7 @@
 
 Issue: [#80](https://github.com/zxsheather/SCO-humanoid/issues/80)
 Date: 2026-05-30
-Status: **Recommend DEFER** (high-risk for the current paper cycle; run a bounded smoke only if CPO becomes reviewer-critical)
+Status: **Recommend DEFER** (the #81 autograd/HVP smoke passes, but one-update and training stability remain untested)
 
 ---
 
@@ -122,14 +122,26 @@ The exact overhead has not been measured for CPO in this repository. The risk is
 
 A responsible estimate should be reported only after the smoke test records peak memory and wall time. Until then, the paper should avoid numeric claims such as "50-100x" overhead or "200-400GB" VRAM.
 
+## 5.1 #81 smoke update
+
+The #81 local autograd/HVP smoke passed on a constructed current-shape
+Humanoid-Gym actor and synthetic observation minibatch. It verified finite
+Jacobian-cost gradients for `subsample_obs=1` and `subsample_obs=8`, and a finite
+shape-consistent KL Fisher-vector product. This removes the narrow objection
+that the required tensors cannot be computed at all.
+
+The result does not change the paper-facing boundary: no constrained update
+solve, line search, rollout-level estimator, training run, or official CPO row
+has been demonstrated yet.
+
 ## 6. Recommendation: DEFER, do not reject as impossible
 
 CPO remains reviewer-relevant, but it should not block the current mechanism-comparison manuscript. The most accurate current conclusion is:
 
 - A pure environment-side CPO adapter is not faithful because the target cost is actor-internal.
 - A local or external CPO-style implementation with algorithm-level hooks is technically possible in principle.
-- The implementation is high-risk because it combines Jacobian-cost higher-order autograd with CPO-style Fisher-vector products and line search.
-- No official CPO row should be claimed until the minimum smoke test demonstrates finite gradients, finite Fisher-vector products, and acceptable memory/time.
+- The #81 tensor smoke passes, so the next risk is the actual constrained update: CG, dual solve, line search, and training stability.
+- No official CPO row should be claimed until the one-update prototype and bounded diagnostic demonstrate a coherent update path.
 
 For the current paper, the stronger position is to keep CPO as a limitation/future-work item while relying on:
 
@@ -147,4 +159,3 @@ No long CPO training should be launched from this issue. If CPO becomes essentia
 - no five-seed training;
 - no environment-side proxy costs;
 - no official CPO claim unless the modified algorithm path is documented.
-
