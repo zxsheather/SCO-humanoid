@@ -6,16 +6,15 @@ This draft supersedes the older workshop-era SC-PPO-dominance framing in
 `docs/paper/arxiv-workshop-manuscript.md`. It uses the current full-paper
 evidence package through issues #75-#78.
 
-Human-level TODOs before submission:
+Accepted submission wording decisions:
 
-- Choose the final label: `LCP-style`, `LCP-inspired`, or `soft
-  Jacobian/Lipschitz penalty`.
-- Decide whether the phrase `SOTA-adjacent` should appear in the manuscript or
-  remain internal planning language.
-- Decide whether the OmniSafe diagnostic belongs in the main paper, appendix,
-  or supplementary material.
-- Decide whether the absence of an implemented CPO baseline should be stated in
-  the conclusion or only in limitations.
+- Use `LCP-style soft Jacobian/Lipschitz penalty` on first mention and
+  `LCP-style soft penalty` thereafter.
+- Avoid SOTA-style wording in the manuscript body; use
+  `closest literature-aligned policy-sensitivity baseline` instead.
+- Mention the OmniSafe diagnostic briefly in main-text discussion and place the
+  full collapsed diagnostic table in the appendix.
+- State the absence of CPO in limitations/future work, not in the conclusion.
 
 ## Abstract
 
@@ -42,7 +41,8 @@ acceleration and return are downstream closed-loop outcomes involving tracking,
 contact timing, PD response, and simulator dynamics. A bounded OmniSafe PPO-Lag
 migration further shows that actor-internal Jacobian costs do not drop cleanly
 into a standard environment-side PPO-Lagrangian interface. The resulting claim
-is mechanism-level rather than SOTA-level: policy-local-sensitivity
+is mechanism-level rather than a single-method dominance claim:
+policy-local-sensitivity
 regularization is a useful smooth-control lens, but enforcement details matter
 and no single row dominates every metric.
 
@@ -79,7 +79,7 @@ especially in matched MuJoCo joint acceleration and return. SC-PPO remains
 scientifically useful because it exposes how a hard policy-Jacobian constraint
 with PID-Lagrangian enforcement behaves under PPO, seed variation, checkpoint
 selection, and cross-engine replay. OmniSafe PPO-Lag is retained as a
-framework-interface diagnostic, not as a failed external constrained-RL
+framework-interface diagnostic, not as a promoted external constrained-RL
 baseline.
 
 The contributions are:
@@ -187,11 +187,11 @@ does not use a Lagrange multiplier, and disables heuristic smoothness rewards.
 It shares the same task, checkpoint sweep, metric schema, and MuJoCo replay
 bridge as SC-PPO and the heuristic.
 
-This is the closest SOTA-adjacent same-task baseline in the current repo, but it
-is not an official LCP reproduction. The public LCP/MimicKit stack uses a
-different task, robot, checkpoint setup, and evaluation path; the paper should
-therefore call this row `LCP-style` or equivalent unless official parity is
-established later.
+This is the closest literature-aligned policy-sensitivity baseline in the
+current repo, but it is not an official LCP reproduction. The public
+LCP/MimicKit stack uses a different task, robot, checkpoint setup, and
+evaluation path; the paper therefore labels this row `LCP-style` rather than
+claiming official parity.
 
 ### 3.4 Revised Heuristic Reward-Shaping Anchor
 
@@ -206,7 +206,7 @@ strong anchor rather than a weak baseline.
 OmniSafe PPO-Lag was evaluated as a bounded migration diagnostic. The adapter,
 cost bridge, policy evaluation bridge, and update-hook smoke paths were
 implemented, but the three-seed end-to-end diagnostic collapsed. This is not
-reported as a failed external constrained-RL baseline. The result shows that a
+reported as a promoted external constrained-RL baseline. The result shows that a
 standard environment-side PPO-Lag interface is not a faithful drop-in route for
 this actor-internal Jacobian cost without algorithm-level hooks.
 
@@ -425,8 +425,8 @@ that OmniSafe, PPO-Lag, CPO, or external constrained RL broadly fail.
 
 ## 8. Conclusion
 
-This paper should not claim that SC-PPO beats SOTA, and it should not claim
-that LCP dominates every metric. The defensible result is more specific:
+This paper should not claim that SC-PPO is the strongest current method, and it
+should not claim that LCP dominates every metric. The defensible result is more specific:
 policy-local-sensitivity regularization is a useful mechanism for smooth
 humanoid control, and the enforcement mechanism matters. A fixed soft
 LCP-style Jacobian/Lipschitz penalty is the strongest current local-sensitivity
@@ -437,7 +437,7 @@ revised heuristic remains a strong reward-shaping anchor, especially in MuJoCo
 joint acceleration and return. OmniSafe PPO-Lag clarifies a framework boundary:
 actor-internal Jacobian costs require algorithm-level access and should not be
 reduced to environment-side proxy costs. Together, these results support a
-mechanism-comparison paper about local sensitivity, not a broad SOTA or
+mechanism-comparison paper about local sensitivity, not a broad dominance or
 hardware-transfer claim.
 
 ## Appendix A: Evidence Map

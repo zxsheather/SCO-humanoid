@@ -17,9 +17,9 @@ Alternative:
 We investigate policy local sensitivity as a mechanism for smooth
 humanoid locomotion. The full-paper evidence now separates three lines:
 SC-PPO, a PPO variant that constrains the policy Jacobian with a
-PID-Lagrangian multiplier; an LCP-style soft Jacobian/Lipschitz penalty
-as the closest SOTA-adjacent same-task baseline; and an OmniSafe
-PPO-Lag migration diagnostic. On the five-seed Isaac Gym rough-terrain
+PID-Lagrangian multiplier; an LCP-style soft Jacobian/Lipschitz penalty as the
+closest literature-aligned same-task policy-sensitivity baseline; and an
+OmniSafe PPO-Lag migration diagnostic. On the five-seed Isaac Gym rough-terrain
 audit, the LCP-style penalty is the strongest current local-sensitivity
 baseline (`fall=0.000`, `joint_acc=117.331`, `jitter=0.212`), while
 SC-PPO exposes useful but seed-sensitive hard-constraint behavior
@@ -28,8 +28,8 @@ five-seed MuJoCo selected replay, LCP preserves dynamic smoothness
 (`joint_acc=117.425`, `jitter=0.195`) and is much stronger than SC-PPO,
 but the revised heuristic remains highly competitive and is better on
 MuJoCo joint acceleration and return. The OmniSafe PPO-Lag attempt is a
-framework-interface negative diagnostic, not evidence that external
-constrained RL broadly fails. The defensible full-paper claim is
+framework-interface diagnostic, not evidence that external constrained RL
+broadly fails. The defensible full-paper claim is
 therefore mechanism-level: policy-local-sensitivity regularization is a
 useful smooth-control lens, but enforcement details matter and no single
 row dominates every metric.
@@ -50,7 +50,7 @@ row dominates every metric.
 1. A hard-constraint SC-PPO implementation that enforces policy-Jacobian
    sensitivity with a PID-Lagrangian multiplier.
 2. A formal same-task LCP-style soft Jacobian/Lipschitz baseline, now
-   positioned as the closest SOTA-adjacent comparison.
+   positioned as the closest literature-aligned comparison.
 3. A conservative five-seed Isaac and selected-checkpoint MuJoCo
    comparison showing that LCP-style soft regularization is more robust
    than the current SC-PPO hard-constraint line.
@@ -90,7 +90,7 @@ row dominates every metric.
   torque rate, or joint acceleration; the revised heuristic remains a strong
   reward-shaping anchor, not a strawman
 - Lipschitz/Jacobian policy regularization acts on the policy map itself; LCP is
-  the closest SOTA-adjacent smooth humanoid mechanism family for this paper
+  the closest literature-aligned smooth humanoid mechanism family for this paper
   [@Chen2024LCP]
 - Adjacent policy-smoothness approaches include spectral normalization,
   SN-LCP-style variants, LayerNorm, and orthogonal actor parametrizations
@@ -115,9 +115,9 @@ row dominates every metric.
 ### 3.0 Evidence tiers
 
 - SC-PPO is the repo's hard-constraint method line.
-- LCP-style soft penalty is the SOTA-adjacent baseline line and the
+- LCP-style soft penalty is the literature-aligned baseline line and the
   strongest current local-sensitivity baseline result.
-- OmniSafe PPO-Lag is a negative migration diagnostic, not a promoted
+- OmniSafe PPO-Lag is a framework-interface migration diagnostic, not a promoted
   baseline.
 
 ## 3.1 SC-PPO hard constraint
@@ -391,19 +391,20 @@ aggregate; generated as
 - Only two methods compared at trace level
 
 ### 7.5 External baseline boundary
-- LCP-style soft regularization is the closest SOTA-adjacent
+- LCP-style soft regularization is the closest literature-aligned
   policy-sensitivity baseline, but it is a local same-task
   reimplementation rather than official LCP checkpoint parity
-- OmniSafe PPO-Lag is recorded as a negative framework-interface
+- OmniSafe PPO-Lag is recorded as a framework-interface
   diagnostic, not a promoted baseline and not a result about external
   constrained RL broadly
-- CPO remains unimplemented
+- CPO remains future work and should be scoped as a new external-CRL
+  implementation line rather than treated as missing evidence for this draft
 
 ## 8. Conclusion
 
-The full-paper result is not that SC-PPO beats SOTA, and it is not that
-LCP dominates every metric. The stronger and more defensible conclusion
-is that policy-local-sensitivity regularization is a useful
+The full-paper result is not that SC-PPO is the strongest current method, and
+it is not that LCP dominates every metric. The stronger and more defensible
+conclusion is that policy-local-sensitivity regularization is a useful
 smooth-control mechanism, and that the enforcement mechanism matters.
 The LCP-style soft Jacobian/Lipschitz penalty is currently the strongest
 same-task local-sensitivity baseline and preserves dynamic smoothness in
@@ -414,7 +415,7 @@ five-seed result exposes seed sensitivity. OmniSafe PPO-Lag records a
 framework-interface boundary: a drop-in environment-side cost adapter is
 not a faithful baseline for actor-internal Jacobian costs. These
 findings support a mechanism-level paper about local sensitivity, not a
-broad SOTA or hardware-transfer claim.
+broad dominance or hardware-transfer claim.
 
 ## Appendix A: Figure/Table Index
 

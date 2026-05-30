@@ -12,11 +12,11 @@ Recommended positioning:
   constraint behaves under PPO, PID multiplier control, checkpoint selection,
   and seed variation.
 - **LCP-style soft Jacobian/Lipschitz regularization** is the closest
-  SOTA-adjacent policy-sensitivity comparison for this project. It is the
+  literature-aligned policy-sensitivity comparison for this project. It is the
   strongest current local-sensitivity baseline under the same Humanoid-Gym
   protocol, but it is not a universal winner over the revised heuristic and
   should not be described as an official LCP benchmark or as a SOTA claim.
-- **OmniSafe PPO-Lag** is a negative framework-interface diagnostic. The
+- **OmniSafe PPO-Lag** is a framework-interface diagnostic. The
   failure says that a drop-in environment-side PPO-Lag migration is not a
   faithful way to train this actor-internal Jacobian cost in the current stack.
   It does not show that external constrained RL broadly fails.
@@ -62,7 +62,8 @@ OmniSafe diagnostic:
 | OmniSafe PPO-Lag final ckpt 400 | `1.000` | `1.109` | `321.328` | `0.741` | `2.714` |
 
 The OmniSafe row is collapsed diagnostic evidence. It should be used only to
-explain why OmniSafe is not the closest SOTA baseline for this paper.
+explain why OmniSafe is not the closest literature-aligned policy-sensitivity
+baseline for this paper.
 
 ## Paper Thesis
 
@@ -77,7 +78,7 @@ Preferred thesis:
 
 Claims that remain defensible:
 
-- LCP-style soft regularization is a strong same-task SOTA-adjacent
+- LCP-style soft regularization is a strong same-task literature-aligned
   policy-sensitivity baseline.
 - Paired bootstrap uncertainty supports the conservative claim that LCP is
   stronger than SC-PPO on Isaac fall/velocity/return/sensitivity and MuJoCo
@@ -131,7 +132,7 @@ Claims to avoid:
    Lipschitz/Jacobian policy regularization for smooth locomotion, and
    sim-to-sim validation as an intermediate robustness check.
 4. **Methods:** SC-PPO hard PID-Lagrangian constraint, LCP-style soft penalty,
-   revised heuristic, and failed/diagnostic OmniSafe bridge.
+   revised heuristic, and diagnostic OmniSafe bridge.
 5. **Results:** five-seed Isaac audit first, then MuJoCo selected replay, then
    mechanism diagnostics.
 6. **Discussion:** hard constraints are brittle across seeds; soft Jacobian
@@ -149,7 +150,8 @@ Claims to avoid:
 - Keep the workshop-era SC-PPO three-seed claim only as historical/contextual
   evidence unless the paper explicitly separates workshop and full-paper
   evidence tiers.
-- Before manuscript submission, approve the labels and placement listed in
-  `docs/full-paper/related-work-claim-boundary-map.md`: `LCP-style` wording,
-  whether to use `SOTA-adjacent`, whether OmniSafe belongs in main text or
-  appendix, and whether unimplemented CPO should be an explicit limitation.
+- Accepted manuscript wording decisions are recorded in
+  `docs/full-paper/related-work-claim-boundary-map.md`: use `LCP-style soft
+  Jacobian/Lipschitz penalty`, avoid SOTA-style wording in manuscript body, keep
+  OmniSafe as a short main-text diagnostic with full table in appendix, and
+  mention CPO absence in limitations/future work rather than conclusion.

@@ -26,7 +26,7 @@ Defensible thesis:
 | --- | --- | --- | --- |
 | Constrained RL / safe RL | CPO, Safety Gym, PPO-Lag/PID Lagrangian, OmniSafe | Motivates separating task reward from safety/resource/smoothness costs and explains why a Lagrangian formulation is natural | Do not claim this work advances general safe-RL theory or beats external CRL libraries |
 | PID-Lagrangian enforcement | PID Lagrangian methods | Positions SC-PPO's multiplier controller and the plain-dual ablation | The contribution is an enforcement-mechanism audit for this actor-internal cost, not a new PID theory result |
-| Lipschitz/Jacobian policy regularization | LCP, SN-LCP, spectral normalization | Provides the closest SOTA-adjacent mechanism family: regulate the policy map rather than only penalizing realized motion | The local LCP-style row is same-task evidence, not official LCP code/checkpoint parity |
+| Lipschitz/Jacobian policy regularization | LCP, SN-LCP, spectral normalization | Provides the closest literature-aligned policy-sensitivity mechanism family: regulate the policy map rather than only penalizing realized motion | The local LCP-style row is same-task evidence, not official LCP code/checkpoint parity |
 | Smooth locomotion engineering | Action-rate/torque-rate/joint-acceleration penalties and LCP's motivation against low-pass/filter-only fixes | Positions the revised heuristic as a strong and necessary reward-shaping anchor | Do not treat heuristic shaping as a strawman; it wins some MuJoCo metrics |
 | Sim-to-sim validation | Isaac Gym, MuJoCo, Humanoid-Gym | Justifies Isaac training plus aligned MuJoCo replay as an intermediate robustness stress test | Do not claim real-robot transfer or hardware safety from MuJoCo replay |
 
@@ -34,7 +34,7 @@ Defensible thesis:
 
 | Topic | Safe wording | Unsafe wording |
 | --- | --- | --- |
-| LCP | "LCP-style soft Jacobian/Lipschitz regularization is the closest SOTA-adjacent same-task baseline and the strongest current local-sensitivity row." | "We reproduce official LCP" or "we beat/validate LCP" |
+| LCP | "LCP-style soft Jacobian/Lipschitz regularization is the closest literature-aligned same-task policy-sensitivity baseline and the strongest current local-sensitivity row." | "We reproduce official LCP" or "we beat/validate LCP" |
 | SC-PPO | "SC-PPO contributes a hard-constraint/PID-Lagrangian enforcement path and exposes seed/checkpoint sensitivity." | "SC-PPO is the best method" or "SC-PPO beats SOTA" |
 | Heuristic | "The revised heuristic remains a highly competitive reward-shaping anchor and wins matched MuJoCo joint acceleration/return." | "The heuristic is weak" or "LCP dominates every metric" |
 | OmniSafe | "The OmniSafe PPO-Lag migration is a bounded framework-interface diagnostic for actor-internal Jacobian costs." | "OmniSafe fails" or "external constrained RL fails" |
@@ -112,7 +112,7 @@ Recommended Related Work ordering:
 1. Constrained RL for cost/reward separation, ending with the actor-internal
    cost-placement boundary.
 2. Smooth humanoid locomotion and policy-map regularization, with LCP as the
-   closest SOTA-adjacent mechanism family.
+   closest literature-aligned mechanism family.
 3. Sim-to-sim validation and smoothness metrics, with an explicit hardware
    boundary.
 
@@ -124,21 +124,22 @@ Recommended Results/Discussion placement:
 - Appendix or short discussion: OmniSafe diagnostic and why it is not promoted
   as the external baseline.
 
-## Human Approval Before Submission
+## Accepted Submission Decisions
 
-These choices should be explicitly approved before converting the full-paper
-draft into a submission:
+These choices have been accepted for the current manuscript draft:
 
-- Whether to use `LCP-style`, `LCP-inspired`, or `soft Jacobian/Lipschitz
-  penalty` as the primary method label.
-- Whether the word `SOTA-adjacent` is acceptable in the manuscript body, or
-  should remain only in internal planning docs.
-- Whether the collapsed OmniSafe diagnostic belongs in the main paper, appendix,
-  or only in supplementary/reproducibility notes.
-- Whether to cite the local LCP row as a reimplementation, an adaptation, or a
-  same-task baseline inspired by LCP.
-- Whether to include the still-unimplemented CPO row as an explicit limitation
-  in the conclusion.
+- Use `LCP-style soft Jacobian/Lipschitz penalty` on first mention and
+  `LCP-style soft penalty` thereafter.
+- Avoid SOTA-style wording in manuscript body text; use
+  `closest literature-aligned policy-sensitivity baseline`.
+- Keep OmniSafe as a short main-text framework-interface diagnostic, with the
+  full collapsed diagnostic table in appendix/supplementary material.
+- Mention the absence of CPO in limitations/future work rather than in the
+  conclusion.
+
+Open planning note: CPO remains worth testing as a future external-CRL
+baseline, but it should be scoped as a new feasibility/implementation line
+rather than treated as missing evidence for the current draft.
 
 ## Paper-Facing References
 

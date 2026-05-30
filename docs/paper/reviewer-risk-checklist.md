@@ -11,7 +11,7 @@ Each risk is rated by severity and the strength of the current response.
 - The full-paper claim has been narrowed to a mechanism-level result about
   policy-local-sensitivity regularization.
 - LCP-style soft Jacobian/Lipschitz regularization is positioned as the closest
-  SOTA-adjacent same-task policy-sensitivity comparison and the strongest
+  literature-aligned same-task policy-sensitivity comparison and the strongest
   current local-sensitivity row.
 - SC-PPO is retained as the repo's hard-constraint PID-Lagrangian mechanism,
   useful for understanding constraint enforcement and seed sensitivity.
@@ -20,9 +20,8 @@ Each risk is rated by severity and the strength of the current response.
   parity.
 - We explicitly avoid claiming that SC-PPO beats SOTA or is the strongest
   current method.
-- **Gap**: Human still needs to approve the final method label
-  (`LCP-style`, `LCP-inspired`, or `soft Jacobian/Lipschitz penalty`) before
-  submission.
+- **Gap**: Official LCP checkpoint/code parity remains untested; the accepted
+  manuscript label is `LCP-style soft Jacobian/Lipschitz penalty`.
 
 ### R0b: "Is `lcp_weight=0.002` cherry-picked?"
 **Severity**: MEDIUM
@@ -136,7 +135,7 @@ Each risk is rated by severity and the strength of the current response.
 - Plain dual ascent provides within-family Lagrangian comparison
 - 8 alternative mechanism comparisons provide breadth
 - LCP-style soft Jacobian/Lipschitz regularization is now the closest
-  SOTA-adjacent same-task baseline.
+  literature-aligned same-task policy-sensitivity baseline.
 - OmniSafe PPO-Lag migration was tested as a bounded framework diagnostic and
   collapsed; this is reported as an interface mismatch, not as external CRL
   failing broadly.
@@ -144,6 +143,8 @@ Each risk is rated by severity and the strength of the current response.
   faithfully carry this actor-internal Jacobian cost without algorithm-level
   hooks.
 - Acknowledged limitation: no official LCP checkpoint parity and no CPO row.
+  CPO is a worthwhile future external-CRL implementation line, but not a
+  blocker for the current mechanism-comparison draft.
 
 ## Analysis Concerns
 
