@@ -182,7 +182,7 @@ Each risk is rated by severity and the strength of the current response.
 
 ### R11: "Sensitivity → degradation correlation is only 2 clean data points"
 **Severity**: MEDIUM
-**Current response**: ADEQUATE
+**Current response**: GOOD
 - SC-PPO (3.6, ×1.08) and LayerNorm (10.7, ×3.5) are the two
   clean points with both sensitivity and non-collapsed MuJoCo data
 - Action/Output Scaling sensitivity ranges are known (5.6-9.4)
@@ -191,8 +191,12 @@ Each risk is rated by severity and the strength of the current response.
 - Matched MuJoCo traces add time-series support for policy-output/control-stream
   amplification: high-degradation methods show high jitter/joint-acceleration
   correlation with weak contact-force correlation
-- Still acknowledged as correlational evidence, not an intervention-level
-  causal proof or a statistically established law
+- The policy perturbation audit adds controlled local intervention evidence:
+  on a shared observation bank, amplification follows LCP < SC-PPO < heuristic,
+  and amplification mean correlates with selected policy sensitivity at `0.999`
+  across the 15 method-seed rows.
+- Still acknowledged as local policy-output evidence, not a closed-loop causal
+  proof or a statistically established degradation law
 
 ## Narrative Concerns
 

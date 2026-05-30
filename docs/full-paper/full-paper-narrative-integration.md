@@ -39,6 +39,8 @@ Generated paper-facing tables:
 - Selected-vs-final checkpoint audit: `docs/full-paper/selected-vs-final-checkpoint-robustness.md`
 - Matched MuJoCo mixed-evidence mechanism note:
   `docs/full-paper/mujoco-mixed-evidence-mechanism.md`
+- Policy perturbation audit:
+  `docs/full-paper/policy-perturbation-audit.md`
 - Related-work / claim-boundary map:
   `docs/full-paper/related-work-claim-boundary-map.md`
 - CPO evidence decision:
@@ -105,6 +107,9 @@ Claims that remain defensible:
   seed sensitivity.
 - Policy sensitivity remains a plausible mechanism behind dynamic smoothness
   and cross-engine degradation, but the current evidence is not a causal proof.
+- The policy perturbation audit adds controlled local evidence: on a shared
+  observation bank, action-response amplification follows the expected
+  LCP < SC-PPO < heuristic ordering.
 - OmniSafe migration failure is an implementation/interface boundary, not a
   negative result about constrained RL in general.
 - CPO feasibility is answered conservatively: local CPO-style plumbing is
@@ -122,6 +127,8 @@ Claims to avoid:
   return.
 - Do not turn the matched MuJoCo mechanism note into causal proof; it is an
   aggregate decomposition with correlation and leave-one-seed checks.
+- Do not overstate the policy perturbation audit as closed-loop causality; it
+  is local policy-output intervention evidence.
 - Do not describe the five-seed bootstrap audit as a large-sample
   significance test.
 - Do not say OmniSafe/CPO/external constrained RL fails.

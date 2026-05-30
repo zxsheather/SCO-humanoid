@@ -301,6 +301,17 @@ seed-specific rollout behavior than to a single smoothness metric. This is why
 the LCP-style row can be best on action jitter while the heuristic remains best
 on aggregate return.
 
+A controlled policy perturbation audit adds a more direct mechanism check. On a
+shared observation bank from selected-checkpoint rollouts, deterministic action
+responses to small observation perturbations follow the expected ordering:
+LCP-style soft penalty has the lowest amplification (`0.082` mean, `0.133`
+p90), SC-PPO is intermediate (`0.153`, `0.241`), and the revised heuristic is
+largest (`0.289`, `0.468`). The amplification metric is nearly perfectly aligned
+with measured policy sensitivity across method-seed rows, while its relationship
+to joint acceleration is weak. This supports the local policy-output mechanism
+without turning downstream joint acceleration or return into direct sensitivity
+metrics.
+
 ### 5.4 Robustness Audits
 
 The statistical robustness audit is descriptive rather than a large-sample
@@ -462,6 +473,8 @@ Primary artifacts:
   `docs/full-paper/selected-vs-final-checkpoint-robustness.md`
 - MuJoCo mixed-evidence mechanism note:
   `docs/full-paper/mujoco-mixed-evidence-mechanism.md`
+- Policy perturbation audit:
+  `docs/full-paper/policy-perturbation-audit.md`
 - Related-work and claim-boundary map:
   `docs/full-paper/related-work-claim-boundary-map.md`
 
@@ -481,6 +494,7 @@ Appendix:
 - Full selected-vs-final checkpoint details.
 - OmniSafe diagnostic table.
 - CPO-style local diagnostic decision.
+- Policy perturbation audit details.
 - Historical workshop-era three-seed SC-PPO evidence.
 - Closed alternative mechanisms.
 

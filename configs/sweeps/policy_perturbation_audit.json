@@ -1,0 +1,39 @@
+{
+  "name": "policy_perturbation_audit",
+  "analysis_root": "artifacts/analysis/policy_perturbation_audit",
+  "issue": "#85",
+  "claim_boundary": "controlled local policy-output intervention on existing selected checkpoints; no retraining and no causal proof beyond local observation perturbations",
+  "seeds": [11, 17, 23, 29, 31],
+  "observation_bank": {
+    "source_method_ids": ["lcp"],
+    "num_envs": 16,
+    "steps": 64,
+    "sample_every": 4,
+    "max_observations_per_seed": 128
+  },
+  "perturbation": {
+    "seed": 20260530,
+    "epsilons": [0.005, 0.01, 0.02],
+    "primary_epsilon": 0.01,
+    "directions_per_observation": 4,
+    "max_observations": 512,
+    "jacobian_sample_count": 64
+  },
+  "methods": [
+    {
+      "id": "lcp",
+      "label": "LCP-style soft penalty",
+      "config": "configs/methods/lcp_soft_jacobian_penalty_diagnostic.json"
+    },
+    {
+      "id": "scppo38",
+      "label": "SC-PPO 3.8 PID",
+      "config": "configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_extended_seeds.json"
+    },
+    {
+      "id": "heuristic",
+      "label": "Revised heuristic",
+      "config": "configs/methods/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget.json"
+    }
+  ]
+}
