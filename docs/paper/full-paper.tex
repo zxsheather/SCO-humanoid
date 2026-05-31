@@ -40,7 +40,9 @@ the reward heuristic remains slightly better on joint acceleration. In matched
 five-seed MuJoCo replay, the LCP-style penalty achieves the lowest action
 jitter, whereas the heuristic obtains lower aggregate joint acceleration and
 higher return. A no-retraining observation-noise sweep preserves this
-sensitivity ordering in action-jitter degradation. These results indicate that
+sensitivity ordering in action-jitter degradation, and a bounded
+\texttt{hfield\_moderate} replay provides a diagnostic second-setting check.
+These results indicate that
 policy-local-sensitivity regularization is best interpreted as a policy-output
 smoothness mechanism rather than as a sufficient condition for improving every
 closed-loop metric.
@@ -93,8 +95,8 @@ The contributions are:
   remains better on aggregate joint acceleration and return.
   \item We report robustness analyses covering paired bootstrap uncertainty,
   selected-vs-final checkpoint dependence, local LCP coefficient sensitivity,
-  controlled policy perturbations, and observation-noise robustness without
-  retraining.
+  controlled policy perturbations, observation-noise robustness without
+  retraining, and a bounded \texttt{hfield\_moderate} second-setting replay.
   \item We provide bounded feasibility checks for OmniSafe PPO-Lag and local
   CPO-style updates as context for alternative constrained-RL implementations.
 \end{enumerate}
@@ -179,10 +181,13 @@ Jacobian constraint rather than reward shaping.
 
 The LCP-style method uses a fixed soft penalty on the policy-gradient quantity
 $\|\nabla_o \log \pi_\theta(a \mid o)\|^2$, following the mechanism family of
-Lipschitz-constrained policies~\citep{Chen2024LCP}. It uses
-\texttt{lcp\_weight = 0.002}, does not use a Lagrange multiplier, and disables
-heuristic smoothness rewards. It shares the same task, checkpoint sweep, metric
-schema, and MuJoCo replay bridge as SC-PPO and the heuristic.
+Lipschitz-constrained policies~\citep{Chen2024LCP}. The local implementation
+computes this penalty on PPO minibatch state-action samples with
+\texttt{create\_graph=True}, uses a random subsample of actor observations for
+computational tractability, and applies \texttt{lcp\_weight = 0.002}. It does
+not use a Lagrange multiplier and disables heuristic smoothness rewards. It
+shares the same task, checkpoint sweep, metric schema, and MuJoCo replay bridge
+as SC-PPO and the heuristic.
 
 This condition is the closest literature-aligned policy-sensitivity baseline in
 our experimental stack, but it is not an official LCP reproduction. The public
@@ -231,9 +236,10 @@ The primary comparison consists of the LCP-style soft penalty, SC-PPO 3.8
 PID-Lagrangian, and the revised heuristic. Robustness analyses include paired
 bootstrap uncertainty, selected-vs-final checkpoint dependence, and LCP
 coefficient sensitivity, controlled policy perturbations, and no-retraining
-observation noise. Additional analyses examine OmniSafe PPO-Lag migration,
-local CPO-style checks, and alternative mechanisms that did not meet the main
-task-validity criteria.
+observation noise. We also include a no-retraining \texttt{hfield\_moderate}
+MuJoCo replay as a bounded second-setting terrain check. Additional analyses
+examine OmniSafe PPO-Lag migration, local CPO-style checks, and alternative
+mechanisms that did not meet the main task-validity criteria.
 
 \section{Results}
 
@@ -298,16 +304,43 @@ Method & Fall & Vel. err & Jnt acc & Jitter & Return \\
 \end{tabular}}
 \end{table}
 
-The result separates policy-output smoothness from downstream dynamic metrics.
-Policy-local-sensitivity regularization directly targets the policy-output
-stream, which is consistent with the LCP-style penalty achieving the best
-aggregate action jitter and the best action jitter on three of five seeds. Joint
-acceleration and return are downstream closed-loop outcomes that also depend on
-velocity tracking, contact timing, PD target dynamics, and simulator-specific
-response. A leave-one-seed analysis preserves this metric split: the LCP-style
-penalty remains the best aggregate action-jitter method in every split, while
-the heuristic remains best on aggregate joint acceleration and return in every
+This result separates policy-output smoothness from downstream dynamic metrics.
+The sensitivity regularizer acts directly on the policy-output stream, which is
+consistent with the LCP-style penalty achieving the best aggregate action jitter
+and the best action jitter on three of five seeds. Joint acceleration and return
+are downstream closed-loop outcomes that also depend on velocity tracking,
+contact timing, PD target dynamics, and simulator-specific response. A
+leave-one-seed analysis preserves this metric split: the LCP-style penalty
+remains the best aggregate action-jitter method in every split, while the
+heuristic remains best on aggregate joint acceleration and return in every
 split.
+
+\subsection{Bounded Second-Setting Replay}
+
+Table~\ref{tab:hfield} reports a no-retraining MuJoCo
+\texttt{hfield\_moderate} replay of the same selected checkpoints. This setting
+is a terrain generality check rather than a broad benchmark: all methods have
+materially higher fall rates than in the aligned \texttt{isaac\_mainline}
+replay. Within that bounded setting, the LCP-style penalty is best on fall rate,
+velocity error, joint acceleration, and action jitter, while SC-PPO has the
+highest return but also the highest fall rate.
+
+\begin{table}[t]
+\centering
+\caption{Bounded \texttt{hfield\_moderate} MuJoCo replay using selected
+checkpoints. Values are means over seeds 11/17/23/29/31.}
+\label{tab:hfield}
+\small
+\begin{tabular}{lccccc}
+\toprule
+Method & Fall & Vel. err & Jnt acc & Jitter & Return \\
+\midrule
+\lcp & $0.350$ & $0.832$ & $321.113$ & $0.277$ & $-566.367$ \\
+\scppo & $0.500$ & $0.981$ & $386.647$ & $0.380$ & $-513.230$ \\
+\heur & $0.400$ & $1.003$ & $322.360$ & $0.358$ & $-666.633$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Policy Perturbation Analysis}
 
@@ -413,7 +446,27 @@ and selected-to-final aggregate deltas are small. SC-PPO is more
 dynamic-selection-sensitive: final checkpoints improve velocity and return but
 worsen joint acceleration and jitter. The heuristic is task-selection-sensitive:
 final checkpoints improve velocity and return slightly but increase fall rate
-and dynamic roughness.
+and dynamic roughness. Table~\ref{tab:checkpoint-robustness} gives the compact
+delta read. For lower-is-better metrics, positive values mean the final
+checkpoint is worse than the selected checkpoint.
+
+\begin{table}[t]
+\centering
+\caption{Selected-vs-final checkpoint robustness. Deltas are final minus
+selected over seeds 11/17/23/29/31.}
+\label{tab:checkpoint-robustness}
+\small
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+Method & Isaac Fall & Isaac Jnt acc & Isaac Jitter & MuJoCo Fall & MuJoCo Jnt acc & MuJoCo Jitter \\
+\midrule
+\lcp & $0.000$ & $1.004$ & $0.007$ & $0.000$ & $-0.170$ & $0.008$ \\
+\scppo & $0.000$ & $8.932$ & $0.014$ & $-0.010$ & $8.689$ & $0.016$ \\
+\heur & $0.050$ & $2.463$ & $0.009$ & $0.000$ & $0.249$ & $-0.001$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
 
 The LCP coefficient analysis tests weights 0.001, 0.002, and 0.004 on seeds
 23/29/31. The middle value, 0.002, is best on the selected aggregate for fall,
@@ -478,10 +531,12 @@ than establishing parity with or superiority over the official LCP
 implementation.
 
 The primary evidence uses one robot morphology, one rough-terrain task, five
-training seeds, and selected-checkpoint evaluation. The selected-vs-final analysis
-reduces this concern for LCP but does not eliminate checkpoint dependence for
-all methods. A random-stairs stress attempt was not task-valid enough to serve
-as multi-terrain evidence.
+training seeds, and selected-checkpoint evaluation. The selected-vs-final
+analysis reduces this concern for LCP but does not eliminate checkpoint
+dependence for all methods. The \texttt{hfield\_moderate} replay is a bounded
+second-setting check, not a broad multi-terrain benchmark. A random-stairs
+stress attempt was not task-valid enough to serve as claim-grade multi-terrain
+evidence.
 
 The smoothness-mechanism hyperparameters are bounded local choices, not
 globally optimized constants. The LCP coefficient is supported by a narrow

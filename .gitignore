@@ -41,3 +41,5 @@ artifacts/analysis/mujoco_actuator_proxy_stress/*
 *.out
 *.pdf
 *.synctex.gz
+
+.local/

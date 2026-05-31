@@ -471,6 +471,12 @@ Primary artifacts:
   `docs/full-paper/statistical-robustness-results.md`
 - Selected-vs-final checkpoint robustness:
   `docs/full-paper/selected-vs-final-checkpoint-robustness.md`
+- Bounded hfield second-setting replay:
+  `artifacts/analysis/hfield_moderate_second_setting/summary.md`
+- Actuator-bandwidth robustness sweep:
+  `artifacts/analysis/actuator_latency_robustness/summary.md`
+- LCP-style baseline fidelity audit:
+  `docs/full-paper/lcp-style-fidelity-audit.md`
 - MuJoCo mixed-evidence mechanism note:
   `docs/full-paper/mujoco-mixed-evidence-mechanism.md`
 - Policy perturbation audit:

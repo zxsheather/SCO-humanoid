@@ -1,4 +1,4 @@
-# Selected-vs-Final Checkpoint Robustness (#76)
+# Selected-vs-Final Checkpoint Robustness (#94)
 
 Status: `complete`.
 
@@ -53,6 +53,16 @@ This note audits whether the full-paper primary rows rely materially on checkpoi
 | Revised heuristic | 17 | 300 | 400 | 0.050 | -0.034 | 20.286 | 0.039 | 0.213 | 0.280 |
 | Revised heuristic | 23 | 350 | 400 | -0.050 | -0.066 | 0.552 | 0.010 | 8.389 | 0.068 |
 
+## MuJoCo Selected-vs-Final Audit
+
+All changed selected/final checkpoints have matched no-retraining MuJoCo final-checkpoint replays.
+
+| Method | Changed seeds | Selected ckpts | Final ckpts | Fall delta | Vel delta | Jnt acc delta | Jitter delta | Return delta |
+| --- | ---: | --- | --- | ---: | ---: | ---: | ---: | ---: |
+| LCP-style soft penalty | 1 | 300 / 400 / 400 / 400 / 400 | 400 / 400 / 400 / 400 / 400 | 0.000 | -0.008 | -0.170 | 0.008 | 64.590 |
+| SC-PPO 3.8 PID | 2 | 300 / 300 / 400 / 400 / 400 | 400 / 400 / 400 / 400 / 400 | -0.010 | -0.017 | 8.689 | 0.016 | 23.777 |
+| Revised heuristic | 3 | 350 / 300 / 350 / 400 / 400 | 400 / 400 / 400 / 400 / 400 | 0.000 | -0.017 | 0.249 | -0.001 | 30.703 |
+
 ## Paper Wording Guidance
 
 - Say that LCP is nearly final-checkpoint stable under the current protocol.
@@ -104,6 +114,7 @@ This note audits whether the full-paper primary rows rely materially on checkpoi
 ## Reproduction
 
 ```bash
+/TinyNAS2024/zhuoxiang/sco-humanoid/bin/python scripts/baseline/run_mujoco_final_checkpoint_replay.py
 /TinyNAS2024/zhuoxiang/sco-humanoid/bin/python scripts/analysis/analyze_checkpoint_robustness.py
 ```
 

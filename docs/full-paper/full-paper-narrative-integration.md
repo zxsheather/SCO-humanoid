@@ -37,6 +37,12 @@ Generated paper-facing tables:
 - T0d OmniSafe diagnostic: `artifacts/analysis/paper_figures/table_omnisafe_diagnostic.md`
 - Statistical robustness audit: `docs/full-paper/statistical-robustness-results.md`
 - Selected-vs-final checkpoint audit: `docs/full-paper/selected-vs-final-checkpoint-robustness.md`
+- Bounded hfield second-setting replay:
+  `artifacts/analysis/hfield_moderate_second_setting/summary.md`
+- Actuator-bandwidth robustness sweep:
+  `artifacts/analysis/actuator_latency_robustness/summary.md`
+- LCP-style baseline fidelity audit:
+  `docs/full-paper/lcp-style-fidelity-audit.md`
 - Matched MuJoCo mixed-evidence mechanism note:
   `docs/full-paper/mujoco-mixed-evidence-mechanism.md`
 - Policy perturbation audit:

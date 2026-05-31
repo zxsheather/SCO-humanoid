@@ -17,12 +17,14 @@ BASELINE_DIR = REPO_ROOT / "scripts" / "baseline"
 if str(BASELINE_DIR) not in sys.path:
     sys.path.insert(0, str(BASELINE_DIR))
 
-from _common import ensure_directory, relative_to_repo, write_json  # noqa: E402
+from _common import artifact_dir, ensure_directory, load_config, relative_to_repo, write_json  # noqa: E402
 
 
 SEEDS = [11, 17, 23, 29, 31]
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "artifacts" / "analysis" / "checkpoint_robustness"
 DEFAULT_DOC_PATH = REPO_ROOT / "docs" / "full-paper" / "selected-vs-final-checkpoint-robustness.md"
+MUJOCO_SELECTED_METRICS = "metrics_mujoco_isaac_mainline_20ep_20s_noise01.json"
+MUJOCO_FINAL_METRICS_TEMPLATE = "metrics_mujoco_final_checkpoint_{checkpoint}_20ep_20s_noise01.json"
 
 LCP_SUMMARY = REPO_ROOT / "artifacts" / "analysis" / "rough_terrain_lcp_soft_jacobian_formal" / "comparison_summary.json"
 EXTENDED_SUMMARY = REPO_ROOT / "artifacts" / "analysis" / "rough_terrain_extended_seeds" / "comparison_summary.json"
@@ -117,6 +119,8 @@ def lcp_seed_record(summary: dict[str, Any], seed: int) -> dict[str, Any]:
         "selected_checkpoint": int(record["selected_checkpoint"]),
         "final_checkpoint": int(record["final"]["checkpoint"]),
         "selection_status": record.get("selection_status"),
+        "config_path": "configs/methods/lcp_soft_jacobian_penalty_diagnostic.json",
+        "base_run_name": str(record["run_name"]),
         "selected": selected,
         "final": final,
         "source_artifacts": [
@@ -141,6 +145,8 @@ def candidate_seed_record(candidate: dict[str, Any], seed: int) -> dict[str, Any
         "selected_checkpoint": selected_checkpoint,
         "final_checkpoint": final_checkpoint,
         "selection_status": record.get("selection_status"),
+        "config_path": candidate["config_path"],
+        "base_run_name": str(record["run_name"]),
         "selected": normalized_metrics(selected_row),
         "final": normalized_metrics(final_row),
         "source_artifacts": [
@@ -168,6 +174,63 @@ def collect_records() -> tuple[dict[str, list[dict[str, Any]]], list[str]]:
         for record in method_records:
             sources.extend(source for source in record["source_artifacts"] if source)
     return records, sorted(set(sources))
+
+
+def mujoco_final_run_name(record: dict[str, Any]) -> str:
+    return f"{record['base_run_name']}_finalcp{record['final_checkpoint']}_mujoco"
+
+
+def mujoco_selected_path(record: dict[str, Any]) -> Path:
+    return artifact_dir(load_config(record["config_path"]), record["base_run_name"]) / MUJOCO_SELECTED_METRICS
+
+
+def mujoco_final_path(record: dict[str, Any]) -> Path:
+    if record["selected_checkpoint"] == record["final_checkpoint"]:
+        return mujoco_selected_path(record)
+    output_name = MUJOCO_FINAL_METRICS_TEMPLATE.format(checkpoint=int(record["final_checkpoint"]))
+    return artifact_dir(load_config(record["config_path"]), mujoco_final_run_name(record)) / output_name
+
+
+def maybe_read_metrics(path: Path) -> dict[str, float] | None:
+    if not path.exists():
+        return None
+    payload = read_json(path)
+    return {
+        key: float(value)
+        for key, value in payload.items()
+        if isinstance(value, (int, float))
+    }
+
+
+def collect_mujoco_records(records: dict[str, list[dict[str, Any]]]) -> tuple[dict[str, list[dict[str, Any]]], list[str]]:
+    out: dict[str, list[dict[str, Any]]] = {method_id: [] for method_id in METHOD_ORDER}
+    missing: list[str] = []
+    for method_id, method_records in records.items():
+        for record in method_records:
+            selected_path = mujoco_selected_path(record)
+            final_path = mujoco_final_path(record)
+            selected = maybe_read_metrics(selected_path)
+            final = maybe_read_metrics(final_path)
+            if selected is None:
+                missing.append(relative_to_repo(selected_path))
+            if final is None:
+                missing.append(relative_to_repo(final_path))
+            if selected is None or final is None:
+                continue
+            out[method_id].append(
+                {
+                    "seed": record["seed"],
+                    "selected_checkpoint": record["selected_checkpoint"],
+                    "final_checkpoint": record["final_checkpoint"],
+                    "selected": selected,
+                    "final": final,
+                    "source_artifacts": [
+                        relative_to_repo(selected_path),
+                        relative_to_repo(final_path),
+                    ],
+                }
+            )
+    return out, sorted(set(missing))
 
 
 def metric_delta(final_value: float, selected_value: float) -> float:
@@ -232,6 +295,39 @@ def summarize_method(method_id: str, records: list[dict[str, Any]]) -> dict[str,
     return aggregate
 
 
+def summarize_mujoco_method(method_id: str, records: list[dict[str, Any]]) -> dict[str, Any] | None:
+    if len(records) != len(SEEDS):
+        return None
+    metrics = {}
+    for metric in METRICS:
+        if metric.key == "policy_sensitivity":
+            continue
+        selected_values = [record["selected"][metric.key] for record in records if metric.key in record["selected"]]
+        final_values = [record["final"][metric.key] for record in records if metric.key in record["final"]]
+        deltas = [
+            metric_delta(record["final"][metric.key], record["selected"][metric.key])
+            for record in records
+            if metric.key in record["selected"] and metric.key in record["final"]
+        ]
+        metrics[metric.key] = {
+            "label": metric.label,
+            "lower_is_better": metric.lower_is_better,
+            "selected_mean": mean(selected_values),
+            "final_mean": mean(final_values),
+            "delta": mean(deltas),
+            "preference": metric_preference(mean(deltas), metric),
+            "deltas_by_seed": {str(record["seed"]): metric_delta(record["final"][metric.key], record["selected"][metric.key]) for record in records if metric.key in record["selected"] and metric.key in record["final"]},
+        }
+    return {
+        "method_id": method_id,
+        "method": METHOD_LABELS[method_id],
+        "selected_checkpoints": checkpoint_map(records, "selected_checkpoint"),
+        "final_checkpoints": checkpoint_map(records, "final_checkpoint"),
+        "changed_seed_count": sum(1 for record in records if record["selected_checkpoint"] != record["final_checkpoint"]),
+        "metrics": metrics,
+    }
+
+
 def changed_seed_rows(method_id: str, records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     rows = []
     for record in records:
@@ -256,7 +352,7 @@ def changed_seed_rows(method_id: str, records: list[dict[str, Any]]) -> list[dic
 def write_markdown(summary: dict[str, Any], path: Path) -> None:
     rows = summary["method_summaries"]
     lines = [
-        "# Selected-vs-Final Checkpoint Robustness (#76)",
+        "# Selected-vs-Final Checkpoint Robustness (#94)",
         "",
         "Status: `complete`.",
         "",
@@ -346,6 +442,57 @@ def write_markdown(summary: dict[str, Any], path: Path) -> None:
     lines.extend(
         [
             "",
+            "## MuJoCo Selected-vs-Final Audit",
+            "",
+        ]
+    )
+    if summary["mujoco_missing_artifacts"]:
+        lines.extend(
+            [
+                "MuJoCo final-checkpoint replay is incomplete. Missing artifacts:",
+                "",
+            ]
+        )
+        lines.extend(f"- `{path}`" for path in summary["mujoco_missing_artifacts"])
+        lines.extend(
+            [
+                "",
+                "Generate missing replays with:",
+                "",
+                "```bash",
+                "/TinyNAS2024/zhuoxiang/sco-humanoid/bin/python scripts/baseline/run_mujoco_final_checkpoint_replay.py",
+                "```",
+                "",
+            ]
+        )
+    else:
+        lines.extend(
+            [
+                "All changed selected/final checkpoints have matched no-retraining MuJoCo final-checkpoint replays.",
+                "",
+                "| Method | Changed seeds | Selected ckpts | Final ckpts | Fall delta | Vel delta | Jnt acc delta | Jitter delta | Return delta |",
+                "| --- | ---: | --- | --- | ---: | ---: | ---: | ---: | ---: |",
+            ]
+        )
+        for row in summary["mujoco_method_summaries"]:
+            metrics = row["metrics"]
+            lines.append(
+                "| {method} | {changed} | {sel} | {fin} | {fall} | {vel} | {joint} | {jitter} | {ret} |".format(
+                    method=row["method"],
+                    changed=row["changed_seed_count"],
+                    sel=row["selected_checkpoints"],
+                    fin=row["final_checkpoints"],
+                    fall=fmt(metrics["fall_rate"]["delta"]),
+                    vel=fmt(metrics["velocity_tracking_error_mean"]["delta"]),
+                    joint=fmt(metrics["joint_acceleration_l2_mean"]["delta"]),
+                    jitter=fmt(metrics["action_jitter_l2_mean"]["delta"]),
+                    ret=fmt(metrics["episode_return_mean"]["delta"]),
+                )
+            )
+
+    lines.extend(
+        [
+            "",
             "## Paper Wording Guidance",
             "",
             "- Say that LCP is nearly final-checkpoint stable under the current protocol.",
@@ -366,6 +513,7 @@ def write_markdown(summary: dict[str, Any], path: Path) -> None:
             "## Reproduction",
             "",
             "```bash",
+            "/TinyNAS2024/zhuoxiang/sco-humanoid/bin/python scripts/baseline/run_mujoco_final_checkpoint_replay.py",
             "/TinyNAS2024/zhuoxiang/sco-humanoid/bin/python scripts/analysis/analyze_checkpoint_robustness.py",
             "```",
             "",
@@ -378,18 +526,25 @@ def write_markdown(summary: dict[str, Any], path: Path) -> None:
 
 def build_summary(output_dir: Path) -> dict[str, Any]:
     records, source_artifacts = collect_records()
+    mujoco_records, missing_mujoco = collect_mujoco_records(records)
     method_summaries = [summarize_method(method_id, records[method_id]) for method_id in METHOD_ORDER]
+    mujoco_method_summaries = [
+        row for method_id in METHOD_ORDER
+        if (row := summarize_mujoco_method(method_id, mujoco_records[method_id])) is not None
+    ]
     changed_rows = []
     for method_id in METHOD_ORDER:
         changed_rows.extend(changed_seed_rows(method_id, records[method_id]))
     return {
-        "issue": "#76",
+        "issue": "#94",
         "protocol": {
             "seeds": SEEDS,
             "delta_definition": "final checkpoint metric minus selected checkpoint metric",
             "selection_rule": "task floor first, then smoothest checkpoint",
         },
         "method_summaries": method_summaries,
+        "mujoco_method_summaries": mujoco_method_summaries,
+        "mujoco_missing_artifacts": missing_mujoco,
         "changed_seed_rows": changed_rows,
         "source_artifacts": source_artifacts,
         "generated_artifacts": {

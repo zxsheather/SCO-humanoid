@@ -1,0 +1,44 @@
+{
+  "name": "actuator_latency_robustness",
+  "analysis_root": "artifacts/analysis/actuator_latency_robustness",
+  "issue": "#97",
+  "claim_boundary": "no-retraining MuJoCo actuator-bandwidth stress grid; simulator-side robustness evidence, not calibrated hardware or sim-to-real proof",
+  "seeds": [11, 17, 23, 29, 31],
+  "lowpass_time_constants": [0.0, 0.05, 0.1],
+  "mujoco": {
+    "episodes": 20,
+    "sim_duration": 20.0,
+    "terrain_mode": "isaac_mainline",
+    "joint_reset_noise": 0.1,
+    "base_xy_noise": 0.0,
+    "command_vx": 0.4,
+    "command_vy": 0.0,
+    "command_dyaw": 0.0
+  },
+  "source_summaries": {
+    "lcp": "artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json",
+    "extended_seeds": "artifacts/analysis/rough_terrain_extended_seeds/comparison_summary.json"
+  },
+  "methods": [
+    {
+      "id": "lcp",
+      "label": "LCP-style soft penalty",
+      "config": "configs/methods/lcp_soft_jacobian_penalty_diagnostic.json",
+      "source_summary": "lcp"
+    },
+    {
+      "id": "scppo38",
+      "label": "SC-PPO 3.8 PID",
+      "config": "configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_extended_seeds.json",
+      "source_summary": "extended_seeds",
+      "source_candidate_id": "sc_ppo"
+    },
+    {
+      "id": "heuristic",
+      "label": "Revised heuristic",
+      "config": "configs/methods/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget.json",
+      "source_summary": "extended_seeds",
+      "source_candidate_id": "heuristic_smoothing"
+    }
+  ]
+}

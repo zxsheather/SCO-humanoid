@@ -757,12 +757,13 @@ def build_lcp_weight_sensitivity_rows() -> list[dict]:
     rows = []
     for weight, summary_path in LCP_WEIGHT_SUMMARIES.items():
         summary = read_json(require_path(REPO_ROOT / summary_path, f"LCP weight={weight} summary"))
+        seeds = [int(seed) for seed in summary.get("seeds", DIAGNOSTIC_SEEDS)]
         rows.append(
             mechanism_summary_row(
                 f"LCP-style soft penalty weight={weight}",
                 summary_path,
                 summary,
-                DIAGNOSTIC_SEEDS,
+                seeds,
                 evidence_tier="diagnostic_local_weight_grid",
                 extra={
                     "lcp_weight": weight,
