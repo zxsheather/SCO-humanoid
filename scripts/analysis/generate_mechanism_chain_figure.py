@@ -98,10 +98,8 @@ def observation_noise_column() -> dict[str, float] | None:
         return None
     summary = read_json(OBS_NOISE_SUMMARY)
     aggregates = summary.get("aggregates", [])
-    candidates: dict[str, dict[str, float]] = {}
+    candidates: dict[str, list[float]] = {}
     for row in aggregates:
-        if row.get("engine") != "isaac":
-            continue
         if abs(float(row.get("noise_std", -1.0)) - 0.05) > 1e-12:
             continue
         if int(row.get("seed_count", 0)) < len(SEEDS):
@@ -109,9 +107,9 @@ def observation_noise_column() -> dict[str, float] | None:
         rel = row.get("relative_to_noise0", {})
         value = rel.get("action_jitter_l2_mean")
         if isinstance(value, (int, float)):
-            candidates[str(row["method_id"])] = float(value)
+            candidates.setdefault(str(row["method_id"]), []).append(float(value))
     if all(method["id"] in candidates for method in METHODS):
-        return candidates
+        return {method_id: max(values) for method_id, values in candidates.items()}
     return None
 
 
@@ -180,7 +178,7 @@ def assemble_metrics() -> tuple[list[dict[str, Any]], dict[str, dict[str, float]
         metrics.append(
             {
                 "id": "obs_noise_jitter_factor",
-                "label": "Obs-noise\njitter factor",
+                "label": "Worst obs-noise\njitter factor",
                 "group": "Policy-output mechanism",
                 "higher_is_better": False,
             }

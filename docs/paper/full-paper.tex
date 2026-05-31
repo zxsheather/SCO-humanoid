@@ -39,9 +39,11 @@ jitter, higher return, and lower measured policy sensitivity than SC-PPO, while
 the reward heuristic remains slightly better on joint acceleration. In matched
 five-seed MuJoCo replay, the LCP-style penalty achieves the lowest action
 jitter, whereas the heuristic obtains lower aggregate joint acceleration and
-higher return. These results indicate that policy-local-sensitivity
-regularization is best interpreted as a policy-output smoothness mechanism
-rather than as a sufficient condition for improving every closed-loop metric.
+higher return. A no-retraining observation-noise sweep preserves this
+sensitivity ordering in action-jitter degradation. These results indicate that
+policy-local-sensitivity regularization is best interpreted as a policy-output
+smoothness mechanism rather than as a sufficient condition for improving every
+closed-loop metric.
 \end{abstract}
 
 \section{Introduction}
@@ -91,7 +93,8 @@ The contributions are:
   remains better on aggregate joint acceleration and return.
   \item We report robustness analyses covering paired bootstrap uncertainty,
   selected-vs-final checkpoint dependence, local LCP coefficient sensitivity,
-  and controlled policy perturbations.
+  controlled policy perturbations, and observation-noise robustness without
+  retraining.
   \item We provide bounded feasibility checks for OmniSafe PPO-Lag and local
   CPO-style updates as context for alternative constrained-RL implementations.
 \end{enumerate}
@@ -227,9 +230,10 @@ auxiliary measurements of policy-local behavior rather than task reward.
 The primary comparison consists of the LCP-style soft penalty, SC-PPO 3.8
 PID-Lagrangian, and the revised heuristic. Robustness analyses include paired
 bootstrap uncertainty, selected-vs-final checkpoint dependence, and LCP
-coefficient sensitivity. Additional analyses examine policy perturbations,
-OmniSafe PPO-Lag migration, local CPO-style checks, and alternative mechanisms
-that did not meet the main task-validity criteria.
+coefficient sensitivity, controlled policy perturbations, and no-retraining
+observation noise. Additional analyses examine OmniSafe PPO-Lag migration,
+local CPO-style checks, and alternative mechanisms that did not meet the main
+task-validity criteria.
 
 \section{Results}
 
@@ -342,21 +346,57 @@ into direct sensitivity metrics.
 Figure~\ref{fig:mechanism-chain} summarizes this metric chain. The
 policy-map and policy-output measurements align: the LCP-style penalty has the
 lowest measured sensitivity, the smallest response to controlled observation
-perturbations, and the lowest matched MuJoCo action jitter. The downstream
-MuJoCo joint-acceleration and return columns split from this ordering and favor
-the heuristic. The figure is therefore a compact guide to the interpretation,
-not a causal graph or a hardware-transfer claim.
+perturbations, the lowest matched MuJoCo action jitter, and the smallest
+action-jitter degradation under observation noise. The downstream MuJoCo
+joint-acceleration and return columns can split from this ordering. The figure
+is therefore a compact guide to the interpretation, not a causal graph or a
+hardware-transfer claim.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{../../artifacts/analysis/paper_figures/figure_mechanism_chain.png}
 \caption{Mechanism-chain evidence for selected checkpoints. Ranks summarize
 five-seed aggregate metrics; rank 1 is best within each column. The
-policy-output side follows the sensitivity and perturbation-amplification
-ordering, while downstream MuJoCo joint acceleration and return can favor a
-different mechanism.}
+policy-output side follows the sensitivity, perturbation-amplification, and
+observation-noise robustness ordering, while downstream MuJoCo joint acceleration
+and return can favor a different mechanism. The observation-noise column reports
+the worse of Isaac and MuJoCo jitter factors at $\sigma=0.05$.}
 \label{fig:mechanism-chain}
 \end{figure}
+
+\subsection{Observation-Noise Robustness}
+
+We next test whether the local mechanism survives a closed-loop perturbation
+without retraining. Gaussian noise is added only to the policy observation input
+at inference time, using the same selected checkpoints and the same five seeds.
+Table~\ref{tab:obs-noise} reports the largest tested noise scale,
+$\sigma=0.05$; the full sweep also includes $0.005$, $0.01$, and $0.02$.
+
+\begin{table}[t]
+\centering
+\caption{No-retraining observation-noise robustness at $\sigma=0.05$. Jitter
+factor is action-jitter $L_2$ relative to the corresponding no-noise replay in
+the same engine.}
+\label{tab:obs-noise}
+\small
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+Method & Isaac fall & Isaac jitter factor & MuJoCo fall & MuJoCo jitter factor \\
+\midrule
+\lcp & 0.000 & 1.095 & 0.000 & 1.238 \\
+\scppo & 0.250 & 1.219 & 0.000 & 1.401 \\
+\heur & 0.260 & 1.800 & 0.000 & 2.955 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+The degradation ordering follows the policy-sensitivity and perturbation-audit
+ordering: the LCP-style penalty has the smallest action-jitter increase in both
+engines, SC-PPO is intermediate, and the heuristic is most affected. This
+strengthens the policy-output robustness interpretation. It remains an
+input-perturbation stress test rather than hardware validation, and it does not
+override the downstream metric split observed in matched MuJoCo replay.
 
 \subsection{Robustness Analyses}
 
