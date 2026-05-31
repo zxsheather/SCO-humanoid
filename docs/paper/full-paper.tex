@@ -27,27 +27,21 @@
 Smooth humanoid locomotion is often pursued by adding action-rate or
 torque-rate penalties to the reward. These penalties are practical, but they
 regularize realized behavior only indirectly and require task-specific scalar
-weight tuning. We study policy local sensitivity as a mechanism-level object
-for smooth control: instead of only penalizing the motion that a policy has
-already produced, we regulate how strongly the policy map can amplify
-observation perturbations into action changes. The paper compares three
-evidence lines under a shared Humanoid-Gym rough-terrain protocol: SC-PPO, a
-hard policy-Jacobian constraint with a PID-Lagrangian multiplier; an LCP-style
-soft Jacobian/Lipschitz penalty; and a revised action-rate heuristic. On a
-five-seed Isaac Gym audit, the LCP-style penalty is the strongest
-local-sensitivity row in this study, with zero fall rate, lower velocity error, lower action
-jitter, higher return, and much lower measured policy sensitivity than SC-PPO.
-SC-PPO remains useful as the hard-constraint mechanism that exposes
-enforcement and seed-sensitivity trade-offs. In matched five-seed MuJoCo replay,
-the LCP-style row has the lowest action jitter and is much stronger than
-SC-PPO, while the revised heuristic remains better on aggregate joint
-acceleration and return. This mixed MuJoCo result is not a contradiction:
-local sensitivity primarily regularizes the policy-output stream, while joint
-acceleration and return are downstream closed-loop outcomes involving tracking,
-contact timing, PD response, and simulator dynamics. The resulting claim is
-mechanism-level rather than a single-method dominance claim:
-policy-local-sensitivity regularization is a useful smooth-control lens, but
-enforcement details matter and no single row dominates every metric.
+weight tuning. We investigate policy local sensitivity as a mechanism for
+smooth control: rather than penalizing only realized motion, we regularize how
+strongly the policy map amplifies observation perturbations into action changes.
+Under a shared Humanoid-Gym rough-terrain protocol, we compare three
+interventions: SC-PPO, which enforces a hard policy-Jacobian constraint with a
+PID-Lagrangian multiplier; an LCP-style soft Jacobian/Lipschitz penalty; and a
+revised action-rate reward heuristic. In a five-seed Isaac Gym evaluation, the
+LCP-style penalty achieves zero fall rate, lower velocity error, lower action
+jitter, higher return, and lower measured policy sensitivity than SC-PPO, while
+the reward heuristic remains slightly better on joint acceleration. In matched
+five-seed MuJoCo replay, the LCP-style penalty achieves the lowest action
+jitter, whereas the heuristic obtains lower aggregate joint acceleration and
+higher return. These results indicate that policy-local-sensitivity
+regularization is best interpreted as a policy-output smoothness mechanism
+rather than as a sufficient condition for improving every closed-loop metric.
 \end{abstract}
 
 \section{Introduction}
@@ -55,52 +49,51 @@ enforcement details matter and no single row dominates every metric.
 Reinforcement-learning locomotion policies can satisfy task reward while
 producing dynamically rough behavior. In humanoid locomotion this appears as
 high-frequency action variation, large joint accelerations, and policies whose
-smoothness depends on simulator details. A policy can look acceptable in its
+smoothness depends on simulator details. A policy may perform well in its
 training engine yet respond sharply to small observation or contact-solver
 differences when replayed in another physics engine.
 
 The standard engineering response is reward shaping. Action-rate, torque-rate,
-joint-acceleration, and similar penalties are easy to add and can work well in
-practice. The cost is that the smoothness trade-off becomes a scalar tuning
+joint-acceleration, and similar penalties are simple to implement and often
+effective. However, the smoothness trade-off then becomes a scalar tuning
 problem. The policy is not directly constrained to be locally stable as a map
-from observations to actions; it is only penalized after it has already emitted
-actions.
+from observations to actions; it is penalized only after it has emitted actions.
 
-This paper asks whether policy local sensitivity is a useful mechanism for
-smooth humanoid control. The central object is the local derivative of policy
-output with respect to policy observations. The mechanism hypothesis is simple:
-if a policy strongly amplifies small observation differences into action
-differences, then simulator-specific contact and integration differences can
-become action jitter and dynamic roughness. Regulating that amplification should
-therefore help smoothness, but different enforcement mechanisms may have
-different robustness.
+This paper evaluates whether policy local sensitivity provides an effective and
+interpretable target for smooth humanoid control. The central object is the local
+derivative of policy output with respect to policy observations. If a policy
+strongly amplifies small observation differences into action differences, then
+simulator-specific contact and integration differences may appear as action
+jitter and dynamic roughness. Regularizing this amplification should therefore
+improve policy-output smoothness, although its effect on downstream closed-loop
+metrics depends on the enforcement mechanism and the control stack.
 
-The evidence does not support a simple ``SC-PPO wins'' story. Instead, the
-central result is a mechanism comparison. A soft LCP-style
-Jacobian/Lipschitz penalty is more robust than the current SC-PPO hard-constraint
-implementation. The revised heuristic remains a strong anchor, especially in
-matched MuJoCo joint acceleration and return. SC-PPO remains scientifically
-useful because it exposes how a hard policy-Jacobian constraint with
-PID-Lagrangian enforcement behaves under PPO, seed variation, checkpoint
-selection, and cross-engine replay. OmniSafe PPO-Lag is retained as a
-framework-interface diagnostic, not as a promoted external constrained-RL
-baseline.
+We study this question through a mechanism comparison. The evaluated methods
+include a hard SC-PPO policy-Jacobian constraint, a soft LCP-style
+Jacobian/Lipschitz penalty, and a revised action-rate reward heuristic. The
+LCP-style penalty performs best among the sensitivity-based methods in the
+present same-task evaluation, while the heuristic remains competitive on downstream
+MuJoCo joint acceleration and return. SC-PPO provides a complementary
+hard-constraint condition that isolates the behavior of PID-Lagrangian
+enforcement under seed variation, checkpoint selection, and cross-engine replay.
+Additional OmniSafe PPO-Lag and local CPO-style experiments are included only as
+bounded feasibility checks for alternative constrained-RL interfaces.
 
 The contributions are:
 \begin{enumerate}
-  \item We formulate and audit policy local sensitivity as a smooth-control
+  \item We formulate policy local sensitivity as a smooth-control
   mechanism for humanoid locomotion.
   \item We compare hard policy-sensitivity enforcement, soft
   LCP-style Jacobian/Lipschitz regularization, and a revised action-rate
   heuristic under the same five-seed Isaac Gym protocol.
-  \item We add matched five-seed MuJoCo replay and show a metric split:
-  LCP-style regularization is cleanest on action jitter, while the heuristic
+  \item We perform matched five-seed MuJoCo replay and show a metric split:
+  LCP-style regularization has the lowest action jitter, while the heuristic
   remains better on aggregate joint acceleration and return.
-  \item We report robustness audits covering paired bootstrap uncertainty,
+  \item We report robustness analyses covering paired bootstrap uncertainty,
   selected-vs-final checkpoint dependence, local LCP coefficient sensitivity,
-  and a controlled policy perturbation audit.
-  \item We document framework-boundary diagnostics for OmniSafe PPO-Lag and
-  local CPO-style updates without promoting either line to a main baseline.
+  and controlled policy perturbations.
+  \item We provide bounded feasibility checks for OmniSafe PPO-Lag and local
+  CPO-style updates as context for alternative constrained-RL implementations.
 \end{enumerate}
 
 \section{Related Work}
@@ -119,43 +112,43 @@ and depends on the derivative of the current policy with respect to observations
 during PPO updates.
 
 Smoothness in learned locomotion is commonly encouraged through reward terms on
-action rate, torque rate, or acceleration. These are practical and strong
-baselines; the revised heuristic in this paper is therefore treated as a
-reward-shaping anchor, not as a strawman. A different family regularizes the
-policy map itself. Spectral normalization constrains network Lipschitz
+action rate, torque rate, or acceleration. These methods are practical and form
+strong reward-shaping baselines. A different family regularizes the policy map
+itself. Spectral normalization constrains network Lipschitz
 constants~\citep{Miyato2018SN}, and LayerNorm changes hidden activation
 scaling~\citep{Ba2016LayerNorm}. LCP directly targets smooth humanoid
 locomotion through a Lipschitz/Jacobian-style policy
 regularizer~\citep{Chen2024LCP}, with adjacent work exploring spectral-normalization
-variants for Lipschitz-constrained policies~\citep{Shin2025SNLCP}. Our LCP row
-should be read as a local same-task LCP-style adaptation under Humanoid-Gym
-rough terrain, not as official LCP checkpoint or code parity.
+variants for Lipschitz-constrained policies~\citep{Shin2025SNLCP}. We evaluate
+a same-task LCP-style adaptation under Humanoid-Gym rough terrain; it is not an
+official reproduction of the original LCP checkpoints, codebase, or evaluation
+protocol.
 
-Cross-engine replay is intermediate validation, not hardware validation. Isaac
-Gym provides high-throughput GPU simulation for robot
-learning~\citep{Makoviychuk2021IsaacGym}, while MuJoCo provides a different physics
-engine and contact implementation~\citep{Todorov2012MuJoCo}. Humanoid-Gym
-supplies the training scaffold and zero-shot transfer
-context~\citep{Gu2024HumanoidGym}. We use Isaac Gym for training/evaluation and
-aligned MuJoCo replay as a stress test for whether dynamic smoothness survives
-simulator changes. We do not claim real-robot transfer.
+Cross-engine replay provides an intermediate validation setting between
+single-engine evaluation and hardware testing. Isaac Gym enables high-throughput
+GPU simulation for robot learning~\citep{Makoviychuk2021IsaacGym}, while MuJoCo
+uses a different physics engine and contact implementation~\citep{Todorov2012MuJoCo}.
+Humanoid-Gym supplies the training scaffold and zero-shot transfer
+context~\citep{Gu2024HumanoidGym}. We train and evaluate in Isaac Gym, then
+replay selected checkpoints in aligned MuJoCo to test whether smoothness metrics
+are robust to simulator changes.
 
 \section{Methods}
 
 \subsection{Shared PPO Task}
 
-All primary rows use the same Humanoid-Gym rough-terrain locomotion task and
+All primary methods use the same Humanoid-Gym rough-terrain locomotion task and
 PPO backbone~\citep{Schulman2017PPO}. The robot is an H1-class humanoid with
-12 DoF. The full-paper audit uses seeds 11, 17, 23, 29, and 31, a
+12 DoF. The main evaluation uses seeds 11, 17, 23, 29, and 31, a
 512-environment training budget, and a checkpoint sweep over the trained policy.
 Evaluation reports fall rate, velocity-tracking error, joint-acceleration
-$L_2$, action-jitter $L_2$, episode return, and policy-sensitivity side reads
+$L_2$, action-jitter $L_2$, episode return, and policy-sensitivity measurements
 where available.
 
-The selected-checkpoint protocol is explicit: checkpoints are filtered by task
-validity and then selected by the smoothness-first rule used throughout the
-repository. Final-checkpoint behavior is reported separately in the checkpoint
-robustness audit.
+The selected-checkpoint protocol is fixed before comparison: checkpoints are
+filtered by task validity and then selected by a smoothness-first rule.
+Final-checkpoint behavior is reported separately in the checkpoint robustness
+analysis.
 
 \subsection{SC-PPO Hard Policy-Sensitivity Constraint}
 
@@ -176,50 +169,52 @@ SC-PPO optimizes a Lagrangian objective
 \end{equation}
 with threshold $d=3.8$, $\lambda_{\mathrm{init}}=0.5$, quantile aggregation,
 and \texttt{lower\_bound\_clamp} PID integral handling. Heuristic smoothness
-rewards are disabled in the SC-PPO row, so smoothness pressure comes from the
+rewards are disabled in the SC-PPO condition, so smoothness pressure comes from the
 Jacobian constraint rather than reward shaping.
 
 \subsection{LCP-Style Soft Jacobian/Lipschitz Penalty}
 
-The LCP-style row uses a fixed soft penalty on the policy-gradient quantity
+The LCP-style method uses a fixed soft penalty on the policy-gradient quantity
 $\|\nabla_o \log \pi_\theta(a \mid o)\|^2$, following the mechanism family of
 Lipschitz-constrained policies~\citep{Chen2024LCP}. It uses
 \texttt{lcp\_weight = 0.002}, does not use a Lagrange multiplier, and disables
 heuristic smoothness rewards. It shares the same task, checkpoint sweep, metric
 schema, and MuJoCo replay bridge as SC-PPO and the heuristic.
 
-This is the closest literature-aligned policy-sensitivity baseline in the
-current repository, but it is not an official LCP reproduction. The public
+This condition is the closest literature-aligned policy-sensitivity baseline in
+our experimental stack, but it is not an official LCP reproduction. The public
 LCP/MimicKit stack uses a different task, robot, checkpoint setup, and
-evaluation path; the paper therefore labels this row LCP-style rather than
-claiming official parity.
+evaluation path; we therefore label this method LCP-style rather than claiming
+official parity.
 
 \subsection{Revised Heuristic Reward-Shaping Anchor}
 
-The heuristic row is PPO with a tuned action-rate penalty under the formal
+The heuristic method is PPO with a tuned action-rate penalty under the formal
 protocol revision. It represents the practical reward-shaping approach that the
-policy-sensitivity rows must compare against and explain. Because it remains highly
-competitive in MuJoCo, especially on joint acceleration and return, it is a
-strong anchor rather than a weak baseline.
+policy-sensitivity methods must compare against. Because it remains highly
+competitive in MuJoCo, especially on joint acceleration and return, it is treated
+as a primary baseline.
 
-\subsection{OmniSafe PPO-Lag and CPO Diagnostics}
+\subsection{OmniSafe PPO-Lag and CPO Feasibility Checks}
 
-OmniSafe PPO-Lag was evaluated as a bounded migration diagnostic. The adapter,
+OmniSafe PPO-Lag was evaluated as a bounded feasibility check. The adapter,
 cost bridge, policy evaluation bridge, and update-hook smoke paths were
-implemented, but the three-seed end-to-end diagnostic collapsed. This is not
-reported as a promoted external constrained-RL baseline. The result shows that
-a standard environment-side PPO-Lag interface is not a faithful drop-in route
-for this actor-internal Jacobian cost without algorithm-level hooks.
+implemented, but the three-seed end-to-end experiment did not produce
+task-valid locomotion. We therefore exclude OmniSafe PPO-Lag from the primary
+baseline table. The result indicates that a standard environment-side PPO-Lag
+interface does not directly support this actor-internal Jacobian cost without
+algorithm-level hooks.
 
-A local CPO-style path was also tested only as future-work evidence. Tensor and
-one-update checks passed, and a bounded training-loop diagnostic produced
-finite accepted updates, but all evaluated checkpoints collapsed. We therefore
-do not include CPO in the main baseline table.
+A local CPO-style path was also tested as an implementation-feasibility check.
+Tensor and one-update checks passed, and a bounded training-loop experiment
+produced finite accepted updates, but the evaluated checkpoints did not satisfy
+the task-validity criteria. We therefore do not include CPO in the main baseline
+table.
 
 \section{Experimental Protocol}
 
 The primary Isaac comparison uses five seeds, checkpoint sweeps, and the same
-metric schema for LCP-style, SC-PPO, and heuristic rows. MuJoCo replay uses the
+metric schema for LCP-style, SC-PPO, and heuristic methods. MuJoCo replay uses the
 selected Isaac checkpoint for each seed under the aligned \texttt{isaac\_mainline}
 protocol with 20 episodes of 20 seconds and \texttt{joint\_reset\_noise = 0.1}.
 
@@ -227,22 +222,22 @@ Metrics are fall rate, velocity-tracking error, joint-acceleration $L_2$,
 action-jitter $L_2$, episode return, and policy sensitivity. Fall, velocity
 error, joint acceleration, action jitter, and sensitivity are lower-is-better;
 episode return is higher-is-better. Policy sensitivity and violation rate are
-side reads for policy-local behavior rather than task reward.
+auxiliary measurements of policy-local behavior rather than task reward.
 
-The evidence tiers are: primary full-paper rows (LCP-style soft penalty,
-SC-PPO 3.8 PID-Lagrangian, and revised heuristic), robustness audits (paired
-bootstrap uncertainty, selected-vs-final checkpoint audit, and LCP coefficient
-sensitivity), and diagnostics (policy perturbation audit, OmniSafe PPO-Lag
-migration, local CPO-style checks, historical workshop-era SC-PPO evidence, and
-other closed alternative mechanisms).
+The primary comparison consists of the LCP-style soft penalty, SC-PPO 3.8
+PID-Lagrangian, and the revised heuristic. Robustness analyses include paired
+bootstrap uncertainty, selected-vs-final checkpoint dependence, and LCP
+coefficient sensitivity. Additional analyses examine policy perturbations,
+OmniSafe PPO-Lag migration, local CPO-style checks, and alternative mechanisms
+that did not meet the main task-validity criteria.
 
 \section{Results}
 
-\subsection{Five-Seed Isaac Audit}
+\subsection{Five-Seed Isaac Evaluation}
 
 Table~\ref{tab:isaac} shows the primary five-seed Isaac Gym
-selected-checkpoint comparison. The LCP-style soft penalty is the strongest
-local-sensitivity row in this audit. It has zero fall rate, lower velocity error,
+selected-checkpoint comparison. Among the sensitivity-based methods, the
+LCP-style soft penalty performs best in this evaluation. It has zero fall rate, lower velocity error,
 lower action jitter, higher return, and much lower measured policy sensitivity
 than SC-PPO. The heuristic remains competitive and is slightly better on Isaac
 joint acceleration.
@@ -265,20 +260,20 @@ Method & Checkpoints & Fall & Vel. err & Jnt acc & Jitter & Return & Sens. \\
 \end{tabular}}
 \end{table}
 
-The paired bootstrap audit supports the conservative statement that LCP is
-stronger than SC-PPO on Isaac fall, velocity error, return, and measured
-sensitivity. The joint-acceleration advantage over SC-PPO is directionally
-favorable but not clean under five seeds because the confidence interval
-overlaps zero. Relative to the heuristic, LCP is better on Isaac fall, velocity
-error, jitter, return, and sensitivity, while heuristic joint acceleration remains
-metric-competitive.
+The paired bootstrap analysis indicates that LCP is stronger than SC-PPO on
+Isaac fall rate, velocity error, return, and measured sensitivity. The
+joint-acceleration difference relative to SC-PPO is favorable in the mean but
+not resolved under five seeds because the confidence interval overlaps zero.
+Relative to the heuristic, LCP improves Isaac fall rate, velocity error, jitter,
+return, and sensitivity, while the heuristic remains competitive on joint
+acceleration.
 
 \subsection{Matched MuJoCo Replay}
 
 Table~\ref{tab:mujoco} reports matched five-seed MuJoCo selected replay. The
-LCP-style row has the lowest action jitter and is much stronger than SC-PPO.
-The revised heuristic remains better on aggregate joint acceleration and
-return.
+LCP-style penalty has the lowest action jitter and improves substantially over
+SC-PPO. The revised heuristic achieves lower aggregate joint acceleration and
+higher return.
 
 \begin{table}[t]
 \centering
@@ -299,19 +294,21 @@ Method & Fall & Vel. err & Jnt acc & Jitter & Return \\
 \end{tabular}}
 \end{table}
 
-This result should be read as a control-path metric split. Policy-local
-sensitivity regularization directly targets the policy-output stream, which is
-consistent with LCP winning action jitter on aggregate and on three of five
-seeds. Joint acceleration and return are downstream closed-loop outcomes that
-also depend on velocity tracking, contact timing, PD target dynamics, and
-simulator-specific response. The leave-one-seed audit preserves the split:
-LCP remains the best aggregate action-jitter row in every split, while the
-heuristic remains best on aggregate joint acceleration and return in every
+The result separates policy-output smoothness from downstream dynamic metrics.
+Policy-local-sensitivity regularization directly targets the policy-output
+stream, which is consistent with the LCP-style penalty achieving the best
+aggregate action jitter and the best action jitter on three of five seeds. Joint
+acceleration and return are downstream closed-loop outcomes that also depend on
+velocity tracking, contact timing, PD target dynamics, and simulator-specific
+response. A leave-one-seed analysis preserves this metric split: the LCP-style
+penalty remains the best aggregate action-jitter method in every split, while
+the heuristic remains best on aggregate joint acceleration and return in every
 split.
 
-\subsection{Policy Perturbation Mechanism Audit}
+\subsection{Policy Perturbation Analysis}
 
-A controlled policy perturbation audit adds a more direct mechanism check.
+A controlled policy perturbation analysis provides a direct measurement of local
+policy-output amplification.
 On a shared observation bank from selected-checkpoint rollouts, deterministic
 action responses to small observation perturbations follow the expected
 ordering: LCP-style soft penalty has the lowest amplification, SC-PPO is
@@ -319,7 +316,7 @@ intermediate, and the revised heuristic is largest.
 
 \begin{table}[t]
 \centering
-\caption{Policy perturbation audit on a shared observation bank. Amplification
+\caption{Policy perturbation analysis on a shared observation bank. Amplification
 is $\|\Delta a\|/\|\Delta o\|$ at perturbation radius $0.01$ using deterministic
 action means.}
 \label{tab:perturb}
@@ -336,21 +333,41 @@ Method & Seeds & Amp. mean & Amp. p90 & Bank sens. & Selected sens. & Jitter & J
 \end{tabular}}
 \end{table}
 
-Across the 15 method-seed rows, amplification mean correlates with selected
+Across the 15 method-seed conditions, amplification mean correlates with selected
 policy sensitivity at $0.999$, but only weakly with selected action jitter
 ($0.228$) and selected joint acceleration ($-0.093$). This supports the local
 policy-output mechanism without turning downstream joint acceleration or return
 into direct sensitivity metrics.
 
-\subsection{Robustness Audits}
+Figure~\ref{fig:mechanism-chain} summarizes this metric chain. The
+policy-map and policy-output measurements align: the LCP-style penalty has the
+lowest measured sensitivity, the smallest response to controlled observation
+perturbations, and the lowest matched MuJoCo action jitter. The downstream
+MuJoCo joint-acceleration and return columns split from this ordering and favor
+the heuristic. The figure is therefore a compact guide to the interpretation,
+not a causal graph or a hardware-transfer claim.
 
-The statistical robustness audit is descriptive rather than a large-sample
-significance test. With five seeds, it supports stable directions and
-uncertainty intervals, not binary claims. The most conservative robust statement
-is that LCP has stable advantages over the current SC-PPO hard-constraint row on
-Isaac fall, velocity error, return, sensitivity, and MuJoCo action jitter.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{../../artifacts/analysis/paper_figures/figure_mechanism_chain.png}
+\caption{Mechanism-chain evidence for selected checkpoints. Ranks summarize
+five-seed aggregate metrics; rank 1 is best within each column. The
+policy-output side follows the sensitivity and perturbation-amplification
+ordering, while downstream MuJoCo joint acceleration and return can favor a
+different mechanism.}
+\label{fig:mechanism-chain}
+\end{figure}
 
-The selected-vs-final checkpoint audit shows that LCP is close to final-only
+\subsection{Robustness Analyses}
+
+The statistical robustness analysis is descriptive rather than a large-sample
+significance test. With five seeds, it supports effect directions and
+uncertainty intervals rather than binary accept/reject conclusions. The most
+conservative robust comparison is that LCP has stable advantages over the
+SC-PPO hard-constraint condition on Isaac fall rate, velocity error, return,
+sensitivity, and MuJoCo action jitter.
+
+The selected-vs-final checkpoint analysis shows that LCP is close to final-only
 behavior. Only seed 11 selects checkpoint 300 instead of final checkpoint 400,
 and selected-to-final aggregate deltas are small. SC-PPO is more
 dynamic-selection-sensitive: final checkpoints improve velocity and return but
@@ -358,71 +375,70 @@ worsen joint acceleration and jitter. The heuristic is task-selection-sensitive:
 final checkpoints improve velocity and return slightly but increase fall rate
 and dynamic roughness.
 
-The LCP coefficient diagnostic tests weights 0.001, 0.002, and 0.004 on seeds
+The LCP coefficient analysis tests weights 0.001, 0.002, and 0.004 on seeds
 23/29/31. The middle value, 0.002, is best on the selected aggregate for fall,
 velocity error, joint acceleration, action jitter, and return. This does not
-prove global hyperparameter optimality, but it shows that the main LCP row is
-not an isolated single-point accident in the immediate neighborhood.
+prove global hyperparameter optimality, but it shows that the main LCP condition
+is robust to small coefficient variations in the tested neighborhood.
 
-The SC-PPO threshold is also treated as a bounded diagnostic choice rather than
-as a globally optimized constant. A threshold diagnostic over nearby shared
-values found seed-dependent behavior: lower settings over-constrained some
-seeds, while looser settings repaired one seed but broke others. No tested
-shared threshold in that bounded grid passed all diagnostic gates. We therefore
-retain threshold 3.8 as the documented current hard-constraint row, not as proof
-that the threshold is globally optimal. A matched plain-dual diagnostic at the
-same threshold also collapsed, supporting PID-Lagrangian as the within-family
-formal SC-PPO line without proving that every PID term is independently
-necessary.
+The SC-PPO threshold is a bounded design choice rather than a globally optimized
+constant. A threshold sweep over nearby shared values found seed-dependent
+behavior: lower settings over-constrained some seeds, while looser settings
+improved one seed but degraded others. No tested shared threshold in that
+bounded grid passed all task-validity and smoothness gates. We therefore use
+threshold 3.8 as the documented hard-constraint setting. A matched plain-dual
+comparison at the same threshold also failed the task-validity criteria,
+supporting PID-Lagrangian as the stronger within-family SC-PPO condition without
+establishing the independent necessity of every PID term.
 
 \section{Discussion}
 
 \subsection{What the Mechanism Comparison Shows}
 
-The evidence supports policy local sensitivity as a useful smooth-control lens,
-but it does not support hard-constraint SC-PPO as the strongest implementation.
-The LCP-style soft penalty is currently stronger under the same task and metric
-schema. This suggests that the regulated object is useful while the enforcement
-mechanism matters.
+The experiments support policy local sensitivity as an informative
+smooth-control target, while also showing that the enforcement mechanism
+substantially affects performance. Under the same task and metric schema, the
+LCP-style soft penalty is stronger than the evaluated hard-constraint SC-PPO
+implementation on most Isaac metrics and on MuJoCo action jitter.
 
 Soft regularization may be easier to optimize in PPO because the penalty is
 present throughout actor updates with a fixed coefficient. SC-PPO exposes the
 cost of hard enforcement: the constraint is interpretable, but the PID
 multiplier and checkpoint behavior are seed-sensitive. The contribution of
-SC-PPO is therefore not final performance dominance; it is the mechanistic
-contrast between hard constraint enforcement and soft policy-map regularization.
+SC-PPO in this comparison is the mechanistic contrast between hard constraint
+enforcement and soft policy-map regularization.
 
 \subsection{Why the Heuristic Still Matters}
 
-The revised heuristic should remain central in the paper. It is not a weak
-baseline. In matched MuJoCo replay it is better than LCP on aggregate joint
-acceleration and return, even though LCP is better on action jitter. This makes
-the paper stronger, not weaker: the mechanism story must explain a real
-trade-off rather than dismiss reward shaping.
+The revised heuristic is a strong reward-shaping baseline. In matched MuJoCo
+replay it outperforms LCP on aggregate joint acceleration and return, even
+though LCP achieves lower action jitter. This trade-off is important because it
+separates policy-output smoothness from downstream closed-loop dynamics.
 
-The current reading is that action jitter is closest to the policy-output
-stream, while joint acceleration and return depend on the full closed loop. A
-reward-shaped policy can sometimes produce better downstream dynamics even if
-its policy map is more sensitive. Conversely, a low-sensitivity policy can
-produce cleaner action commands without winning every downstream metric.
+Action jitter is the metric closest to the policy-output stream, while joint
+acceleration and return depend on the full closed loop. A reward-shaped policy
+can therefore produce better downstream dynamics even when its policy map is
+more sensitive. Conversely, a low-sensitivity policy can produce cleaner action
+commands without improving every downstream metric.
 
 \subsection{Sim-to-Sim Scope}
 
-MuJoCo replay is valuable because it changes physics-engine details without
-changing the trained policy checkpoint. It is not hardware validation. The
-sim-to-sim result supports the idea that policy-output smoothness and dynamic
-smoothness can be stress-tested across engines, but it does not establish
-sim-to-real robustness. Domain randomization, system identification, actuator
-modeling, and hardware tests remain outside the current evidence.
+MuJoCo replay changes physics-engine details without changing the trained
+policy checkpoint. The sim-to-sim result therefore tests whether smoothness
+metrics are robust to simulator changes, but it does not establish sim-to-real
+robustness. Domain randomization, system identification, actuator modeling, and
+hardware tests remain outside the present scope.
 
 \section{Limitations}
 
-The LCP-style row is a local same-task adaptation, not official LCP
-code/checkpoint parity. We do not claim official LCP reproduction, official
-checkpoint parity, or superiority over the official LCP implementation.
+The LCP-style method is a local same-task adaptation, not an official
+reproduction of the original LCP code, checkpoints, or evaluation protocol. The
+results therefore compare mechanisms under this Humanoid-Gym protocol rather
+than establishing parity with or superiority over the official LCP
+implementation.
 
 The primary evidence uses one robot morphology, one rough-terrain task, five
-training seeds, and selected-checkpoint evaluation. The selected-vs-final audit
+training seeds, and selected-checkpoint evaluation. The selected-vs-final analysis
 reduces this concern for LCP but does not eliminate checkpoint dependence for
 all methods. A random-stairs stress attempt was not task-valid enough to serve
 as multi-terrain evidence.
@@ -430,58 +446,57 @@ as multi-terrain evidence.
 The smoothness-mechanism hyperparameters are bounded local choices, not
 globally optimized constants. The LCP coefficient is supported by a narrow
 0.001/0.002/0.004 neighborhood test, and the SC-PPO threshold is supported only
-as the current documented hard-constraint row after a bounded diagnostic. Broad
-hyperparameter optimality remains outside this evidence package.
+as the evaluated hard-constraint setting after a bounded threshold sweep. Broad
+hyperparameter optimality remains outside this study.
 
 MuJoCo replay is sim-to-sim evidence only. There is no real-robot validation,
 calibrated actuator model, system identification, or multi-terrain/multi-robot
-study. The actuator low-pass proxy stress test is diagnostic and is not hardware
-evidence.
+study. The actuator low-pass proxy stress test is an additional simulation
+stress test and is not hardware evidence.
 
 The mechanism explanation remains local and partly correlational. The policy
-perturbation audit gives controlled local policy-output evidence, and the
+perturbation analysis gives controlled local policy-output evidence, and the
 matched MuJoCo decomposition supports a control-path metric split, but neither
 proves a closed-loop causal intervention from sensitivity to joint acceleration
 or return.
 
-The statistical audit is a five-seed uncertainty audit, not a large-sample
-hypothesis test. Confidence intervals and bootstrap rank frequencies should be
-reported as descriptive robustness evidence.
+The statistical analysis uses five seeds and should be interpreted as
+descriptive uncertainty estimation rather than a large-sample hypothesis test.
 
 External constrained-RL coverage remains incomplete. OmniSafe PPO-Lag was
-tested as a bounded interface diagnostic and collapsed, but this does not show
-that OmniSafe, PPO-Lag, CPO, or external constrained RL broadly fail. A local
-CPO-style path was also tested through autograd/HVP, one-update, and bounded
-training-loop diagnostics. The tensor and one-update checks passed, and the
-training loop produced finite accepted updates, but every evaluated checkpoint
-collapsed. CPO is therefore future work rather than a current baseline.
+tested as a bounded interface feasibility check and did not produce task-valid
+locomotion, but this does not imply that OmniSafe, PPO-Lag, CPO, or external
+constrained RL algorithms broadly fail. A local CPO-style path was also tested
+through autograd/HVP, one-update, and bounded training-loop checks. The tensor
+and one-update checks passed, and the training loop produced finite accepted
+updates, but the evaluated checkpoints did not satisfy the task-validity
+criteria. CPO-style training therefore remains future work rather than a primary
+baseline in this study.
 
 \section{Conclusion}
 
-The results do not identify a universally dominant method row. They support a
-narrower mechanism-level conclusion: policy-local-sensitivity regularization is
-a useful lens for smooth humanoid control, and the enforcement mechanism
-matters. A fixed soft LCP-style Jacobian/Lipschitz penalty is the strongest
-local-sensitivity row in this same-task audit. SC-PPO remains valuable because
-it shows how a hard policy-Jacobian constraint behaves under PID-Lagrangian
-enforcement, seed variation, checkpoint selection, and framework migration. The
-revised heuristic remains a strong reward-shaping anchor, especially in MuJoCo
-joint acceleration and return. OmniSafe PPO-Lag clarifies a framework boundary:
-actor-internal Jacobian costs require algorithm-level access and cannot be
-faithfully reduced to environment-side proxy costs. Together, these results support a
-mechanism-comparison paper about local sensitivity, not a broad dominance or
-hardware-transfer claim.
+Policy-local-sensitivity regularization provides an effective mechanism for
+improving policy-output smoothness in humanoid locomotion, but its downstream
+effects depend on how the regularization is enforced. In the present same-task
+evaluation, a fixed soft LCP-style Jacobian/Lipschitz penalty is stronger than
+the evaluated hard SC-PPO constraint on most Isaac metrics and on MuJoCo action
+jitter. The revised action-rate heuristic remains competitive, especially on
+MuJoCo joint acceleration and return, showing that reward shaping can still
+produce favorable closed-loop dynamics. These results motivate mechanism-level
+comparisons of policy sensitivity, soft regularization, and reward shaping,
+while leaving official LCP parity, broader hyperparameter optimization, and
+hardware validation for future work.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
 
 \appendix
 
-\section{Diagnostic Tables}
+\section{Additional Tables}
 
 \begin{table}[htbp]
 \centering
-\caption{Local LCP coefficient diagnostic on seeds 23/29/31.}
+\caption{Local LCP coefficient sensitivity on seeds 23/29/31.}
 \label{tab:lcp-weight}
 \small
 \resizebox{\linewidth}{!}{%
@@ -498,9 +513,9 @@ Weight & Fall & Vel. err & Jnt acc & Jitter & Return & Sens. \\
 
 \begin{table}[htbp]
 \centering
-\caption{OmniSafe PPO-Lag diagnostic. Collapsed policies are not smooth
-locomotion evidence; low smoothness metrics in the selected row come from
-falling policies.}
+\caption{OmniSafe PPO-Lag feasibility check. Task-invalid policies are not
+smooth-locomotion evidence; low smoothness metrics in the selected condition
+come from falling policies.}
 \label{tab:omnisafe}
 \small
 \resizebox{\linewidth}{!}{%
@@ -508,36 +523,31 @@ falling policies.}
 \toprule
 Slice & Fall & Vel. err & Jnt acc & Jitter & Return \\
 \midrule
-Selected diagnostic & 1.000 & 1.468 & 79.309 & 0.008 & 4.386 \\
+Selected feasibility checkpoint & 1.000 & 1.468 & 79.309 & 0.008 & 4.386 \\
 Final checkpoint 400 & 1.000 & 1.109 & 321.328 & 0.741 & 2.714 \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-\section{Evidence Map}
+\section{Supplementary Analysis Summary}
 
-The primary paper-facing evidence consists of the five-seed Isaac comparison,
-the matched five-seed MuJoCo selected replay, the policy perturbation audit,
-the paired bootstrap uncertainty audit, selected-vs-final checkpoint
-robustness, and local LCP coefficient sensitivity. OmniSafe PPO-Lag and local
-CPO-style results are retained as diagnostic or future-work evidence only.
+The supplementary analyses include paired bootstrap uncertainty,
+selected-vs-final checkpoint comparison, local LCP coefficient sensitivity,
+policy perturbation measurements, OmniSafe PPO-Lag feasibility checks, and local
+CPO-style implementation checks. The OmniSafe and CPO-style experiments are not
+included in the primary comparison because they did not produce task-valid
+locomotion under the bounded experiments reported here.
 
-The older workshop-era SC-PPO-centered draft should be treated as historical
-context for the project trajectory. It used a narrower three-seed
-SC-PPO-vs-heuristic frame and did not include the current LCP-style full-paper
-baseline, matched five-seed MuJoCo replay, statistical audit, checkpoint
-robustness audit, policy perturbation audit, or related-work claim-boundary
-map.
+\section{SC-PPO Additional Comparisons}
 
-\section{SC-PPO Family Diagnostics}
-
-The SC-PPO hard-constraint row uses threshold 3.8, quantile aggregation, and
-PID-Lagrangian multiplier updates. These settings should be read as the
-documented formal hard-constraint line rather than as exhaustive component
-optimization. The bounded threshold diagnostic found no shared nearby threshold
-that passed all diagnostic seed gates, and the matched plain-dual diagnostic
-collapsed at the same threshold. These results justify keeping the current
-PID-Lagrangian SC-PPO row for mechanism comparison, but they do not prove global
-threshold optimality or independent necessity of every PID term.
+The SC-PPO hard-constraint condition uses threshold 3.8, quantile aggregation, and
+PID-Lagrangian multiplier updates. These settings define the evaluated
+hard-constraint condition rather than an exhaustively optimized SC-PPO
+configuration. The bounded threshold sweep found no shared nearby threshold that
+passed all task-validity and smoothness gates, and the matched plain-dual
+comparison at the same threshold also failed the task-validity criteria. These
+results support the chosen PID-Lagrangian SC-PPO condition for mechanism
+comparison, but they do not establish global threshold optimality or the
+independent necessity of every PID term.
 
 \end{document}

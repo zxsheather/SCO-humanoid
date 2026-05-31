@@ -139,6 +139,18 @@ def main() -> int:
     parser.add_argument("--rl-device", default=None, help="Override the configured RL device.")
     parser.add_argument("--sim-device", default=None, help="Override the configured sim device.")
     parser.add_argument("--seed", type=int, default=None, help="Override the evaluation seed.")
+    parser.add_argument(
+        "--obs-noise-std",
+        type=float,
+        default=0.0,
+        help="Gaussian noise standard deviation added to policy observations at inference time.",
+    )
+    parser.add_argument(
+        "--obs-noise-seed",
+        type=int,
+        default=20260531,
+        help="Random seed for --obs-noise-std perturbations.",
+    )
     parser.add_argument("--capture-traces", action="store_true", help="Persist compact episode traces for offline analysis.")
     parser.add_argument("--trace-max-episodes", type=int, default=None, help="Override the number of completed episodes to trace.")
     parser.add_argument(
@@ -182,6 +194,7 @@ def main() -> int:
     env_cfg, train_cfg = apply_method_overrides(env_cfg, train_cfg, config)
     env_cfg.env.num_envs = upstream_args.num_envs
     env_cfg.terrain.curriculum = False
+    obs_clip = float(getattr(env_cfg.normalization, "clip_observations", 100.0))
     env, env_cfg = task_registry.make_env(name=config["task"], args=upstream_args, env_cfg=env_cfg)
 
     run_dir = resolve_run_dir(humanoid_gym_root, config, run_name=run_name, load_run=args.load_run)
@@ -203,6 +216,9 @@ def main() -> int:
     actor_critic = ppo_runner.alg.actor_critic
 
     obs = env.get_observations()
+    obs_noise_std = max(float(args.obs_noise_std), 0.0)
+    obs_noise_generator = torch.Generator(device=env.device)
+    obs_noise_generator.manual_seed(int(args.obs_noise_seed))
     target_episodes = args.episodes or eval_cfg["episodes"]
     completed_episodes = 0
     episode_returns = torch.zeros(env.num_envs, device=env.device)
@@ -234,7 +250,21 @@ def main() -> int:
         prev_actions = env.actions.detach().clone()
         prev_dof_vel = env.dof_vel.detach().clone()
         with torch.inference_mode():
-            actions = policy(obs.detach())
+            policy_obs = obs.detach()
+            if obs_noise_std > 0.0:
+                policy_obs = torch.clamp(
+                    policy_obs
+                    + torch.randn(
+                        policy_obs.shape,
+                        generator=obs_noise_generator,
+                        device=policy_obs.device,
+                        dtype=policy_obs.dtype,
+                    )
+                    * obs_noise_std,
+                    -obs_clip,
+                    obs_clip,
+                )
+            actions = policy(policy_obs)
             obs, _, rewards, dones, infos = env.step(actions.detach())
 
         if capture_traces and len(captured_episodes) < int(trace_cfg["max_episodes"]):
@@ -358,6 +388,12 @@ def main() -> int:
         "episode_return_mean": return_mean,
         "episode_return_std": return_std,
         "constraint_metrics": constraint_metrics,
+        "observation_noise": {
+            "std": obs_noise_std,
+            "seed": int(args.obs_noise_seed),
+            "applied_to": "policy_observation_input",
+            "clip_observations": obs_clip,
+        },
         "trace_capture": {
             "enabled": capture_traces,
             "episodes_captured": len(captured_episodes),

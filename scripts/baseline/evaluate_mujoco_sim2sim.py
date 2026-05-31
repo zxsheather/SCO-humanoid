@@ -458,6 +458,8 @@ def run_episode(
     joint_reset_noise: float,
     base_xy_noise: float,
     actuator_proxy_config: dict[str, Any] | None = None,
+    obs_noise_std: float = 0.0,
+    obs_noise_rng: np.random.Generator | None = None,
     capture_trace: bool = False,
     trace_max_steps: int = 1024,
 ):
@@ -539,6 +541,15 @@ def run_episode(
             start = i * cfg.env.num_single_obs
             end = (i + 1) * cfg.env.num_single_obs
             policy_input[0, start:end] = hist_obs[i][0, :]
+        if obs_noise_std > 0.0:
+            if obs_noise_rng is None:
+                raise BaselineError("obs_noise_rng is required when obs_noise_std > 0.")
+            policy_input = np.clip(
+                policy_input
+                + obs_noise_rng.normal(0.0, obs_noise_std, size=policy_input.shape).astype(np.float32),
+                -float(cfg.normalization.clip_observations),
+                float(cfg.normalization.clip_observations),
+            )
 
         with torch.inference_mode():
             action = policy(torch.tensor(policy_input))[0].detach().cpu().numpy()
@@ -654,6 +665,18 @@ def main() -> int:
         help="Uniform base x/y reset noise magnitude in meters.",
     )
     parser.add_argument(
+        "--obs-noise-std",
+        type=float,
+        default=0.0,
+        help="Gaussian noise standard deviation added to stacked policy observations at inference time.",
+    )
+    parser.add_argument(
+        "--obs-noise-seed",
+        type=int,
+        default=20260531,
+        help="Random seed for --obs-noise-std perturbations.",
+    )
+    parser.add_argument(
         "--seed",
         type=int,
         default=12345,
@@ -767,6 +790,8 @@ def main() -> int:
     protocol = resolve_mujoco_protocol(cfg, LEGGED_GYM_ROOT_DIR, terrain_mode=requested_terrain_mode)
     mujoco_model_path = materialize_mujoco_model(protocol)
     rng = np.random.default_rng(int(args.seed))
+    obs_noise_std = max(float(args.obs_noise_std), 0.0)
+    obs_noise_rng = np.random.default_rng(int(args.obs_noise_seed))
     control_dt = float(cfg.control.decimation * cfg.sim.dt)
     actuator_proxy_config = build_actuator_proxy_config(
         mode=args.actuator_proxy_mode,
@@ -807,6 +832,8 @@ def main() -> int:
             joint_reset_noise=float(args.joint_reset_noise),
             base_xy_noise=float(args.base_xy_noise),
             actuator_proxy_config=actuator_proxy_config,
+            obs_noise_std=obs_noise_std,
+            obs_noise_rng=obs_noise_rng,
             capture_trace=ep_capture,
             trace_max_steps=trace_max_steps,
         )
@@ -875,6 +902,10 @@ def main() -> int:
             "fall_height_threshold": float(args.fall_height_threshold),
             "joint_reset_noise": float(args.joint_reset_noise),
             "base_xy_noise": float(args.base_xy_noise),
+            "observation_noise_std": obs_noise_std,
+            "observation_noise_seed": int(args.obs_noise_seed),
+            "observation_noise_applied_to": "stacked_policy_observation_input",
+            "observation_noise_clip_observations": float(cfg.normalization.clip_observations),
             "seed": int(args.seed),
             "episode_steps_mean": statistics.fmean(episode_lengths) if episode_lengths else None,
             "actuator_proxy": actuator_proxy_config,
@@ -931,6 +962,8 @@ def main() -> int:
             "sampling_timestep": control_dt,
             "control_decimation": int(cfg.control.decimation),
             "sim_timestep": float(cfg.sim.dt),
+            "observation_noise_std": obs_noise_std,
+            "observation_noise_seed": int(args.obs_noise_seed),
             "actuator_proxy": actuator_proxy_config,
             "trace_max_episodes": trace_max_episodes,
             "trace_max_steps": trace_max_steps,
