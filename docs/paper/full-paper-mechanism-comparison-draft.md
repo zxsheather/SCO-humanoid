@@ -329,16 +329,17 @@ final checkpoints improve velocity and return slightly but increase fall rate
 and dynamic roughness.
 
 The LCP coefficient diagnostic tests `0.001 / 0.002 / 0.004` on seeds
-`23/29/31`. The middle value, `0.002`, is best on the selected aggregate for
-fall, velocity error, joint acceleration, action jitter, and return. This does
-not prove global hyperparameter optimality, but it does show that the main LCP
-row is not an isolated single-point accident in the immediate neighborhood.
+`11/17/23/29/31`. The middle value, `0.002`, is best on the selected aggregate
+for fall, velocity error, joint acceleration, and action jitter, while return is
+nearly tied with `0.004`. This does not prove global hyperparameter optimality,
+but it does show that the main LCP row is not an isolated single-point accident
+in the immediate neighborhood.
 
 | LCP weight | Fall | Vel. err | Jnt acc | Jitter | Return | Sens. |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `0.001` | `0.017` | `0.569` | `147.380` | `0.267` | `107.706` | `2.241` |
-| `0.002` | `0.000` | `0.477` | `123.903` | `0.226` | `119.697` | `1.861` |
-| `0.004` | `0.000` | `0.539` | `128.041` | `0.237` | `117.982` | `1.712` |
+| `0.001` | `0.040` | `0.579` | `138.860` | `0.262` | `108.189` | `2.284` |
+| `0.002` | `0.000` | `0.490` | `117.331` | `0.212` | `118.420` | `1.890` |
+| `0.004` | `0.000` | `0.538` | `125.291` | `0.228` | `118.708` | `1.678` |
 
 ### 5.5 OmniSafe Migration Diagnostic
 

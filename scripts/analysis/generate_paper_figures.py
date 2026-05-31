@@ -52,7 +52,7 @@ LCP_FORMAL_SUMMARY = (
 )
 LCP_WEIGHT_SUMMARIES = {
     "0.001": "artifacts/analysis/rough_terrain_lcp_weight_sensitivity_diagnostic/w0001/comparison_summary.json",
-    "0.002": "artifacts/analysis/rough_terrain_lcp_soft_jacobian_diagnostic/comparison_summary.json",
+    "0.002": LCP_FORMAL_SUMMARY,
     "0.004": "artifacts/analysis/rough_terrain_lcp_weight_sensitivity_diagnostic/w0004/comparison_summary.json",
 }
 OMNISAFE_DIAGNOSTIC_SUMMARY = (

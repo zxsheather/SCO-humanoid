@@ -95,8 +95,9 @@ The contributions are:
   remains better on aggregate joint acceleration and return.
   \item We report robustness analyses covering paired bootstrap uncertainty,
   selected-vs-final checkpoint dependence, local LCP coefficient sensitivity,
-  controlled policy perturbations, observation-noise robustness without
-  retraining, and a bounded \texttt{hfield\_moderate} second-setting replay.
+  controlled policy perturbations, observation-noise and actuator-bandwidth
+  robustness without retraining, and a bounded \texttt{hfield\_moderate}
+  second-setting replay.
   \item We provide bounded feasibility checks for OmniSafe PPO-Lag and local
   CPO-style updates as context for alternative constrained-RL implementations.
 \end{enumerate}
@@ -236,10 +237,10 @@ The primary comparison consists of the LCP-style soft penalty, SC-PPO 3.8
 PID-Lagrangian, and the revised heuristic. Robustness analyses include paired
 bootstrap uncertainty, selected-vs-final checkpoint dependence, and LCP
 coefficient sensitivity, controlled policy perturbations, and no-retraining
-observation noise. We also include a no-retraining \texttt{hfield\_moderate}
-MuJoCo replay as a bounded second-setting terrain check. Additional analyses
-examine OmniSafe PPO-Lag migration, local CPO-style checks, and alternative
-mechanisms that did not meet the main task-validity criteria.
+observation noise. We also include no-retraining MuJoCo actuator-bandwidth
+stress and \texttt{hfield\_moderate} replay as bounded diagnostic checks.
+Additional analyses examine OmniSafe PPO-Lag migration, local CPO-style checks,
+and alternative mechanisms that did not meet the main task-validity criteria.
 
 \section{Results}
 
@@ -431,6 +432,37 @@ strengthens the policy-output robustness interpretation. It remains an
 input-perturbation stress test rather than hardware validation, and it does not
 override the downstream metric split observed in matched MuJoCo replay.
 
+\subsection{Actuator-Bandwidth Stress Test}
+
+We also replay selected MuJoCo checkpoints with a simulator-side first-order
+action low-pass filter. This is a bounded actuator-path stress test rather than
+a calibrated actuator or latency model. Table~\ref{tab:actuator} reports fall
+rate and raw action-jitter degradation relative to each method's own
+no-low-pass replay. The stronger $\tau=0.10$ setting produces high fall rates
+for all methods, so it is best read as a task-validity boundary rather than a
+method-ranking regime. At $\tau=0.05$, LCP and SC-PPO have matched fall rate,
+the heuristic is slightly less stable, and action-jitter factors are nearly
+tied. This stress test therefore broadens the robustness audit but does not
+replace the cleaner observation-noise sensitivity ordering.
+
+\begin{table}[t]
+\centering
+\caption{No-retraining MuJoCo actuator-bandwidth stress. Raw jitter factors are
+relative to each method's own $\tau=0$ replay.}
+\label{tab:actuator}
+\small
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+Method & $\tau=0.05$ Fall & $\tau=0.05$ Jitter fac. & $\tau=0.10$ Fall & $\tau=0.10$ Jitter fac. \\
+\midrule
+\lcp & $0.260$ & $1.290$ & $0.970$ & $1.888$ \\
+\scppo & $0.260$ & $1.293$ & $0.960$ & $1.167$ \\
+\heur & $0.330$ & $1.276$ & $0.870$ & $1.617$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
 \subsection{Robustness Analyses}
 
 The statistical robustness analysis is descriptive rather than a large-sample
@@ -468,11 +500,14 @@ Method & Isaac Fall & Isaac Jnt acc & Isaac Jitter & MuJoCo Fall & MuJoCo Jnt ac
 \end{tabular}}
 \end{table}
 
-The LCP coefficient analysis tests weights 0.001, 0.002, and 0.004 on seeds
-23/29/31. The middle value, 0.002, is best on the selected aggregate for fall,
-velocity error, joint acceleration, action jitter, and return. This does not
-prove global hyperparameter optimality, but it shows that the main LCP condition
-is robust to small coefficient variations in the tested neighborhood.
+The LCP coefficient analysis tests weights 0.001, 0.002, and 0.004 on the same
+five-seed set. The smallest weight appears under-regularized, with nonzero fall
+rate, higher measured sensitivity, and rougher selected policies. The largest
+weight lowers measured sensitivity further but worsens velocity error, joint
+acceleration, and action jitter relative to 0.002, while return is nearly tied.
+This does not prove global hyperparameter optimality, but it shows that the main
+LCP condition is not an isolated single-point accident within the tested
+neighborhood.
 
 The SC-PPO threshold is a bounded design choice rather than a globally optimized
 constant. A threshold sweep over nearby shared values found seed-dependent
@@ -540,14 +575,15 @@ evidence.
 
 The smoothness-mechanism hyperparameters are bounded local choices, not
 globally optimized constants. The LCP coefficient is supported by a narrow
-0.001/0.002/0.004 neighborhood test, and the SC-PPO threshold is supported only
-as the evaluated hard-constraint setting after a bounded threshold sweep. Broad
-hyperparameter optimality remains outside this study.
+0.001/0.002/0.004 five-seed neighborhood test, and the SC-PPO threshold is
+supported only as the evaluated hard-constraint setting after a bounded
+threshold sweep. Broad hyperparameter optimality remains outside this study.
 
 MuJoCo replay is sim-to-sim evidence only. There is no real-robot validation,
 calibrated actuator model, system identification, or multi-terrain/multi-robot
 study. The actuator low-pass proxy stress test is an additional simulation
-stress test and is not hardware evidence.
+stress test; its high-fall $\tau=0.10$ setting should not be interpreted as a
+hardware-transfer ranking.
 
 The mechanism explanation remains local and partly correlational. The policy
 perturbation analysis gives controlled local policy-output evidence, and the
@@ -591,7 +627,7 @@ hardware validation for future work.
 
 \begin{table}[htbp]
 \centering
-\caption{Local LCP coefficient sensitivity on seeds 23/29/31.}
+\caption{Local LCP coefficient sensitivity on seeds 11/17/23/29/31.}
 \label{tab:lcp-weight}
 \small
 \resizebox{\linewidth}{!}{%
@@ -599,9 +635,9 @@ hardware validation for future work.
 \toprule
 Weight & Fall & Vel. err & Jnt acc & Jitter & Return & Sens. \\
 \midrule
-0.001 & 0.017 & 0.569 & 147.380 & 0.267 & 107.706 & 2.241 \\
-0.002 & 0.000 & 0.477 & 123.903 & 0.226 & 119.697 & 1.861 \\
-0.004 & 0.000 & 0.539 & 128.041 & 0.237 & 117.982 & 1.712 \\
+0.001 & 0.040 & 0.579 & 138.860 & 0.262 & 108.189 & 2.284 \\
+0.002 & 0.000 & 0.490 & 117.331 & 0.212 & 118.420 & 1.890 \\
+0.004 & 0.000 & 0.538 & 125.291 & 0.228 & 118.708 & 1.678 \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -628,10 +664,11 @@ Final checkpoint 400 & 1.000 & 1.109 & 321.328 & 0.741 & 2.714 \\
 
 The supplementary analyses include paired bootstrap uncertainty,
 selected-vs-final checkpoint comparison, local LCP coefficient sensitivity,
-policy perturbation measurements, OmniSafe PPO-Lag feasibility checks, and local
-CPO-style implementation checks. The OmniSafe and CPO-style experiments are not
-included in the primary comparison because they did not produce task-valid
-locomotion under the bounded experiments reported here.
+policy perturbation measurements, actuator-bandwidth stress, OmniSafe PPO-Lag
+feasibility checks, and local CPO-style implementation checks. The actuator
+stress is diagnostic simulation evidence only. The OmniSafe and CPO-style
+experiments are not included in the primary comparison because they did not
+produce task-valid locomotion under the bounded experiments reported here.
 
 \section{SC-PPO Additional Comparisons}
 

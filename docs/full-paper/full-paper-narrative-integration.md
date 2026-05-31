@@ -98,9 +98,9 @@ Claims that remain defensible:
   stronger than SC-PPO on Isaac fall/velocity/return/sensitivity and MuJoCo
   action jitter; joint-acceleration advantages over SC-PPO remain directional
   rather than statistically clean under five seeds.
-- The formal LCP coefficient `0.002` is locally supported by the narrow #73
-  diagnostic: neighboring values `0.001` and `0.004` are both worse on the
-  `23/29/31` selected aggregate.
+- The formal LCP coefficient `0.002` is locally supported by the narrow #96
+  five-seed diagnostic: `0.001` is under-regularized, while `0.004` lowers
+  measured sensitivity but worsens tracking and smoothness relative to `0.002`.
 - LCP is close to final-checkpoint stable under the current five-seed protocol;
   selected-vs-final dependence is mainly a concern for SC-PPO dynamic
   smoothness and heuristic task validity.
@@ -126,7 +126,7 @@ Claims to avoid:
 - Do not say SC-PPO beats SOTA.
 - Do not say LCP is officially reproduced unless official task/code/checkpoint
   parity is established.
-- Do not claim global LCP hyperparameter optimality; #73 only tests the
+- Do not claim global LCP hyperparameter optimality; #96 only tests the
   immediate `0.001 / 0.002 / 0.004` neighborhood.
 - Do not say LCP dominates the revised heuristic across all metrics; matched
   five-seed MuJoCo shows the heuristic is better on joint acceleration and

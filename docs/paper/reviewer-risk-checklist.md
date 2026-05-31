@@ -26,12 +26,12 @@ Each risk is rated by severity and the strength of the current response.
 ### R0b: "Is `lcp_weight=0.002` cherry-picked?"
 **Severity**: MEDIUM
 **Current response**: ADEQUATE
-- Narrow coefficient diagnostic #73 compares `0.001 / 0.002 / 0.004` on seeds
-  `23/29/31` under the same checkpoint-sweep protocol.
+- Narrow coefficient diagnostic #96 compares `0.001 / 0.002 / 0.004` on seeds
+  `11/17/23/29/31` under the same checkpoint-sweep protocol.
 - `0.002` is best in that local grid on fall, velocity error, joint
-  acceleration, action jitter, and return.
-- `0.001` appears under-regularized; `0.004` lowers sensitivity but worsens the
-  aggregate policy through seed29 roughness.
+  acceleration, and action jitter; return is nearly tied with `0.004`.
+- `0.001` appears under-regularized; `0.004` lowers sensitivity but worsens
+  tracking and smoothness relative to `0.002`.
 - **Gap**: This is not a broad hyperparameter sweep and does not prove global
   optimality.
 
