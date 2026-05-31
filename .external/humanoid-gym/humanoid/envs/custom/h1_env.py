@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import torch
-
 from humanoid.envs.custom.humanoid_env import XBotLFreeEnv
+
+import torch
 
 
 class H1FreeEnv(XBotLFreeEnv):
