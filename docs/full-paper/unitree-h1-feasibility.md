@@ -63,6 +63,23 @@ modest budget, but a 30% fall rate is too high for a fair smooth-control method
 comparison. The next H1 step should adjust or extend the baseline task before
 training H1 LCP-style, heuristic, or SC-PPO variants.
 
+Issue #108 tested the simplest stabilization hypothesis: rerun the same H1
+vanilla PPO setup for a longer 400-iteration budget and evaluate later
+checkpoints. This did not pass the method-probe gate:
+
+| Checkpoint | Fall rate | Vel. err | Return | Jnt acc | Jitter | Sens. |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 200 | 0.300 | 1.011 | 62.169 | 18.610 | 0.164 | 9.829 |
+| 300 | 0.350 | 0.995 | 66.513 | 23.093 | 0.195 | 11.460 |
+| 400 | 0.350 | 0.961 | 65.641 | 22.061 | 0.206 | 13.428 |
+
+Longer training improved velocity tracking and return relative to the #102
+checkpoint-200 probe, but it did not improve fall rate and it increased policy
+local sensitivity, action jitter, and joint acceleration. H1 should therefore
+not proceed to LCP-style, heuristic, or SC-PPO method probes under this
+unchanged task/config. The next H1 work should tune the task or baseline
+configuration and re-run this gate before unblocking method comparisons.
+
 ## Design Choices
 
 - Reuse the existing XBot-L humanoid environment logic for the first vertical
