@@ -32,6 +32,7 @@ from _behavior_trace_metrics import (  # noqa: E402
     should_capture_traces,
     trace_capture_config,
 )
+from _isaac_exit import close_summary_writer, run_with_isaac_exit_guard  # noqa: E402
 from _overrides import apply_method_overrides  # noqa: E402
 
 
@@ -437,8 +438,9 @@ def main() -> int:
     if trace_path is not None and trace_path.exists():
         print(f"Wrote {relative_to_repo(trace_path)}")
     print(f"Updated {relative_to_repo(manifest_path)}")
+    close_summary_writer(ppo_runner)
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    run_with_isaac_exit_guard(main)

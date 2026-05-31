@@ -26,6 +26,7 @@ from _common import (  # noqa: E402
     resolve_run_dir,
     write_json,
 )
+from _isaac_exit import close_summary_writer, run_with_isaac_exit_guard  # noqa: E402
 from _overrides import apply_method_overrides  # noqa: E402
 
 
@@ -156,9 +157,10 @@ def main() -> int:
         write_json(output_dir / multiplier_trace_filename, {"trace": lagrange_multiplier_trace})
         manifest["lagrange_multiplier_trace_path"] = relative_to_repo(output_dir / multiplier_trace_filename)
     write_json(output_dir / "manifest.json", manifest)
+    close_summary_writer(ppo_runner)
     print(f"Wrote manifest to {relative_to_repo(output_dir / 'manifest.json')}")
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    run_with_isaac_exit_guard(main)
