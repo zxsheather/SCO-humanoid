@@ -270,3 +270,71 @@ class XBotLCfgPPO(LeggedRobotCfgPPO):
         load_run = -1  # -1 = last run
         checkpoint = -1  # -1 = last saved model
         resume_path = None  # updated from load_run and chkpt
+
+
+class H1Cfg(XBotLCfg):
+    """Unitree H1 feasibility configuration.
+
+    This uses the leg-only H1 asset layout from Unitree's official
+    unitree_rl_gym repository, where torso and arm joints are fixed and the
+    policy controls the ten leg joints.
+    """
+
+    class env(XBotLCfg.env):
+        frame_stack = 15
+        c_frame_stack = 3
+        num_actions = 10
+        num_single_obs = 11 + 3 * num_actions
+        num_observations = int(frame_stack * num_single_obs)
+        single_num_privileged_obs = 25 + 4 * num_actions
+        num_privileged_obs = int(c_frame_stack * single_num_privileged_obs)
+        num_envs = 1024
+
+    class asset(XBotLCfg.asset):
+        file = '{LEGGED_GYM_ROOT_DIR}/resources/robots/h1/urdf/h1.urdf'
+        name = "h1"
+        foot_name = "ankle"
+        knee_name = "knee"
+        terminate_after_contacts_on = ["pelvis"]
+        penalize_contacts_on = ["hip", "knee"]
+
+    class init_state(XBotLCfg.init_state):
+        pos = [0.0, 0.0, 1.0]
+        default_joint_angles = {
+            "left_hip_yaw_joint": 0.0,
+            "left_hip_roll_joint": 0.0,
+            "left_hip_pitch_joint": -0.1,
+            "left_knee_joint": 0.3,
+            "left_ankle_joint": -0.2,
+            "right_hip_yaw_joint": 0.0,
+            "right_hip_roll_joint": 0.0,
+            "right_hip_pitch_joint": -0.1,
+            "right_knee_joint": 0.3,
+            "right_ankle_joint": -0.2,
+        }
+
+    class control(XBotLCfg.control):
+        stiffness = {
+            "hip_yaw": 150.0,
+            "hip_roll": 150.0,
+            "hip_pitch": 150.0,
+            "knee": 200.0,
+            "ankle": 40.0,
+        }
+        damping = {
+            "hip_yaw": 2.0,
+            "hip_roll": 2.0,
+            "hip_pitch": 2.0,
+            "knee": 4.0,
+            "ankle": 2.0,
+        }
+        action_scale = 0.25
+        decimation = 10
+
+    class rewards(XBotLCfg.rewards):
+        base_height_target = 0.98
+
+
+class H1CfgPPO(XBotLCfgPPO):
+    class runner(XBotLCfgPPO.runner):
+        experiment_name = "H1_ppo"
