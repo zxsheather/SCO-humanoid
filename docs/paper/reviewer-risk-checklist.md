@@ -96,18 +96,22 @@ Each risk is rated by severity and the strength of the current response.
 - Random stairs stress test attempted but all methods collapsed
 - Cross-engine (Isaac → MuJoCo) provides a different kind of
   generalization evidence
-- **Gap**: No multi-terrain or multi-robot evidence
+- A bounded no-retraining `hfield_moderate` replay is now available as a
+  second-setting diagnostic, but it is not a broad terrain benchmark.
+- **Gap**: No retrained multi-terrain study and no multi-robot evidence
 
 ### R5: "No real-robot validation"
 **Severity**: MEDIUM
 **Current response**: ADEQUATE
 - Acknowledged as limitation
 - MuJoCo replay provides intermediate sim-to-sim validation
-- Actuator low-pass proxy stress adds bounded non-ideal control-path evidence:
-  SC-PPO has the lowest proxy fall rate and smallest episode-length loss among
-  SC-PPO, revised heuristic, and LayerNorm
-- Jacobian constraint is presented as a sim-to-sim regularization
-  hypothesis; any sim-to-real relevance remains speculative
+- The current full-paper actuator-bandwidth sweep (#97) adds bounded
+  no-retraining control-path stress over LCP, SC-PPO, and the revised
+  heuristic. At `tau=0.05`, LCP and SC-PPO have matched fall rate and nearly
+  tied raw-jitter degradation; at `tau=0.10`, all methods are high-fall enough
+  that the setting is best read as a task-validity boundary.
+- Jacobian/local-sensitivity regularization is presented as a sim-to-sim
+  robustness hypothesis; any sim-to-real relevance remains speculative.
 - **Gap**: No hardware experiments
 
 ## Method Concerns

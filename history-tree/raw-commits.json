@@ -1,9 +1,14 @@
 {
-  "extracted": "2026-05-25T15:26:28.222116",
+  "extracted": "2026-05-31T10:40:26.135108",
   "repository": "/home/zhuoxiang/SCO-humanoid",
-  "scope": "Partial raw extraction from reachable git commits. The rendered history tree is a curated project-wide view and may also summarize issue-tracked or local exploration lines that are not represented one-to-one in this file.",
   "tags": [],
   "mergeCommits": [
+    {
+      "hash": "46ddc143",
+      "date": "2026-05-25",
+      "author": "Xiang Zhuo",
+      "subject": "Complete replacement-mechanism exploration: LayerNorm actor line + cross-engine degradation analysis (#37)"
+    },
     {
       "hash": "e6ceb705",
       "date": "2026-05-22",
@@ -30,6 +35,342 @@
     }
   ],
   "largeCommits": [
+    {
+      "hash": "200a12a2",
+      "date": "2026-05-31",
+      "author": "zxsheather",
+      "subject": "Integrate coefficient and actuator robustness results",
+      "filesChanged": 7,
+      "linesChanged": 233
+    },
+    {
+      "hash": "7ba9fbc9",
+      "date": "2026-05-31",
+      "author": "zxsheather",
+      "subject": "Upgrade full-paper robustness evidence",
+      "filesChanged": 12,
+      "linesChanged": 1070
+    },
+    {
+      "hash": "a8ee29cf",
+      "date": "2026-05-31",
+      "author": "zxsheather",
+      "subject": "Add robustness sweeps and second-setting validation",
+      "filesChanged": 9,
+      "linesChanged": 1978
+    },
+    {
+      "hash": "af076716",
+      "date": "2026-05-30",
+      "author": "zxsheather",
+      "subject": "Refresh README for full-paper state",
+      "filesChanged": 1,
+      "linesChanged": 243
+    },
+    {
+      "hash": "f46d490d",
+      "date": "2026-05-30",
+      "author": "zxsheather",
+      "subject": "Assemble full-paper LaTeX package",
+      "filesChanged": 5,
+      "linesChanged": 592
+    },
+    {
+      "hash": "244f5b9f",
+      "date": "2026-05-30",
+      "author": "zxsheather",
+      "subject": "Add policy perturbation mechanism audit",
+      "filesChanged": 6,
+      "linesChanged": 795
+    },
+    {
+      "hash": "b5552cc6",
+      "date": "2026-05-30",
+      "author": "zxsheather",
+      "subject": "Add CPO-style bounded diagnostic",
+      "filesChanged": 9,
+      "linesChanged": 1010
+    },
+    {
+      "hash": "1e5a9bfd",
+      "date": "2026-05-30",
+      "author": "zxsheather",
+      "subject": "Add CPO one-update smoke",
+      "filesChanged": 5,
+      "linesChanged": 692
+    },
+    {
+      "hash": "959fe919",
+      "date": "2026-05-30",
+      "author": "zxsheather",
+      "subject": "Add CPO autograd HVP smoke",
+      "filesChanged": 5,
+      "linesChanged": 612
+    },
+    {
+      "hash": "241cbb73",
+      "date": "2026-05-29",
+      "author": "zxsheather",
+      "subject": "Draft full-paper mechanism-comparison manuscript",
+      "filesChanged": 3,
+      "linesChanged": 500
+    },
+    {
+      "hash": "0bbf9d35",
+      "date": "2026-05-29",
+      "author": "zxsheather",
+      "subject": "Harden related-work claim boundaries",
+      "filesChanged": 5,
+      "linesChanged": 261
+    },
+    {
+      "hash": "480733df",
+      "date": "2026-05-29",
+      "author": "zxsheather",
+      "subject": "Add MuJoCo mixed-evidence mechanism analysis",
+      "filesChanged": 5,
+      "linesChanged": 739
+    },
+    {
+      "hash": "a51621b6",
+      "date": "2026-05-29",
+      "author": "zxsheather",
+      "subject": "Add selected-vs-final checkpoint audit",
+      "filesChanged": 5,
+      "linesChanged": 568
+    },
+    {
+      "hash": "e8a56b0f",
+      "date": "2026-05-29",
+      "author": "zxsheather",
+      "subject": "Add full-paper statistical robustness audit",
+      "filesChanged": 5,
+      "linesChanged": 761
+    },
+    {
+      "hash": "bac83215",
+      "date": "2026-05-29",
+      "author": "zxsheather",
+      "subject": "Add full-paper mechanism comparison tables",
+      "filesChanged": 4,
+      "linesChanged": 539
+    },
+    {
+      "hash": "40365e02",
+      "date": "2026-05-29",
+      "author": "zxsheather",
+      "subject": "Complete matched MuJoCo anchor comparison",
+      "filesChanged": 6,
+      "linesChanged": 380
+    },
+    {
+      "hash": "37b5b298",
+      "date": "2026-05-29",
+      "author": "zxsheather",
+      "subject": "Integrate LCP baseline into full-paper narrative",
+      "filesChanged": 6,
+      "linesChanged": 451
+    },
+    {
+      "hash": "6e260950",
+      "date": "2026-05-29",
+      "author": "zxsheather",
+      "subject": "Document formal LCP baseline results",
+      "filesChanged": 3,
+      "linesChanged": 344
+    },
+    {
+      "hash": "fc174b49",
+      "date": "2026-05-29",
+      "author": "zxsheather",
+      "subject": "Add LCP-style soft penalty diagnostic",
+      "filesChanged": 8,
+      "linesChanged": 526
+    },
+    {
+      "hash": "9e8b8f27",
+      "date": "2026-05-28",
+      "author": "zxsheather",
+      "subject": "Run OmniSafe PPO-Lag diagnostic",
+      "filesChanged": 7,
+      "linesChanged": 1464
+    },
+    {
+      "hash": "1c0e7a38",
+      "date": "2026-05-28",
+      "author": "zxsheather",
+      "subject": "Add OmniSafe policy evaluation bridge",
+      "filesChanged": 7,
+      "linesChanged": 702
+    },
+    {
+      "hash": "b7967151",
+      "date": "2026-05-28",
+      "author": "zxsheather",
+      "subject": "Add OmniSafe PPO-Lag Jacobian update hook smoke",
+      "filesChanged": 6,
+      "linesChanged": 760
+    },
+    {
+      "hash": "bf520965",
+      "date": "2026-05-28",
+      "author": "zxsheather",
+      "subject": "Repair OmniSafe cost bridge smoke",
+      "filesChanged": 6,
+      "linesChanged": 774
+    },
+    {
+      "hash": "d72c6e54",
+      "date": "2026-05-28",
+      "author": "zxsheather",
+      "subject": "Add OmniSafe PPO-Lag cost bridge (#61)",
+      "filesChanged": 5,
+      "linesChanged": 479
+    },
+    {
+      "hash": "88fcd465",
+      "date": "2026-05-28",
+      "author": "zxsheather",
+      "subject": "Add OmniSafe adapter smoke path",
+      "filesChanged": 5,
+      "linesChanged": 591
+    },
+    {
+      "hash": "c9e5f69f",
+      "date": "2026-05-28",
+      "author": "zxsheather",
+      "subject": "Add SC-PPO threshold sweep diagnostic (#58, Path B)",
+      "filesChanged": 6,
+      "linesChanged": 371
+    },
+    {
+      "hash": "852de04d",
+      "date": "2026-05-26",
+      "author": "zxsheather",
+      "subject": "Draft arXiv workshop manuscript",
+      "filesChanged": 2,
+      "linesChanged": 663
+    },
+    {
+      "hash": "f789c2b0",
+      "date": "2026-05-26",
+      "author": "zxsheather",
+      "subject": "Add MuJoCo actuator proxy stress test",
+      "filesChanged": 12,
+      "linesChanged": 1022
+    },
+    {
+      "hash": "a27212da",
+      "date": "2026-05-26",
+      "author": "zxsheather",
+      "subject": "Run MuJoCo amplification trace comparison",
+      "filesChanged": 9,
+      "linesChanged": 1474
+    },
+    {
+      "hash": "1c2bb0ee",
+      "date": "2026-05-26",
+      "author": "zxsheather",
+      "subject": "Fix MuJoCo trace instrumentation gaps",
+      "filesChanged": 2,
+      "linesChanged": 204
+    },
+    {
+      "hash": "3136bae7",
+      "date": "2026-05-26",
+      "author": "zxsheather",
+      "subject": "Tighten paper package scaffold",
+      "filesChanged": 3,
+      "linesChanged": 223
+    },
+    {
+      "hash": "bae65141",
+      "date": "2026-05-26",
+      "author": "zxsheather",
+      "subject": "Scaffold paper submission package skeleton (#55)",
+      "filesChanged": 3,
+      "linesChanged": 458
+    },
+    {
+      "hash": "ff9c5ec6",
+      "date": "2026-05-26",
+      "author": "zxsheather",
+      "subject": "Complete paper figure generation coverage",
+      "filesChanged": 1,
+      "linesChanged": 547
+    },
+    {
+      "hash": "c6e3a984",
+      "date": "2026-05-26",
+      "author": "zxsheather",
+      "subject": "Fix history tree post-freeze consistency",
+      "filesChanged": 13,
+      "linesChanged": 415
+    },
+    {
+      "hash": "597ec0d0",
+      "date": "2026-05-26",
+      "author": "zxsheather",
+      "subject": "Add reproducible paper figure generation script (#46)",
+      "filesChanged": 1,
+      "linesChanged": 577
+    },
+    {
+      "hash": "243eaf1c",
+      "date": "2026-05-26",
+      "author": "zxsheather",
+      "subject": "Audit paper-package consistency after post-freeze experiments (#45)",
+      "filesChanged": 4,
+      "linesChanged": 208
+    },
+    {
+      "hash": "a7012716",
+      "date": "2026-05-25",
+      "author": "zxsheather",
+      "subject": "Record cross-engine degradation analysis and MuJoCo replay results",
+      "filesChanged": 8,
+      "linesChanged": 444
+    },
+    {
+      "hash": "51d2227d",
+      "date": "2026-05-25",
+      "author": "zxsheather",
+      "subject": "Complete LayerNorm actor reliability challenge: 3/4 levers closed negative, epochs=3 passes Isaac internal challenge",
+      "filesChanged": 8,
+      "linesChanged": 312
+    },
+    {
+      "hash": "eb9c004a",
+      "date": "2026-05-24",
+      "author": "zxsheather",
+      "subject": "Add replacement-mechanism formal probe suite",
+      "filesChanged": 36,
+      "linesChanged": 3210
+    },
+    {
+      "hash": "1c368260",
+      "date": "2026-05-25",
+      "author": "zxsheather",
+      "subject": "Backport history-tree update with LayerNorm actor line results",
+      "filesChanged": 2,
+      "linesChanged": 266
+    },
+    {
+      "hash": "4b3984e5",
+      "date": "2026-05-24",
+      "author": "zxsheather",
+      "subject": "Refine curated project history tree",
+      "filesChanged": 17,
+      "linesChanged": 445
+    },
+    {
+      "hash": "b1df7cfc",
+      "date": "2026-05-24",
+      "author": "zxsheather",
+      "subject": "Add project history tree",
+      "filesChanged": 21,
+      "linesChanged": 1529
+    },
     {
       "hash": "9af3e25d",
       "date": "2026-05-22",
@@ -101,238 +442,14 @@
       "subject": "Add hidden-only SN diagnostic",
       "filesChanged": 10,
       "linesChanged": 265
-    },
-    {
-      "hash": "523c5de1",
-      "date": "2026-05-21",
-      "author": "zxsheather",
-      "subject": "Record SN reduced-budget diagnostics",
-      "filesChanged": 10,
-      "linesChanged": 284
-    },
-    {
-      "hash": "51e01313",
-      "date": "2026-05-21",
-      "author": "zxsheather",
-      "subject": "Add SN replacement diagnostic runner",
-      "filesChanged": 9,
-      "linesChanged": 524
-    },
-    {
-      "hash": "f9c5211d",
-      "date": "2026-05-21",
-      "author": "zxsheather",
-      "subject": "Close PID limited ablation branch",
-      "filesChanged": 11,
-      "linesChanged": 304
-    },
-    {
-      "hash": "f64b4c6f",
-      "date": "2026-05-21",
-      "author": "zxsheather",
-      "subject": "Freeze aligned MuJoCo SC-PPO evidence",
-      "filesChanged": 23,
-      "linesChanged": 1917
-    },
-    {
-      "hash": "f7007dc3",
-      "date": "2026-05-20",
-      "author": "zxsheather",
-      "subject": "Repair baseline formal-compare workflow",
-      "filesChanged": 24,
-      "linesChanged": 3067
-    },
-    {
-      "hash": "dfcdbb56",
-      "date": "2026-05-18",
-      "author": "zxsheather",
-      "subject": "Prototype SN diagnostic path for SC-PPO",
-      "filesChanged": 7,
-      "linesChanged": 637
-    },
-    {
-      "hash": "12a69de9",
-      "date": "2026-05-18",
-      "author": "zxsheather",
-      "subject": "Document next-step SC-PPO direction",
-      "filesChanged": 6,
-      "linesChanged": 340
-    },
-    {
-      "hash": "32e99359",
-      "date": "2026-05-15",
-      "author": "zxsheather",
-      "subject": "Finalize SC-PPO report draft and add report figures",
-      "filesChanged": 19,
-      "linesChanged": 2108
-    },
-    {
-      "hash": "8e25a889",
-      "date": "2026-05-15",
-      "author": "zxsheather",
-      "subject": "Add SC-PPO constraint sampling probes",
-      "filesChanged": 5,
-      "linesChanged": 268
-    },
-    {
-      "hash": "b8b18d89",
-      "date": "2026-05-15",
-      "author": "zxsheather",
-      "subject": "Add MuJoCo terrain repair-stage profile",
-      "filesChanged": 5,
-      "linesChanged": 217
-    },
-    {
-      "hash": "fc1e4e92",
-      "date": "2026-05-15",
-      "author": "zxsheather",
-      "subject": "Repair MuJoCo terrain protocol semantics",
-      "filesChanged": 5,
-      "linesChanged": 233
-    },
-    {
-      "hash": "6ab3a3b3",
-      "date": "2026-05-15",
-      "author": "zxsheather",
-      "subject": "Add MuJoCo sim2sim evaluator and freeze current transfer results",
-      "filesChanged": 4,
-      "linesChanged": 712
-    },
-    {
-      "hash": "2ab8849e",
-      "date": "2026-05-14",
-      "author": "zxsheather",
-      "subject": "Document multi-seed repaired PID mainline results",
-      "filesChanged": 2,
-      "linesChanged": 211
-    },
-    {
-      "hash": "3ce82461",
-      "date": "2026-05-14",
-      "author": "zxsheather",
-      "subject": "Repair PID constraint updates and add replay tooling",
-      "filesChanged": 4,
-      "linesChanged": 331
-    },
-    {
-      "hash": "74bf1176",
-      "date": "2026-05-14",
-      "author": "zxsheather",
-      "subject": "Add SC-PPO constraint diagnostics and dual probe configs",
-      "filesChanged": 14,
-      "linesChanged": 1319
-    },
-    {
-      "hash": "ce04e5eb",
-      "date": "2026-05-14",
-      "author": "zxsheather",
-      "subject": "Integrate SC-PPO constraint training",
-      "filesChanged": 9,
-      "linesChanged": 1112
-    },
-    {
-      "hash": "a3ed146b",
-      "date": "2026-05-14",
-      "author": "zxsheather",
-      "subject": "Add bounded heuristic baseline sweep",
-      "filesChanged": 7,
-      "linesChanged": 592
-    },
-    {
-      "hash": "56bc2747",
-      "date": "2026-05-14",
-      "author": "zxsheather",
-      "subject": "Split vanilla PPO and heuristic baseline configs",
-      "filesChanged": 10,
-      "linesChanged": 359
-    },
-    {
-      "hash": "830fb017",
-      "date": "2026-05-14",
-      "author": "zxsheather",
-      "subject": "Standardize smooth-control evaluation metrics",
-      "filesChanged": 7,
-      "linesChanged": 328
-    },
-    {
-      "hash": "7770016c",
-      "date": "2026-05-14",
-      "author": "zxsheather",
-      "subject": "Add Vanilla PPO baseline scaffold",
-      "filesChanged": 10,
-      "linesChanged": 852
-    },
-    {
-      "hash": "f22eacc4",
-      "date": "2026-05-14",
-      "author": "zxsheather",
-      "subject": "initial commit",
-      "filesChanged": 7,
-      "linesChanged": 760
-    },
-    {
-      "hash": "82d6032a",
-      "date": "2026-05-24",
-      "author": "zxsheather",
-      "subject": "Add replacement-mechanism formal probe suite",
-      "filesChanged": 36,
-      "linesChanged": 3172
-    },
-    {
-      "hash": "d8ccdc3",
-      "date": "2026-05-24",
-      "author": "zxsheather",
-      "subject": "Fix formal wrapper config resolution",
-      "filesChanged": 2,
-      "linesChanged": 15
-    },
-    {
-      "hash": "a7ce0e0",
-      "date": "2026-05-25",
-      "author": "zxsheather",
-      "subject": "Add layernorm reliability probe scaffold",
-      "filesChanged": 3,
-      "linesChanged": 85
-    },
-    {
-      "hash": "478a2f4",
-      "date": "2026-05-25",
-      "author": "zxsheather",
-      "subject": "Add layernorm low-noise reliability probe",
-      "filesChanged": 3,
-      "linesChanged": 84
-    },
-    {
-      "hash": "0732a4c",
-      "date": "2026-05-25",
-      "author": "zxsheather",
-      "subject": "Complete LayerNorm actor reliability challenge: 3/4 levers closed negative, epochs=3 passes Isaac internal challenge",
-      "filesChanged": 8,
-      "linesChanged": 311
-    },
-    {
-      "hash": "158aa6a",
-      "date": "2026-05-25",
-      "author": "zxsheather",
-      "subject": "Fix ScaledLinear TorchScript export and record MuJoCo cross-engine replay",
-      "filesChanged": 2,
-      "linesChanged": 10
-    },
-    {
-      "hash": "b238f2a",
-      "date": "2026-05-25",
-      "author": "zxsheather",
-      "subject": "Add cross-engine smoothness robustness glossary terms",
-      "filesChanged": 1,
-      "linesChanged": 9
     }
   ],
   "revertCommits": [],
   "monthlyCommitCounts": {
-    "2026-05": 58
+    "2026-05": 138
   },
   "contributors": {
-    "zxsheather": 54,
-    "Xiang Zhuo": 4
+    "zxsheather": 133,
+    "Xiang Zhuo": 5
   }
 }

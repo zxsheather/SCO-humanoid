@@ -8,31 +8,41 @@ full-paper mechanism-comparison draft.
 - `full-paper.tex`: root manuscript source.
 - `references.bib`: bibliography used by the manuscript.
 - `full-paper-red-team-notes.md`: reviewer-risk pass over the assembled source.
-- `Makefile`: convenience wrapper around `latexmk`.
+- `Makefile`: source-level convenience wrapper around `latexmk`.
 
 Generated PDFs and auxiliary LaTeX files are intentionally ignored by git. Do
 not commit compiled submission packages, PDFs, or archive bundles.
 
-## Build
+## Canonical Local Build
+
+The current project convention is to build submission artifacts under the
+ignored local workspace, not in `docs/paper`:
 
 ```bash
-cd docs/paper
-make
+make -C .local/paper-submission/full-paper clean all
 ```
 
-Equivalent direct command:
+When the local package is present, this produces both:
+
+- `.local/paper-submission/full-paper/build/full-paper.pdf`
+- `.local/paper-submission/full-paper/build/full-paper_wcbm.pdf`
+
+The `.local/paper-submission/full-paper` package is intentionally not tracked by
+git. It may contain venue/template files such as `wcbm.sty`,
+`wcbmabbrvnat.bst`, copied figures, and local-only WCBM source generated from
+`docs/paper/full-paper.tex`.
+
+## Source-Only Smoke Build
+
+Use the tracked Makefile only when deliberately checking the venue-neutral
+source in place:
 
 ```bash
-cd docs/paper
-latexmk -pdf -interaction=nonstopmode -halt-on-error full-paper.tex
+make -C docs/paper
+make -C docs/paper clean
 ```
 
-## Clean
-
-```bash
-cd docs/paper
-make clean
-```
+Do not commit PDFs or LaTeX auxiliary files from either build path.
 
 ## Manuscript Boundary
 

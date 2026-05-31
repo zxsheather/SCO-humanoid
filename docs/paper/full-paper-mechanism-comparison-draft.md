@@ -416,12 +416,13 @@ beaten.
 The primary evidence uses one robot morphology, one rough-terrain task, five
 training seeds, and selected-checkpoint evaluation. The selected-vs-final audit
 reduces this concern for LCP but does not eliminate checkpoint dependence for
-all methods.
+all methods. The `hfield_moderate` replay is bounded no-retraining
+second-setting evidence, not a broad multi-terrain benchmark.
 
 MuJoCo replay is sim-to-sim evidence only. There is no real-robot validation,
 calibrated actuator model, system identification, or multi-terrain/multi-robot
-study. The actuator low-pass proxy stress test is diagnostic and should not be
-written as hardware evidence.
+study. The actuator-bandwidth stress test is diagnostic and should not be
+written as hardware evidence or as a hardware-transfer ranking.
 
 The mechanism explanation remains aggregate-level and correlational. The
 matched MuJoCo decomposition supports a control-path metric split, but it does

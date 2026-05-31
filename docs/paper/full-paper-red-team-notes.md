@@ -17,9 +17,10 @@ evidence.
 - Added the plain-dual boundary: the matched diagnostic supports keeping
   PID-Lagrangian as the within-family formal row, but does not prove every PID
   term is independently necessary.
-- Strengthened limitations around one robot, one terrain, selected checkpoints,
-  bounded local hyperparameter choices, five-seed descriptive statistics,
-  sim-to-sim scope, and absence of hardware validation.
+- Strengthened limitations around one robot, one primary terrain plus bounded
+  `hfield_moderate` diagnostic, selected checkpoints, bounded local
+  hyperparameter choices, five-seed descriptive statistics, sim-to-sim scope,
+  and absence of hardware validation.
 - Recast the conclusion from "what the paper should not claim" into a direct
   mechanism-level conclusion.
 
@@ -36,8 +37,9 @@ evidence.
   and says no row dominates every metric.
 - R3 / statistics: manuscript describes five seeds as descriptive uncertainty,
   not large-sample significance.
-- R4 / single robot and terrain: manuscript explicitly keeps multi-robot and
-  multi-terrain evidence outside scope.
+- R4 / single robot and terrain: manuscript explicitly treats
+  `hfield_moderate` as bounded second-setting evidence, not a broad
+  multi-terrain or multi-robot study.
 - R5 / no hardware: manuscript keeps MuJoCo as sim-to-sim only.
 - R8 / CPO and OmniSafe: manuscript keeps both as diagnostics/future work and
   avoids claims that external constrained RL fails.
@@ -51,6 +53,7 @@ evidence.
 - The manuscript is still a venue-neutral source; venue-specific formatting and
   page budget may require compression.
 - The paper still lacks official LCP code/checkpoint parity, hardware
-  validation, multi-robot evidence, and broad hyperparameter sweeps.
+  validation, multi-robot evidence, a broad multi-terrain study, and broad
+  hyperparameter sweeps.
 - The next pass should be a human author review of section balance, title, and
   target venue fit.

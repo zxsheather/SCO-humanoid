@@ -1,7 +1,7 @@
 {
   "project": "SCO-humanoid",
-  "generated": "2026-05-26",
-  "description": "A curated project-wide research history: key commits, issue-tracked decisions, merged backports, and major post-freeze exploration lines. It is not a strict git DAG and it is not an exhaustive list of every transient helper branch.",
+  "generated": "2026-05-31",
+  "description": "A curated project-wide research history: key commits, issue-tracked decisions, merged backports, full-paper pivots, and major post-freeze exploration lines. It is not a strict git DAG and it is not an exhaustive list of every transient helper branch.",
   "nodes": [
     {
       "id": "repo-bootstrap",
@@ -502,6 +502,104 @@
       ],
       "parent": "sensitivity-causal-chain",
       "summary": "20-episode trace comparison reveals smoothness as two-dimensional: LayerNorm wins on kinematic smoothness (LDLJ/SPARC), SC-PPO wins on dynamic smoothness (jnt_acc/jitter). The two mechanism families optimize different aspects of motion quality."
+    },
+    {
+      "id": "workshop-arxiv-freeze",
+      "title": "Workshop/arXiv Manuscript Freeze",
+      "date": "2026-05-26",
+      "type": "milestone",
+      "outcome": "success",
+      "tags": [
+        "paper",
+        "workshop",
+        "freeze"
+      ],
+      "parent": "trace-ldlj-sparc-comparison",
+      "summary": "The SC-PPO-centered workshop/arXiv package was assembled and frozen at commit 08fcb99 before the project branched into full-paper mechanism-comparison work."
+    },
+    {
+      "id": "extended-seed-full-paper-pivot",
+      "title": "Extended-Seed Full-Paper Pivot",
+      "date": "2026-05-28",
+      "type": "pivot",
+      "outcome": "mixed",
+      "tags": [
+        "full-paper",
+        "extended-seeds",
+        "sc-ppo"
+      ],
+      "parent": "workshop-arxiv-freeze",
+      "summary": "Five-seed expansion exposed SC-PPO seed sensitivity, failed a mean-aggregation repair, and moved the paper away from an SC-PPO-win narrative toward a broader mechanism comparison."
+    },
+    {
+      "id": "omnisafe-ppolag-diagnostic",
+      "title": "OmniSafe PPO-Lag Diagnostic",
+      "date": "2026-05-28",
+      "type": "experiment",
+      "outcome": "failure",
+      "tags": [
+        "omnisafe",
+        "ppo-lag",
+        "interface-boundary"
+      ],
+      "parent": "extended-seed-full-paper-pivot",
+      "summary": "The OmniSafe adapter, cost bridge, update-hook smoke, and bounded PPO-Lag run showed that a drop-in environment-side PPO-Lag migration is not a faithful task-valid baseline for actor-internal Jacobian costs."
+    },
+    {
+      "id": "lcp-soft-penalty-formal",
+      "title": "LCP-Style Soft Penalty Formal Baseline",
+      "date": "2026-05-29",
+      "type": "experiment",
+      "outcome": "success",
+      "tags": [
+        "lcp-style",
+        "soft-penalty",
+        "five-seed"
+      ],
+      "parent": "extended-seed-full-paper-pivot",
+      "summary": "A fixed-coefficient LCP-style soft Jacobian/Lipschitz penalty passed the five-seed Isaac gate and became the strongest same-task policy-local-sensitivity baseline, while matched MuJoCo replay kept the heuristic trade-off visible."
+    },
+    {
+      "id": "full-paper-evidence-suite",
+      "title": "Full-Paper Evidence Suite",
+      "date": "2026-05-29",
+      "type": "analysis",
+      "outcome": "success",
+      "tags": [
+        "statistics",
+        "mujoco",
+        "claim-boundary"
+      ],
+      "parent": "lcp-soft-penalty-formal",
+      "summary": "The project added matched five-seed MuJoCo replay, bootstrap uncertainty, selected-vs-final robustness, mixed-evidence decomposition, related-work claim boundaries, and manuscript tables for the full-paper mechanism comparison."
+    },
+    {
+      "id": "cpo-style-diagnostic",
+      "title": "Local CPO-Style Diagnostic",
+      "date": "2026-05-30",
+      "type": "experiment",
+      "outcome": "mixed",
+      "tags": [
+        "cpo",
+        "trust-region",
+        "future-work"
+      ],
+      "parent": "full-paper-evidence-suite",
+      "summary": "Autograd/HVP and one-update CPO-style checks passed and the bounded training loop produced finite accepted updates, but evaluated checkpoints collapsed, so CPO remains diagnostic future work rather than a primary baseline."
+    },
+    {
+      "id": "robustness-and-local-build-package",
+      "title": "Robustness Upgrade and Local Build Package",
+      "date": "2026-05-31",
+      "type": "milestone",
+      "outcome": "success",
+      "tags": [
+        "robustness",
+        "actuator-bandwidth",
+        "latex-package"
+      ],
+      "parent": "full-paper-evidence-suite",
+      "summary": "Observation-noise, hfield_moderate, five-seed LCP coefficient, and actuator-bandwidth diagnostics were integrated into the full-paper source; the project now builds local-only full-paper and WCBM PDFs under .local."
     }
   ]
 }

@@ -1,16 +1,24 @@
 # SC-PPO Report-Grade Status
 
-This note records the current report-grade reading for the repo's `受限优化与平滑性增强`
-direction.
+Superseded status: this is a historical workshop/frozen-mainline status note.
+For the current full-paper branch, use
+`docs/full-paper/full-paper-narrative-integration.md`,
+`docs/paper/full-paper.tex`, and `docs/paper/reviewer-risk-checklist.md`.
+The current paper is a mechanism comparison centered on LCP-style soft
+regularization, SC-PPO hard-constraint behavior, and the revised heuristic; it
+is not an "SC-PPO is strongest" report.
+
+This note records the historical report-grade reading for the repo's
+`受限优化与平滑性增强` direction before the full-paper LCP-style pivot.
 
 Use it to answer two questions:
 
-- what the repo can currently defend
-- what limits the final report-grade claim
+- what the repo could defend at that historical checkpoint
+- what limited the then-final report-grade claim
 
 ## Mainline reading
 
-The current formal `SC-PPO` mainline is still:
+The formal `SC-PPO` mainline at that checkpoint was:
 
 - `threshold = 3.8`
 - `PID-Lagrangian`
@@ -25,9 +33,10 @@ Selected-checkpoint aggregate over seeds `11`, `17`, and `23`:
 - `episode_return_mean = 100.2838 +- 2.7150`
 - `fall_rate = 0.1000 +- 0.0000`
 
-What this currently supports:
+What this historical state supported:
 
-- `SC-PPO 3.8` remains the strongest completed rough-terrain method line in the repo
+- at this historical checkpoint, `SC-PPO 3.8` remained the strongest completed
+  rough-terrain method line in the repo
 - the method-side evidence for this line is already at the intended `3-seed + checkpoint-sweep`
   strength
 - after the completed revised-protocol long-budget heuristic run, the repo again has a task-valid
@@ -137,18 +146,19 @@ Interpretation:
   `关节震荡主指标`, and `动作抖动次级指标`
 - `episode_return_mean` is effectively tied and remains only a `总回报补充指标`
 
-So the repo can now defend an Isaac-side `方法优于启发式` reading again. The external-validation
-side is closed only as `混合外部验证结论`, not as a cross-engine `SC-PPO` win.
+At that checkpoint, the repo could defend an Isaac-side `方法优于启发式`
+reading again. The external-validation side was closed only as
+`混合外部验证结论`, not as a cross-engine `SC-PPO` win.
 
 ## External-Validation Reading
 
-The current `MuJoCo isaac_mainline` reading is now aligned against the refreshed revised heuristic
-formal anchor.
+The then-current `MuJoCo isaac_mainline` reading was aligned against the
+refreshed revised heuristic formal anchor.
 
-Current comparable first-pass protocol:
+Comparable first-pass protocol at that checkpoint:
 
 - `terrain_mode = isaac_mainline`
-- current resolved XML = `plane`
+- resolved XML = `plane`
 - `joint_reset_noise = 0.1`
 - `20 episodes`
 - `20 seconds`
@@ -298,25 +308,26 @@ that preserve smoothness across engines.
 - Constraint threshold sensitivity: effective window is [3.6, 3.8)
 - LDLJ/SPARC trace: LayerNorm wins on kinematic smoothness, SC-PPO wins on
   dynamic smoothness — revealing smoothness as two-dimensional
-- Actuator low-pass proxy stress: SC-PPO has the lowest proxy fall rate, lowest
-  velocity error, lowest dynamic smoothness metrics, and smallest episode-length
-  loss among SC-PPO, revised heuristic, and LayerNorm under a 50 ms action
-  low-pass path
+- Historical actuator low-pass proxy stress (#54): under the old SC-PPO /
+  heuristic / LayerNorm slice, SC-PPO was most stable under a 50 ms action
+  low-pass path. The current full-paper actuator evidence is the #97 five-seed
+  LCP / SC-PPO / heuristic sweep, so this #54 result should not be used as the
+  current actuator-ranking claim.
 - SC-PPO epochs=3 repair: mixed result (seed11 improved, seed23 degraded)
 
 Full analysis: [SC-PPO cross-engine degradation](./sc-ppo-cross-engine-degradation.md)
 
 ## What Is Not Supported
 
-The repo still does not support the following claims:
+This historical evidence still did not support the following claims:
 
-- that current smoothness gains fully transfer to `MuJoCo`
+- that smoothness gains fully transfer to `MuJoCo`
 - that `SC-PPO 3.8` beats the revised heuristic anchor on `MuJoCo isaac_mainline`
 - that `MuJoCo terrain` is ready to serve as the main external validation result
 - that the final checkpoint alone is sufficient for long-budget reporting
 - that a broad neighborhood of tighter thresholds is interchangeable with the `3.8` mainline
 - that the `PID有限消融` proves every PID term is independently necessary
-- that the current `SN-only` branch is a task-valid replacement mechanism
+- that the then-current `SN-only` branch is a task-valid replacement mechanism
 - that the first stairs-only random-stairs protocol supports a task-valid method ranking
 - that any non-Jacobian replacement mechanism tested so far (LayerNorm, action/output scaling,
   orthogonal actor) provides cross-engine smoothness robustness comparable to SC-PPO
@@ -335,13 +346,14 @@ The completed local controls and post-freeze exploration reinforce that boundary
 
 ## Recommended citation pattern
 
-When summarizing the current project state, the safest compact wording is:
+When summarizing the historical SC-PPO-centered project state, the safest
+compact wording was:
 
-`在当前粗糙平面主实验中，repaired PID-Lagrangian SC-PPO（threshold = 3.8）仍然是仓库里最强的已完成方法线。冻结 formal-compare 曾经让 Vanilla PPO 与 bounded heuristic action-rate 家族全部塌到 checkpoint 0，而完成的 repaired-budget probe 先把旧 heuristic winner 收缩为 0 / 0 / 200，随后完成的 revised long-budget protocol 又把它修到 350 / 300 / 350。由此，仓库现在重新拥有了可防守的 3-seed heuristic formal anchor；相对于这条 revised heuristic anchor，SC-PPO 3.8 在 Isaac 粗糙平面共享指标上仍然同时更优于速度跟踪误差、跌倒率、关节震荡和动作抖动。但对齐后的 MuJoCo isaac_mainline replay 没有保持这个排序：revised heuristic 在任务稳定性、速度跟踪、episode length 和 joint acceleration 上更强，SC-PPO 3.8 只在 action jitter 上略强。因此当前外部验证应写成 mixed evidence，而不是 SC-PPO 的跨引擎优势。`
+`在当时的粗糙平面主实验中，repaired PID-Lagrangian SC-PPO（threshold = 3.8）是仓库里最强的已完成方法线。冻结 formal-compare 曾经让 Vanilla PPO 与 bounded heuristic action-rate 家族全部塌到 checkpoint 0，而完成的 repaired-budget probe 先把旧 heuristic winner 收缩为 0 / 0 / 200，随后完成的 revised long-budget protocol 又把它修到 350 / 300 / 350。由此，仓库当时重新拥有了可防守的 3-seed heuristic formal anchor；相对于这条 revised heuristic anchor，SC-PPO 3.8 在 Isaac 粗糙平面共享指标上更优于速度跟踪误差、跌倒率、关节震荡和动作抖动。但对齐后的 MuJoCo isaac_mainline replay 没有保持这个排序：revised heuristic 在任务稳定性、速度跟踪、episode length 和 joint acceleration 上更强，SC-PPO 3.8 只在 action jitter 上略强。因此外部验证应写成 mixed evidence，而不是 SC-PPO 的跨引擎优势。`
 
 English-safe wording:
 
-`On the current Isaac rough-terrain task, repaired PID-Lagrangian SC-PPO (threshold = 3.8) remains the strongest completed method line in the repo. The frozen baseline refresh first collapsed Vanilla PPO and the bounded heuristic action-rate family to checkpoint 0, the repaired-budget follow-up then narrowed the old heuristic winner to 0 / 0 / 200, and the completed revised long-budget protocol finally repaired that heuristic row to 350 / 300 / 350. So the repo now again has a defensible 3-seed heuristic formal anchor, and SC-PPO 3.8 remains better than that anchor on velocity tracking, fall rate, joint acceleration, and action jitter under the shared Isaac metric schema. However, the aligned MuJoCo isaac_mainline replay does not preserve that ordering: the revised heuristic anchor is better on task stability, velocity tracking, episode length, and joint acceleration, while SC-PPO 3.8 is only slightly better on action jitter. The external-validation reading should therefore be reported as mixed evidence rather than as a cross-engine SC-PPO advantage.`
+`On the then-current Isaac rough-terrain task, repaired PID-Lagrangian SC-PPO (threshold = 3.8) was the strongest completed method line in the repo. The frozen baseline refresh first collapsed Vanilla PPO and the bounded heuristic action-rate family to checkpoint 0, the repaired-budget follow-up then narrowed the old heuristic winner to 0 / 0 / 200, and the completed revised long-budget protocol finally repaired that heuristic row to 350 / 300 / 350. So the repo again had a defensible 3-seed heuristic formal anchor, and SC-PPO 3.8 was better than that anchor on velocity tracking, fall rate, joint acceleration, and action jitter under the shared Isaac metric schema. However, the aligned MuJoCo isaac_mainline replay did not preserve that ordering: the revised heuristic anchor was better on task stability, velocity tracking, episode length, and joint acceleration, while SC-PPO 3.8 was only slightly better on action jitter. The external-validation reading should therefore be reported as mixed evidence rather than as a cross-engine SC-PPO advantage.`
 
 **Post-freeze paper-direction summary (Chinese)**:
 

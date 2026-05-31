@@ -11,8 +11,8 @@ a shared metric schema, and compares:
 - `LCP-style soft Jacobian/Lipschitz penalty`
 - `SC-PPO 3.8` with a hard policy-local-sensitivity constraint and `PID-Lagrangian` enforcement
 - `PPO + heuristic smoothing` via a revised action-rate reward-shaping anchor
-- bounded diagnostics for `OmniSafe PPO-Lag`, local `CPO-style` updates, and historical alternative
-  smoothness mechanisms
+- bounded diagnostics for observation noise, actuator bandwidth, `hfield_moderate`,
+  `OmniSafe PPO-Lag`, local `CPO-style` updates, and historical alternative smoothness mechanisms
 
 The project is organized as an experiment repo, not as a general-purpose framework. The main goal
 is reproducible evidence, comparative baselines, and report-grade analysis.
@@ -78,7 +78,8 @@ Important boundaries:
 - `OmniSafe PPO-Lag` and local `CPO-style` work are diagnostic/future-work material only; neither
   is promoted to a main baseline.
 - There is no hardware validation, official LCP parity, broad hyperparameter sweep, or
-  multi-robot/multi-terrain evidence.
+  broad multi-robot/multi-terrain study. The `hfield_moderate` row is a bounded
+  no-retraining second-setting diagnostic, not a full terrain benchmark.
 
 The buildable full-paper source is [docs/paper/full-paper.tex](docs/paper/full-paper.tex).
 
@@ -97,16 +98,18 @@ If you only need the current full-paper answer, read:
 5. [docs/paper/reviewer-risk-checklist.md](docs/paper/reviewer-risk-checklist.md)
 6. [docs/full-paper/related-work-claim-boundary-map.md](docs/full-paper/related-work-claim-boundary-map.md)
 
-Build the venue-neutral manuscript source:
+Build the local submission package from the ignored `.local` workspace:
 
 ```bash
-cd docs/paper
-make
-make clean
+make -C .local/paper-submission/full-paper clean all
 ```
 
-Generated PDFs and LaTeX auxiliary files are intentionally ignored by git.
-Do not commit compiled submission packages.
+This produces both `full-paper.pdf` and `full-paper_wcbm.pdf` under
+`.local/paper-submission/full-paper/build/` when the local template files are
+present. The tracked `docs/paper/Makefile` remains a source-level convenience
+check, but routine submission builds should stay under `.local`.
+Generated PDFs and LaTeX auxiliary files are intentionally ignored by git. Do
+not commit compiled submission packages.
 
 ## Quick start
 
@@ -135,9 +138,7 @@ Start from:
 To build:
 
 ```bash
-cd docs/paper
-make
-make clean
+make -C .local/paper-submission/full-paper clean all
 ```
 
 ### 4. Historical experiment entrypoint
@@ -342,6 +343,8 @@ The repo completed `科研交付冻结 / 仓库内科研交付包` and then expa
 - five-seed Isaac and matched five-seed MuJoCo comparisons for LCP-style, SC-PPO, and heuristic
   rows;
 - paired bootstrap and selected-vs-final robustness audits;
+- local LCP coefficient sensitivity, observation-noise, actuator-bandwidth, and
+  `hfield_moderate` bounded robustness diagnostics;
 - a policy perturbation audit that supports the local policy-output mechanism;
 - bounded OmniSafe PPO-Lag and local CPO-style diagnostics kept out of the main baseline table;
 - a reviewer-risk pass recording the claim boundaries and remaining gaps.
@@ -356,7 +359,8 @@ The paper should be read as a mechanism comparison:
 - diagnostic: SC-PPO exposes the hard-constraint/PID-Lagrangian enforcement trade-off;
 - diagnostic: OmniSafe/CPO paths clarify interface and future-work boundaries;
 - limitation: no official LCP parity, hardware validation, broad hyperparameter search,
-  multi-robot evidence, or multi-terrain evidence.
+  multi-robot evidence, or broad multi-terrain evidence beyond the bounded
+  `hfield_moderate` diagnostic.
 
 `main` operates as a `冻结主档案分支`; `full-paper/extended-seeds` is the current full-paper work
 branch.

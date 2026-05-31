@@ -51,6 +51,7 @@ svg { display: block; }
 .type-experiment { fill: #9e6a03; stroke: #d29922; }
 .type-decision { fill: #1f6feb; stroke: #39d2c0; }
 .type-milestone { fill: #238636; stroke: #3fb950; }
+.type-analysis { fill: #6e40c9; stroke: #d2a8ff; }
 
 /* Tooltip */
 .tooltip { position: fixed; background: #1c2128; border: 1px solid #30363d; border-radius: 8px; padding: 10px 14px; font-size: 12px; max-width: 260px; pointer-events: none; z-index: 100; opacity: 0; transition: opacity 0.15s; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
@@ -126,12 +127,14 @@ const MIN_SIBLING_GAP = 140;
 
 const TYPE_COLORS = {
   release: '#58a6ff', pivot: '#bc8cff', incident: '#f85149',
-  experiment: '#d29922', decision: '#39d2c0', milestone: '#3fb950'
+  experiment: '#d29922', decision: '#39d2c0', milestone: '#3fb950',
+  analysis: '#d2a8ff'
 };
 
 const TYPE_FILLS = {
   release: '#1f6feb', pivot: '#6e40c9', incident: '#da3633',
-  experiment: '#9e6a03', decision: '#1f6feb', milestone: '#238636'
+  experiment: '#9e6a03', decision: '#1f6feb', milestone: '#238636',
+  analysis: '#6e40c9'
 };
 
 const OUTCOME_ICONS = { success: '✓', failure: '✗', mixed: '~' };
@@ -151,7 +154,7 @@ async function init() {
 }
 
 function getTypeLabel(t) {
-  const map = { release: 'Rel', pivot: 'Pvt', incident: 'Inc', experiment: 'Exp', decision: 'Dec', milestone: 'Mil' };
+  const map = { release: 'Rel', pivot: 'Pvt', incident: 'Inc', experiment: 'Exp', decision: 'Dec', milestone: 'Mil', analysis: 'Ana' };
   return map[t] || t;
 }
 

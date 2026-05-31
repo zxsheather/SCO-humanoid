@@ -12,7 +12,7 @@ For longer-budget runs where `最后一个 checkpoint` may not be the best stopp
 python scripts/baseline/evaluate_checkpoint_sweep.py --config <config-path> --run-name <artifact-run-name> --load-run <upstream-run-dir>
 ```
 
-For the current `MuJoCo关键两组终验`, use:
+For the current full-paper `MuJoCo` selected-checkpoint replay, use:
 
 ```bash
 python scripts/baseline/evaluate_mujoco_sim2sim.py --config <config-path> --run-name <artifact-run-name> --load-run <upstream-run-dir> --checkpoint <N> --terrain-mode <isaac_mainline|plane|hfield_moderate|hfield_stress>
@@ -34,13 +34,28 @@ The `MuJoCo` evaluator writes:
 Long-budget reporting rule:
 
 - cite `checkpoint_sweep_summary.json` and `metrics_selected.json` as the canonical long-budget result
-- do not treat the final checkpoint alone as sufficient evidence for the current `SC-PPO` branch
+- do not treat the final checkpoint alone as sufficient evidence for long-budget
+  LCP-style, SC-PPO, or heuristic rows
 
-Current mainline note:
+Current full-paper primary rows:
 
-- the current leading `SC-PPO` branch is
+- LCP-style soft penalty:
+  `configs/methods/lcp_soft_jacobian_penalty_diagnostic.json`
+- `SC-PPO 3.8 PID`:
+  `configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_extended_seeds.json`
+- revised heuristic:
+  `configs/methods/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget.json`
+- current selected checkpoints over seeds `11/17/23/29/31` are:
+  - LCP-style: `300/400/400/400/400`
+  - `SC-PPO 3.8 PID`: `300/300/400/400/400`
+  - revised heuristic: `350/300/350/400/400`
+
+Historical SC-PPO mainline note:
+
+- the earlier leading `SC-PPO` branch was
   `configs/methods/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp.json`
-- its current best evidence is a completed `3-seed, 400 iteration, checkpoint-sweep` batch
+- its best workshop-era evidence was a completed `3-seed, 400 iteration,
+  checkpoint-sweep` batch
 - selected checkpoints are `300`, `300`, and `400` for seeds `11`, `17`, and `23`
 - selected-checkpoint aggregate metrics are:
   - `velocity_tracking_error_mean = 0.6412 ± 0.0554`
@@ -48,8 +63,9 @@ Current mainline note:
   - `action_jitter_l2_mean = 0.2205 ± 0.0017`
   - `episode_return_mean = 100.2838 ± 2.7150`
 - `fall_rate = 0.1000 ± 0.0000`
-- this currently beats the repo's heuristic anchor under the shared metric schema, but it still
-  depends on `selected checkpoint` reporting rather than the final checkpoint alone
+- this historical slice beat the then-current heuristic anchor under the shared
+  metric schema, but the full-paper five-seed branch supersedes this as the
+  current project-level claim.
 
 Nearest-neighbor control note:
 
@@ -64,7 +80,7 @@ Nearest-neighbor control note:
 - one `4.0` seed selects `checkpoint 0`, so this branch should be treated as a completed control
   rather than a second mainline candidate
 
-Current method configs:
+Base method configs:
 
 - `configs/methods/vanilla_ppo.json`
 - `configs/methods/heuristic_smoothing.json`
@@ -76,11 +92,12 @@ Legacy note:
 
 ## Current MuJoCo protocol status
 
-The current repo should distinguish between three `MuJoCo` uses:
+The current repo should distinguish between four `MuJoCo` uses:
 
 1. `isaac_mainline` aligned replay
-2. `terrain stress probe`
-3. `terrain repair-stage intermediate probe`
+2. `hfield_moderate` bounded second-setting replay
+3. `hfield_stress` terrain stress probe
+4. actuator-bandwidth stress with simulator-side action low-pass filtering
 
 Current preferred aligned replay protocol:
 
@@ -95,6 +112,8 @@ Current preferred aligned replay protocol:
 
 Current formal comparable artifacts:
 
+- LCP-style soft penalty:
+  `artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/*/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
 - revised long-budget heuristic anchor:
   `artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/*/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json`
 - `SC-PPO threshold = 3.8` anchor:
@@ -128,58 +147,55 @@ Protocol repair note:
 
 - the old bare `--terrain` flag is now treated as a deprecated alias for `--terrain-mode=hfield_stress`
 - this prevents `MuJoCo terrain` from being confused with the current Isaac-mainline replay
-- `hfield_moderate` is explicitly not a report-grade comparable replay; it is a repair-stage
-  intermediate probe
+- `hfield_moderate` was introduced as a repair-stage intermediate probe. The
+  current full-paper uses the completed five-seed run only as bounded
+  no-retraining second-setting evidence, not as a broad terrain benchmark.
 
 Current result status:
 
-- report-grade `MuJoCo isaac_mainline` aligned replay now uses the revised long-budget heuristic
-  anchor and `SC-PPO 3.8` over seeds `11`, `17`, and `23`
-- revised heuristic aligned replay:
-  - `velocity_tracking_error_mean = 0.4188 ± 0.0398`
-  - `joint_acceleration_l2_mean = 120.7339 ± 2.6413`
-  - `action_jitter_l2_mean = 0.2452 ± 0.0288`
-  - `fall_rate = 0.0000 ± 0.0000`
-  - `episode_steps_mean = 2000.0 ± 0.0`
-- `SC-PPO 3.8` aligned replay:
-  - `velocity_tracking_error_mean = 0.4910 ± 0.0944`
-  - `joint_acceleration_l2_mean = 125.5411 ± 21.1683`
-  - `action_jitter_l2_mean = 0.2313 ± 0.0351`
-  - `fall_rate = 0.0167 ± 0.0236`
-  - `episode_steps_mean = 1984.7833 ± 21.5196`
-- the aligned replay is mixed evidence: the revised heuristic is better on task stability, velocity
-  tracking, episode length, and joint acceleration, while `SC-PPO 3.8` is only slightly better on
-  action jitter
-- separate terrain repair-stage checks remain non-report-grade; both methods currently fail the
-  short `MuJoCo terrain` probe, and `SC-PPO` does not recover the terrain result through the current
-  `200/300/400` checkpoint neighborhood
-- on the current `hfield_moderate` `20 episodes x 20 seconds` mid-budget check, `SC-PPO` remains
-  materially more survivable than the terrain-repair heuristic comparator:
-  - heuristic: `fall_rate = 1.0`, `episode_steps_mean = 236.35`
-  - `SC-PPO`: `fall_rate = 0.4`, `episode_steps_mean = 1259.0`
-- `velocity_tracking_error_mean` also remains slightly better for `SC-PPO`
-  (`1.0210` vs `1.0975`)
-- under the current `SC-PPO seed11` checkpoint sweep on this same protocol, `checkpoint 400`
-  currently improves over `checkpoint 300`:
-  - `ckpt200 -> fall_rate = 0.70`, `episode_steps_mean = 902.7`
-  - `ckpt300 -> fall_rate = 0.40`, `episode_steps_mean = 1259.0`
-  - `ckpt400 -> fall_rate = 0.35`, `episode_steps_mean = 1331.7`
-- the current repaired-terrain line now also has a completed `3-seed` MuJoCo batch:
-  - `seed11 -> checkpoint 400`
-  - `seed17 -> checkpoint 400`
-  - `seed23 -> checkpoint 300`
-- over those repaired-terrain-selected checkpoints, `SC-PPO` aggregates to:
-  - `velocity_tracking_error_mean = 0.9622 ± 0.0543`
-  - `joint_acceleration_l2_mean = 352.6293 ± 6.5909`
-  - `action_jitter_l2_mean = 0.3336 ± 0.0236`
-  - `fall_rate = 0.3500 ± 0.0408`
-  - `episode_steps_mean = 1346.03 ± 89.37`
-- so the repaired-terrain survival advantage is no longer a `seed11` fluke, but this line still
-  has checkpoint dependence and still does not beat the terrain-repair heuristic comparator on
-  smoothness
-- however, `joint_acceleration_l2_mean` and `action_jitter_l2_mean` still favor the
-  terrain-repair heuristic comparator, so this remains a repair-stage signal rather than a solved
-  terrain protocol
+- report-grade `MuJoCo isaac_mainline` aligned replay now uses matched seeds
+  `11/17/23/29/31` for LCP-style soft penalty, SC-PPO 3.8 PID, and the revised
+  heuristic.
+- matched five-seed `isaac_mainline` aggregate:
+  - LCP-style soft penalty: `fall_rate = 0.000`,
+    `velocity_tracking_error_mean = 0.406`,
+    `joint_acceleration_l2_mean = 117.425`,
+    `action_jitter_l2_mean = 0.195`,
+    `episode_return_mean = -599.108`
+  - `SC-PPO 3.8 PID`: `fall_rate = 0.010`,
+    `velocity_tracking_error_mean = 0.471`,
+    `joint_acceleration_l2_mean = 159.718`,
+    `action_jitter_l2_mean = 0.322`,
+    `episode_return_mean = -627.238`
+  - revised heuristic: `fall_rate = 0.000`,
+    `velocity_tracking_error_mean = 0.406`,
+    `joint_acceleration_l2_mean = 111.615`,
+    `action_jitter_l2_mean = 0.226`,
+    `episode_return_mean = -456.370`
+- the current aligned replay is mixed but interpretable: LCP is cleanest on
+  action jitter and stronger than SC-PPO on dynamic smoothness, while the
+  revised heuristic remains best on aggregate joint acceleration and return.
+- `hfield_moderate` is no longer merely a seed11 repair note; it has a completed
+  five-seed bounded second-setting replay over the same three primary methods:
+  - LCP-style soft penalty: `fall_rate = 0.350`,
+    `velocity_tracking_error_mean = 0.832`,
+    `joint_acceleration_l2_mean = 321.113`,
+    `action_jitter_l2_mean = 0.277`,
+    `episode_return_mean = -566.367`
+  - `SC-PPO 3.8 PID`: `fall_rate = 0.500`,
+    `velocity_tracking_error_mean = 0.981`,
+    `joint_acceleration_l2_mean = 386.647`,
+    `action_jitter_l2_mean = 0.380`,
+    `episode_return_mean = -513.230`
+  - revised heuristic: `fall_rate = 0.400`,
+    `velocity_tracking_error_mean = 1.003`,
+    `joint_acceleration_l2_mean = 322.360`,
+    `action_jitter_l2_mean = 0.358`,
+    `episode_return_mean = -666.633`
+- `hfield_moderate` should still be described as bounded no-retraining
+  second-setting evidence, not a solved terrain protocol or broad
+  multi-terrain benchmark, because all fall rates remain materially higher
+  than in the primary matched replay.
 
 ## Common metric schema
 

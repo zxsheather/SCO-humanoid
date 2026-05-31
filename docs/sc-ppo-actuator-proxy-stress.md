@@ -4,6 +4,13 @@ This note records issue #54: a bounded simulator-side actuator-bandwidth proxy
 stress test for the current paper package. It is a sim-to-real-motivated
 diagnostic only. It is not real-hardware validation.
 
+Current full-paper status: this is a historical three-row proxy test. The
+paper-facing actuator evidence is now the five-seed #97 actuator-bandwidth
+sweep over LCP-style soft penalty, SC-PPO 3.8 PID, and the revised heuristic:
+`artifacts/analysis/actuator_latency_robustness/summary.md`. Do not use this
+#54 note to claim that SC-PPO is the strongest actuator-robust row in the
+current full-paper comparison.
+
 ## Protocol
 
 The test reuses selected checkpoints and does not retrain any method. It adds a
