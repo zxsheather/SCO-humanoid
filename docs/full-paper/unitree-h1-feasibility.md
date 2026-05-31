@@ -33,6 +33,36 @@ The smoke config is intentionally short and should not be used as claim-grade
 training evidence. It only verifies task registration, observation/action
 dimensions, rollout compatibility, and metric-pipeline portability.
 
+## Baseline Validity Sweep
+
+Issue #102 trained one H1 vanilla PPO run beyond smoke length to test whether
+the task can reach non-collapsed locomotion before running any H1 method
+comparison.
+
+- Training run:
+  `h1_baseline_validity_seed5_iter200_env512`
+- Budget: 512 environments, 200 PPO iterations, seed 5, Isaac Gym GPU pipeline.
+- Run directory:
+  `.external/humanoid-gym/logs/ecolab_h1_ppo_smoke/May31_13-17-15_h1_baseline_validity_seed5_iter200_env512`
+- Manifest:
+  `artifacts/methods/h1_vanilla_ppo_smoke/h1_baseline_validity_seed5_iter200_env512/manifest.json`
+
+Training did not crash and improved from early short episodes to mean episode
+lengths around 1300 steps near iteration 200. Two checkpoints were evaluated
+with the standard metric schema, 16 evaluation environments, and 20 completed
+episodes per checkpoint:
+
+| Checkpoint | Fall rate | Vel. err | Return | Jnt acc | Jitter | Sens. |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 100 | 1.000 | 1.291 | 8.068 | 61.570 | 0.152 | 4.441 |
+| 200 | 0.300 | 1.029 | 61.047 | 19.565 | 0.164 | 9.787 |
+
+The result is a positive viability signal but not claim-grade H1 evidence.
+Checkpoint 200 shows the task can produce non-collapsed locomotion under a
+modest budget, but a 30% fall rate is too high for a fair smooth-control method
+comparison. The next H1 step should adjust or extend the baseline task before
+training H1 LCP-style, heuristic, or SC-PPO variants.
+
 ## Design Choices
 
 - Reuse the existing XBot-L humanoid environment logic for the first vertical
@@ -42,7 +72,7 @@ dimensions, rollout compatibility, and metric-pipeline portability.
 - Keep algorithm classes unchanged; any H1-specific tuning should remain in
   config overrides.
 
-If the smoke slice works, the next step is a small H1 comparison with the same
-method families used in the main paper. If more robots are added after H1, the
-duplicated humanoid logic should then be extracted into a shared `HumanoidEnv`
-base class.
+After the #102 baseline validity sweep, H1 should remain gated on baseline
+stabilization before any method comparison. If more robots are added after H1,
+the duplicated humanoid logic should then be extracted into a shared
+`HumanoidEnv` base class.
