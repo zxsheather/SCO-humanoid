@@ -1,0 +1,65 @@
+{
+  "name": "h1_vanilla_ppo_stabilized",
+  "method": {
+    "id": "vanilla_ppo_h1_stabilized",
+    "label": "Vanilla PPO H1 stabilized task",
+    "family": "vanilla",
+    "smoothness_strategy": "none"
+  },
+  "task": "h1_ppo",
+  "experiment_name": "ecolab_h1_ppo_stabilized",
+  "run_name": "h1_vanilla_ppo_stabilized",
+  "artifacts_root": "artifacts/methods/h1_vanilla_ppo_stabilized",
+  "evaluation_protocol": "h1_task_config_tuning",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "training": {
+    "headless": true,
+    "num_envs": 512,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0"
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 16,
+    "episodes": 20,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 100100,
+    "metric_schema_version": 2,
+    "constraint_logging": {
+      "collect_local_sensitivity": true,
+      "local_sensitivity_threshold": null,
+      "sample_envs": 4,
+      "sample_every_n_steps": 20,
+      "sidecar_metrics_filename": "constraint_metrics.json",
+      "multiplier_trace_filename": "lagrange_multiplier_trace.json"
+    }
+  },
+  "tuning_rationale": {
+    "issue": "#109",
+    "baseline_failure": "#108 kept fall_rate at 0.300-0.350 after 400 iterations.",
+    "changes": [
+      "Disable heading_command so yaw commands use H1Cfg.commands.ranges.ang_vel_yaw=[-0.3, 0.3] instead of the inherited heading controller clipping to [-1, 1].",
+      "Disable inherited XBot-L domain randomization and action-delay/noise disturbances for the first H1 task-validity gate."
+    ],
+    "claim_boundary": "Task/config stabilization only; not a smooth-control method."
+  },
+  "overrides": {
+    "env": {
+      "commands.heading_command": false,
+      "domain_rand.randomize_friction": false,
+      "domain_rand.randomize_base_mass": false,
+      "domain_rand.push_robots": false,
+      "domain_rand.action_delay": 0.0,
+      "domain_rand.action_noise": 0.0
+    },
+    "train": {
+      "runner.max_iterations": 300,
+      "runner.save_interval": 50
+    }
+  }
+}
