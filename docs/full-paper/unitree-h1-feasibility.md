@@ -319,6 +319,80 @@ still had `fall_rate=0.100`, `joint acc=371.901`, and `jitter=2.434`. On this
 bounded H1 evidence slice, reward-shaping transfers cleanly to H1 whereas the
 fixed soft Jacobian penalty does not.
 
+Issue #105 then ran the bounded H1 SC-PPO hard-constraint probe on the same
+repaired #110 H1 task floor. This kept the #110 task/control overrides and
+disabled the inherited smoothness reward terms so the policy-local-sensitivity
+constraint was the only added smoothness mechanism. The hard-constraint settings
+reused the mainline SC-PPO PID-Lagrangian recipe:
+
+- `threshold=3.8`
+- `cost_aggregation=quantile`
+- `cost_quantile=0.9`
+- `lambda_init=0.5`
+- `pid_integral_mode=lower_bound_clamp`
+
+The config is:
+
+- `configs/methods/h1_sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_probe.json`
+
+Training run:
+
+- run name:
+  `h1_sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_seed5_iter300_env512`
+- budget: 512 environments, 300 PPO iterations, seed 5
+- run directory:
+  `.external/humanoid-gym/logs/ecolab_h1_sc_ppo_pid_probe/Jun04_09-55-15_h1_sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_seed5_iter300_env512`
+- manifest:
+  `artifacts/methods/h1_sc_ppo_pid_probe/h1_sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_seed5_iter300_env512/manifest.json`
+
+Training-side multiplier behavior was not a pure collapse, but it was not
+stable either. The multiplier dropped to zero almost immediately, reactivated
+around iteration 60 when the batch quantile cost moved near the threshold, and
+then toggled between zero and small positive values for the rest of training.
+Over iterations `60..299`, the multiplier was nonzero in `126/240` updates,
+the cost update exceeded threshold in `81/240` updates, and the zero/nonzero
+state flipped `43` times. The post-60 multiplier peak was only `0.079`, and
+the training finished with `lagrange_multiplier=0.0` and
+`policy_local_sensitivity_cost_update=3.689`, just below the `3.8` threshold.
+
+Checkpoint sweep evaluation used the shared metric schema, 16 evaluation
+environments, and 20 completed episodes per checkpoint:
+
+| Checkpoint | Fall rate | Vel. err | Return | Jnt acc | Jitter | Sens. |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0   | 1.000 | 1.336 | 4.853  | 55.715 | 0.019 | 0.224 |
+| 50  | 1.000 | 1.113 | 5.670  | 54.178 | 0.163 | 2.214 |
+| 100 | 1.000 | 0.789 | 9.294  | 40.929 | 0.207 | 3.302 |
+| 150 | 1.000 | 0.904 | 8.849  | 39.893 | 0.233 | 2.748 |
+| 200 | 1.000 | 0.950 | 12.406 | 218.050 | 1.102 | 3.295 |
+| 250 | 0.200 | 0.574 | 76.658 | 241.324 | 1.776 | 3.768 |
+| 300 | 0.250 | 0.658 | 74.565 | 269.101 | 2.115 | 3.615 |
+
+The task-floor selector chose checkpoint 250, and it was the only eligible row
+inside the repaired H1 task-validity band. The selected metrics snapshot is:
+
+- `artifacts/methods/h1_sc_ppo_pid_probe/h1_sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_seed5_iter300_env512/metrics_selected.json`
+
+Relative to the repaired #110 H1 vanilla baseline, the selected H1 SC-PPO
+checkpoint is substantially worse on every task-facing metric:
+`fall_rate 0.000 -> 0.200`, `vel. err 0.380 -> 0.574`,
+`return 116.250 -> 76.658`, `joint acc 18.881 -> 241.324`, and
+`jitter 0.338 -> 1.776`. Relative to the #104 H1 revised heuristic, it is also
+substantially worse on fall, return, joint acceleration, and jitter. Relative
+to the #103 H1 LCP-style probe, H1 SC-PPO is a mixed middle case: it is better
+than H1 LCP on joint acceleration and action jitter
+(`241.324 < 371.901`, `1.776 < 2.434`) and slightly lower on measured
+sensitivity (`3.768 < 3.958`), but it is worse on fall, tracking, and return
+(`0.200 > 0.100`, `0.574 > 0.488`, `76.658 < 95.919`).
+
+This is therefore completed negative H1 evidence for the hard-constraint path.
+On H1, the current SC-PPO probe becomes only partially task-valid late in
+training, shows checkpoint sensitivity between `250` and `300`, and exhibits
+small-amplitude multiplier reactivation near the threshold rather than clean,
+stable constraint control. The bounded result is useful as a mechanism
+contrast, but it is not stable enough to justify broader H1 hard-constraint
+experiments without additional retuning.
+
 ## Design Choices
 
 - Reuse the existing XBot-L humanoid environment logic for the first vertical

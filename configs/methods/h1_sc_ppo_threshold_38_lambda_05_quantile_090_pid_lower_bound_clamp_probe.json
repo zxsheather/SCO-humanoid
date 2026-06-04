@@ -1,0 +1,91 @@
+{
+  "name": "h1_sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_probe",
+  "method": {
+    "id": "h1_sc_ppo",
+    "label": "H1 SC-PPO PID probe (threshold=3.8, lambda_init=0.5, quantile=0.90, lower-bound clamp)",
+    "family": "constraint_method",
+    "smoothness_strategy": "policy_local_sensitivity_constraint"
+  },
+  "task": "h1_ppo",
+  "experiment_name": "ecolab_h1_sc_ppo_pid_probe",
+  "run_name": "h1_sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_probe",
+  "artifacts_root": "artifacts/methods/h1_sc_ppo_pid_probe",
+  "evaluation_protocol": "h1_task_config_tuning",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "training": {
+    "headless": true,
+    "num_envs": 512,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0"
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 16,
+    "episodes": 20,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 100100,
+    "metric_schema_version": 2,
+    "constraint_logging": {
+      "collect_local_sensitivity": true,
+      "local_sensitivity_threshold": 3.8,
+      "sample_envs": 4,
+      "sample_every_n_steps": 20,
+      "sidecar_metrics_filename": "constraint_metrics.json",
+      "multiplier_trace_filename": "lagrange_multiplier_trace.json"
+    }
+  },
+  "tuning_rationale": {
+    "issue": "#105",
+    "baseline_reference": "#110 repaired the H1 vanilla baseline gate and selected checkpoint 250 with fall_rate=0.000.",
+    "changes": [
+      "Keep the repaired H1 task/control overrides from #110 so the hard-constraint probe stays on the stabilized H1 task floor.",
+      "Disable the inherited action_smoothness, dof_acc, base_acc, and dof_vel reward terms so the SC-PPO Jacobian constraint is the only added smoothness mechanism.",
+      "Reuse the mainline SC-PPO PID-Lagrangian settings: threshold=3.8, quantile aggregation at 0.90, lambda_init=0.5, and lower-bound-clamp PID integral control."
+    ],
+    "claim_boundary": "Single-seed H1 method probe only; not cross-morphology claim-grade evidence."
+  },
+  "overrides": {
+    "env": {
+      "commands.heading_command": false,
+      "domain_rand.randomize_friction": false,
+      "domain_rand.randomize_base_mass": false,
+      "domain_rand.push_robots": false,
+      "domain_rand.action_delay": 0.0,
+      "domain_rand.action_noise": 0.0,
+      "control.decimation": 20,
+      "rewards.base_height_target": 1.05,
+      "rewards.cycle_time": 0.8,
+      "rewards.target_feet_height": 0.08,
+      "rewards.scales.action_smoothness": 0.0,
+      "rewards.scales.dof_acc": 0.0,
+      "rewards.scales.base_acc": 0.0,
+      "rewards.scales.dof_vel": 0.0
+    },
+    "train": {
+      "runner.algorithm_class_name": "SCPPO",
+      "runner.max_iterations": 300,
+      "runner.save_interval": 50,
+      "algorithm.constraint.enabled": true,
+      "algorithm.constraint.threshold": 3.8,
+      "algorithm.constraint.subsample_obs": 8,
+      "algorithm.constraint.update_mode": "pid",
+      "algorithm.constraint.cost_aggregation": "quantile",
+      "algorithm.constraint.cost_quantile": 0.9,
+      "algorithm.constraint.pid_kp": 0.05,
+      "algorithm.constraint.pid_ki": 0.001,
+      "algorithm.constraint.pid_kd": 0.01,
+      "algorithm.constraint.pid_integral_mode": "lower_bound_clamp",
+      "algorithm.constraint.pid_integral_decay": 1.0,
+      "algorithm.constraint.lambda_init": 0.5,
+      "algorithm.constraint.lambda_min": 0.0,
+      "algorithm.constraint.lambda_max": 5.0,
+      "algorithm.constraint.integral_min": -10.0,
+      "algorithm.constraint.integral_max": 10.0
+    }
+  }
+}
