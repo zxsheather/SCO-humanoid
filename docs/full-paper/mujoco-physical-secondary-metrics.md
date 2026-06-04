@@ -4,12 +4,19 @@ Status: `complete`.
 
 This note adds a trace-based secondary physical evaluation layer on the current five-seed selected-checkpoint MuJoCo replay. It uses the same selected checkpoints as the main mechanism comparison, rerun with compact per-timestep trace capture, and computes torque- and power-based proxies from the applied joint control and joint-velocity traces. These metrics are secondary physical evidence; they do not replace the primary task, joint-acceleration, or action-jitter metrics.
 
+Metric definitions used throughout this note:
+
+- `Torque RMS`: root-mean-square applied joint control over the captured trace.
+- `Abs power`: mean absolute joint power proxy computed from applied joint control and joint velocity.
+- `Abs energy`: time integral of absolute joint power over the captured episode.
+- `Energy/m`: absolute episode energy divided by forward distance traveled.
+
 ## Main Read
 
 - LCP is the lowest absolute-effort row on torque RMS (24.102), absolute power (85.659), and absolute episode energy (877.146). The heuristic remains best on the efficiency-style `energy/m` proxy (785.610) and on aggregate MuJoCo joint acceleration (111.819).
 - This sharpens, rather than removes, the existing MuJoCo split: LCP appears physically cheaper in absolute actuation effort, while the heuristic remains more efficient per forward progress. SC-PPO is worst on absolute power (184.312) and remains worst on aggregate joint acceleration (160.900).
 - Across the 15 method-seed rows, absolute power correlates with joint acceleration at 0.616 and with action jitter at 0.694; the efficiency proxy `energy/m` aligns most strongly with velocity error (0.603). The physical proxies therefore do not collapse to a single smoothness scalar.
-- Because these traces use five captured episodes per selected checkpoint, this is still bounded secondary evidence rather than a new primary benchmark line.
+- Because these traces use five captured episodes per selected checkpoint, this is still bounded secondary evidence rather than a new primary benchmark line or a bootstrap-backed uncertainty result.
 
 ## Five-Seed Aggregate
 

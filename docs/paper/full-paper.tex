@@ -35,9 +35,10 @@ revised action-rate reward heuristic. In a five-seed Isaac Gym evaluation, the
 soft penalty gives the strongest overall Isaac profile, with zero fall rate,
 lowest velocity error, lowest action jitter, highest return, and lowest measured
 sensitivity; the heuristic has the lowest joint acceleration. In matched
-five-seed MuJoCo replay, the soft penalty retains the lowest action jitter and
-the lowest absolute actuation-effort proxies, whereas the heuristic leads on
-mean joint acceleration, energy per meter, and return. Controlled policy
+five-seed MuJoCo replay, the soft penalty retains the lowest action jitter; in
+a bounded secondary trace analysis, it also has the lowest absolute
+actuation-effort proxies, whereas the heuristic leads on mean joint
+acceleration, energy per meter, and return. Controlled policy
 perturbations and observation-noise stress show a consistent mechanism chain
 from lower policy sensitivity to lower policy-output amplification and more
 stable action streams, while downstream closed-loop metrics can still split.
@@ -265,8 +266,13 @@ selected Isaac checkpoint for each seed under the aligned \texttt{isaac\_mainlin
 protocol with 20 episodes of 20 seconds and \texttt{joint\_reset\_noise = 0.1}.
 For the selected MuJoCo replay we also compute secondary torque- and
 power-based proxies from exported joint-control and joint-velocity traces.
-These trace metrics are physically grounded supplementary evidence; they do not
-replace the primary task, \jacc, or action-jitter metrics.
+Each selected checkpoint is rerun for five trace-capture episodes.
+Absolute power is the mean absolute joint power, absolute episode energy
+integrates absolute joint power over time, and energy per meter divides that
+absolute energy by forward distance traveled; all are lower-is-better
+descriptive proxies. These trace metrics are physically grounded supplementary
+evidence; they do not replace the primary task, \jacc, or action-jitter
+metrics.
 
 Metrics are fall rate, velocity-tracking error, joint-acceleration $L_2$,
 action-jitter $L_2$, episode return, and policy sensitivity. Fall, velocity
@@ -372,7 +378,9 @@ outcomes that also depend on velocity tracking, contact timing, PD target
 dynamics, and simulator-specific response. A leave-one-seed analysis preserves
 this metric split: the soft penalty remains the lowest mean action-jitter
 method in every split, while the heuristic remains best on mean joint
-acceleration and mean return in every split.
+acceleration and mean return in every split. Because this trace slice uses only
+five captured episodes per selected checkpoint and is not bootstrap-backed, we
+use it as bounded secondary evidence rather than as a new primary comparison.
 
 \subsection{Diagnostic Second-Setting Replay}
 
@@ -619,12 +627,13 @@ than a blanket statement that one method wins every metric.
 The evidence for this decomposition is internally consistent. Perturbation
 amplification and selected policy sensitivity correlate at $0.999$, showing
 that two independent measurements recover the same policy-output amplification
-axis. In matched MuJoCo replay, the soft penalty is also lowest on torque RMS,
-absolute power, and absolute episode energy, whereas the heuristic is best on
-energy per meter and aggregate joint acceleration. Policy-local-sensitivity
-regularization therefore appears most effective at reducing absolute control
-effort and output roughness, while efficiency-style progress-normalized metrics
-and full closed-loop dynamics can still favor a reward-shaped policy.
+axis. In a bounded secondary trace analysis of the matched MuJoCo selected
+checkpoints, the soft penalty is also lowest on torque RMS, absolute power, and
+absolute episode energy, whereas the heuristic is best on energy per meter and
+aggregate joint acceleration. Policy-local-sensitivity regularization therefore
+appears most effective at reducing absolute control effort and output
+roughness, while efficiency-style progress-normalized metrics and full
+closed-loop dynamics can still favor a reward-shaped policy.
 
 One plausible optimization explanation is that soft regularization is easier to
 fit in PPO because the penalty is present throughout actor updates with a fixed
@@ -738,12 +747,13 @@ Policy-local-sensitivity regularization is most strongly supported here as a
 policy-output smoothness mechanism for humanoid locomotion. In this study, a
 fixed soft Jacobian penalty gives the most consistent improvements on
 sensitivity, perturbation amplification, action jitter, observation-noise
-robustness, and absolute actuation-effort proxies, while tuned reward shaping
-remains stronger on some downstream metrics such as MuJoCo joint acceleration,
-energy per meter, and return. Combining both mechanisms, for example by adding
-a lightweight action-rate term alongside the soft Jacobian penalty or
-scheduling the penalty coefficient during training, and evaluating transfer on
-physical hardware are natural next steps.
+robustness, and absolute actuation-effort proxies in a bounded secondary trace
+analysis, while tuned reward shaping remains stronger on some downstream
+metrics such as MuJoCo joint acceleration, energy per meter, and return.
+Combining both mechanisms, for example by adding a lightweight action-rate term
+alongside the soft Jacobian penalty or scheduling the penalty coefficient
+during training, and evaluating transfer on physical hardware are natural next
+steps.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
@@ -795,7 +805,9 @@ Weight & Fall & Vel. err & Jnt acc & Jitter & Return & Sens. \\
 \centering
 \caption{Selected-checkpoint MuJoCo physical secondary metrics. These
 trace-based proxies are supplementary sim-to-sim evidence computed on the same
-five-seed selected checkpoints as Table~\ref{tab:mujoco}.}
+five-seed selected checkpoints as Table~\ref{tab:mujoco}. Values are five-seed
+means from five trace-capture episodes per selected checkpoint; per-seed rows
+remain supplementary.}
 \label{tab:mujoco-physical}
 \small
 \resizebox{\linewidth}{!}{%
