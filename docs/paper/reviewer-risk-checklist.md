@@ -24,9 +24,12 @@ Each risk is rated by severity and the strength of the current response.
   evidence).
 - We explicitly avoid claiming that SC-PPO beats SOTA or is the strongest
   current method.
-- **Gap**: Official LCP checkpoint/code parity remains untested; the paper can
-  now document that boundary clearly, but it still cannot claim official
-  reproduction.
+- **Gap**: Official LCP parity is still untested. The new parity-tightening
+  audit (`docs/full-paper/lcp-parity-tightening-audit.md`) makes the next
+  bounded upgrade explicit: the single highest-ROI closer-to-official scout is
+  penalty sampling detail (`algorithm.lcp.subsample_obs = 64`), not a nominal
+  architecture tweak or an attempted official-checkpoint comparison inside the
+  current paper protocol.
 
 ### R0b: "Is `lcp_weight=0.002` cherry-picked?"
 **Severity**: MEDIUM

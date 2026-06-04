@@ -474,6 +474,7 @@ All generated paper figures/tables are reproducible with:
 | Bounded hfield second-setting replay | `artifacts/analysis/hfield_moderate_second_setting/summary.md` |
 | Actuator-bandwidth robustness sweep | `artifacts/analysis/actuator_latency_robustness/summary.md`; `configs/sweeps/actuator_latency_robustness.json`; `scripts/baseline/run_actuator_latency_robustness_sweep.py` |
 | LCP-style baseline fidelity audit | `docs/full-paper/lcp-style-fidelity-audit.md` |
+| LCP parity-tightening audit | `docs/full-paper/lcp-parity-tightening-audit.md` |
 | LCP formal result note | `docs/full-paper/lcp-soft-penalty-formal-results.md` |
 | LCP Isaac five-seed summary | `artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json` |
 | LCP MuJoCo selected replay | `artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed{11,17,23,29,31}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json` |

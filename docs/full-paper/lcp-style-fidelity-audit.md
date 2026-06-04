@@ -58,6 +58,24 @@ description is computational: the implementation subsamples up to 64 minibatch
 observations for the gradient penalty. This is a bounded implementation choice
 for the Humanoid-Gym training stack, not a claim of official code equivalence.
 
+## Tightening Priority
+
+If one more parity-tightening scout is opened without reopening the benchmark
+stack, the highest-ROI axis is penalty sampling detail. The main reason is that
+`algorithm.lcp.subsample_obs = 64` is the clearest remaining method-fidelity
+gap that is both reviewer-visible and locally tighten-able inside the current
+Humanoid-Gym training path.
+
+By contrast, task/robot/checkpoint differences are real but would require
+changing the scientific question from a same-task mechanism comparison into a
+different benchmark or reproduction exercise. Architecture matching is also a
+lower-priority next step because surface-level network alignment would still
+leave the task stack and evaluation route unmatched.
+
+The dedicated ranking and next-step recommendation now live in:
+
+- `docs/full-paper/lcp-parity-tightening-audit.md`
+
 ## Naming Boundary
 
 Defensible wording:
@@ -104,6 +122,9 @@ This is sufficient for the current mechanism-comparison paper because:
 It is not sufficient for any stronger claim such as official LCP parity,
 benchmark-level superiority over LCP, or real-world comparison against the
 official project.
+
+If a single closer-to-official scout is opened next, it should target penalty
+sampling detail before any broader alignment axis.
 
 ## Reproduction Pointers
 

@@ -43,6 +43,8 @@ Generated paper-facing tables:
   `artifacts/analysis/actuator_latency_robustness/summary.md`
 - LCP-style baseline fidelity audit:
   `docs/full-paper/lcp-style-fidelity-audit.md`
+- LCP parity-tightening audit:
+  `docs/full-paper/lcp-parity-tightening-audit.md`
 - Matched MuJoCo mixed-evidence mechanism note:
   `docs/full-paper/mujoco-mixed-evidence-mechanism.md`
 - Policy perturbation audit:
