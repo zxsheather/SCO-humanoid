@@ -131,6 +131,70 @@ non-claim-grade feasibility branch. Issues #103, #104, #105, and #107 should
 stay blocked until a later H1 baseline repair reaches a materially lower fall
 rate.
 
+Issue #110 then audited the inherited H1 task/config against the local
+`XBotLCfg -> H1Cfg` path and the available Unitree H1 reference before running
+another baseline-only repair. The highest-value mismatches were H1-specific
+timing and height assumptions rather than PPO update code:
+
+- keep the #109 cleanup that disables the inherited heading-controller path and
+  inherited XBot-L disturbances
+- change `rewards.cycle_time` from the inherited XBot-L value `0.64` to the
+  Unitree H1 reference timing cue `0.8`
+- change `rewards.target_feet_height` from the inherited XBot-L value `0.06`
+  to the Unitree H1 reference swing-height cue `0.08`
+- change `rewards.base_height_target` from the inherited H1 value `0.98` to
+  the Unitree H1 reference value `1.05`
+- align the effective policy/control step to the Unitree H1 reference 20 ms
+  period by setting `control.decimation=20` under the local 1 kHz simulator,
+  rather than mechanically copying the reference `decimation=4` from a
+  different simulator dt
+
+The resulting config is:
+
+- `configs/methods/h1_vanilla_ppo_reference_audit.json`
+
+Training run:
+
+- run name: `h1_reference_audit_seed5_iter300_env512`
+- budget: 512 environments, 300 PPO iterations, seed 5
+- run directory:
+  `.external/humanoid-gym/logs/ecolab_h1_ppo_reference_audit/Jun04_08-03-28_h1_reference_audit_seed5_iter300_env512`
+- manifest:
+  `artifacts/methods/h1_vanilla_ppo_reference_audit/h1_reference_audit_seed5_iter300_env512/manifest.json`
+
+Checkpoint sweep evaluation used the shared metric schema, 16 evaluation
+environments, and 20 completed episodes per checkpoint:
+
+| Checkpoint | Fall rate | Vel. err | Return | Jnt acc | Jitter | Sens. |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0   | 1.000 | 1.362 | 4.869  | 54.499 | 0.027 | 0.329 |
+| 50  | 1.000 | 1.141 | 5.179  | 65.358 | 0.188 | 2.160 |
+| 100 | 1.000 | 0.812 | 10.890 | 53.028 | 0.290 | 4.995 |
+| 150 | 0.650 | 0.637 | 70.681 | 56.163 | 0.493 | 10.779 |
+| 200 | 0.300 | 0.444 | 91.556 | 34.915 | 0.377 | 11.899 |
+| 250 | 0.000 | 0.380 | 116.250 | 18.881 | 0.338 | 14.517 |
+| 300 | 0.000 | 0.380 | 116.323 | 21.104 | 0.383 | 15.890 |
+
+The task-floor selector chose checkpoint 250 because checkpoints 250 and 300
+were the only rows inside the shared task-validity tolerance band, and
+checkpoint 250 had lower joint acceleration and action jitter. The selected
+metrics snapshot is:
+
+- `artifacts/methods/h1_vanilla_ppo_reference_audit/h1_reference_audit_seed5_iter300_env512/metrics_selected.json`
+
+Relative to the #109 selected checkpoint, the #110 selected checkpoint improved
+fall rate from `0.450` to `0.000`, velocity tracking error from `0.571` to
+`0.380`, return from `60.970` to `116.250`, and joint acceleration from
+`27.333` to `18.881`. Action jitter and policy local sensitivity increased
+(`0.152 -> 0.338` and `7.789 -> 14.517`), so the result should be read as a
+baseline-stabilization repair rather than as a smoothness improvement.
+
+This passes the H1 baseline gate for bounded method probing. Issues #103, #104,
+and #105 can reopen under the same 300-iteration checkpoint-sweep protocol.
+Issue #107 should remain blocked because H1 MuJoCo replay is still downstream
+of method-probe evidence, and H1 remains non-claim-grade cross-morphology paper
+evidence until those method probes are complete.
+
 ## Design Choices
 
 - Reuse the existing XBot-L humanoid environment logic for the first vertical

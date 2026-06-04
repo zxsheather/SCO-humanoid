@@ -1,0 +1,71 @@
+{
+  "name": "h1_vanilla_ppo_reference_audit",
+  "method": {
+    "id": "vanilla_ppo_h1_reference_audit",
+    "label": "Vanilla PPO H1 reference-audited baseline",
+    "family": "vanilla",
+    "smoothness_strategy": "none"
+  },
+  "task": "h1_ppo",
+  "experiment_name": "ecolab_h1_ppo_reference_audit",
+  "run_name": "h1_vanilla_ppo_reference_audit",
+  "artifacts_root": "artifacts/methods/h1_vanilla_ppo_reference_audit",
+  "evaluation_protocol": "h1_task_config_tuning",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "training": {
+    "headless": true,
+    "num_envs": 512,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0"
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 16,
+    "episodes": 20,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 100100,
+    "metric_schema_version": 2,
+    "constraint_logging": {
+      "collect_local_sensitivity": true,
+      "local_sensitivity_threshold": null,
+      "sample_envs": 4,
+      "sample_every_n_steps": 20,
+      "sidecar_metrics_filename": "constraint_metrics.json",
+      "multiplier_trace_filename": "lagrange_multiplier_trace.json"
+    }
+  },
+  "tuning_rationale": {
+    "issue": "#110",
+    "baseline_failure": "#109 improved H1 tracking but the best selected checkpoint still had fall_rate=0.450 and most checkpoints collapsed.",
+    "changes": [
+      "Keep #109's H1-only cleanup by disabling the inherited heading-controller path and inherited XBot-L disturbances.",
+      "Align H1 gait timing to the Unitree H1 reference with rewards.cycle_time=0.8 and rewards.target_feet_height=0.08.",
+      "Align the effective control update period to the Unitree H1 reference 20 ms policy step by setting control.decimation=20 under the local 1 kHz simulator, rather than mechanically copying decimation=4 from a different simulator dt.",
+      "Align H1 standing-height shaping to the Unitree H1 reference with rewards.base_height_target=1.05."
+    ],
+    "claim_boundary": "Task/config stabilization only; not a smooth-control method."
+  },
+  "overrides": {
+    "env": {
+      "commands.heading_command": false,
+      "domain_rand.randomize_friction": false,
+      "domain_rand.randomize_base_mass": false,
+      "domain_rand.push_robots": false,
+      "domain_rand.action_delay": 0.0,
+      "domain_rand.action_noise": 0.0,
+      "control.decimation": 20,
+      "rewards.base_height_target": 1.05,
+      "rewards.cycle_time": 0.8,
+      "rewards.target_feet_height": 0.08
+    },
+    "train": {
+      "runner.max_iterations": 300,
+      "runner.save_interval": 50
+    }
+  }
+}
