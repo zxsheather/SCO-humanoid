@@ -195,6 +195,69 @@ Issue #107 should remain blocked because H1 MuJoCo replay is still downstream
 of method-probe evidence, and H1 remains non-claim-grade cross-morphology paper
 evidence until those method probes are complete.
 
+Issue #103 then ran the first bounded H1 method probe with the LCP-style soft
+Jacobian penalty on top of the repaired #110 H1 task floor. The probe kept the
+same H1 task/control overrides and zeroed the inherited action-smoothness,
+joint-acceleration, base-acceleration, and joint-velocity reward terms so the
+soft Jacobian penalty was the only added smoothness mechanism. The config is:
+
+- `configs/methods/h1_lcp_soft_jacobian_penalty_probe.json`
+
+The training overrides reuse the mainline LCP-style recipe:
+
+- `runner.algorithm_class_name=LCPPPO`
+- `algorithm.lcp.lcp_weight=0.002`
+- `algorithm.lcp.subsample_obs=64`
+- `algorithm.lcp.epsilon=1e-12`
+- `algorithm.lcp.local_sensitivity_threshold=3.8`
+
+One implementation note matters for interpretation: in the current
+`humanoid-gym` `LCPPPO` code path, `local_sensitivity_threshold` is logged in
+the sidecar metrics but is not used inside the optimization loss. The actual
+training penalty is the fixed soft term
+`lcp_weight * mean(||grad_obs log pi(a | obs)||^2)`.
+
+Training run:
+
+- run name: `h1_lcp_soft_jacobian_penalty_seed5_iter300_env512`
+- budget: 512 environments, 300 PPO iterations, seed 5
+- run directory:
+  `.external/humanoid-gym/logs/ecolab_h1_lcp_soft_penalty/Jun04_08-47-40_h1_lcp_soft_jacobian_penalty_seed5_iter300_env512`
+- manifest:
+  `artifacts/methods/h1_lcp_soft_jacobian_penalty_probe/h1_lcp_soft_jacobian_penalty_seed5_iter300_env512/manifest.json`
+
+Checkpoint sweep evaluation used the shared metric schema, 16 evaluation
+environments, and 20 completed episodes per checkpoint:
+
+| Checkpoint | Fall rate | Vel. err | Return | Jnt acc | Jitter | Sens. |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0   | 1.000 | 1.323 | 4.642  | 56.095 | 0.025 | 0.331 |
+| 50  | 1.000 | 1.122 | 5.345  | 63.262 | 0.161 | 1.452 |
+| 100 | 1.000 | 0.966 | 6.116  | 53.505 | 0.184 | 2.271 |
+| 150 | 1.000 | 0.781 | 13.408 | 31.964 | 0.198 | 3.416 |
+| 200 | 1.000 | 0.806 | 13.009 | 150.382 | 0.742 | 3.975 |
+| 250 | 0.350 | 0.503 | 83.793 | 498.472 | 3.116 | 4.189 |
+| 300 | 0.100 | 0.488 | 95.919 | 371.901 | 2.434 | 3.958 |
+
+The task-floor selector chose checkpoint 300 because it was the only row inside
+the within-sweep tolerance band. The selected metrics snapshot is:
+
+- `artifacts/methods/h1_lcp_soft_jacobian_penalty_probe/h1_lcp_soft_jacobian_penalty_seed5_iter300_env512/metrics_selected.json`
+
+Relative to the repaired #110 H1 vanilla baseline, the selected H1 LCP-style
+checkpoint reduced policy local sensitivity from `14.517` to `3.958`, but it
+did not improve policy-output or closed-loop smoothness. Fall rate worsened
+from `0.000` to `0.100`, velocity tracking error worsened from `0.380` to
+`0.488`, return dropped from `116.250` to `95.919`, joint acceleration rose
+from `18.881` to `371.901`, and action jitter rose from `0.338` to `2.434`.
+
+This should be read as completed negative H1 evidence rather than as a blocked
+experiment. On H1, the bounded LCP-style probe lowers the policy-map
+sensitivity metric while producing rougher closed-loop actuation and weaker
+task behavior than the repaired vanilla baseline. The result does not support a
+cross-morphology smoothness claim for H1, and H1 should remain feasibility-only
+evidence unless later H1 method probes establish a different pattern.
+
 ## Design Choices
 
 - Reuse the existing XBot-L humanoid environment logic for the first vertical
