@@ -258,6 +258,67 @@ task behavior than the repaired vanilla baseline. The result does not support a
 cross-morphology smoothness claim for H1, and H1 should remain feasibility-only
 evidence unless later H1 method probes establish a different pattern.
 
+Issue #104 then ran the bounded H1 revised-heuristic probe on the same repaired
+#110 H1 task floor. This kept the #110 task/control overrides unchanged and
+reused the revised heuristic reward-shaping coefficients from the main
+morphology:
+
+- `rewards.scales.action_smoothness=-0.005`
+- `rewards.scales.dof_acc=-1e-07`
+- `rewards.scales.base_acc=0.2`
+- `rewards.scales.dof_vel=-0.0005`
+
+The config is:
+
+- `configs/methods/h1_heuristic_smoothing_action_rate_0050_probe.json`
+
+Training run:
+
+- run name: `h1_heuristic_smoothing_action_rate_0050_seed5_iter300_env512`
+- budget: 512 environments, 300 PPO iterations, seed 5
+- run directory:
+  `.external/humanoid-gym/logs/ecolab_h1_heuristic_smoothing_probe/Jun04_09-18-24_h1_heuristic_smoothing_action_rate_0050_seed5_iter300_env512`
+- manifest:
+  `artifacts/methods/h1_heuristic_smoothing_probe/h1_heuristic_smoothing_action_rate_0050_seed5_iter300_env512/manifest.json`
+
+Checkpoint sweep evaluation used the shared metric schema, 16 evaluation
+environments, and 20 completed episodes per checkpoint:
+
+| Checkpoint | Fall rate | Vel. err | Return | Jnt acc | Jitter | Sens. |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0   | 1.000 | 1.329 | 4.803   | 56.981 | 0.027 | 0.329 |
+| 50  | 1.000 | 1.112 | 5.121   | 64.079 | 0.182 | 2.092 |
+| 100 | 1.000 | 0.827 | 10.988  | 49.609 | 0.271 | 5.309 |
+| 150 | 0.350 | 0.433 | 95.183  | 19.062 | 0.250 | 10.405 |
+| 200 | 0.000 | 0.382 | 115.061 | 15.105 | 0.275 | 12.997 |
+| 250 | 0.000 | 0.377 | 113.060 | 17.586 | 0.287 | 12.863 |
+| 300 | 0.000 | 0.373 | 116.302 | 16.333 | 0.280 | 12.601 |
+
+The task-floor selector chose checkpoint 200. Checkpoints 200, 250, and 300
+all satisfied the repaired H1 task-validity window, and checkpoint 200 had the
+lowest joint acceleration and lowest action jitter among those eligible rows.
+The selected metrics snapshot is:
+
+- `artifacts/methods/h1_heuristic_smoothing_probe/h1_heuristic_smoothing_action_rate_0050_seed5_iter300_env512/metrics_selected.json`
+
+Relative to the repaired #110 H1 vanilla baseline, the selected H1 heuristic
+checkpoint preserved task validity (`fall_rate=0.000`) and nearly matched
+tracking and return (`vel. err 0.380 -> 0.382`, `return 116.250 -> 115.061`)
+while improving downstream smoothness (`joint acc 18.881 -> 15.105`,
+`jitter 0.338 -> 0.275`). Policy local sensitivity also decreased modestly
+(`14.517 -> 12.997`). The final checkpoint 300 slightly exceeded the #110
+baseline return (`116.302 > 116.250`) and slightly improved tracking
+(`0.373 < 0.380`), but checkpoint 200 remained the selected row under the
+shared task-floor-then-smoothness rule because it had lower joint acceleration
+and jitter.
+
+Relative to the #103 H1 LCP-style probe, the revised heuristic is clearly the
+stronger H1 method slice. Both H1 heuristic checkpoint 200 and repaired vanilla
+checkpoint 250 are fully task-valid, while the selected H1 LCP-style checkpoint
+still had `fall_rate=0.100`, `joint acc=371.901`, and `jitter=2.434`. On this
+bounded H1 evidence slice, reward-shaping transfers cleanly to H1 whereas the
+fixed soft Jacobian penalty does not.
+
 ## Design Choices
 
 - Reuse the existing XBot-L humanoid environment logic for the first vertical
