@@ -632,6 +632,16 @@ def main() -> int:
     parser.add_argument("--run-name", default=None, help="Override the configured run_name.")
     parser.add_argument("--load-run", default=None, help="Explicit upstream run directory name.")
     parser.add_argument("--checkpoint", type=int, default=None, help="Specific checkpoint number to export and evaluate.")
+    parser.add_argument(
+        "--export-rl-device",
+        default=None,
+        help="Optional RL device override forwarded only to export_policy.py.",
+    )
+    parser.add_argument(
+        "--export-sim-device",
+        default=None,
+        help="Optional sim device override forwarded only to export_policy.py.",
+    )
     parser.add_argument("--episodes", type=int, default=5, help="Number of MuJoCo episodes.")
     parser.add_argument("--command-vx", type=float, default=0.4, help="Forward velocity command used in MuJoCo rollout.")
     parser.add_argument("--command-vy", type=float, default=0.0, help="Lateral velocity command used in MuJoCo rollout.")
@@ -753,6 +763,10 @@ def main() -> int:
         f"--config={args.config}" if args.config else "",
         f"--run-name={run_name}",
     ]
+    if args.export_rl_device:
+        export_argv.append(f"--rl-device={args.export_rl_device}")
+    if args.export_sim_device:
+        export_argv.append(f"--sim-device={args.export_sim_device}")
     if args.load_run:
         export_argv.append(f"--load-run={args.load_run}")
     if args.checkpoint is not None:

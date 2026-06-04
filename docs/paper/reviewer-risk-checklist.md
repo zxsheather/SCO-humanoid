@@ -66,6 +66,10 @@ Each risk is rated by severity and the strength of the current response.
   seed and metric. LCP wins per-seed action jitter on `3/5` seeds; the revised
   heuristic wins aggregate joint acceleration and return in every leave-one-seed
   split.
+- A secondary physical-metrics note
+  `docs/full-paper/mujoco-physical-secondary-metrics.md` shows that LCP is
+  lowest on absolute torque/power/energy proxies, while the revised heuristic
+  remains best on the energy-per-meter proxy and aggregate joint acceleration.
 - Cross-metric checks support the explanation: action jitter and joint
   acceleration are coupled but not identical, while return is more tied to
   velocity tracking and seed-specific rollout behavior.
