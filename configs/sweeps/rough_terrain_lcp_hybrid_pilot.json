@@ -1,0 +1,16 @@
+{
+  "name": "rough_terrain_lcp_hybrid_pilot",
+  "analysis_root": "artifacts/analysis/rough_terrain_lcp_hybrid_pilot",
+  "seeds": [23],
+  "train_num_envs": 256,
+  "eval_num_envs": 16,
+  "max_iterations": 200,
+  "episodes": 20,
+  "candidates": [
+    {
+      "id": "lcp_heuristic_hybrid",
+      "label": "LCP-style soft penalty + revised heuristic smoothing (bounded pilot)",
+      "config": "configs/methods/lcp_soft_jacobian_plus_heuristic_hybrid_pilot.json"
+    }
+  ]
+}

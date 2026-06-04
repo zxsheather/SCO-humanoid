@@ -1,0 +1,16 @@
+{
+  "name": "rough_terrain_lcp_full_batch_alignment_scout",
+  "analysis_root": "artifacts/analysis/rough_terrain_lcp_full_batch_alignment_scout",
+  "seeds": [23],
+  "train_num_envs": 256,
+  "eval_num_envs": 16,
+  "max_iterations": 200,
+  "episodes": 20,
+  "candidates": [
+    {
+      "id": "lcp_full_batch_alignment",
+      "label": "LCP-style soft penalty (full-batch sampling alignment pilot)",
+      "config": "configs/methods/lcp_soft_jacobian_penalty_full_batch_alignment_pilot.json"
+    }
+  ]
+}

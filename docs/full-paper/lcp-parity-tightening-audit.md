@@ -109,6 +109,23 @@ Either outcome is useful:
   for retaining the bounded-subsample implementation without pretending that
   the gap is gone.
 
+## Scout Outcome
+
+The follow-up full-batch scout is now complete:
+
+- `docs/full-paper/lcp-full-batch-alignment-scout.md`
+
+Outcome:
+
+- the sampling axis was indeed locally tighten-able;
+- the full-batch variant was technically feasible to train in the local stack;
+- but the bounded seed-23 `256 env x 200 iter` pilot remained
+  `all_checkpoints_collapsed`, so it did not produce a task-valid replacement
+  for the current `subsample_obs = 64` paper row.
+
+This sharpens the recommendation further: the main paper should keep the
+current `LCP-style` row and continue to describe official parity as unachieved.
+
 ## Paper-Facing Outcome
 
 After this audit, the paper-facing boundary is sharper:

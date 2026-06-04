@@ -30,6 +30,12 @@ Each risk is rated by severity and the strength of the current response.
   penalty sampling detail (`algorithm.lcp.subsample_obs = 64`), not a nominal
   architecture tweak or an attempted official-checkpoint comparison inside the
   current paper protocol.
+- The follow-up full-batch sampling scout
+  (`docs/full-paper/lcp-full-batch-alignment-scout.md`) is now complete:
+  full-batch penalty sampling is technically feasible in the local stack, but
+  the bounded seed-23 `256 env x 200 iter` pilot remained
+  `all_checkpoints_collapsed`. This narrows the gap from speculation to a
+  bounded negative result, while still leaving official parity unachieved.
 
 ### R0b: "Is `lcp_weight=0.002` cherry-picked?"
 **Severity**: MEDIUM
@@ -106,14 +112,20 @@ Each risk is rated by severity and the strength of the current response.
 
 ### R4: "You only tested on one robot and one terrain"
 **Severity**: MEDIUM
-**Current response**: ADEQUATE
+**Current response**: GOOD
 - Acknowledged as limitation
 - Random stairs stress test attempted but all methods collapsed
 - Cross-engine (Isaac → MuJoCo) provides a different kind of
   generalization evidence
 - A bounded no-retraining `hfield_moderate` replay is now available as a
   second-setting diagnostic, but it is not a broad terrain benchmark.
-- **Gap**: No retrained multi-terrain study and no multi-robot evidence
+- A bounded retrain-level mixed rough/stairs pilot is now also available in
+  `docs/full-paper/main-morphology-multi-terrain-retrain-pilot.md`.
+  It still ended as a no-go result: the seed-23 `LCP-style` gate remained
+  `all_checkpoints_collapsed`, so the slice does not support a claim-grade
+  multi-terrain comparison.
+- **Gap**: No task-valid retrained multi-terrain comparison and no multi-robot
+  evidence
 
 ### R5: "No real-robot validation"
 **Severity**: MEDIUM

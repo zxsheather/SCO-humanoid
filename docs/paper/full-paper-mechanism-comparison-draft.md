@@ -481,6 +481,14 @@ Primary artifacts:
   `docs/full-paper/lcp-style-fidelity-audit.md`
 - LCP parity-tightening audit:
   `docs/full-paper/lcp-parity-tightening-audit.md`
+- LCP full-batch alignment scout:
+  `docs/full-paper/lcp-full-batch-alignment-scout.md`
+- LCP + heuristic hybrid pilot:
+  `docs/full-paper/lcp-heuristic-hybrid-pilot.md`
+- Policy-mechanism intervention diagnostic:
+  `docs/full-paper/policy-mechanism-intervention-diagnostic.md`
+- Main-morphology multi-terrain retrain pilot:
+  `docs/full-paper/main-morphology-multi-terrain-retrain-pilot.md`
 - MuJoCo mixed-evidence mechanism note:
   `docs/full-paper/mujoco-mixed-evidence-mechanism.md`
 - Policy perturbation audit:
