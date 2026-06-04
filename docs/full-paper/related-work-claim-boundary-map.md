@@ -75,6 +75,9 @@ Facts that support the same-task local row:
 - It disables heuristic smoothness rewards and uses the same Humanoid-Gym rough
   terrain protocol, checkpoint sweep, and metric schema as SC-PPO/heuristic.
 - It passes the five-seed Isaac gate and has matched five-seed MuJoCo replay.
+- A manuscript appendix parity-gap table can now state this explicitly as
+  mechanism-family alignment plus coefficient-anchor alignment, rather than as
+  task or benchmark parity.
 
 Facts that prevent official reproduction wording:
 
@@ -83,6 +86,8 @@ Facts that prevent official reproduction wording:
   bridges.
 - The paper does not compare against official LCP checkpoints under identical
   task and metric conditions.
+- The paper has no hardware evidence corresponding to the official project's
+  real-world side.
 
 ## OmniSafe Boundary
 

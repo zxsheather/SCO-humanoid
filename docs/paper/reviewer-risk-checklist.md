@@ -18,10 +18,15 @@ Each risk is rated by severity and the strength of the current response.
 - The related-work and claim-boundary map now makes the local LCP boundary
   explicit: same-task LCP-style evidence, not official LCP code/checkpoint
   parity.
+- A paper-facing parity-gap table now enumerates which dimensions are locally
+  aligned with official LCP (mechanism family, coefficient anchor, actor-update
+  path) and which are not (task, robot, checkpoint/evaluation path, hardware
+  evidence).
 - We explicitly avoid claiming that SC-PPO beats SOTA or is the strongest
   current method.
-- **Gap**: Official LCP checkpoint/code parity remains untested; the accepted
-  manuscript label is `LCP-style soft Jacobian/Lipschitz penalty`.
+- **Gap**: Official LCP checkpoint/code parity remains untested; the paper can
+  now document that boundary clearly, but it still cannot claim official
+  reproduction.
 
 ### R0b: "Is `lcp_weight=0.002` cherry-picked?"
 **Severity**: MEDIUM
@@ -150,6 +155,9 @@ Each risk is rated by severity and the strength of the current response.
 - OmniSafe PPO-Lag migration was tested as a bounded framework diagnostic and
   collapsed; this is reported as an interface mismatch, not as external CRL
   failing broadly.
+- The LCP parity-gap appendix clarifies why the manuscript can defensibly carry
+  an adapted same-task LCP-style row without claiming official checkpoint or
+  benchmark equivalence.
 - The related-work map records why standard environment-side PPO-Lag does not
   faithfully carry this actor-internal Jacobian cost without algorithm-level
   hooks.

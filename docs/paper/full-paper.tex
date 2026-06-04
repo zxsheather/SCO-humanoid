@@ -5,6 +5,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{array}
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{hyperref}
@@ -211,6 +212,12 @@ official parity.
 Throughout the paper, ``LCP-style'' denotes this locally adapted soft
 Jacobian/Lipschitz penalty, not an official LCP reproduction; when context is
 clear, we refer to the same row as the soft penalty.
+Appendix Table~\ref{tab:lcp-parity} makes this boundary explicit. The current
+row matches the soft penalty family, fixed-coefficient actor-update path, and
+same-task comparison protocol used in this paper, but it does not match the
+official task, robot, checkpoint/evaluation path, or hardware stack. We
+therefore use it as a same-task mechanism baseline rather than as an
+official-parity comparison.
 
 \subsection{Revised Heuristic Reward-Shaping Anchor}
 
@@ -598,6 +605,17 @@ can be a simple alternative to reward-only smoothness tuning in a PPO locomotion
 stack. It still requires choosing a coefficient, but it avoids balancing several
 smoothness penalty weights directly against the task objective.
 
+We also ran a bounded single-seed Unitree H1 diagnostic under the same shared
+metric schema. On this second morphology, the revised heuristic preserved the
+repaired H1 task floor and improved downstream smoothness relative to the H1
+vanilla baseline, whereas the current LCP-style and SC-PPO Jacobian-based
+mechanisms did not. We treat this as supplementary mechanism-transfer evidence
+rather than as claim-grade cross-morphology validation. Its main value for the
+present paper is interpretive: lowering the policy-sensitivity metric alone is
+not sufficient for good downstream locomotion, and mechanism transfer can vary
+substantially across morphologies (Appendix
+Table~\ref{tab:h1-diagnostic}).
+
 \subsection{Why the Heuristic Still Matters}
 
 The revised heuristic is a strong reward-shaping baseline. In matched MuJoCo
@@ -628,7 +646,10 @@ The LCP-style method is a local same-task adaptation, not an official
 reproduction of the original LCP code, checkpoints, or evaluation protocol. The
 results therefore compare mechanisms under this Humanoid-Gym protocol rather
 than establishing parity with or superiority over the official LCP
-implementation.
+implementation. Appendix Table~\ref{tab:lcp-parity} enumerates this gap
+explicitly: the mechanism family and coefficient anchor are aligned at the local
+comparison level, but the task, robot, checkpoint/evaluation path, and hardware
+evidence are not.
 
 The primary evidence uses one robot morphology, one rough-terrain task, five
 training seeds, and selected-checkpoint evaluation. The selected-vs-final
@@ -648,6 +669,12 @@ MuJoCo replay is sim-to-sim evidence only. There is no real-robot validation,
 calibrated actuator model, system identification, or multi-terrain/multi-robot
 study. The actuator-bandwidth test is a simulation-side stress test and does not
 constitute hardware validation.
+
+The multi-robot evidence is limited. Our second-morphology probe uses a single
+Unitree H1 task, a single seed, and Isaac-only evaluation. These H1 results are
+therefore diagnostic rather than claim-grade: they show that mechanism transfer
+can differ sharply across morphologies, but they do not establish a stable
+cross-morphology ranking or any hardware-transfer claim.
 
 The mechanism explanation remains local and partly correlational. The policy
 perturbation analysis gives controlled local policy-output evidence, and the
@@ -691,6 +718,28 @@ hardware are natural next steps.
 
 \begin{table}[htbp]
 \centering
+\caption{Alignment boundary between the local LCP-style row and official LCP.}
+\label{tab:lcp-parity}
+\small
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{>{\raggedright\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}p{3.3cm}}
+\toprule
+Dimension & Aligned in the local row & Not aligned in this paper \\
+\midrule
+Penalty family & Soft Jacobian/Lipschitz actor penalty in PPO & No official-task or official-code equivalence claim \\
+Coefficient anchor & Published fixed-coefficient anchor; local \texttt{lcp\_weight = 0.002} row & Not evidence of global hyperparameter parity \\
+Actor update path & Penalty contributes directly to PPO actor updates with \texttt{create\_graph=True} & No official implementation parity claim \\
+Penalty sampling & Same rollout-sample penalty family & Local row subsamples up to 64 actor observations \\
+Task / terrain & Same-task comparison within this paper & Not the official LCP task stack \\
+Robot / morphology & Local H1-class Humanoid-Gym row & Not the official LCP robot stack \\
+Checkpoint / evaluation path & Local checkpoint sweep with Isaac/MuJoCo replay bridge & Not official checkpoints or evaluation pipeline \\
+Hardware evidence & None & No real-robot evidence in this study \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{table}[htbp]
+\centering
 \caption{Local LCP coefficient sensitivity on seeds 11/17/23/29/31.}
 \label{tab:lcp-weight}
 \small
@@ -702,6 +751,26 @@ Weight & Fall & Vel. err & Jnt acc & Jitter & Return & Sens. \\
 0.001 & 0.040 & 0.579 & 138.860 & 0.262 & 108.189 & 2.284 \\
 0.002 & 0.000 & 0.490 & 117.331 & 0.212 & 118.420 & 1.890 \\
 0.004 & 0.000 & 0.538 & 125.291 & 0.228 & 118.708 & 1.678 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Bounded single-seed Unitree H1 supplementary diagnostic. The H1 slice
+uses the same metric schema as the primary morphology but is diagnostic only:
+it is not claim-grade cross-morphology validation.}
+\label{tab:h1-diagnostic}
+\small
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lccccccc}
+\toprule
+Method & Ckpt & Fall & Vel. err & Jnt acc & Jitter & Return & Sens. \\
+\midrule
+Vanilla baseline & 250 & 0.000 & 0.380 & 18.881 & 0.338 & 116.250 & 14.517 \\
+Revised heuristic & 200 & 0.000 & 0.382 & 15.105 & 0.275 & 115.061 & 12.997 \\
+LCP-style soft penalty & 300 & 0.100 & 0.488 & 371.901 & 2.434 & 95.919 & 3.958 \\
+SC-PPO 3.8 PID & 250 & 0.200 & 0.574 & 241.324 & 1.776 & 76.658 & 3.768 \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -728,11 +797,14 @@ Final checkpoint 400 & 1.000 & 1.109 & 321.328 & 0.741 & 2.714 \\
 
 The supplementary analyses include paired bootstrap uncertainty,
 selected-vs-final checkpoint comparison, local LCP coefficient sensitivity,
-policy perturbation measurements, actuator-bandwidth stress, OmniSafe PPO-Lag
-feasibility checks, and local CPO-style implementation checks. The actuator
-stress is diagnostic simulation evidence only. The OmniSafe and CPO-style
-experiments are not included in the primary comparison because they did not
-produce task-valid locomotion under the limited-scope experiments reported here.
+policy perturbation measurements, actuator-bandwidth stress, a bounded Unitree
+H1 mechanism-transfer diagnostic, OmniSafe PPO-Lag feasibility checks, and
+local CPO-style implementation checks. The actuator stress is diagnostic
+simulation evidence only. The H1 slice is not included in the primary
+comparison because it is single-seed, single-morphology supplementary evidence.
+The OmniSafe and CPO-style experiments are not included in the primary
+comparison because they remained limited-scope diagnostics and did not produce
+task-valid locomotion under the experiments reported here.
 
 \section{SC-PPO Additional Comparisons}
 
