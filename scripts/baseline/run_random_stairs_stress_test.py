@@ -204,19 +204,28 @@ def compare_metric(sc_value: float, heuristic_value: float, *, higher_is_better:
     return "sc_ppo_better" if sc_value < heuristic_value else "heuristic_better"
 
 
+def metric_sort_value(value: float, *, higher_is_better: bool) -> float:
+    return -value if higher_is_better else value
+
+
 def build_interpretation(candidate_summaries: list[dict[str, Any]]) -> dict[str, Any]:
-    by_id = {summary["id"]: summary for summary in candidate_summaries}
-    sc = by_id.get("sc_ppo", {}).get("aggregate")
-    heuristic = by_id.get("heuristic_smoothing", {}).get("aggregate")
     collapsed_ids = [summary["id"] for summary in candidate_summaries if summary.get("status") == "collapsed"]
+    incomplete_ids = [summary["id"] for summary in candidate_summaries if summary.get("status") == "incomplete"]
+    task_valid_summaries = [
+        summary
+        for summary in candidate_summaries
+        if summary.get("status") not in {"collapsed", "incomplete"} and isinstance(summary.get("aggregate"), dict)
+    ]
     all_methods_collapsed = bool(candidate_summaries) and len(collapsed_ids) == len(candidate_summaries)
     interpretation: dict[str, Any] = {
         "claim_boundary": (
-            "Random stairs is a 复杂地形条件 pressure test of selected rough-terrain checkpoints; "
-            "it does not rewrite the Isaac rough-terrain main claim."
+            "This is a bounded selected-checkpoint robustness slice on the main morphology; "
+            "it does not rewrite the primary rough-terrain claim."
         ),
         "task_validity_outcome": "all_methods_collapsed" if all_methods_collapsed else "mixed_or_incomplete",
         "collapsed_candidate_ids": collapsed_ids,
+        "incomplete_candidate_ids": incomplete_ids,
+        "task_valid_candidate_ids": [summary["id"] for summary in task_valid_summaries],
         "claim_reading": (
             "No task-valid random-stairs method advantage is supported because every evaluated "
             "candidate collapsed."
@@ -224,29 +233,41 @@ def build_interpretation(candidate_summaries: list[dict[str, Any]]) -> dict[str,
             else "Check per-candidate task validity before reading metric orderings as method evidence."
         ),
         "metric_ordering_note": (
-            "Per-metric SC-PPO vs heuristic ordering is descriptive only when either side has "
-            "fall_rate = 1.0; collapsed policies are not task-valid smooth-control wins."
+            "Per-metric ordering is only claim-grade within task-valid rows; collapsed or incomplete "
+            "rows are diagnostic only."
         ),
         "status": "incomplete",
     }
-    if not isinstance(sc, dict) or not isinstance(heuristic, dict):
+    if all_methods_collapsed or not task_valid_summaries:
+        interpretation["status"] = "complete" if all_methods_collapsed else "incomplete"
         return interpretation
 
-    metric_comparison: dict[str, Any] = {}
+    metric_winners: dict[str, Any] = {}
+    metric_rankings: dict[str, Any] = {}
     for key in METRIC_KEYS:
-        sc_key = f"{key}_mean"
-        heuristic_key = f"{key}_mean"
-        if sc_key not in sc or heuristic_key not in heuristic:
+        metric_key = f"{key}_mean"
+        rows: list[dict[str, Any]] = []
+        for summary in task_valid_summaries:
+            aggregate = summary.get("aggregate")
+            if not isinstance(aggregate, dict) or metric_key not in aggregate:
+                continue
+            rows.append(
+                {
+                    "id": summary["id"],
+                    "label": summary["label"],
+                    "value": aggregate[metric_key],
+                }
+            )
+        if not rows:
             continue
         higher_is_better = key == "episode_return_mean"
-        metric_comparison[key] = {
-            "sc_ppo": sc[sc_key],
-            "heuristic": heuristic[heuristic_key],
-            "ordering": compare_metric(sc[sc_key], heuristic[heuristic_key], higher_is_better=higher_is_better),
-        }
+        ordered = sorted(rows, key=lambda row: metric_sort_value(float(row["value"]), higher_is_better=higher_is_better))
+        metric_rankings[key] = ordered
+        metric_winners[key] = ordered[0]
 
     interpretation["status"] = "complete"
-    interpretation["sc_ppo_vs_revised_heuristic"] = metric_comparison
+    interpretation["metric_winners"] = metric_winners
+    interpretation["metric_rankings"] = metric_rankings
     return interpretation
 
 
@@ -259,7 +280,7 @@ def write_summary(
     output_root = ensure_directory(analysis_root(sweep_cfg, args).resolve())
     payload = {
         "comparison_name": sweep_cfg["name"],
-        "scope": "复杂地形条件 pressure test",
+        "scope": sweep_cfg.get("scope", sweep_cfg.get("terrain_protocol", {}).get("scope", "selected-checkpoint robustness slice")),
         "seeds": seeds,
         "eval_num_envs": arg_or_sweep(args, sweep_cfg, "eval_num_envs"),
         "episodes": arg_or_sweep(args, sweep_cfg, "episodes"),
@@ -296,8 +317,8 @@ def selected_seeds(sweep_cfg: dict[str, Any], requested: list[int] | None) -> li
 
 
 def print_plan(sweep_cfg: dict[str, Any], candidates: list[dict[str, Any]], seeds: list[int], args: argparse.Namespace) -> None:
-    print(f"Random-stairs stress test: {sweep_cfg['name']}")
-    print("scope: evaluation-only selected-checkpoint pressure test")
+    print(f"Selected-checkpoint stress test: {sweep_cfg['name']}")
+    print(f"scope: {sweep_cfg.get('scope', 'evaluation-only selected-checkpoint pressure test')}")
     print(f"eval_num_envs: {arg_or_sweep(args, sweep_cfg, 'eval_num_envs')}")
     print(f"episodes: {arg_or_sweep(args, sweep_cfg, 'episodes')}")
     print(f"analysis summary: {relative_to_repo(analysis_root(sweep_cfg, args) / 'comparison_summary.json')}")
@@ -321,7 +342,7 @@ def print_plan(sweep_cfg: dict[str, Any], candidates: list[dict[str, Any]], seed
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Evaluate selected rough-terrain checkpoints on random stairs.")
+    parser = argparse.ArgumentParser(description="Evaluate selected checkpoints under a bounded terrain stress configuration.")
     parser.add_argument("--sweep-config", default=None, help="Path to the random-stairs stress sweep JSON.")
     parser.add_argument("--candidate", action="append", default=None, help="Optional candidate id filter.")
     parser.add_argument("--seed", action="append", type=int, default=None, help="Optional training/evaluation seed filter.")
