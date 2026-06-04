@@ -80,6 +80,57 @@ not proceed to LCP-style, heuristic, or SC-PPO method probes under this
 unchanged task/config. The next H1 work should tune the task or baseline
 configuration and re-run this gate before unblocking method comparisons.
 
+Issue #109 tested one minimal H1-only task/config repair before any method
+probe was reopened. The adjustment stayed inside config overrides and did not
+change shared PPO, SC-PPO, or LCP-style algorithm code:
+
+- disable `commands.heading_command` so yaw commands follow
+  `H1Cfg.commands.ranges.ang_vel_yaw=[-0.3, 0.3]` rather than the inherited
+  XBot-L heading controller path
+- disable inherited XBot-L domain randomization, pushes, action delay, and
+  action noise for the first H1 baseline gate
+
+The resulting config is:
+
+- `configs/methods/h1_vanilla_ppo_stabilized.json`
+
+Training run:
+
+- run name: `h1_stabilized_seed5_iter300_env512`
+- budget: 512 environments, 300 PPO iterations, seed 5
+- run directory:
+  `.external/humanoid-gym/logs/ecolab_h1_ppo_stabilized/May31_15-38-24_h1_stabilized_seed5_iter300_env512`
+- manifest:
+  `artifacts/methods/h1_vanilla_ppo_stabilized/h1_stabilized_seed5_iter300_env512/manifest.json`
+
+Checkpoint sweep evaluation used the shared metric schema, 16 evaluation
+environments, and 20 completed episodes per checkpoint:
+
+| Checkpoint | Fall rate | Vel. err | Return | Jnt acc | Jitter | Sens. |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0   | 1.000 | 1.348 | 5.057  | 62.505 | 0.018 | 0.326 |
+| 50  | 1.000 | 1.048 | 5.457  | 66.417 | 0.094 | 1.748 |
+| 100 | 1.000 | 0.771 | 8.744  | 59.020 | 0.134 | 3.918 |
+| 150 | 0.450 | 0.571 | 60.970 | 27.333 | 0.152 | 7.789 |
+| 200 | 1.000 | 0.816 | 16.477 | 67.063 | 0.198 | 7.976 |
+| 250 | 1.000 | 0.634 | 24.793 | 42.534 | 0.187 | 8.266 |
+| 300 | 0.700 | 0.544 | 47.751 | 31.070 | 0.189 | 8.866 |
+
+The task-floor selector chose checkpoint 150 because checkpoints 150 and 300
+were the only rows within the shared task-validity tolerance band, and
+checkpoint 150 had lower joint acceleration and jitter. The selected metrics
+snapshot is:
+
+- `artifacts/methods/h1_vanilla_ppo_stabilized/h1_stabilized_seed5_iter300_env512/metrics_selected.json`
+
+This tuning attempt improved velocity tracking and reduced joint acceleration
+relative to the earlier H1 baseline probes, but it did not repair the core gate
+failure. The best checkpoint still falls in 45% of the 20 evaluation episodes,
+and most checkpoints remain fully collapsed. H1 should therefore remain a
+non-claim-grade feasibility branch. Issues #103, #104, #105, and #107 should
+stay blocked until a later H1 baseline repair reaches a materially lower fall
+rate.
+
 ## Design Choices
 
 - Reuse the existing XBot-L humanoid environment logic for the first vertical
