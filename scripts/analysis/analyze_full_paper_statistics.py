@@ -35,6 +35,7 @@ DEFAULT_DOC_PATH = REPO_ROOT / "docs" / "full-paper" / "statistical-robustness-r
 
 LCP_SUMMARY = REPO_ROOT / "artifacts" / "analysis" / "rough_terrain_lcp_soft_jacobian_formal" / "comparison_summary.json"
 EXTENDED_SUMMARY = REPO_ROOT / "artifacts" / "analysis" / "rough_terrain_extended_seeds" / "comparison_summary.json"
+CHECKPOINT_ROBUSTNESS_SUMMARY = REPO_ROOT / "artifacts" / "analysis" / "checkpoint_robustness" / "summary.json"
 LCP_MUJOCO_BASE = (
     REPO_ROOT
     / "artifacts"
@@ -135,15 +136,57 @@ def bootstrap_mean_ci(
     iterations: int = BOOTSTRAP_ITERATIONS,
     seed: int = RANDOM_SEED,
 ) -> tuple[float, float]:
+    return bootstrap_statistic_ci(values, statistics.fmean, iterations=iterations, seed=seed)
+
+
+def bootstrap_statistic_ci(
+    values: list[float],
+    statistic: Any,
+    *,
+    iterations: int = BOOTSTRAP_ITERATIONS,
+    seed: int = RANDOM_SEED,
+) -> tuple[float, float]:
     if not values:
         raise ValueError("Cannot bootstrap empty values")
     rng = random.Random(seed)
     n = len(values)
-    means = []
+    samples = []
     for _ in range(iterations):
         sample = [values[rng.randrange(n)] for _ in range(n)]
-        means.append(statistics.fmean(sample))
-    return percentile(means, 0.025), percentile(means, 0.975)
+        samples.append(float(statistic(sample)))
+    return percentile(samples, 0.025), percentile(samples, 0.975)
+
+
+def interquartile_mean(values: list[float]) -> float:
+    if not values:
+        raise ValueError("Cannot compute IQM of empty values")
+    sorted_values = sorted(float(value) for value in values)
+    n = len(sorted_values)
+    trim_mass = 0.25 * n
+    weights = [1.0] * n
+
+    remaining = trim_mass
+    index = 0
+    while remaining > 0.0 and index < n:
+        trimmed = min(weights[index], remaining)
+        weights[index] -= trimmed
+        remaining -= trimmed
+        if weights[index] == 0.0:
+            index += 1
+
+    remaining = trim_mass
+    index = n - 1
+    while remaining > 0.0 and index >= 0:
+        trimmed = min(weights[index], remaining)
+        weights[index] -= trimmed
+        remaining -= trimmed
+        if weights[index] == 0.0:
+            index -= 1
+
+    total_weight = sum(weights)
+    if total_weight <= 0.0:
+        raise ValueError("IQM trimming removed all sample mass")
+    return sum(value * weight for value, weight in zip(sorted_values, weights)) / total_weight
 
 
 def policy_sensitivity(metrics: dict[str, Any]) -> float | None:
@@ -263,6 +306,31 @@ def summarize_means(data: dict[str, dict[str, dict[int, dict[str, float]]]]) -> 
     return rows
 
 
+def summarize_iqm(data: dict[str, dict[str, dict[int, dict[str, float]]]]) -> list[dict[str, Any]]:
+    rows = []
+    for dataset, metrics in [("isaac", ISAAC_METRICS), ("mujoco", MUJOCO_METRICS)]:
+        for method_id in METHOD_ORDER:
+            for metric in metrics:
+                values = values_for(data[dataset], method_id, metric.key)
+                iqm = interquartile_mean(values)
+                ci_low, ci_high = bootstrap_statistic_ci(values, interquartile_mean)
+                rows.append(
+                    {
+                        "dataset": dataset,
+                        "method_id": method_id,
+                        "method": METHOD_LABELS[method_id],
+                        "metric": metric.key,
+                        "metric_label": metric.label,
+                        "lower_is_better": metric.lower_is_better,
+                        "iqm": iqm,
+                        "ci95_low": ci_low,
+                        "ci95_high": ci_high,
+                        "values_by_seed": {str(seed): data[dataset][method_id][seed][metric.key] for seed in SEEDS},
+                    }
+                )
+    return rows
+
+
 def better_method(first: str, second: str, delta: float, metric: MetricSpec) -> str:
     if delta == 0.0:
         return "tie"
@@ -373,27 +441,97 @@ def stability_phrase(row: dict[str, Any]) -> str:
     return f"{row['preferred_by_mean']} preferred by mean, but CI includes zero ({ci})"
 
 
+def checkpoint_summary_by_method(rows: list[dict[str, Any]], method_id: str) -> dict[str, Any]:
+    for row in rows:
+        if row["method_id"] == method_id:
+            return row
+    raise KeyError(f"Missing checkpoint robustness row for {method_id}")
+
+
+def task_valid_seed_count(
+    method_data: dict[int, dict[str, float]],
+    *,
+    collapse_fall_rate: float = 1.0,
+) -> int:
+    return sum(
+        1
+        for seed in SEEDS
+        if method_data[seed].get("fall_rate") is not None and float(method_data[seed]["fall_rate"]) < collapse_fall_rate
+    )
+
+
+def zero_fall_seed_count(method_data: dict[int, dict[str, float]]) -> int:
+    return sum(
+        1
+        for seed in SEEDS
+        if method_data[seed].get("fall_rate") is not None
+        and math.isclose(float(method_data[seed]["fall_rate"]), 0.0, abs_tol=1e-12)
+    )
+
+
+def summarize_reliability(data: dict[str, dict[str, dict[int, dict[str, float]]]]) -> tuple[list[dict[str, Any]], list[str]]:
+    checkpoint_summary = read_json(CHECKPOINT_ROBUSTNESS_SUMMARY)
+    isaac_rows = checkpoint_summary["method_summaries"]
+    mujoco_rows = checkpoint_summary["mujoco_method_summaries"]
+    rows = []
+    for method_id in METHOD_ORDER:
+        isaac = checkpoint_summary_by_method(isaac_rows, method_id)
+        mujoco = checkpoint_summary_by_method(mujoco_rows, method_id)
+        selected_task_valid = task_valid_seed_count(data["isaac"][method_id])
+        zero_fall = zero_fall_seed_count(data["isaac"][method_id])
+        changed_seed_count = int(isaac["changed_seed_count"])
+        rows.append(
+            {
+                "method_id": method_id,
+                "method": METHOD_LABELS[method_id],
+                "selected_task_valid_seed_count": selected_task_valid,
+                "selected_task_valid_seed_rate": selected_task_valid / len(SEEDS),
+                "selected_zero_fall_seed_count": zero_fall,
+                "selected_zero_fall_seed_rate": zero_fall / len(SEEDS),
+                "changed_seed_count": changed_seed_count,
+                "changed_seed_rate": changed_seed_count / len(SEEDS),
+                "selected_equals_final_seed_count": len(SEEDS) - changed_seed_count,
+                "selected_equals_final_seed_rate": (len(SEEDS) - changed_seed_count) / len(SEEDS),
+                "checkpoint_classification": isaac["classification"],
+                "isaac_fall_delta": isaac["metrics"]["fall_rate"]["delta"],
+                "isaac_joint_acc_delta": isaac["metrics"]["joint_acceleration_l2_mean"]["delta"],
+                "isaac_jitter_delta": isaac["metrics"]["action_jitter_l2_mean"]["delta"],
+                "mujoco_fall_delta": mujoco["metrics"]["fall_rate"]["delta"],
+                "mujoco_joint_acc_delta": mujoco["metrics"]["joint_acceleration_l2_mean"]["delta"],
+                "mujoco_jitter_delta": mujoco["metrics"]["action_jitter_l2_mean"]["delta"],
+            }
+        )
+    return rows, [relative_to_repo(CHECKPOINT_ROBUSTNESS_SUMMARY)]
+
+
+def count_fmt(count: int, total: int = len(SEEDS)) -> str:
+    return f"{count}/{total}"
+
+
 def write_summary_markdown(summary: dict[str, Any], path: Path) -> None:
     mean_rows = summary["mean_ci_rows"]
+    iqm_rows = summary["iqm_rows"]
     delta_rows = summary["paired_delta_rows"]
     rank_rows = summary["rank_stability_rows"]
+    reliability_rows = summary["reliability_rows"]
 
     lines = [
-        "# Full-Paper Statistical Robustness Results (#75)",
+        "# Full-Paper Statistical Robustness Results (#116)",
         "",
         "Status: `complete`.",
         "",
         "This note adds a descriptive statistical audit for the full-paper mechanism-comparison evidence. "
         "It uses matched seeds `11/17/23/29/31`, nonparametric bootstrap confidence intervals over seed means, "
-        "paired seed-level deltas, and bootstrap rank stability. With five seeds, these intervals should be "
-        "read as uncertainty evidence rather than strong null-hypothesis significance tests.",
+        "IQM summaries, paired seed-level deltas, bootstrap rank stability, and a compact checkpoint-instability read. "
+        "With five seeds, these intervals should be read as uncertainty evidence rather than strong null-hypothesis significance tests.",
         "",
         "## Main Read",
         "",
-        "- The strongest statistically robust statement is still mechanism-level: LCP is clearly stronger than the current SC-PPO hard-constraint row on Isaac fall, velocity error, return, and sensitivity, and on MuJoCo action jitter.",
-        "- LCP's joint-acceleration advantage over SC-PPO is directionally favorable in both Isaac and MuJoCo, but the paired bootstrap intervals overlap zero because seed-level variance is large.",
-        "- LCP versus the revised heuristic remains metric-dependent: LCP is usually better on action jitter and return-sensitive Isaac task behavior, while the heuristic remains competitive or better on joint acceleration, especially in MuJoCo.",
-        "- Several paired confidence intervals include zero. The paper should therefore report stable directions and uncertainty, not binary significance claims.",
+        "- The added IQM view preserves the mean-based read: LCP is clearly stronger than the current SC-PPO hard-constraint row on Isaac fall, velocity error, return, and sensitivity, and on MuJoCo action jitter.",
+        "- LCP's joint-acceleration advantage over SC-PPO is still directionally favorable in both Isaac and MuJoCo, but the paired bootstrap intervals overlap zero because seed-level variance remains large even under the robust aggregate.",
+        "- LCP versus the revised heuristic remains metric-dependent under both mean and IQM views: LCP is usually better on action jitter and return-sensitive Isaac task behavior, while the heuristic remains competitive or better on joint acceleration, especially in MuJoCo.",
+        "- All three primary rows are 5/5 noncollapsed under the repo's selected-checkpoint task-validity guard (`fall_rate < 1.0`); the cleaner reliability split is checkpoint dependence, which rises from LCP (1 changed seed) to SC-PPO (2) to the heuristic (3).",
+        "- Several paired confidence intervals still include zero. The paper should therefore report stable directions and uncertainty, not binary significance claims.",
         "",
         "Representative paired reads:",
         "",
@@ -416,6 +554,29 @@ def write_summary_markdown(summary: dict[str, Any], path: Path) -> None:
                 metric=row["metric_label"],
                 mean=fmt(row["mean"]),
                 std=fmt(row["std"]),
+                low=fmt(row["ci95_low"]),
+                high=fmt(row["ci95_high"]),
+            )
+        )
+
+    lines.extend(
+        [
+            "",
+            "## IQM and Bootstrap CI",
+            "",
+            "IQM is the interquartile mean across the five matched seeds. It downweights the single highest and single lowest quarter-sample mass and is therefore a small-sample robust aggregate rather than a new test.",
+            "",
+            "| Dataset | Method | Metric | IQM | 95% bootstrap CI |",
+            "| --- | --- | --- | ---: | ---: |",
+        ]
+    )
+    for row in iqm_rows:
+        lines.append(
+            "| {dataset} | {method} | {metric} | {iqm} | [{low}, {high}] |".format(
+                dataset=row["dataset"],
+                method=row["method"],
+                metric=row["metric_label"],
+                iqm=fmt(row["iqm"]),
                 low=fmt(row["ci95_low"]),
                 high=fmt(row["ci95_high"]),
             )
@@ -450,6 +611,34 @@ def write_summary_markdown(summary: dict[str, Any], path: Path) -> None:
     lines.extend(
         [
             "",
+            "## Reliability and Checkpoint Instability",
+            "",
+            "Selected task-valid counts use the repo's checkpoint-sweep noncollapse guard (`fall_rate < 1.0`). "
+            "`Selected=final` counts show how often the selected checkpoint already matches the final checkpoint on the same seed.",
+            "",
+            "| Method | Selected task-valid seeds | Zero-fall seeds | Changed seeds | Selected=final | Checkpoint class | Isaac fall delta | Isaac Jnt acc delta | MuJoCo Jnt acc delta | MuJoCo Jitter delta |",
+            "| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |",
+        ]
+    )
+    for row in reliability_rows:
+        lines.append(
+            "| {method} | {task_valid} | {zero_fall} | {changed} | {matches} | {cls} | {isaac_fall} | {isaac_joint} | {mujoco_joint} | {mujoco_jitter} |".format(
+                method=row["method"],
+                task_valid=count_fmt(row["selected_task_valid_seed_count"]),
+                zero_fall=count_fmt(row["selected_zero_fall_seed_count"]),
+                changed=count_fmt(row["changed_seed_count"]),
+                matches=count_fmt(row["selected_equals_final_seed_count"]),
+                cls=row["checkpoint_classification"],
+                isaac_fall=fmt(row["isaac_fall_delta"]),
+                isaac_joint=fmt(row["isaac_joint_acc_delta"]),
+                mujoco_joint=fmt(row["mujoco_joint_acc_delta"]),
+                mujoco_jitter=fmt(row["mujoco_jitter_delta"]),
+            )
+        )
+
+    lines.extend(
+        [
+            "",
             "## Bootstrap Rank Stability",
             "",
             "Values are the fraction of bootstrap resamples in which each method is the best-ranked method for the metric.",
@@ -476,10 +665,11 @@ def write_summary_markdown(summary: dict[str, Any], path: Path) -> None:
             "",
             "## Paper Wording Guidance",
             "",
-            "- Use `paired bootstrap uncertainty audit` rather than `statistical significance test`.",
-            "- It is defensible to say LCP is robustly stronger than SC-PPO in the current five-seed mechanism comparison.",
-            "- It is not defensible to say LCP robustly dominates the revised heuristic across all metrics.",
+            "- Use `paired bootstrap + IQM uncertainty audit` rather than `statistical significance test`.",
+            "- It is defensible to say LCP is robustly stronger than SC-PPO in the current five-seed mechanism comparison, and that the IQM view preserves that read.",
+            "- It is not defensible to say LCP robustly dominates the revised heuristic across all metrics; the robust aggregate still leaves a joint-acceleration trade-off.",
             "- Keep the revised heuristic as a strong reward-shaping anchor; the statistics reinforce that it is not a strawman.",
+            "- Use the reliability table to say that the main instability question is checkpoint dependence, not widespread collapse of the selected rows.",
             "",
             "## Source Artifacts",
             "",
@@ -494,6 +684,7 @@ def write_summary_markdown(summary: dict[str, Any], path: Path) -> None:
             "## Reproduction",
             "",
             "```bash",
+            "/TinyNAS2024/zhuoxiang/sco-humanoid/bin/python scripts/analysis/analyze_checkpoint_robustness.py",
             "/TinyNAS2024/zhuoxiang/sco-humanoid/bin/python scripts/analysis/analyze_full_paper_statistics.py",
             "```",
             "",
@@ -507,18 +698,21 @@ def write_summary_markdown(summary: dict[str, Any], path: Path) -> None:
 
 def build_summary(output_dir: Path) -> dict[str, Any]:
     data, source_artifacts = collect_data()
+    reliability_rows, reliability_sources = summarize_reliability(data)
     return {
-        "issue": "#75",
+        "issue": "#116",
         "protocol": {
             "seeds": SEEDS,
             "bootstrap_iterations": BOOTSTRAP_ITERATIONS,
             "random_seed": RANDOM_SEED,
-            "interpretation": "Descriptive paired bootstrap uncertainty audit, not NHST.",
+            "interpretation": "Descriptive bootstrap + IQM uncertainty audit, not NHST.",
         },
         "mean_ci_rows": summarize_means(data),
+        "iqm_rows": summarize_iqm(data),
         "paired_delta_rows": summarize_paired_deltas(data),
+        "reliability_rows": reliability_rows,
         "rank_stability_rows": summarize_rank_stability(data),
-        "source_artifacts": source_artifacts,
+        "source_artifacts": sorted(set(source_artifacts + reliability_sources)),
         "generated_artifacts": {
             "summary_json": relative_to_repo(output_dir / "summary.json"),
             "summary_markdown": relative_to_repo(output_dir / "summary.md"),

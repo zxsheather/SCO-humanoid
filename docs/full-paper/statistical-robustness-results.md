@@ -1,15 +1,16 @@
-# Full-Paper Statistical Robustness Results (#75)
+# Full-Paper Statistical Robustness Results (#116)
 
 Status: `complete`.
 
-This note adds a descriptive statistical audit for the full-paper mechanism-comparison evidence. It uses matched seeds `11/17/23/29/31`, nonparametric bootstrap confidence intervals over seed means, paired seed-level deltas, and bootstrap rank stability. With five seeds, these intervals should be read as uncertainty evidence rather than strong null-hypothesis significance tests.
+This note adds a descriptive statistical audit for the full-paper mechanism-comparison evidence. It uses matched seeds `11/17/23/29/31`, nonparametric bootstrap confidence intervals over seed means, IQM summaries, paired seed-level deltas, bootstrap rank stability, and a compact checkpoint-instability read. With five seeds, these intervals should be read as uncertainty evidence rather than strong null-hypothesis significance tests.
 
 ## Main Read
 
-- The strongest statistically robust statement is still mechanism-level: LCP is clearly stronger than the current SC-PPO hard-constraint row on Isaac fall, velocity error, return, and sensitivity, and on MuJoCo action jitter.
-- LCP's joint-acceleration advantage over SC-PPO is directionally favorable in both Isaac and MuJoCo, but the paired bootstrap intervals overlap zero because seed-level variance is large.
-- LCP versus the revised heuristic remains metric-dependent: LCP is usually better on action jitter and return-sensitive Isaac task behavior, while the heuristic remains competitive or better on joint acceleration, especially in MuJoCo.
-- Several paired confidence intervals include zero. The paper should therefore report stable directions and uncertainty, not binary significance claims.
+- The added IQM view preserves the mean-based read: LCP is clearly stronger than the current SC-PPO hard-constraint row on Isaac fall, velocity error, return, and sensitivity, and on MuJoCo action jitter.
+- LCP's joint-acceleration advantage over SC-PPO is still directionally favorable in both Isaac and MuJoCo, but the paired bootstrap intervals overlap zero because seed-level variance remains large even under the robust aggregate.
+- LCP versus the revised heuristic remains metric-dependent under both mean and IQM views: LCP is usually better on action jitter and return-sensitive Isaac task behavior, while the heuristic remains competitive or better on joint acceleration, especially in MuJoCo.
+- All three primary rows are 5/5 noncollapsed under the repo's selected-checkpoint task-validity guard (`fall_rate < 1.0`); the cleaner reliability split is checkpoint dependence, which rises from LCP (1 changed seed) to SC-PPO (2) to the heuristic (3).
+- Several paired confidence intervals still include zero. The paper should therefore report stable directions and uncertainty, not binary significance claims.
 
 Representative paired reads:
 
@@ -57,6 +58,46 @@ Representative paired reads:
 | mujoco | Revised heuristic | Jitter | 0.226 | 0.037 | [0.192, 0.258] |
 | mujoco | Revised heuristic | Return | -456.370 | 195.030 | [-627.126, -285.614] |
 
+## IQM and Bootstrap CI
+
+IQM is the interquartile mean across the five matched seeds. It downweights the single highest and single lowest quarter-sample mass and is therefore a small-sample robust aggregate rather than a new test.
+
+| Dataset | Method | Metric | IQM | 95% bootstrap CI |
+| --- | --- | --- | ---: | ---: |
+| isaac | LCP-style soft penalty | Fall | 0.000 | [0.000, 0.000] |
+| isaac | LCP-style soft penalty | Vel. err | 0.488 | [0.454, 0.530] |
+| isaac | LCP-style soft penalty | Jnt acc | 107.526 | [104.732, 144.834] |
+| isaac | LCP-style soft penalty | Jitter | 0.203 | [0.184, 0.253] |
+| isaac | LCP-style soft penalty | Return | 119.056 | [110.078, 125.709] |
+| isaac | LCP-style soft penalty | Sensitivity | 1.868 | [1.838, 1.977] |
+| isaac | SC-PPO 3.8 PID | Fall | 0.100 | [0.030, 0.415] |
+| isaac | SC-PPO 3.8 PID | Vel. err | 0.633 | [0.488, 0.682] |
+| isaac | SC-PPO 3.8 PID | Jnt acc | 120.502 | [110.202, 209.341] |
+| isaac | SC-PPO 3.8 PID | Jitter | 0.230 | [0.219, 0.408] |
+| isaac | SC-PPO 3.8 PID | Return | 100.368 | [82.328, 114.717] |
+| isaac | SC-PPO 3.8 PID | Sensitivity | 3.647 | [3.541, 3.691] |
+| isaac | Revised heuristic | Fall | 0.150 | [0.080, 0.220] |
+| isaac | Revised heuristic | Vel. err | 0.665 | [0.629, 0.847] |
+| isaac | Revised heuristic | Jnt acc | 118.604 | [103.908, 121.751] |
+| isaac | Revised heuristic | Jitter | 0.263 | [0.237, 0.278] |
+| isaac | Revised heuristic | Return | 109.201 | [91.518, 113.208] |
+| isaac | Revised heuristic | Sensitivity | 7.305 | [7.073, 7.631] |
+| mujoco | LCP-style soft penalty | Fall | 0.000 | [0.000, 0.000] |
+| mujoco | LCP-style soft penalty | Vel. err | 0.400 | [0.339, 0.480] |
+| mujoco | LCP-style soft penalty | Jnt acc | 112.994 | [109.157, 132.688] |
+| mujoco | LCP-style soft penalty | Jitter | 0.186 | [0.170, 0.232] |
+| mujoco | LCP-style soft penalty | Return | -585.989 | [-876.773, -330.653] |
+| mujoco | SC-PPO 3.8 PID | Fall | 0.000 | [0.000, 0.035] |
+| mujoco | SC-PPO 3.8 PID | Vel. err | 0.446 | [0.403, 0.575] |
+| mujoco | SC-PPO 3.8 PID | Jnt acc | 131.023 | [108.407, 255.345] |
+| mujoco | SC-PPO 3.8 PID | Jitter | 0.256 | [0.202, 0.539] |
+| mujoco | SC-PPO 3.8 PID | Return | -606.710 | [-901.762, -380.972] |
+| mujoco | Revised heuristic | Fall | 0.000 | [0.000, 0.000] |
+| mujoco | Revised heuristic | Vel. err | 0.402 | [0.360, 0.461] |
+| mujoco | Revised heuristic | Jnt acc | 117.000 | [92.134, 122.965] |
+| mujoco | Revised heuristic | Jitter | 0.226 | [0.182, 0.270] |
+| mujoco | Revised heuristic | Return | -430.516 | [-701.857, -253.906] |
+
 ## Paired Seed-Level Deltas
 
 Delta is `first method - second method`. For fall, velocity error, joint acceleration, jitter, and sensitivity, lower is better. For return, higher is better.
@@ -97,6 +138,16 @@ Delta is `first method - second method`. For fall, velocity error, joint acceler
 | mujoco | SC-PPO 3.8 PID - Revised heuristic | Jitter | 0.096 | [-0.021, 0.292] | Revised heuristic | false |
 | mujoco | SC-PPO 3.8 PID - Revised heuristic | Return | -170.867 | [-506.524, 104.696] | Revised heuristic | false |
 
+## Reliability and Checkpoint Instability
+
+Selected task-valid counts use the repo's checkpoint-sweep noncollapse guard (`fall_rate < 1.0`). `Selected=final` counts show how often the selected checkpoint already matches the final checkpoint on the same seed.
+
+| Method | Selected task-valid seeds | Zero-fall seeds | Changed seeds | Selected=final | Checkpoint class | Isaac fall delta | Isaac Jnt acc delta | MuJoCo Jnt acc delta | MuJoCo Jitter delta |
+| --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |
+| LCP-style soft penalty | 5/5 | 5/5 | 1/5 | 4/5 | near_final | 0.000 | 1.004 | -0.170 | 0.008 |
+| SC-PPO 3.8 PID | 5/5 | 1/5 | 2/5 | 3/5 | dynamic_selection_sensitive | 0.000 | 8.932 | 8.689 | 0.016 |
+| Revised heuristic | 5/5 | 0/5 | 3/5 | 2/5 | task_selection_sensitive | 0.050 | 2.463 | 0.249 | -0.001 |
+
 ## Bootstrap Rank Stability
 
 Values are the fraction of bootstrap resamples in which each method is the best-ranked method for the metric.
@@ -117,13 +168,15 @@ Values are the fraction of bootstrap resamples in which each method is the best-
 
 ## Paper Wording Guidance
 
-- Use `paired bootstrap uncertainty audit` rather than `statistical significance test`.
-- It is defensible to say LCP is robustly stronger than SC-PPO in the current five-seed mechanism comparison.
-- It is not defensible to say LCP robustly dominates the revised heuristic across all metrics.
+- Use `paired bootstrap + IQM uncertainty audit` rather than `statistical significance test`.
+- It is defensible to say LCP is robustly stronger than SC-PPO in the current five-seed mechanism comparison, and that the IQM view preserves that read.
+- It is not defensible to say LCP robustly dominates the revised heuristic across all metrics; the robust aggregate still leaves a joint-acceleration trade-off.
 - Keep the revised heuristic as a strong reward-shaping anchor; the statistics reinforce that it is not a strawman.
+- Use the reliability table to say that the main instability question is checkpoint dependence, not widespread collapse of the selected rows.
 
 ## Source Artifacts
 
+- `artifacts/analysis/checkpoint_robustness/summary.json`
 - `artifacts/analysis/rough_terrain_extended_seeds/comparison_summary.json`
 - `artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json`
 - `artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/checkpoint_sweep_summary.json`
@@ -175,6 +228,7 @@ Values are the fraction of bootstrap resamples in which each method is the best-
 ## Reproduction
 
 ```bash
+/TinyNAS2024/zhuoxiang/sco-humanoid/bin/python scripts/analysis/analyze_checkpoint_robustness.py
 /TinyNAS2024/zhuoxiang/sco-humanoid/bin/python scripts/analysis/analyze_full_paper_statistics.py
 ```
 

@@ -87,11 +87,11 @@ The contributions are:
   \item We perform matched five-seed MuJoCo replay and show a metric split:
   LCP-style regularization has the lowest action jitter, while the heuristic
   has lower mean joint acceleration and higher mean return.
-  \item We report robustness analyses covering paired bootstrap uncertainty,
-  selected-vs-final checkpoint dependence, local LCP coefficient sensitivity,
-  controlled policy perturbations, observation-noise and actuator-bandwidth
-  robustness without retraining, and a diagnostic \texttt{hfield\_moderate}
-  second-setting replay.
+  \item We report robustness analyses covering paired bootstrap and IQM
+  uncertainty views, selected-vs-final checkpoint dependence, local LCP
+  coefficient sensitivity, controlled policy perturbations, observation-noise
+  and actuator-bandwidth robustness without retraining, and a diagnostic
+  \texttt{hfield\_moderate} second-setting replay.
   \item We provide feasibility checks for OmniSafe PPO-Lag and local
   CPO-style updates as context for alternative constrained-RL implementations.
 \end{enumerate}
@@ -307,13 +307,14 @@ Method & Checkpoints & Fall & Vel. err & Jnt acc & Jitter & Return & Sens. \\
 \end{tabular}}
 \end{table}
 
-The paired bootstrap analysis indicates that LCP is stronger than SC-PPO on
-Isaac fall rate, velocity error, return, and measured sensitivity. The
-joint-acceleration difference relative to SC-PPO is favorable in the mean but
-not resolved under five seeds because the confidence interval overlaps zero.
-Relative to the heuristic, LCP improves Isaac fall rate, velocity error, jitter,
-return, and sensitivity, while the heuristic retains the lowest joint
-acceleration.
+A descriptive five-seed audit that combines paired bootstrap intervals, IQM,
+and bootstrap rank stability preserves the same read as
+Table~\ref{tab:isaac}: LCP is stronger than SC-PPO on Isaac fall rate,
+velocity error, return, and measured sensitivity. The joint-acceleration
+difference relative to SC-PPO is favorable in the mean but not resolved under
+five seeds because the confidence interval overlaps zero. Relative to the
+heuristic, LCP improves Isaac fall rate, velocity error, jitter, return, and
+sensitivity, while the heuristic retains the lowest joint acceleration.
 
 \subsection{Matched MuJoCo Replay}
 
@@ -514,14 +515,19 @@ Method & $\tau=0.05$ Fall & $\tau=0.05$ Jitter fac. & $\tau=0.10$ Fall & $\tau=0
 
 The statistical robustness analysis is descriptive rather than a large-sample
 significance test. With five seeds, it supports effect directions and
-uncertainty intervals rather than binary accept/reject conclusions. The most
+uncertainty intervals rather than binary accept/reject conclusions. Across
+paired bootstrap intervals, IQM, and bootstrap rank stability, the most
 conservative robust comparison is that LCP has stable advantages over the
 SC-PPO hard-constraint condition on Isaac fall rate, velocity error, return,
 sensitivity, and MuJoCo action jitter.
 
 The selected-vs-final checkpoint analysis shows that LCP is close to final-only
-behavior. Only seed 11 selects checkpoint 300 instead of final checkpoint 400,
-and selected-to-final aggregate deltas are small. SC-PPO is more
+behavior. Under the selected-checkpoint protocol, all three methods remain
+task-valid on all five seeds (\texttt{fall\_rate} $< 1.0$), so the main
+reliability split is checkpoint dependence rather than widespread collapse.
+Only seed 11 selects checkpoint 300 instead of final checkpoint 400 for LCP,
+giving selected-final agreement on $4/5$ seeds; SC-PPO and the heuristic agree
+with final on $3/5$ and $2/5$ seeds, respectively. SC-PPO is more
 dynamic-selection-sensitive: final checkpoints improve velocity and return but
 worsen joint acceleration and jitter. The heuristic is task-selection-sensitive:
 final checkpoints improve velocity and return slightly but increase fall rate
@@ -795,7 +801,7 @@ Final checkpoint 400 & 1.000 & 1.109 & 321.328 & 0.741 & 2.714 \\
 
 \section{Supplementary Analysis Summary}
 
-The supplementary analyses include paired bootstrap uncertainty,
+The supplementary analyses include paired bootstrap and IQM uncertainty,
 selected-vs-final checkpoint comparison, local LCP coefficient sensitivity,
 policy perturbation measurements, actuator-bandwidth stress, a bounded Unitree
 H1 mechanism-transfer diagnostic, OmniSafe PPO-Lag feasibility checks, and
