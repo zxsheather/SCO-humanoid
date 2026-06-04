@@ -74,6 +74,8 @@ def rendered_invocation(args: argparse.Namespace) -> list[str]:
         command.append(f"--seed={args.seed}")
     if args.max_iterations is not None:
         command.append(f"--max-iterations={args.max_iterations}")
+    if args.save_interval is not None:
+        command.append(f"--save-interval={args.save_interval}")
     return command
 
 
@@ -87,6 +89,7 @@ def main() -> int:
     parser.add_argument("--sim-device", default=None, help="Override the configured sim device.")
     parser.add_argument("--seed", type=int, default=None, help="Optional training seed.")
     parser.add_argument("--max-iterations", type=int, default=None, help="Optional max learning iterations.")
+    parser.add_argument("--save-interval", type=int, default=None, help="Optional checkpoint save interval.")
     parser.add_argument("--dry-run", action="store_true", help="Print the resolved wrapper command without executing it.")
     args = parser.parse_args()
 
@@ -121,6 +124,8 @@ def main() -> int:
         train_cfg.seed = args.seed
     if args.max_iterations is not None:
         train_cfg.runner.max_iterations = args.max_iterations
+    if args.save_interval is not None:
+        train_cfg.runner.save_interval = args.save_interval
     train_cfg.runner.experiment_name = config["experiment_name"]
     train_cfg.runner.run_name = run_name
 

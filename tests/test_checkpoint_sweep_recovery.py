@@ -70,6 +70,35 @@ class CheckpointSweepRecoveryTests(unittest.TestCase):
             self.assertEqual(metrics["train_constraint_legacy_guard_mode"], "max_with_legacy")
             self.assertEqual(metrics["train_constraint_trace_length"], 3)
 
+    def test_checkpoint_train_constraint_metrics_aliases_logprob_constraint_costs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            checkpoint_path = Path(tmpdir) / "model_25.pt"
+            torch.save(
+                {
+                    "alg_extra_state_dict": {
+                        "latest_stats": {
+                            "lagrange_multiplier": 0.5,
+                            "constraint_threshold": 6.0,
+                            "logprob_gradient_cost_mean": 6.1,
+                            "logprob_gradient_cost_update": 6.3,
+                            "logprob_gradient_norm_mean": 2.4,
+                        },
+                        "constraint_trace": [{}, {}],
+                    }
+                },
+                checkpoint_path,
+            )
+
+            metrics = checkpoint_sweep.checkpoint_train_constraint_metrics(checkpoint_path)
+
+            self.assertEqual(metrics["train_constraint_source"], "logprob_gradient_hard_constraint")
+            self.assertEqual(metrics["train_logprob_gradient_cost_mean"], 6.1)
+            self.assertEqual(metrics["train_logprob_gradient_cost_update"], 6.3)
+            self.assertEqual(metrics["train_logprob_gradient_norm_mean"], 2.4)
+            self.assertEqual(metrics["train_policy_local_sensitivity_cost_mean"], 6.1)
+            self.assertEqual(metrics["train_policy_local_sensitivity_cost_update"], 6.3)
+            self.assertEqual(metrics["train_constraint_trace_length"], 2)
+
     def test_build_evaluate_policy_command_forwards_trace_capture_options(self) -> None:
         command = checkpoint_sweep.build_evaluate_policy_command(
             config_path="configs/methods/example.json",

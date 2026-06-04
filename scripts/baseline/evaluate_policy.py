@@ -76,6 +76,13 @@ def constraint_logging_config(config: dict[str, Any]) -> dict[str, Any]:
     return merged
 
 
+def apply_evaluation_seed(env_cfg: Any, train_cfg: Any, seed: int | None) -> None:
+    if seed is None:
+        return
+    env_cfg.seed = int(seed)
+    train_cfg.seed = int(seed)
+
+
 def reset_trace_buffers(trace_buffers: list[dict[str, list[list[float]]]], env_id: int) -> None:
     trace_buffers[env_id]["dof_pos"].clear()
     trace_buffers[env_id]["dof_vel"].clear()
@@ -193,6 +200,7 @@ def main() -> int:
 
     env_cfg, train_cfg = task_registry.get_cfgs(name=config["task"])
     env_cfg, train_cfg = apply_method_overrides(env_cfg, train_cfg, config)
+    apply_evaluation_seed(env_cfg, train_cfg, seed)
     env_cfg.env.num_envs = upstream_args.num_envs
     env_cfg.terrain.curriculum = False
     obs_clip = float(getattr(env_cfg.normalization, "clip_observations", 100.0))

@@ -1,0 +1,72 @@
+{
+  "name": "logprob_constraint_tau_60_mean_pid_lower_bound_clamp_rough_terrain",
+  "method": {
+    "id": "logprob_constraint_ppo",
+    "label": "Logprob-gradient hard-constraint PPO probe (tau=6.0, mean, PID lower-bound clamp)",
+    "family": "replacement_method",
+    "smoothness_strategy": "logprob_gradient_hard_constraint"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_logprob_constraint_probe",
+  "run_name": "logprob_constraint_tau_60_mean_pid_lower_bound_clamp_rough_terrain",
+  "artifacts_root": "artifacts/methods/logprob_constraint_probe",
+  "evaluation_protocol": "rough_terrain_checkpoint_sweep_v2",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "training": {
+    "headless": true,
+    "num_envs": 512,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0"
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 32,
+    "episodes": 20,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 123145,
+    "metric_schema_version": 2,
+    "constraint_logging": {
+      "collect_local_sensitivity": true,
+      "local_sensitivity_threshold": 3.8,
+      "sample_envs": 4,
+      "sample_every_n_steps": 20,
+      "sidecar_metrics_filename": "constraint_metrics.json",
+      "multiplier_trace_filename": "logprob_constraint_trace.json"
+    }
+  },
+  "overrides": {
+    "env": {
+      "rewards.scales.action_smoothness": 0.0,
+      "rewards.scales.dof_acc": 0.0,
+      "rewards.scales.base_acc": 0.0,
+      "rewards.scales.dof_vel": 0.0
+    },
+    "train": {
+      "runner.algorithm_class_name": "LogProbConstraintPPO",
+      "runner.max_iterations": 400,
+      "runner.save_interval": 100,
+      "algorithm.constraint.enabled": true,
+      "algorithm.constraint.threshold": 6.0,
+      "algorithm.constraint.subsample_obs": 64,
+      "algorithm.constraint.update_mode": "pid",
+      "algorithm.constraint.cost_aggregation": "mean",
+      "algorithm.constraint.cost_quantile": 0.9,
+      "algorithm.constraint.pid_kp": 0.05,
+      "algorithm.constraint.pid_ki": 0.001,
+      "algorithm.constraint.pid_kd": 0.01,
+      "algorithm.constraint.pid_integral_mode": "lower_bound_clamp",
+      "algorithm.constraint.pid_integral_decay": 1.0,
+      "algorithm.constraint.lambda_init": 0.0,
+      "algorithm.constraint.lambda_min": 0.0,
+      "algorithm.constraint.lambda_max": 5.0,
+      "algorithm.constraint.integral_min": -10.0,
+      "algorithm.constraint.integral_max": 10.0,
+      "algorithm.constraint.epsilon": 1e-12
+    }
+  }
+}

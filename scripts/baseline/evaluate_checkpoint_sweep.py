@@ -51,12 +51,28 @@ TRAIN_CONSTRAINT_FLOAT_KEYS = (
     "constraint_penalty_error",
     "constraint_update_error",
 )
+LOGPROB_TRAIN_CONSTRAINT_FLOAT_KEYS = (
+    "constraint_error",
+    "constraint_threshold",
+    "logprob_gradient_cost_mean",
+    "logprob_gradient_cost_update",
+    "logprob_gradient_cost_max",
+    "logprob_gradient_cost_quantile",
+    "logprob_gradient_norm_mean",
+    "logprob_gradient_norm_max",
+)
 TRAIN_CONSTRAINT_STRING_KEYS = (
     "constraint_effective_mode",
     "constraint_penalty_mode",
     "constraint_update_error_mode",
     "constraint_legacy_guard_mode",
 )
+LOGPROB_TRAIN_CONSTRAINT_ALIAS_KEYS = {
+    # Keep the canonical checkpoint-sweep comparison columns populated even when the
+    # method-specific train-side constrained object is the logprob gradient cost.
+    "policy_local_sensitivity_cost_mean": "logprob_gradient_cost_mean",
+    "policy_local_sensitivity_cost_update": "logprob_gradient_cost_update",
+}
 ALIGNMENT_RANGE_KEYS = (
     "fall_rate",
     "velocity_tracking_error_mean",
@@ -73,6 +89,12 @@ ALIGNMENT_RANGE_KEYS = (
     "train_constraint_violation_rate",
     "train_constraint_legacy_violation_rate",
     "train_lagrange_multiplier",
+    "train_logprob_gradient_cost_mean",
+    "train_logprob_gradient_cost_update",
+    "train_logprob_gradient_cost_max",
+    "train_logprob_gradient_cost_quantile",
+    "train_logprob_gradient_norm_mean",
+    "train_logprob_gradient_norm_max",
 )
 
 
@@ -222,6 +244,17 @@ def checkpoint_train_constraint_metrics(path: Path) -> dict[str, Any]:
     for key in TRAIN_CONSTRAINT_STRING_KEYS:
         value = latest_stats.get(key)
         train_metrics[f"train_{key}"] = str(value) if value is not None else None
+    for key in LOGPROB_TRAIN_CONSTRAINT_FLOAT_KEYS:
+        train_metrics[f"train_{key}"] = numeric_value(latest_stats.get(key))
+
+    if "logprob_gradient_cost_mean" in latest_stats:
+        train_metrics["train_constraint_source"] = "logprob_gradient_hard_constraint"
+        for comparable_key, raw_key in LOGPROB_TRAIN_CONSTRAINT_ALIAS_KEYS.items():
+            canonical_key = f"train_{comparable_key}"
+            if train_metrics.get(canonical_key) is None:
+                train_metrics[canonical_key] = numeric_value(latest_stats.get(raw_key))
+    elif "policy_local_sensitivity_cost_mean" in latest_stats:
+        train_metrics["train_constraint_source"] = "policy_local_sensitivity_hard_constraint"
 
     constraint_trace = alg_extra_state.get("constraint_trace")
     if isinstance(constraint_trace, list):
