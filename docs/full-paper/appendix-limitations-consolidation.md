@@ -75,6 +75,9 @@ comparison rows:
 
 The correct role of these results is to sharpen the paper's claim boundary and
 show which obvious follow-up branches were tested and did not promote.
+Only the OmniSafe feasibility result needs an appendix table in the current
+manuscript; the other negative-result lines can remain summarized through the
+appendix map, limitations text, and supporting notes.
 
 ## Future-Work Bucket
 

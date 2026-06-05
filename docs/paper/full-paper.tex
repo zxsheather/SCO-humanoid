@@ -213,8 +213,10 @@ Thus the LCP-style penalty is modulated by both the sampled action residual and
 the current exploration scale. In the scalar-variance, fixed-residual
 simplification, the squared term carries a $\sigma^{-4}$ factor; on-policy
 residual variance partially offsets this factor, but the effective pressure
-remains tied to exploration variance. This gives the soft penalty a
-training-time modulation absent from SC-PPO's fixed mean-Jacobian threshold.
+remains tied to exploration variance. Consequently, the effective
+regularization pressure is weaker during early high-exploration phases and
+stronger after exploration shrinks, giving the soft penalty a built-in
+training-time schedule absent from SC-PPO's fixed mean-Jacobian threshold.
 
 This condition is the closest literature-aligned policy-sensitivity baseline in
 our experimental stack, but it is not an official LCP reproduction. The public
@@ -552,7 +554,7 @@ perturbation amplification, action jitter, and observation-noise degradation.
 The heuristic remains stronger on some downstream closed-loop metrics,
 especially MuJoCo joint acceleration, energy per meter, and return. The
 five-seed uncertainty audit therefore supports a mechanism-level claim rather
-than a blanket statement that one method wins every metric.
+than a blanket statement that one method uniformly leads on every metric.
 
 The evidence for this decomposition is internally consistent. Perturbation
 amplification and selected policy sensitivity correlate at $0.999$, showing
@@ -573,7 +575,7 @@ threshold on the mean Jacobian. SC-PPO exposes the behavior of hard
 enforcement under the same policy-sensitivity objective: the constraint is
 interpretable, but PID-Lagrangian multiplier dynamics and checkpoint behavior
 are seed-sensitive. In this comparison, SC-PPO is therefore best read as a
-hard-enforcement diagnostic rather than as the strongest competing method.
+hard-enforcement diagnostic rather than as the main performance reference.
 
 For practitioners, the results suggest that adding a fixed soft Jacobian
 penalty can be a simple alternative to reward-only smoothness tuning in a PPO
@@ -602,7 +604,8 @@ benchmark.
 
 \subsection{Why the Heuristic Still Matters}
 
-The revised heuristic is a strong reward-shaping baseline because it wins some
+The revised heuristic is a strong reward-shaping baseline because it retains
+advantages on some
 downstream metrics without reducing policy sensitivity. In matched MuJoCo
 replay it outperforms LCP on mean joint acceleration, energy per meter, and
 mean return even though LCP achieves lower action jitter and lower absolute
@@ -873,9 +876,9 @@ Final checkpoint 400 & 1.000 & 1.109 & 321.328 & 0.741 & 2.714 \\
 Category & Placement and role \\
 \midrule
 Main-text evidence & Five-seed Isaac comparison, matched MuJoCo replay, policy-perturbation plus observation-noise mechanism diagnostics, and robustness/reliability analyses. \\
-Supplementary diagnostics & MuJoCo physical proxies, \texttt{hfield\_moderate} replay, the task-valid \texttt{plane + command\_vx = 0.6} slice, actuator-bandwidth stress, bounded Unitree H1 diagnostic, and the official-LCP parity boundary table. \\
-Negative-result boundaries & OmniSafe PPO-Lag, local CPO-style checks, LCP+heuristic hybrid, and bounded mixed-terrain retrain no-go results remain appendix or limitations material rather than promoted baselines. \\
-Future-work boundary & Official LCP parity, task-valid multi-terrain retraining, broad multi-robot validation, and hardware transfer stay outside the current paper's claim boundary. \\
+Supplementary diagnostics & MuJoCo physical proxies, \texttt{hfield\_moderate} replay, the task-valid \texttt{plane + command\_vx = 0.6} slice, actuator-bandwidth stress, the bounded Unitree H1 diagnostic, and the LCP parity table. \\
+Negative-result boundaries & OmniSafe PPO-Lag, local CPO-style checks, the LCP+heuristic hybrid pilot, and the mixed-terrain retrain no-go remain boundary notes rather than promoted baselines. \\
+Future-work boundary & Official LCP parity, task-valid multi-terrain retraining, broader multi-robot validation, and hardware transfer stay outside the current paper. \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -894,7 +897,11 @@ not a terrain benchmark. The H1 slice is not included in the primary comparison
 because it is single-seed, single-morphology supplementary evidence. The
 OmniSafe and CPO-style experiments are not included in the primary comparison
 because they remained limited-scope diagnostics and did not produce task-valid
-locomotion under the experiments reported here. The appendix map in
+locomotion under the experiments reported here. Additional supporting
+negative-result notes cover the LCP+heuristic hybrid pilot, the mixed
+rough/stairs retrain no-go, and the closer-to-official full-batch LCP scout;
+these lines remain claim-boundary context rather than promoted appendix tables.
+The appendix map in
 Table~\ref{tab:appendix-map} records the intended separation between main-text
 evidence, supplementary diagnostics, negative-result boundaries, and future
 work.
