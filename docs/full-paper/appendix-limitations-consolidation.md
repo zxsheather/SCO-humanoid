@@ -54,8 +54,8 @@ rather than repeating them defensively throughout the paper body:
 - no claim-grade multi-terrain comparison
 - task-valid same-morphology command-shift evidence does not substitute for
   multi-terrain validation
-- the current no-heights terrain-observation contract is a likely bottleneck
-  for terrain-aware retraining
+- the terrain-aware retrain gap persists even after repairing and re-testing
+  the custom height-aware critic-observation path in one bounded follow-up
 - no stable multi-robot ranking
 - no hardware validation
 - selected-checkpoint dependence, especially for SC-PPO and the heuristic
@@ -87,8 +87,8 @@ appendix map, limitations text, and supporting notes.
 Items that should remain future work rather than partial promises:
 
 - official LCP parity
-- height-aware terrain-observation support for task-valid multi-terrain
-  retraining at paper-ready quality
+- task-valid multi-terrain retraining beyond the repaired-but-still-collapsed
+  height-aware probe
 - broad multi-robot validation
 - hardware transfer
 - larger hyperparameter programs

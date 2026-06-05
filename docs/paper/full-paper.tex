@@ -654,9 +654,11 @@ command-distribution evidence rather than terrain generalization. Two bounded
 terrain-aware retrain probes on the main morphology also failed to produce
 task-valid selected-checkpoint rows: a stair-bearing mixed rough/stairs slice
 and a no-stairs \texttt{trimesh + curriculum} slice both remained
-\texttt{all\_checkpoints\_collapsed}. This pattern suggests that the current
-no-heights terrain-observation contract is a likely bottleneck, so the present
-paper does not provide claim-grade multi-terrain evidence.
+\texttt{all\_checkpoints\_collapsed}. A bounded follow-up that repaired and
+retested the custom height-aware critic-observation path also remained
+\texttt{all\_checkpoints\_collapsed}. The present paper therefore does not
+provide claim-grade multi-terrain evidence, and the remaining terrain gap is
+not reducible to a single observation-plumbing bug.
 
 The smoothness-mechanism hyperparameters are local choices, not globally
 optimized constants. The LCP coefficient is supported by a narrow
@@ -887,7 +889,7 @@ Category & Placement and role \\
 Main-text evidence & Five-seed Isaac comparison, matched MuJoCo replay, policy-perturbation plus observation-noise mechanism diagnostics, and robustness/reliability analyses. \\
 Supplementary diagnostics & MuJoCo physical proxies, \texttt{hfield\_moderate} replay, the task-valid \texttt{plane + command\_vx = 0.6} slice, actuator-bandwidth stress, the bounded Unitree H1 diagnostic, and the LCP parity table. \\
 Negative-result boundaries & OmniSafe PPO-Lag, local CPO-style checks, the LCP+heuristic hybrid pilot, and the stair-bearing plus no-stairs terrain-aware retrain no-go notes remain boundary evidence rather than promoted baselines. \\
-Future-work boundary & Official LCP parity, height-aware terrain-observation support for task-valid multi-terrain retraining, broader multi-robot validation, and hardware transfer stay outside the current paper. \\
+Future-work boundary & Official LCP parity, task-valid multi-terrain retraining beyond the repaired-but-still-collapsed height-aware probe, broader multi-robot validation, and hardware transfer stay outside the current paper. \\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -121,13 +121,15 @@ The combined read across the current terrain-aware retrain probes is:
   current strongest main method;
 - the new no-stairs `trimesh + curriculum` heuristic probe also failed cleanly
   on the current strongest practical baseline family; and
-- under the present `measure_heights = false` observation contract, the main
-  morphology does not yet show a task-valid non-plane multi-terrain retrain
-  slice at the bounded `256 env x 200 iter` budget.
+- under the initial `measure_heights = false` observation contract, the main
+  morphology did not show a task-valid non-plane multi-terrain retrain slice
+  at the bounded `256 env x 200 iter` budget.
 
-The likely bottleneck is no longer just stair severity. A reasonable inference
-from the two retrain no-go results is that the current no-heights terrain
-observation contract is itself a limiting factor for terrain-aware retraining.
+Issue `#131` then repaired the custom height-measure critic path and reran a
+bounded height-aware version of the same no-stairs terrain family; that probe
+also remained `all_checkpoints_collapsed`. So this note should now be read as
+the first half of a sharper boundary, not as the final terrain diagnosis by
+itself.
 
 ## Reviewer-Risk Read
 
@@ -136,22 +138,19 @@ What it does provide is a cleaner boundary:
 
 - the repo now has two explicit terrain-aware retrain no-go notes instead of a
   pure omission; and
-- the remaining gap is better localized to protocol/observation support rather
-  than to uncertainty about whether one more no-heights terrain mix might
-  randomly succeed.
+- the remaining gap is no longer attributable only to the original
+  `measure_heights = false` observation shortcut, because the repaired
+  height-aware follow-up still failed cleanly.
 
-## Next Terrain Line
+## Follow-Up Closure
 
-The next highest-ROI terrain line should not be another `measure_heights =
-false` multi-terrain mix. It should be explicit terrain-observation support:
-
-- repair the custom environment's height-measure privileged-observation path
-  and associated dimensional bookkeeping; then
-- rerun one bounded main-morphology terrain-aware retrain slice with
-  height-aware critic observations before reopening broader multi-terrain
-  comparisons.
-
-Tracked follow-up:
+The originally proposed follow-up has now been completed:
 
 - Issue `#131`: `Repair height-aware terrain observation support for
   main-morphology multi-terrain retraining`
+- Outcome note:
+  `docs/full-paper/height-aware-terrain-observation-repair.md`
+
+That follow-up repaired the critic-side terrain observation path and confirmed
+that the bounded no-stairs terrain line still collapses even after the repair.
+The terrain gap is therefore sharper than this note alone originally implied.

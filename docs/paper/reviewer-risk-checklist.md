@@ -135,10 +135,17 @@ Each risk is rated by severity and the strength of the current response.
   `all_checkpoints_collapsed`; checkpoints `0/100/200` all had
   `fall_rate = 1.0`, so this line did not rescue the terrain gap into a
   task-valid supplementary result.
+- The follow-up repair note
+  `docs/full-paper/height-aware-terrain-observation-repair.md` closes the
+  remaining plumbing ambiguity. The custom height-measure critic path was
+  repaired and re-tested on the same no-stairs terrain family, but the bounded
+  height-aware seed-23 probe still ended `all_checkpoints_collapsed` with
+  `fall_rate = 1.0` at checkpoints `0/100/200`.
 - **Gap**: No task-valid retrained multi-terrain comparison and no multi-robot
   evidence; the command-shift slice is bounded generality evidence rather than
-  a terrain benchmark, and the next terrain line is explicit height-observation
-  support rather than another `measure_heights = false` terrain mix.
+  a terrain benchmark, and the remaining terrain gap is now a real
+  training/protocol limitation rather than just a broken
+  `terrain.measure_heights` code path.
 
 ### R5: "No real-robot validation"
 **Severity**: MEDIUM

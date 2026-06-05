@@ -53,6 +53,8 @@ Generated paper-facing tables:
   `docs/full-paper/policy-mechanism-intervention-diagnostic.md`
 - Main-morphology multi-terrain retrain pilot:
   `docs/full-paper/main-morphology-multi-terrain-retrain-pilot.md`
+- Height-aware terrain observation repair and bounded follow-up:
+  `docs/full-paper/height-aware-terrain-observation-repair.md`
 - Task-valid second-setting command shift:
   `docs/full-paper/task-valid-second-setting-command-shift.md`
 - Matched MuJoCo mixed-evidence mechanism note:
@@ -132,6 +134,9 @@ Claims that remain defensible:
 - The policy perturbation audit adds controlled local evidence: on a shared
   observation bank, action-response amplification follows the expected
   LCP < SC-PPO < heuristic ordering.
+- The terrain gap remains open even after repairing and re-testing the custom
+  height-aware critic-observation path on one bounded no-stairs multi-terrain
+  probe; the paper still does not provide claim-grade multi-terrain evidence.
 - OmniSafe migration failure is an implementation/interface boundary, not a
   negative result about constrained RL in general.
 - CPO feasibility is answered conservatively: local CPO-style plumbing is
