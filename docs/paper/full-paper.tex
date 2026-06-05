@@ -10,6 +10,7 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage[numbers,sort&compress]{natbib}
+\usepackage{tabularx}
 \usepackage{url}
 
 \newcommand{\lcp}{LCP-style soft penalty}
@@ -882,7 +883,7 @@ Final checkpoint 400 & 1.000 & 1.109 & 321.328 & 0.741 & 2.714 \\
 \caption{Appendix map for bounded diagnostics and negative-result lines.}
 \label{tab:appendix-map}
 \small
-\begin{tabular}{p{3.0cm}p{8.7cm}}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.26\linewidth}>{\raggedright\arraybackslash}X@{}}
 \toprule
 Category & Placement and role \\
 \midrule
@@ -891,7 +892,7 @@ Supplementary diagnostics & MuJoCo physical proxies, \texttt{hfield\_moderate} r
 Negative-result boundaries & OmniSafe PPO-Lag, local CPO-style checks, the LCP+heuristic hybrid pilot, and the stair-bearing plus no-stairs terrain-aware retrain no-go notes remain boundary evidence rather than promoted baselines. \\
 Future-work boundary & Official LCP parity, task-valid multi-terrain retraining beyond the repaired-but-still-collapsed height-aware probe, broader multi-robot validation, and hardware transfer stay outside the current paper. \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \section{Supplementary Analysis Summary}
