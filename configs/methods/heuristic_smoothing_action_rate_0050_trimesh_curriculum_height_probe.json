@@ -1,0 +1,60 @@
+{
+  "name": "heuristic_smoothing_action_rate_0050_trimesh_curriculum_height_probe",
+  "method": {
+    "id": "heuristic_trimesh_curriculum_height",
+    "label": "Revised heuristic smoothing (height-aware trimesh curriculum no-stairs probe)",
+    "family": "terrain_generalization_probe",
+    "smoothness_strategy": "reward_shaping"
+  },
+  "task": "humanoid_ppo",
+  "experiment_name": "ecolab_main_morphology_height_aware_multi_terrain_probe",
+  "run_name": "heuristic_smoothing_action_rate_0050_trimesh_curriculum_height_probe",
+  "artifacts_root": "artifacts/methods/main_morphology_height_aware_multi_terrain_probe",
+  "upstream": {
+    "repo_url": "https://github.com/roboterax/humanoid-gym",
+    "ref": "ae46e201c85a2b17e7f2cea59a441dae7ea88a8f",
+    "checkout_dir": ".external/humanoid-gym"
+  },
+  "training": {
+    "headless": true,
+    "num_envs": 512,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0"
+  },
+  "evaluation": {
+    "headless": true,
+    "num_envs": 16,
+    "episodes": 20,
+    "rl_device": "cuda:0",
+    "sim_device": "cuda:0",
+    "seed": 123145,
+    "metric_schema_version": 2,
+    "constraint_logging": {
+      "collect_local_sensitivity": true,
+      "local_sensitivity_threshold": null,
+      "sample_envs": 4,
+      "sample_every_n_steps": 20,
+      "sidecar_metrics_filename": "constraint_metrics.json",
+      "multiplier_trace_filename": "lagrange_multiplier_trace.json"
+    }
+  },
+  "overrides": {
+    "env": {
+      "terrain.mesh_type": "trimesh",
+      "terrain.curriculum": true,
+      "terrain.measure_heights": true,
+      "terrain.max_init_terrain_level": 5,
+      "terrain.num_rows": 10,
+      "terrain.num_cols": 20,
+      "terrain.terrain_proportions": [0.2, 0.2, 0.4, 0.1, 0.1, 0.0, 0.0],
+      "rewards.scales.action_smoothness": -0.005,
+      "rewards.scales.dof_acc": -1e-7,
+      "rewards.scales.base_acc": 0.2,
+      "rewards.scales.dof_vel": -5e-4
+    },
+    "train": {
+      "runner.max_iterations": 200,
+      "runner.save_interval": 100
+    }
+  }
+}

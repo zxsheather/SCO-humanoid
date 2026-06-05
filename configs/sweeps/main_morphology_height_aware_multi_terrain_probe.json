@@ -1,0 +1,16 @@
+{
+  "name": "main_morphology_height_aware_multi_terrain_probe",
+  "analysis_root": "artifacts/analysis/main_morphology_height_aware_multi_terrain_probe",
+  "seeds": [23],
+  "train_num_envs": 256,
+  "eval_num_envs": 16,
+  "max_iterations": 200,
+  "episodes": 20,
+  "candidates": [
+    {
+      "id": "heuristic_trimesh_curriculum_height",
+      "label": "Revised heuristic smoothing (height-aware trimesh curriculum no-stairs probe)",
+      "config": "configs/methods/heuristic_smoothing_action_rate_0050_trimesh_curriculum_height_probe.json"
+    }
+  ]
+}

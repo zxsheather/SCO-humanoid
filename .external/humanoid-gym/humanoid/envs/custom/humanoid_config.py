@@ -41,6 +41,9 @@ class XBotLCfg(LeggedRobotCfg):
         c_frame_stack = 3
         num_single_obs = 47
         num_observations = int(frame_stack * num_single_obs)
+        # Base critic-observation size for the no-heights contract. When
+        # terrain.measure_heights is enabled, XBotLFreeEnv expands this at
+        # runtime to include the terrain height grid.
         single_num_privileged_obs = 73
         num_privileged_obs = int(c_frame_stack * single_num_privileged_obs)
         num_actions = 12
