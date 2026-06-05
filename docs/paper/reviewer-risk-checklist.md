@@ -112,7 +112,7 @@ Each risk is rated by severity and the strength of the current response.
 
 ### R4: "You only tested on one robot and one terrain"
 **Severity**: MEDIUM
-**Current response**: GOOD
+**Current response**: ADEQUATE
 - Acknowledged as limitation
 - Random stairs stress test attempted but all methods collapsed
 - Cross-engine (Isaac → MuJoCo) provides a different kind of
@@ -129,9 +129,16 @@ Each risk is rated by severity and the strength of the current response.
   It still ended as a no-go result: the seed-23 `LCP-style` gate remained
   `all_checkpoints_collapsed`, so the slice does not support a claim-grade
   multi-terrain comparison.
+- A second bounded terrain-aware retrain probe is now also available in
+  `docs/full-paper/main-morphology-multi-terrain-positive-slice.md`.
+  The no-stairs `trimesh + curriculum` heuristic seed-23 run also ended
+  `all_checkpoints_collapsed`; checkpoints `0/100/200` all had
+  `fall_rate = 1.0`, so this line did not rescue the terrain gap into a
+  task-valid supplementary result.
 - **Gap**: No task-valid retrained multi-terrain comparison and no multi-robot
-  evidence; the new command-shift slice is bounded generality evidence, not a
-  terrain benchmark
+  evidence; the command-shift slice is bounded generality evidence rather than
+  a terrain benchmark, and the next terrain line is explicit height-observation
+  support rather than another `measure_heights = false` terrain mix.
 
 ### R5: "No real-robot validation"
 **Severity**: MEDIUM

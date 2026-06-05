@@ -532,7 +532,13 @@ promoted into the main comparison story. These include the no-retraining
 terrain-generality check but operates at materially higher fall rates than the
 matched \texttt{isaac\_mainline} MuJoCo replay, and the actuator-bandwidth
 stress test, whose $\tau=0.05$ regime degrades all methods almost
-identically while $\tau=0.10$ mostly exposes a task-validity boundary.
+identically while $\tau=0.10$ mostly exposes a task-validity boundary. Two
+bounded terrain-aware main-morphology retrain probes also remained
+task-invalid: a stair-bearing mixed rough/stairs slice and a no-stairs
+\texttt{trimesh + curriculum} slice both yielded \texttt{fall\_rate = 1.0}
+across their evaluated checkpoints. We therefore treat terrain-aware retraining
+as a negative-result boundary rather than as supplementary robustness evidence
+in the current paper.
 
 The SC-PPO threshold is a local design choice rather than a globally optimized
 constant. A threshold sweep over nearby shared values found seed-dependent
@@ -644,10 +650,13 @@ non-negligible for SC-PPO and the heuristic. The \texttt{hfield\_moderate}
 replay is a diagnostic second-setting check, not a broad multi-terrain
 benchmark. A task-valid MuJoCo command-shift slice
 (\texttt{plane + command\_vx = 0.6}) is also available, but it remains
-command-distribution evidence rather than terrain generalization. A mixed
-rough/stairs stress scout also failed to produce task-valid selected-checkpoint
-rows, so the current paper does not provide claim-grade multi-terrain
-evidence.
+command-distribution evidence rather than terrain generalization. Two bounded
+terrain-aware retrain probes on the main morphology also failed to produce
+task-valid selected-checkpoint rows: a stair-bearing mixed rough/stairs slice
+and a no-stairs \texttt{trimesh + curriculum} slice both remained
+\texttt{all\_checkpoints\_collapsed}. This pattern suggests that the current
+no-heights terrain-observation contract is a likely bottleneck, so the present
+paper does not provide claim-grade multi-terrain evidence.
 
 The smoothness-mechanism hyperparameters are local choices, not globally
 optimized constants. The LCP coefficient is supported by a narrow
@@ -877,8 +886,8 @@ Category & Placement and role \\
 \midrule
 Main-text evidence & Five-seed Isaac comparison, matched MuJoCo replay, policy-perturbation plus observation-noise mechanism diagnostics, and robustness/reliability analyses. \\
 Supplementary diagnostics & MuJoCo physical proxies, \texttt{hfield\_moderate} replay, the task-valid \texttt{plane + command\_vx = 0.6} slice, actuator-bandwidth stress, the bounded Unitree H1 diagnostic, and the LCP parity table. \\
-Negative-result boundaries & OmniSafe PPO-Lag, local CPO-style checks, the LCP+heuristic hybrid pilot, and the mixed-terrain retrain no-go remain boundary notes rather than promoted baselines. \\
-Future-work boundary & Official LCP parity, task-valid multi-terrain retraining, broader multi-robot validation, and hardware transfer stay outside the current paper. \\
+Negative-result boundaries & OmniSafe PPO-Lag, local CPO-style checks, the LCP+heuristic hybrid pilot, and the stair-bearing plus no-stairs terrain-aware retrain no-go notes remain boundary evidence rather than promoted baselines. \\
+Future-work boundary & Official LCP parity, height-aware terrain-observation support for task-valid multi-terrain retraining, broader multi-robot validation, and hardware transfer stay outside the current paper. \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -899,8 +908,9 @@ OmniSafe and CPO-style experiments are not included in the primary comparison
 because they remained limited-scope diagnostics and did not produce task-valid
 locomotion under the experiments reported here. Additional supporting
 negative-result notes cover the LCP+heuristic hybrid pilot, the mixed
-rough/stairs retrain no-go, and the closer-to-official full-batch LCP scout;
-these lines remain claim-boundary context rather than promoted appendix tables.
+rough/stairs retrain no-go, the no-stairs \texttt{trimesh + curriculum}
+retrain no-go, and the closer-to-official full-batch LCP scout; these lines
+remain claim-boundary context rather than promoted appendix tables.
 The appendix map in
 Table~\ref{tab:appendix-map} records the intended separation between main-text
 evidence, supplementary diagnostics, negative-result boundaries, and future
