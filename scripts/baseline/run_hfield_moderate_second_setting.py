@@ -42,8 +42,12 @@ def default_python_bin() -> str:
     return str(candidate) if candidate.exists() else sys.executable
 
 
+def second_setting_run_name(sweep: dict[str, Any], run: SelectedRun) -> str:
+    return f"{run.base_run_name}_{sweep['terrain_mode']}"
+
+
 def output_path_for(sweep: dict[str, Any], run: SelectedRun) -> Path:
-    run_name = f"{run.base_run_name}_hfield_moderate"
+    run_name = second_setting_run_name(sweep, run)
     return artifact_dir(run.config_path, run_name) / str(sweep["output_name"])
 
 
@@ -64,7 +68,7 @@ def selected_policy_sensitivity(run: SelectedRun) -> float | None:
 
 
 def build_command(args: argparse.Namespace, sweep: dict[str, Any], run: SelectedRun) -> list[str]:
-    run_name = f"{run.base_run_name}_hfield_moderate"
+    run_name = second_setting_run_name(sweep, run)
     return [
         args.python_bin,
         str(EVALUATE_MUJOCO),
@@ -196,14 +200,37 @@ def fmt(value: Any, digits: int = 3) -> str:
     return f"{float(value):.{digits}f}"
 
 
+def terrain_label(terrain_mode: str) -> str:
+    return terrain_mode.replace("_", r"\_")
+
+
+def terrain_csv_name(terrain_mode: str) -> str:
+    return f"table_{terrain_mode}_second_setting.csv"
+
+
+def second_setting_label(sweep: dict[str, Any]) -> str:
+    return str(sweep.get("setting_label", sweep["terrain_mode"]))
+
+
+def second_setting_description(sweep: dict[str, Any]) -> str:
+    default = (
+        "This is a no-retraining selected-checkpoint MuJoCo second-setting validation. "
+        f"It replays the same H1 policies on `{terrain_label(str(sweep['terrain_mode']))}` "
+        "and should be read as a repair-stage generality check."
+    )
+    return str(sweep.get("setting_description", default))
+
+
 def write_summary_md(path: Path, sweep: dict[str, Any], rows: list[dict[str, Any]], aggregates: list[dict[str, Any]]) -> None:
     reading = interpret_result(rows, aggregates)
+    terrain_mode = str(sweep["terrain_mode"])
+    csv_path = path.parent / terrain_csv_name(terrain_mode)
     lines = [
-        "# hfield_moderate Second-Setting Validation",
+        f"# {second_setting_label(sweep)} Second-Setting Validation",
         "",
         f"Issue: {sweep.get('issue', '#92')}",
         "",
-        "This is a no-retraining selected-checkpoint MuJoCo terrain validation. It replays the same H1 policies on `hfield_moderate` and should be read as a repair-stage generality check.",
+        second_setting_description(sweep),
         "",
         "## Aggregate Metrics",
         "",
@@ -233,13 +260,13 @@ def write_summary_md(path: Path, sweep: dict[str, Any], rows: list[dict[str, Any
             "",
             "## Interpretation Guard",
             "",
-            "- Treat this as a controlled terrain generality check for selected checkpoints.",
+            "- Treat this as a controlled second-setting generality check for selected checkpoints.",
             "- Do not describe it as a broad locomotion benchmark or hardware validation.",
             "- If fall rates are high, metric orderings are diagnostic rather than claim-grade method rankings.",
             "",
             "## Artifacts",
             "",
-            f"- Per-run CSV: `{relative(path.parent / 'table_hfield_moderate_second_setting.csv')}`",
+            f"- Per-run CSV: `{relative(csv_path)}`",
             f"- Summary JSON: `{relative(path.parent / 'summary.json')}`",
         ]
     )
@@ -278,8 +305,8 @@ def interpret_result(rows: list[dict[str, Any]], aggregates: list[dict[str, Any]
     if len(collapsed) == len(aggregates):
         status = "weakens_generality"
         summary = (
-            "All completed methods collapse on the moderated terrain setting. This weakens any "
-            "multi-terrain generality claim and should be reported as a negative protocol result, "
+            "All completed methods collapse on this second setting. This weakens any "
+            "broader generality claim and should be reported as a negative protocol result, "
             "not as a method ranking."
         )
     elif best_jitter == "lcp" and (best_jacc == "heuristic" or best_return == "heuristic"):
@@ -316,10 +343,11 @@ def interpret_result(rows: list[dict[str, Any]], aggregates: list[dict[str, Any]
 
 def summarize(args: argparse.Namespace, sweep: dict[str, Any], runs: list[SelectedRun]) -> None:
     output_dir = REPO_ROOT / sweep["analysis_root"]
+    csv_path = output_dir / terrain_csv_name(str(sweep["terrain_mode"]))
     rows = collect_rows(sweep, runs)
     aggregates = aggregate_rows(rows)
     reading = interpret_result(rows, aggregates)
-    write_csv(output_dir / "table_hfield_moderate_second_setting.csv", rows)
+    write_csv(csv_path, rows)
     payload = {
         "issue": sweep.get("issue"),
         "claim_boundary": sweep.get("claim_boundary"),
@@ -332,7 +360,7 @@ def summarize(args: argparse.Namespace, sweep: dict[str, Any], runs: list[Select
         "generated_artifacts": {
             "summary_json": relative(output_dir / "summary.json"),
             "summary_markdown": relative(output_dir / "summary.md"),
-            "table_csv": relative(output_dir / "table_hfield_moderate_second_setting.csv"),
+            "table_csv": relative(csv_path),
         },
         "rerun_command": " ".join(sys.argv),
     }

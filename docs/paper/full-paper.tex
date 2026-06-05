@@ -16,6 +16,8 @@
 \newcommand{\scppo}{SC-PPO 3.8 PID}
 \newcommand{\heur}{Revised heuristic}
 \newcommand{\jacc}{joint-acceleration}
+\newif\ifsetpaperbibstyle
+\setpaperbibstyletrue
 
 \title{Policy Local Sensitivity Regularization for Smooth Humanoid Locomotion}
 \author{Anonymous Authors}
@@ -96,12 +98,14 @@ The contributions are:
   acceleration, lower energy per meter, and higher mean return.
   \item We report robustness analyses covering paired bootstrap and IQM
   uncertainty views, selected-vs-final checkpoint dependence, local LCP
-  coefficient sensitivity, controlled policy perturbations, observation-noise
-  and actuator-bandwidth robustness without retraining, trace-based MuJoCo
-  physical proxies, and a diagnostic \texttt{hfield\_moderate}
-  second-setting replay.
-  \item We provide feasibility checks for OmniSafe PPO-Lag and local
-  CPO-style updates as context for alternative constrained-RL implementations.
+  coefficient sensitivity, controlled policy perturbations, and
+  observation-noise stress without retraining. Supplementary diagnostics add
+  trace-based MuJoCo physical proxies, actuator-bandwidth stress, bounded
+  second-setting terrain replays, and a bounded single-seed second-morphology
+  check.
+  \item The appendix records bounded OmniSafe PPO-Lag and local CPO-style
+  feasibility checks as context for alternative constrained-RL
+  implementations.
 \end{enumerate}
 
 \section{Related Work}
@@ -240,24 +244,6 @@ action-rate sweep tested $-0.0005$, $-0.0020$, and $-0.0050$ while holding
 \texttt{dof\_vel = -5e-4} fixed. The same task-floor-then-smoothness
 checkpoint-selection rule is applied.
 
-\subsection{OmniSafe PPO-Lag and CPO Feasibility Checks}
-
-The following checks are not primary methods; they document external
-constrained-RL interface feasibility for this actor-internal Jacobian cost.
-OmniSafe PPO-Lag was evaluated as a feasibility check. The adapter,
-cost bridge, policy evaluation bridge, and update-hook smoke paths were
-implemented, but the three-seed end-to-end experiment did not produce
-task-valid locomotion. We therefore exclude OmniSafe PPO-Lag from the primary
-baseline table. The result indicates that a standard environment-side PPO-Lag
-interface does not directly support this actor-internal Jacobian cost without
-algorithm-level hooks.
-
-A local CPO-style path was also tested as an implementation-feasibility check.
-Tensor and one-update checks passed, and a short training-loop diagnostic
-produced finite accepted updates, but the evaluated checkpoints did not satisfy
-the task-validity criteria. We therefore do not include CPO in the main baseline
-table.
-
 \section{Experimental Protocol}
 
 The primary Isaac comparison uses five seeds, checkpoint sweeps, and the same
@@ -288,10 +274,12 @@ The primary comparison consists of the LCP-style soft penalty, SC-PPO 3.8
 PID-Lagrangian, and the revised heuristic. Robustness analyses include paired
 bootstrap uncertainty, selected-vs-final checkpoint dependence, and LCP
 coefficient sensitivity, controlled policy perturbations, and no-retraining
-observation noise. We also include no-retraining MuJoCo actuator-bandwidth
-stress and \texttt{hfield\_moderate} replay as diagnostic checks.
-Additional analyses examine OmniSafe PPO-Lag migration, local CPO-style checks,
-and alternative mechanisms that did not meet the main task-validity criteria.
+observation noise. Supplementary diagnostics include no-retraining MuJoCo
+actuator-bandwidth stress, \texttt{hfield\_moderate} replay, a bounded
+same-morphology command shift, a bounded single-seed second-morphology check,
+and bounded OmniSafe PPO-Lag and local CPO-style feasibility notes. These
+additional slices are used to sharpen claim boundaries rather than to expand
+the main comparison table.
 
 \section{Results}
 
@@ -382,38 +370,6 @@ acceleration and mean return in every split. Because this trace slice uses only
 five captured episodes per selected checkpoint and is not bootstrap-backed, we
 use it as bounded secondary evidence rather than as a new primary comparison.
 
-\subsection{Diagnostic Second-Setting Replay}
-
-Table~\ref{tab:hfield} reports a no-retraining MuJoCo
-\texttt{hfield\_moderate} replay of the same selected checkpoints. This setting
-is a terrain generality check rather than a broad benchmark: all methods have
-fall rates of $0.35$--$0.50$, a substantial increase from the near-zero aligned
-\texttt{isaac\_mainline} replay. Within that diagnostic setting, the soft
-penalty is best on fall rate, velocity error, joint acceleration, and action
-jitter, while SC-PPO has the highest return but also the highest fall rate. The
-joint-acceleration difference between the soft penalty and heuristic is marginal
-($321.113$ versus $322.360$) and occurs under high fall-rate variance, so this
-terrain check is not treated as reversing the main MuJoCo metric split.
-
-\begin{table}[t]
-\centering
-\caption{Diagnostic \texttt{hfield\_moderate} MuJoCo replay using selected
-checkpoints. Values are mean $\pm$ standard deviation over seeds
-11/17/23/29/31.}
-\label{tab:hfield}
-\small
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{lccccc}
-\toprule
-Method & Fall & Vel. err & Jnt acc & Jitter & Return \\
-\midrule
-\lcp & $0.350\pm0.105$ & $0.832\pm0.090$ & $321.113\pm31.745$ & $0.277\pm0.050$ & $-566.367\pm123.679$ \\
-\scppo & $0.500\pm0.207$ & $0.981\pm0.080$ & $386.647\pm61.783$ & $0.380\pm0.112$ & $-513.230\pm192.807$ \\
-\heur & $0.400\pm0.114$ & $1.003\pm0.120$ & $322.360\pm26.072$ & $0.358\pm0.030$ & $-666.633\pm130.789$ \\
-\bottomrule
-\end{tabular}}
-\end{table}
-
 \subsection{Mechanism-Chain Analysis}
 
 Figure~\ref{fig:mechanism-chain} is the central interpretive result of the
@@ -479,12 +435,11 @@ Isaac and MuJoCo jitter factors at $\sigma=0.05$.}
 \label{fig:mechanism-chain}
 \end{figure}
 
-\subsection{Observation-Noise Robustness}
-
+\paragraph{Observation-noise stress.}
 We next test whether the local mechanism survives a closed-loop perturbation
-without retraining. Gaussian noise is added only to the policy observation input
-at inference time, using the same selected checkpoints and the same five seeds.
-Table~\ref{tab:obs-noise} reports the largest tested noise scale,
+without retraining. Gaussian noise is added only to the policy observation
+input at inference time, using the same selected checkpoints and the same five
+seeds. Table~\ref{tab:obs-noise} reports the largest tested noise scale,
 $\sigma=0.05$; the full sweep, omitted from the table for space, also includes
 $0.005$, $0.01$, and $0.02$.
 
@@ -513,39 +468,6 @@ engines, SC-PPO is intermediate, and the heuristic is most affected. This
 strengthens the policy-output robustness interpretation. It remains an
 input-perturbation stress test rather than hardware validation, and it does not
 override the downstream metric split observed in matched MuJoCo replay.
-
-\subsection{Actuator-Bandwidth Stress Test}
-
-We also replay selected MuJoCo checkpoints with a first-order low-pass filter
-applied to actions. This is an actuator-path stress test rather than a
-calibrated actuator or latency model. Table~\ref{tab:actuator} reports fall
-rate and raw action-jitter degradation relative to each method's own
-no-low-pass replay. The stronger $\tau=0.10$ setting produces high fall rates
-for all methods, so it is best read as a task-validity boundary rather than a
-method-ranking regime. The lower SC-PPO jitter factor at $\tau=0.10$ reflects
-near-complete collapse at fall rate $0.96$, not meaningful smoothness. At
-$\tau=0.05$, all methods degrade near-identically (jitter factors
-$1.276$--$1.293$), so this test does not separate the mechanisms. The
-observation-noise test in Table~\ref{tab:obs-noise} provides the cleaner
-discriminative signal.
-
-\begin{table}[t]
-\centering
-\caption{No-retraining MuJoCo actuator-bandwidth stress. Raw jitter factors are
-relative to each method's own $\tau=0$ replay.}
-\label{tab:actuator}
-\small
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{lcccc}
-\toprule
-Method & $\tau=0.05$ Fall & $\tau=0.05$ Jitter fac. & $\tau=0.10$ Fall & $\tau=0.10$ Jitter fac. \\
-\midrule
-\lcp & $0.260$ & $1.290$ & $0.970$ & $1.888$ \\
-\scppo & $0.260$ & $1.293$ & $0.960$ & $1.167$ \\
-\heur & $0.330$ & $1.276$ & $0.870$ & $1.617$ \\
-\bottomrule
-\end{tabular}}
-\end{table}
 
 \subsection{Robustness Analyses}
 
@@ -601,6 +523,14 @@ acceleration, and action jitter relative to 0.002, while return is nearly tied.
 This does not prove global hyperparameter optimality, but it shows that the main
 LCP condition is not an isolated single-point accident within the tested
 neighborhood.
+
+Supplementary robustness slices are reported in the appendix rather than
+promoted into the main comparison story. These include the no-retraining
+\texttt{hfield\_moderate} replay, which remains useful as a bounded
+terrain-generality check but operates at materially higher fall rates than the
+matched \texttt{isaac\_mainline} MuJoCo replay, and the actuator-bandwidth
+stress test, whose $\tau=0.05$ regime degrades all methods almost
+identically while $\tau=0.10$ mostly exposes a task-validity boundary.
 
 The SC-PPO threshold is a local design choice rather than a globally optimized
 constant. A threshold sweep over nearby shared values found seed-dependent
@@ -661,6 +591,15 @@ paper's scope boundary: lowering the policy-sensitivity metric alone is not
 sufficient for good downstream locomotion, and mechanism transfer can vary
 substantially across morphologies.
 
+A task-valid no-retraining command-shift slice on the same replay path provides
+the complementary bounded-positive supplementary read. On a MuJoCo plane replay
+with \texttt{command\_vx = 0.6}, the same metric split persists: LCP remains
+best on action jitter, while the revised heuristic remains best on velocity
+error, joint acceleration, and return (Appendix
+Table~\ref{tab:command-shift}). This is useful supplementary robustness
+evidence, but it is a command-distribution shift rather than a terrain
+benchmark.
+
 \subsection{Why the Heuristic Still Matters}
 
 The revised heuristic is a strong reward-shaping baseline because it wins some
@@ -700,9 +639,12 @@ training seeds, and selected-checkpoint evaluation. The selected-vs-final
 analysis shows small deltas for the soft penalty, but checkpoint dependence is
 non-negligible for SC-PPO and the heuristic. The \texttt{hfield\_moderate}
 replay is a diagnostic second-setting check, not a broad multi-terrain
-benchmark. A mixed rough/stairs stress scout also failed to produce task-valid
-selected-checkpoint rows, so the current paper does not provide claim-grade
-multi-terrain evidence.
+benchmark. A task-valid MuJoCo command-shift slice
+(\texttt{plane + command\_vx = 0.6}) is also available, but it remains
+command-distribution evidence rather than terrain generalization. A mixed
+rough/stairs stress scout also failed to produce task-valid selected-checkpoint
+rows, so the current paper does not provide claim-grade multi-terrain
+evidence.
 
 The smoothness-mechanism hyperparameters are local choices, not globally
 optimized constants. The LCP coefficient is supported by a narrow
@@ -755,7 +697,9 @@ alongside the soft Jacobian penalty or scheduling the penalty coefficient
 during training, and evaluating transfer on physical hardware are natural next
 steps.
 
+\ifsetpaperbibstyle
 \bibliographystyle{plainnat}
+\fi
 \bibliography{references}
 
 \appendix
@@ -844,6 +788,65 @@ SC-PPO 3.8 PID & 250 & 0.200 & 0.574 & 241.324 & 1.776 & 76.658 & 3.768 \\
 
 \begin{table}[htbp]
 \centering
+\caption{Diagnostic \texttt{hfield\_moderate} MuJoCo replay using selected
+checkpoints. Values are mean $\pm$ standard deviation over seeds
+11/17/23/29/31. This is a supplementary second-setting terrain check rather
+than a broad multi-terrain benchmark.}
+\label{tab:hfield}
+\small
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+Method & Fall & Vel. err & Jnt acc & Jitter & Return \\
+\midrule
+\lcp & $0.350\pm0.105$ & $0.832\pm0.090$ & $321.113\pm31.745$ & $0.277\pm0.050$ & $-566.367\pm123.679$ \\
+\scppo & $0.500\pm0.207$ & $0.981\pm0.080$ & $386.647\pm61.783$ & $0.380\pm0.112$ & $-513.230\pm192.807$ \\
+\heur & $0.400\pm0.114$ & $1.003\pm0.120$ & $322.360\pm26.072$ & $0.358\pm0.030$ & $-666.633\pm130.789$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Task-valid MuJoCo command-shift second setting using selected
+checkpoints. The replay path stays on the matched plane protocol but increases
+\texttt{command\_vx} from $0.4$ to $0.6$. Values are mean $\pm$ standard
+deviation over seeds 11/17/23/29/31.}
+\label{tab:command-shift}
+\small
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+Method & Fall & Vel. err & Jnt acc & Jitter & Return & Sens. \\
+\midrule
+\heur & $0.000\pm0.000$ & $0.538\pm0.052$ & $118.274\pm17.544$ & $0.245\pm0.035$ & $-512.075\pm234.464$ & $7.331\pm0.237$ \\
+\lcp & $0.000\pm0.000$ & $0.562\pm0.058$ & $119.555\pm12.496$ & $0.198\pm0.030$ & $-784.939\pm226.842$ & $1.890\pm0.064$ \\
+\scppo & $0.040\pm0.080$ & $0.598\pm0.110$ & $176.182\pm87.168$ & $0.352\pm0.190$ & $-657.114\pm361.429$ & $3.630\pm0.067$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{No-retraining MuJoCo actuator-bandwidth stress. Raw jitter factors are
+relative to each method's own $\tau=0$ replay. The $\tau=0.10$ setting is best
+read as a task-validity boundary rather than a method-ranking regime.}
+\label{tab:actuator}
+\small
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+Method & $\tau=0.05$ Fall & $\tau=0.05$ Jitter fac. & $\tau=0.10$ Fall & $\tau=0.10$ Jitter fac. \\
+\midrule
+\lcp & $0.260$ & $1.290$ & $0.970$ & $1.888$ \\
+\scppo & $0.260$ & $1.293$ & $0.960$ & $1.167$ \\
+\heur & $0.330$ & $1.276$ & $0.870$ & $1.617$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{table}[htbp]
+\centering
 \caption{OmniSafe PPO-Lag feasibility check. Task-invalid policies are not
 smooth-locomotion evidence; the near-zero jitter in the selected condition
 arises because a collapsed policy barely produces action variation.}
@@ -860,19 +863,41 @@ Final checkpoint 400 & 1.000 & 1.109 & 321.328 & 0.741 & 2.714 \\
 \end{tabular}}
 \end{table}
 
+\begin{table}[htbp]
+\centering
+\caption{Appendix map for bounded diagnostics and negative-result lines.}
+\label{tab:appendix-map}
+\small
+\begin{tabular}{p{3.0cm}p{8.7cm}}
+\toprule
+Category & Placement and role \\
+\midrule
+Main-text evidence & Five-seed Isaac comparison, matched MuJoCo replay, policy-perturbation plus observation-noise mechanism diagnostics, and robustness/reliability analyses. \\
+Supplementary diagnostics & MuJoCo physical proxies, \texttt{hfield\_moderate} replay, the task-valid \texttt{plane + command\_vx = 0.6} slice, actuator-bandwidth stress, bounded Unitree H1 diagnostic, and the official-LCP parity boundary table. \\
+Negative-result boundaries & OmniSafe PPO-Lag, local CPO-style checks, LCP+heuristic hybrid, and bounded mixed-terrain retrain no-go results remain appendix or limitations material rather than promoted baselines. \\
+Future-work boundary & Official LCP parity, task-valid multi-terrain retraining, broad multi-robot validation, and hardware transfer stay outside the current paper's claim boundary. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{Supplementary Analysis Summary}
 
 The supplementary analyses include paired bootstrap and IQM uncertainty,
 selected-vs-final checkpoint comparison, local LCP coefficient sensitivity,
 policy perturbation measurements, MuJoCo physical secondary metrics,
-actuator-bandwidth stress, a bounded Unitree H1 mechanism-transfer diagnostic,
-OmniSafe PPO-Lag feasibility checks, and local CPO-style implementation
-checks. The physical metrics and actuator stress are diagnostic simulation
-evidence only. The H1 slice is not included in the primary comparison because
-it is single-seed, single-morphology supplementary evidence. The OmniSafe and
-CPO-style experiments are not included in the primary comparison because they
-remained limited-scope diagnostics and did not produce task-valid locomotion
-under the experiments reported here.
+actuator-bandwidth stress, a task-valid command-shift second setting, a bounded
+Unitree H1 mechanism-transfer diagnostic, OmniSafe PPO-Lag feasibility checks,
+and local CPO-style implementation checks. The physical metrics and
+actuator-bandwidth stress are diagnostic simulation evidence only. The
+command-shift slice is task-valid supplementary robustness evidence, but it is
+not a terrain benchmark. The H1 slice is not included in the primary comparison
+because it is single-seed, single-morphology supplementary evidence. The
+OmniSafe and CPO-style experiments are not included in the primary comparison
+because they remained limited-scope diagnostics and did not produce task-valid
+locomotion under the experiments reported here. The appendix map in
+Table~\ref{tab:appendix-map} records the intended separation between main-text
+evidence, supplementary diagnostics, negative-result boundaries, and future
+work.
 
 \section{SC-PPO Additional Comparisons}
 

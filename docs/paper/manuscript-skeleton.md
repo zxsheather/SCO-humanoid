@@ -472,6 +472,7 @@ All generated paper figures/tables are reproducible with:
 | Selected-vs-final checkpoint robustness | `docs/full-paper/selected-vs-final-checkpoint-robustness.md`; `scripts/analysis/analyze_checkpoint_robustness.py` |
 | LCP coefficient sensitivity | `docs/full-paper/lcp-weight-sensitivity-diagnostic-results.md` |
 | Bounded hfield second-setting replay | `artifacts/analysis/hfield_moderate_second_setting/summary.md` |
+| Task-valid command-shift second setting | `docs/full-paper/task-valid-second-setting-command-shift.md`; `artifacts/analysis/plane_command_vx06_second_setting/summary.md` |
 | Actuator-bandwidth robustness sweep | `artifacts/analysis/actuator_latency_robustness/summary.md`; `configs/sweeps/actuator_latency_robustness.json`; `scripts/baseline/run_actuator_latency_robustness_sweep.py` |
 | LCP-style baseline fidelity audit | `docs/full-paper/lcp-style-fidelity-audit.md` |
 | LCP parity-tightening audit | `docs/full-paper/lcp-parity-tightening-audit.md` |

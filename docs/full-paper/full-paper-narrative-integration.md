@@ -53,10 +53,16 @@ Generated paper-facing tables:
   `docs/full-paper/policy-mechanism-intervention-diagnostic.md`
 - Main-morphology multi-terrain retrain pilot:
   `docs/full-paper/main-morphology-multi-terrain-retrain-pilot.md`
+- Task-valid second-setting command shift:
+  `docs/full-paper/task-valid-second-setting-command-shift.md`
 - Matched MuJoCo mixed-evidence mechanism note:
   `docs/full-paper/mujoco-mixed-evidence-mechanism.md`
 - Policy perturbation audit:
   `docs/full-paper/policy-perturbation-audit.md`
+- Main-text integration note:
+  `docs/full-paper/main-text-integration.md`
+- Appendix and limitations consolidation:
+  `docs/full-paper/appendix-limitations-consolidation.md`
 - Related-work / claim-boundary map:
   `docs/full-paper/related-work-claim-boundary-map.md`
 - CPO evidence decision:

@@ -119,13 +119,19 @@ Each risk is rated by severity and the strength of the current response.
   generalization evidence
 - A bounded no-retraining `hfield_moderate` replay is now available as a
   second-setting diagnostic, but it is not a broad terrain benchmark.
+- A task-valid no-retraining command-shift slice is now also available in
+  `docs/full-paper/task-valid-second-setting-command-shift.md`. On the shared
+  plane replay path with `command_vx = 0.6`, LCP remains best on action jitter
+  while the revised heuristic remains best on velocity error, joint
+  acceleration, and return.
 - A bounded retrain-level mixed rough/stairs pilot is now also available in
   `docs/full-paper/main-morphology-multi-terrain-retrain-pilot.md`.
   It still ended as a no-go result: the seed-23 `LCP-style` gate remained
   `all_checkpoints_collapsed`, so the slice does not support a claim-grade
   multi-terrain comparison.
 - **Gap**: No task-valid retrained multi-terrain comparison and no multi-robot
-  evidence
+  evidence; the new command-shift slice is bounded generality evidence, not a
+  terrain benchmark
 
 ### R5: "No real-robot validation"
 **Severity**: MEDIUM

@@ -475,6 +475,8 @@ Primary artifacts:
   `docs/full-paper/selected-vs-final-checkpoint-robustness.md`
 - Bounded hfield second-setting replay:
   `artifacts/analysis/hfield_moderate_second_setting/summary.md`
+- Task-valid command-shift second setting:
+  `docs/full-paper/task-valid-second-setting-command-shift.md`
 - Actuator-bandwidth robustness sweep:
   `artifacts/analysis/actuator_latency_robustness/summary.md`
 - LCP-style baseline fidelity audit:
