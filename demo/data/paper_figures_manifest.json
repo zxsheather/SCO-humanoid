@@ -1,0 +1,432 @@
+{
+  "generated": "2026-05-29",
+  "script": "scripts/analysis/generate_paper_figures.py",
+  "outputs": [
+    {
+      "file": "figure_cross_engine_degradation.png",
+      "description": "Historical workshop-era cross-engine degradation bar chart (5 methods)"
+    },
+    {
+      "file": "figure_sensitivity_evolution.png",
+      "description": "Historical workshop-era sensitivity evolution during training (SC-PPO vs LayerNorm)"
+    },
+    {
+      "file": "figure_sensitivity_vs_degradation.png",
+      "description": "Historical workshop-era sensitivity-to-degradation scatter plot with trend line"
+    },
+    {
+      "file": "figure_ldlj_sparc.png",
+      "description": "Historical workshop-era LDLJ/SPARC kinematic vs dynamic smoothness comparison"
+    },
+    {
+      "file": "figure_task_vs_smoothness.png",
+      "description": "Historical workshop-era task metrics separated from dynamic smoothness metrics"
+    },
+    {
+      "file": "table_full_paper_isaac_mechanism_comparison.md",
+      "description": "T0 primary full-paper five-seed Isaac mechanism comparison: LCP-style soft penalty, SC-PPO PID-Lagrangian, and revised heuristic",
+      "source_artifacts": [
+        "artifacts/analysis/rough_terrain_extended_seeds/comparison_summary.json",
+        "artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/checkpoint_sweep_summary.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/metrics_selected.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/checkpoint_sweep_summary.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/metrics_selected.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/checkpoint_sweep_summary.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/metrics_selected.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed29/checkpoint_sweep_summary.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed29/metrics_selected.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed31/checkpoint_sweep_summary.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed31/metrics_selected.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed11/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed11/metrics_checkpoint_300.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed17/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed23/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed29/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed29/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed31/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed31/metrics_checkpoint_400.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/checkpoint_sweep_summary.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_selected.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/checkpoint_sweep_summary.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_selected.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/checkpoint_sweep_summary.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_selected.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed29/checkpoint_sweep_summary.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed29/metrics_selected.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed31/checkpoint_sweep_summary.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed31/metrics_selected.json"
+      ]
+    },
+    {
+      "file": "table_full_paper_isaac_mechanism_comparison.csv",
+      "description": "T0 primary full-paper five-seed Isaac mechanism comparison: LCP-style soft penalty, SC-PPO PID-Lagrangian, and revised heuristic",
+      "source_artifacts": [
+        "artifacts/analysis/rough_terrain_extended_seeds/comparison_summary.json",
+        "artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/checkpoint_sweep_summary.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/metrics_selected.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/checkpoint_sweep_summary.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/metrics_selected.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/checkpoint_sweep_summary.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/metrics_selected.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed29/checkpoint_sweep_summary.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed29/metrics_selected.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed31/checkpoint_sweep_summary.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed31/metrics_selected.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed11/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed11/metrics_checkpoint_300.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed17/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed23/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed29/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed29/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed31/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed31/metrics_checkpoint_400.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/checkpoint_sweep_summary.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_selected.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/checkpoint_sweep_summary.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_selected.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/checkpoint_sweep_summary.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_selected.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed29/checkpoint_sweep_summary.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed29/metrics_selected.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed31/checkpoint_sweep_summary.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed31/metrics_selected.json"
+      ]
+    },
+    {
+      "file": "table_matched_mujoco_mechanism_comparison.md",
+      "description": "T0b primary full-paper matched five-seed MuJoCo selected-checkpoint replay comparison",
+      "source_artifacts": [
+        "artifacts/analysis/rough_terrain_extended_seeds/comparison_summary.json",
+        "artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed29/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed31/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed29/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed31/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed29/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed31/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json"
+      ]
+    },
+    {
+      "file": "table_matched_mujoco_mechanism_comparison.csv",
+      "description": "T0b primary full-paper matched five-seed MuJoCo selected-checkpoint replay comparison",
+      "source_artifacts": [
+        "artifacts/analysis/rough_terrain_extended_seeds/comparison_summary.json",
+        "artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed29/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed31/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed29/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed31/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed29/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed31/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json"
+      ]
+    },
+    {
+      "file": "table_lcp_weight_sensitivity.md",
+      "description": "T0c diagnostic LCP coefficient sensitivity grid for weights 0.001, 0.002, and 0.004",
+      "source_artifacts": [
+        "artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json",
+        "artifacts/analysis/rough_terrain_lcp_weight_sensitivity_diagnostic/w0001/comparison_summary.json",
+        "artifacts/analysis/rough_terrain_lcp_weight_sensitivity_diagnostic/w0004/comparison_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed11/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed11/metrics_checkpoint_300.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed17/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed23/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed29/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed29/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed31/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed31/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed11/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed17/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed23/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed29/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed29/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed31/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed31/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed11/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed17/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed23/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed29/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed29/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed31/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed31/metrics_checkpoint_400.json"
+      ]
+    },
+    {
+      "file": "table_lcp_weight_sensitivity.csv",
+      "description": "T0c diagnostic LCP coefficient sensitivity grid for weights 0.001, 0.002, and 0.004",
+      "source_artifacts": [
+        "artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json",
+        "artifacts/analysis/rough_terrain_lcp_weight_sensitivity_diagnostic/w0001/comparison_summary.json",
+        "artifacts/analysis/rough_terrain_lcp_weight_sensitivity_diagnostic/w0004/comparison_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed11/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed11/metrics_checkpoint_300.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed17/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed23/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed29/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed29/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed31/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed31/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed11/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed17/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed23/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed29/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed29/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed31/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0001_diagnostic_seed31/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed11/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed17/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed23/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed29/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed29/metrics_checkpoint_400.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed31/checkpoint_sweep_summary.json",
+        "artifacts/methods/lcp_soft_jacobian_penalty_weight_sensitivity/lcp_soft_jacobian_penalty_weight_0004_diagnostic_seed31/metrics_checkpoint_400.json"
+      ]
+    },
+    {
+      "file": "table_omnisafe_diagnostic.md",
+      "description": "Diagnostic-only OmniSafe PPO-Lag migration summary; not a promoted baseline",
+      "source_artifacts": [
+        "artifacts/analysis/rough_terrain_omnisafe_ppolag_diagnostic/comparison_summary.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed23/checkpoint_sweep_summary.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed23/metrics_checkpoint_0.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed23/omnisafe_training.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed29/checkpoint_sweep_summary.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed29/metrics_checkpoint_0.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed29/omnisafe_training.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed31/checkpoint_sweep_summary.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed31/metrics_checkpoint_0.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed31/omnisafe_training.json"
+      ]
+    },
+    {
+      "file": "table_omnisafe_diagnostic.csv",
+      "description": "Diagnostic-only OmniSafe PPO-Lag migration summary; not a promoted baseline",
+      "source_artifacts": [
+        "artifacts/analysis/rough_terrain_omnisafe_ppolag_diagnostic/comparison_summary.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed23/checkpoint_sweep_summary.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed23/metrics_checkpoint_0.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed23/omnisafe_training.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed29/checkpoint_sweep_summary.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed29/metrics_checkpoint_0.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed29/omnisafe_training.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed31/checkpoint_sweep_summary.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed31/metrics_checkpoint_0.json",
+        "artifacts/methods/omnisafe_ppolag_diagnostic/omnisafe_ppolag_jacobian_diagnostic_seed31/omnisafe_training.json"
+      ]
+    },
+    {
+      "file": "table_cross_engine_degradation.md",
+      "description": "Historical workshop-era 3-seed five-method selected-checkpoint degradation table",
+      "source_artifacts": [
+        "artifacts/methods/action_scaling_probe/action_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/action_scaling_probe/action_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/action_scaling_probe/action_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/action_scaling_probe/action_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/action_scaling_probe/action_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/action_scaling_probe/action_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/metrics_checkpoint_350.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/metrics_checkpoint_300.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/metrics_checkpoint_350.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json"
+      ]
+    },
+    {
+      "file": "table_cross_engine_degradation.csv",
+      "description": "Historical workshop-era 3-seed five-method selected-checkpoint degradation table",
+      "source_artifacts": [
+        "artifacts/methods/action_scaling_probe/action_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/action_scaling_probe/action_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/action_scaling_probe/action_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/action_scaling_probe/action_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/action_scaling_probe/action_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/action_scaling_probe/action_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/metrics_checkpoint_350.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/metrics_checkpoint_300.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/metrics_checkpoint_350.json",
+        "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/output_scaling_probe/output_scaling_threshold_38_quantile_090_pid_lower_bound_clamp_rough_terrain_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json"
+      ]
+    },
+    {
+      "file": "table_threshold_sensitivity.md",
+      "description": "Historical workshop-era SC-PPO threshold sensitivity table",
+      "source_artifacts": [
+        "docs/sc-ppo-report-status.md, docs/sc-ppo-fullbatch-threshold-promotion.md, CONTEXT.md"
+      ]
+    },
+    {
+      "file": "table_threshold_sensitivity.csv",
+      "description": "Historical workshop-era SC-PPO threshold sensitivity table",
+      "source_artifacts": [
+        "docs/sc-ppo-report-status.md, docs/sc-ppo-fullbatch-threshold-promotion.md, CONTEXT.md"
+      ]
+    },
+    {
+      "file": "table_plain_dual_vs_pid.md",
+      "description": "Historical workshop-era plain dual ascent vs PID-Lagrangian selected/final table",
+      "source_artifacts": [
+        "artifacts/analysis/rough_terrain_plain_dual_probe/comparison_summary.json#candidates[0].final_aggregate",
+        "artifacts/analysis/rough_terrain_plain_dual_probe/comparison_summary.json#candidates[0].selected_aggregate",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_checkpoint_400.json"
+      ]
+    },
+    {
+      "file": "table_plain_dual_vs_pid.csv",
+      "description": "Historical workshop-era plain dual ascent vs PID-Lagrangian selected/final table",
+      "source_artifacts": [
+        "artifacts/analysis/rough_terrain_plain_dual_probe/comparison_summary.json#candidates[0].final_aggregate",
+        "artifacts/analysis/rough_terrain_plain_dual_probe/comparison_summary.json#candidates[0].selected_aggregate",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_checkpoint_400.json"
+      ]
+    },
+    {
+      "file": "table_scppo_epochs3_repair.md",
+      "description": "Historical workshop-era SC-PPO epochs=3 reliability repair selected/final table",
+      "source_artifacts": [
+        "artifacts/analysis/rough_terrain_sc_ppo_epochs3_probe/comparison_summary.json#candidates[0].final_aggregate",
+        "artifacts/analysis/rough_terrain_sc_ppo_epochs3_probe/comparison_summary.json#candidates[0].selected_aggregate",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_checkpoint_400.json"
+      ]
+    },
+    {
+      "file": "table_scppo_epochs3_repair.csv",
+      "description": "Historical workshop-era SC-PPO epochs=3 reliability repair selected/final table",
+      "source_artifacts": [
+        "artifacts/analysis/rough_terrain_sc_ppo_epochs3_probe/comparison_summary.json#candidates[0].final_aggregate",
+        "artifacts/analysis/rough_terrain_sc_ppo_epochs3_probe/comparison_summary.json#candidates[0].selected_aggregate",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_checkpoint_400.json"
+      ]
+    },
+    {
+      "file": "table_layernorm_tradeoff_ldlj_sparc.md",
+      "description": "Historical workshop-era LayerNorm trade-off and LDLJ/SPARC table",
+      "source_artifacts": [
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/ln_ep3_trace20_seed{11,17,23}/behavior_smoothness_metrics_selected.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/scppo38_trace20_seed{11,17,23}/behavior_smoothness_metrics_selected.json"
+      ]
+    },
+    {
+      "file": "table_layernorm_tradeoff_ldlj_sparc.csv",
+      "description": "Historical workshop-era LayerNorm trade-off and LDLJ/SPARC table",
+      "source_artifacts": [
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed11/metrics_checkpoint_400.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed17/metrics_checkpoint_400.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/layernorm_actor_output_gain_0750_more_epochs_reliability_probe_rough_terrain_seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/layernorm_actor_gain_reliability_probe/ln_ep3_trace20_seed{11,17,23}/behavior_smoothness_metrics_selected.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_checkpoint_300.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_checkpoint_400.json",
+        "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed{11,17,23}/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+        "artifacts/methods/sc_ppo_pid_probe/scppo38_trace20_seed{11,17,23}/behavior_smoothness_metrics_selected.json"
+      ]
+    },
+    {
+      "file": "paper_figures_data.json",
+      "description": "Structured JSON data with source-artifact traceability"
+    }
+  ]
+}

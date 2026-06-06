@@ -1,0 +1,13 @@
+{
+  "bundle": "SCO-humanoid standalone demo",
+  "description": "Provenance for the self-contained demo bundle. These source paths refer to the original repository layout used when copying the local demo data and figures.",
+  "sources": {
+    "data/table_full_paper_isaac_mechanism_comparison.csv": "artifacts/analysis/paper_figures/table_full_paper_isaac_mechanism_comparison.csv",
+    "data/table_matched_mujoco_mechanism_comparison.csv": "artifacts/analysis/paper_figures/table_matched_mujoco_mechanism_comparison.csv",
+    "data/full_paper_statistics_summary.json": "artifacts/analysis/full_paper_statistics/summary.json",
+    "data/paper_figures_manifest.json": "artifacts/analysis/paper_figures/manifest.json",
+    "assets/figures/figure_mechanism_chain.png": "artifacts/analysis/paper_figures/figure_mechanism_chain.png",
+    "assets/figures/figure_sensitivity_vs_degradation.png": "artifacts/analysis/paper_figures/figure_sensitivity_vs_degradation.png",
+    "assets/figures/figure_task_vs_smoothness.png": "artifacts/analysis/paper_figures/figure_task_vs_smoothness.png"
+  }
+}

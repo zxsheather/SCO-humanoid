@@ -1,0 +1,2215 @@
+{
+  "generated_artifacts": {
+    "summary_json": "artifacts/analysis/full_paper_statistics/summary.json",
+    "summary_markdown": "artifacts/analysis/full_paper_statistics/summary.md"
+  },
+  "iqm_rows": [
+    {
+      "ci95_high": 0.0,
+      "ci95_low": 0.0,
+      "dataset": "isaac",
+      "iqm": 0.0,
+      "lower_is_better": true,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "values_by_seed": {
+        "11": 0.0,
+        "17": 0.0,
+        "23": 0.0,
+        "29": 0.0,
+        "31": 0.0
+      }
+    },
+    {
+      "ci95_high": 0.5301765654981136,
+      "ci95_low": 0.4538818420469761,
+      "dataset": "isaac",
+      "iqm": 0.48810603275895115,
+      "lower_is_better": true,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "values_by_seed": {
+        "11": 0.48226325660943986,
+        "17": 0.53566934466362,
+        "23": 0.44841305166482925,
+        "29": 0.466642352938652,
+        "31": 0.5173600807785987
+      }
+    },
+    {
+      "ci95_high": 144.83399635314942,
+      "ci95_low": 104.73235717773437,
+      "dataset": "isaac",
+      "iqm": 107.52621124267577,
+      "lower_is_better": true,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "values_by_seed": {
+        "11": 104.23188095092773,
+        "17": 110.71610946655274,
+        "23": 105.9001350402832,
+        "29": 106.3533447265625,
+        "31": 159.45594787597656
+      }
+    },
+    {
+      "ci95_high": 0.2534909438341856,
+      "ci95_low": 0.18387484677135946,
+      "dataset": "isaac",
+      "iqm": 0.20347778581082823,
+      "lower_is_better": true,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "values_by_seed": {
+        "11": 0.17677924856543542,
+        "17": 0.20490626469254494,
+        "23": 0.2004312425851822,
+        "29": 0.20469133406877518,
+        "31": 0.274312949180603
+      }
+    },
+    {
+      "ci95_high": 125.70925762176515,
+      "ci95_low": 110.07841266632082,
+      "dataset": "isaac",
+      "iqm": 119.05629386901856,
+      "lower_is_better": false,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "values_by_seed": {
+        "11": 113.36236419677735,
+        "17": 119.64700469970703,
+        "23": 123.9626091003418,
+        "29": 126.45782127380372,
+        "31": 108.6710048675537
+      }
+    },
+    {
+      "ci95_high": 1.9769996704161166,
+      "ci95_low": 1.8375835217287144,
+      "dataset": "isaac",
+      "iqm": 1.8680455666532119,
+      "lower_is_better": true,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "policy_sensitivity",
+      "metric_label": "Sensitivity",
+      "values_by_seed": {
+        "11": 2.009566068649292,
+        "17": 1.8556020018955073,
+        "23": 1.8516711451113224,
+        "29": 1.901011407872041,
+        "31": 1.8315459688504536
+      }
+    },
+    {
+      "ci95_high": 0.41500000000000004,
+      "ci95_low": 0.030000000000000006,
+      "dataset": "isaac",
+      "iqm": 0.1,
+      "lower_is_better": true,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "values_by_seed": {
+        "11": 0.1,
+        "17": 0.1,
+        "23": 0.1,
+        "29": 0.55,
+        "31": 0.0
+      }
+    },
+    {
+      "ci95_high": 0.6816877695918084,
+      "ci95_low": 0.48783940225839617,
+      "dataset": "isaac",
+      "iqm": 0.6327175396680832,
+      "lower_is_better": true,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "values_by_seed": {
+        "11": 0.6837140783667565,
+        "17": 0.563059039413929,
+        "23": 0.676959715783596,
+        "29": 0.6517797827720642,
+        "31": 0.45560241490602493
+      }
+    },
+    {
+      "ci95_high": 209.34138122558593,
+      "ci95_low": 110.2023990249634,
+      "dataset": "isaac",
+      "iqm": 120.5023680496216,
+      "lower_is_better": true,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "values_by_seed": {
+        "11": 120.84703750610352,
+        "17": 106.09529037475586,
+        "23": 120.78140258789062,
+        "29": 247.26752853393555,
+        "31": 119.78565254211426
+      }
+    },
+    {
+      "ci95_high": 0.4075486149638891,
+      "ci95_low": 0.21911859318614005,
+      "dataset": "isaac",
+      "iqm": 0.23017788350582125,
+      "lower_is_better": true,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "values_by_seed": {
+        "11": 0.22235116586089135,
+        "17": 0.21834481433033942,
+        "23": 0.2209240771830082,
+        "29": 0.47512631565332414,
+        "31": 0.24986731335520745
+      }
+    },
+    {
+      "ci95_high": 114.71650415420531,
+      "ci95_low": 82.32845783233643,
+      "dataset": "isaac",
+      "iqm": 100.3679386806488,
+      "lower_is_better": false,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "values_by_seed": {
+        "11": 96.61858129501343,
+        "17": 103.10723323822022,
+        "23": 101.12548580169678,
+        "29": 76.20411920547485,
+        "31": 119.6919059753418
+      }
+    },
+    {
+      "ci95_high": 3.69050681270659,
+      "ci95_low": 3.541119593208035,
+      "dataset": "isaac",
+      "iqm": 3.647318206032117,
+      "lower_is_better": true,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "policy_sensitivity",
+      "metric_label": "Sensitivity",
+      "values_by_seed": {
+        "11": 3.6230222436288995,
+        "17": 3.651832189162572,
+        "23": 3.506018457313379,
+        "29": 3.6655955242613953,
+        "31": 3.7011830791831017
+      }
+    },
+    {
+      "ci95_high": 0.22000000000000003,
+      "ci95_low": 0.08,
+      "dataset": "isaac",
+      "iqm": 0.15,
+      "lower_is_better": true,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "values_by_seed": {
+        "11": 0.15,
+        "17": 0.25,
+        "23": 0.05,
+        "29": 0.15,
+        "31": 0.15
+      }
+    },
+    {
+      "ci95_high": 0.8467530599236488,
+      "ci95_low": 0.6288485860824584,
+      "dataset": "isaac",
+      "iqm": 0.6654758304357529,
+      "lower_is_better": true,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "values_by_seed": {
+        "11": 0.6323954045772553,
+        "17": 0.8925857990980148,
+        "23": 0.7398100018501281,
+        "29": 0.6273285210132599,
+        "31": 0.6345355212688446
+      }
+    },
+    {
+      "ci95_high": 121.75138320922852,
+      "ci95_low": 103.90804706573485,
+      "dataset": "isaac",
+      "iqm": 118.60392589569092,
+      "lower_is_better": true,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "values_by_seed": {
+        "11": 119.46259918212891,
+        "17": 122.73229064941407,
+        "23": 117.39695472717285,
+        "29": 98.1270866394043,
+        "31": 118.86514930725097
+      }
+    },
+    {
+      "ci95_high": 0.2782632933557033,
+      "ci95_low": 0.2369899223744869,
+      "dataset": "isaac",
+      "iqm": 0.26342406049370765,
+      "lower_is_better": true,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "values_by_seed": {
+        "11": 0.27093212902545927,
+        "17": 0.2608165375888348,
+        "23": 0.28140522092580794,
+        "29": 0.22738873660564424,
+        "31": 0.2593926891684532
+      }
+    },
+    {
+      "ci95_high": 113.20759645462036,
+      "ci95_low": 91.51779197692869,
+      "dataset": "isaac",
+      "iqm": 109.20057313919067,
+      "lower_is_better": false,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "values_by_seed": {
+        "11": 106.00120410919189,
+        "17": 85.31061534881592,
+        "23": 111.48622207641601,
+        "29": 109.88586320877076,
+        "31": 113.94532833099365
+      }
+    },
+    {
+      "ci95_high": 7.631126245458921,
+      "ci95_low": 7.072786097029845,
+      "dataset": "isaac",
+      "iqm": 7.30452595859766,
+      "lower_is_better": true,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "policy_sensitivity",
+      "metric_label": "Sensitivity",
+      "values_by_seed": {
+        "11": 7.220031436284383,
+        "17": 7.009680951635043,
+        "23": 7.397096475958824,
+        "29": 7.298468962311745,
+        "31": 7.731424718101819
+      }
+    },
+    {
+      "ci95_high": 0.0,
+      "ci95_low": 0.0,
+      "dataset": "mujoco",
+      "iqm": 0.0,
+      "lower_is_better": true,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "values_by_seed": {
+        "11": 0.0,
+        "17": 0.0,
+        "23": 0.0,
+        "29": 0.0,
+        "31": 0.0
+      }
+    },
+    {
+      "ci95_high": 0.480412724437676,
+      "ci95_low": 0.3388671985145783,
+      "dataset": "mujoco",
+      "iqm": 0.4000805281008386,
+      "lower_is_better": true,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "values_by_seed": {
+        "11": 0.4283047882041199,
+        "17": 0.5027446971092001,
+        "23": 0.3546498825429485,
+        "29": 0.3321031910738482,
+        "31": 0.4129853171917953
+      }
+    },
+    {
+      "ci95_high": 132.68838090914954,
+      "ci95_low": 109.15724234757404,
+      "dataset": "mujoco",
+      "iqm": 112.99434496101597,
+      "lower_is_better": true,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "values_by_seed": {
+        "11": 110.89366652711897,
+        "17": 118.09973594812263,
+        "23": 108.50040683120349,
+        "29": 110.68985855243864,
+        "31": 138.94065732101825
+      }
+    },
+    {
+      "ci95_high": 0.23206890886814824,
+      "ci95_low": 0.17042138855914443,
+      "dataset": "mujoco",
+      "iqm": 0.18611912833333272,
+      "lower_is_better": true,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "values_by_seed": {
+        "11": 0.16450022236375542,
+        "17": 0.18423744301505213,
+        "23": 0.18445312584869797,
+        "29": 0.19022215029779305,
+        "31": 0.250003233969729
+      }
+    },
+    {
+      "ci95_high": -330.6532433329279,
+      "ci95_low": -876.7729941584363,
+      "dataset": "mujoco",
+      "iqm": -585.9886446209763,
+      "lower_is_better": false,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "values_by_seed": {
+        "11": -754.4359269161803,
+        "17": -929.2031658336888,
+        "23": -329.31338844411783,
+        "29": -333.7795714068182,
+        "31": -648.8099878101918
+      }
+    },
+    {
+      "ci95_high": 0.035,
+      "ci95_low": 0.0,
+      "dataset": "mujoco",
+      "iqm": 0.0,
+      "lower_is_better": true,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "values_by_seed": {
+        "11": 0.05,
+        "17": 0.0,
+        "23": 0.0,
+        "29": 0.0,
+        "31": 0.0
+      }
+    },
+    {
+      "ci95_high": 0.5746819139957486,
+      "ci95_low": 0.4029576825466174,
+      "dataset": "mujoco",
+      "iqm": 0.44554179474109323,
+      "lower_is_better": true,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "values_by_seed": {
+        "11": 0.6206477259644942,
+        "17": 0.3986888959305907,
+        "23": 0.4535945838132164,
+        "29": 0.41291818465067986,
+        "31": 0.46742835273534233
+      }
+    },
+    {
+      "ci95_high": 255.34475124006318,
+      "ci95_low": 108.40651625994096,
+      "dataset": "mujoco",
+      "iqm": 131.02294114942416,
+      "lower_is_better": true,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "values_by_seed": {
+        "11": 154.46723121623933,
+        "17": 104.39929565750245,
+        "23": 117.75669766563082,
+        "29": 298.57797410741625,
+        "31": 123.38940621215777
+      }
+    },
+    {
+      "ci95_high": 0.5390256882940798,
+      "ci95_low": 0.20240943680039042,
+      "dataset": "mujoco",
+      "iqm": 0.2555454805389408,
+      "lower_is_better": true,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "values_by_seed": {
+        "11": 0.2785255320320079,
+        "17": 0.220672500454376,
+        "23": 0.19458240952011088,
+        "29": 0.6506686124063963,
+        "31": 0.264465176982564
+      }
+    },
+    {
+      "ci95_high": -380.97234215634955,
+      "ci95_low": -901.7618499905515,
+      "dataset": "mujoco",
+      "iqm": -606.7102142279203,
+      "lower_is_better": false,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "values_by_seed": {
+        "11": -1001.6293512319556,
+        "17": -319.4915678605511,
+        "23": -621.9016636144348,
+        "29": -524.4274821798792,
+        "31": -668.7376804272754
+      }
+    },
+    {
+      "ci95_high": 0.0,
+      "ci95_low": 0.0,
+      "dataset": "mujoco",
+      "iqm": 0.0,
+      "lower_is_better": true,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "values_by_seed": {
+        "11": 0.0,
+        "17": 0.0,
+        "23": 0.0,
+        "29": 0.0,
+        "31": 0.0
+      }
+    },
+    {
+      "ci95_high": 0.46088492343107124,
+      "ci95_low": 0.3595780021934007,
+      "dataset": "mujoco",
+      "iqm": 0.40209542562017286,
+      "lower_is_better": true,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "values_by_seed": {
+        "11": 0.39287465337360644,
+        "17": 0.3884389875191802,
+        "23": 0.4749586505944213,
+        "29": 0.42804622671658754,
+        "31": 0.3472090084823523
+      }
+    },
+    {
+      "ci95_high": 122.96457570021816,
+      "ci95_low": 92.13422123548874,
+      "dataset": "mujoco",
+      "iqm": 117.00012596589215,
+      "lower_is_better": true,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "values_by_seed": {
+        "11": 117.31489335575752,
+        "17": 121.14031513708399,
+        "23": 123.74640165584711,
+        "29": 83.43163879003542,
+        "31": 112.44024694154648
+      }
+    },
+    {
+      "ci95_high": 0.2699813995625684,
+      "ci95_low": 0.18201953152095174,
+      "dataset": "mujoco",
+      "iqm": 0.22615496384828354,
+      "lower_is_better": true,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "values_by_seed": {
+        "11": 0.28215786030419326,
+        "17": 0.21185461955115564,
+        "23": 0.24156965783211043,
+        "29": 0.16923306522229292,
+        "31": 0.22531920158325933
+      }
+    },
+    {
+      "ci95_high": -253.90594653262326,
+      "ci95_low": -701.8565598039376,
+      "dataset": "mujoco",
+      "iqm": -430.51627519495526,
+      "lower_is_better": false,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "values_by_seed": {
+        "11": -260.36308319269364,
+        "17": -405.0662407578796,
+        "23": -730.6795798142033,
+        "29": -634.602846446651,
+        "31": -251.13860224973592
+      }
+    }
+  ],
+  "issue": "#116",
+  "mean_ci_rows": [
+    {
+      "ci95_high": 0.0,
+      "ci95_low": 0.0,
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "mean": 0.0,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "std": 0.0,
+      "values_by_seed": {
+        "11": 0.0,
+        "17": 0.0,
+        "23": 0.0,
+        "29": 0.0,
+        "31": 0.0
+      }
+    },
+    {
+      "ci95_high": 0.5182020935416222,
+      "ci95_low": 0.46247481316328043,
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "mean": 0.490069617331028,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "std": 0.032153226823191806,
+      "values_by_seed": {
+        "11": 0.48226325660943986,
+        "17": 0.53566934466362,
+        "23": 0.44841305166482925,
+        "29": 0.466642352938652,
+        "31": 0.5173600807785987
+      }
+    },
+    {
+      "ci95_high": 138.66316680908204,
+      "ci95_low": 105.32347534179686,
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "mean": 117.33148361206054,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "std": 21.17086922185912,
+      "values_by_seed": {
+        "11": 104.23188095092773,
+        "17": 110.71610946655274,
+        "23": 105.9001350402832,
+        "29": 106.3533447265625,
+        "31": 159.45594787597656
+      }
+    },
+    {
+      "ci95_high": 0.2456552709639072,
+      "ci95_low": 0.18798706889152528,
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "mean": 0.21222420781850815,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "std": 0.03274363280975334,
+      "values_by_seed": {
+        "11": 0.17677924856543542,
+        "17": 0.20490626469254494,
+        "23": 0.2004312425851822,
+        "29": 0.20469133406877518,
+        "31": 0.274312949180603
+      }
+    },
+    {
+      "ci95_high": 124.09757308959962,
+      "ci95_low": 112.66759757995605,
+      "dataset": "isaac",
+      "lower_is_better": false,
+      "mean": 118.4201608276367,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "std": 6.594773883660909,
+      "values_by_seed": {
+        "11": 113.36236419677735,
+        "17": 119.64700469970703,
+        "23": 123.9626091003418,
+        "29": 126.45782127380372,
+        "31": 108.6710048675537
+      }
+    },
+    {
+      "ci95_high": 1.9522511165340741,
+      "ci95_low": 1.844407245963812,
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "mean": 1.8898793184757232,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "policy_sensitivity",
+      "metric_label": "Sensitivity",
+      "std": 0.06401003078225517,
+      "values_by_seed": {
+        "11": 2.009566068649292,
+        "17": 1.8556020018955073,
+        "23": 1.8516711451113224,
+        "29": 1.901011407872041,
+        "31": 1.8315459688504536
+      }
+    },
+    {
+      "ci95_high": 0.37,
+      "ci95_low": 0.04,
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "mean": 0.17,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "std": 0.19390719429665318,
+      "values_by_seed": {
+        "11": 0.1,
+        "17": 0.1,
+        "23": 0.1,
+        "29": 0.55,
+        "31": 0.0
+      }
+    },
+    {
+      "ci95_high": 0.6746254742145539,
+      "ci95_low": 0.5213651999831199,
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "mean": 0.6062230062484741,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "std": 0.08675673897785711,
+      "values_by_seed": {
+        "11": 0.6837140783667565,
+        "17": 0.563059039413929,
+        "23": 0.676959715783596,
+        "29": 0.6517797827720642,
+        "31": 0.45560241490602493
+      }
+    },
+    {
+      "ci95_high": 196.4739281463623,
+      "ci95_low": 111.98286224365233,
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "mean": 142.95538230895994,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "std": 52.45377182151862,
+      "values_by_seed": {
+        "11": 120.84703750610352,
+        "17": 106.09529037475586,
+        "23": 120.78140258789062,
+        "29": 247.26752853393555,
+        "31": 119.78565254211426
+      }
+    },
+    {
+      "ci95_high": 0.37871821492910385,
+      "ci95_low": 0.2201777897775173,
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "mean": 0.2773227372765541,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "std": 0.09956016657344456,
+      "values_by_seed": {
+        "11": 0.22235116586089135,
+        "17": 0.21834481433033942,
+        "23": 0.2209240771830082,
+        "29": 0.47512631565332414,
+        "31": 0.24986731335520745
+      }
+    },
+    {
+      "ci95_high": 111.76030649185182,
+      "ci95_low": 86.17266584396363,
+      "dataset": "isaac",
+      "lower_is_better": false,
+      "mean": 99.34946510314941,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "std": 13.958902067238707,
+      "values_by_seed": {
+        "11": 96.61858129501343,
+        "17": 103.10723323822022,
+        "23": 101.12548580169678,
+        "29": 76.20411920547485,
+        "31": 119.6919059753418
+      }
+    },
+    {
+      "ci95_high": 3.67843340108792,
+      "ci95_low": 3.5643439500530563,
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "mean": 3.629530298709869,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "policy_sensitivity",
+      "metric_label": "Sensitivity",
+      "std": 0.06667792064466438,
+      "values_by_seed": {
+        "11": 3.6230222436288995,
+        "17": 3.651832189162572,
+        "23": 3.506018457313379,
+        "29": 3.6655955242613953,
+        "31": 3.7011830791831017
+      }
+    },
+    {
+      "ci95_high": 0.21000000000000002,
+      "ci95_low": 0.09,
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "mean": 0.15,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "std": 0.06324555320336758,
+      "values_by_seed": {
+        "11": 0.15,
+        "17": 0.25,
+        "23": 0.05,
+        "29": 0.15,
+        "31": 0.15
+      }
+    },
+    {
+      "ci95_high": 0.8089791840314865,
+      "ci95_low": 0.6307966744899749,
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "mean": 0.7053310495615006,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "std": 0.10263444740468705,
+      "values_by_seed": {
+        "11": 0.6323954045772553,
+        "17": 0.8925857990980148,
+        "23": 0.7398100018501281,
+        "29": 0.6273285210132599,
+        "31": 0.6345355212688446
+      }
+    },
+    {
+      "ci95_high": 120.89179519653321,
+      "ci95_low": 106.42231170654297,
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "mean": 115.31681610107421,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "std": 8.770190697396295,
+      "values_by_seed": {
+        "11": 119.46259918212891,
+        "17": 122.73229064941407,
+        "23": 117.39695472717285,
+        "29": 98.1270866394043,
+        "31": 118.86514930725097
+      }
+    },
+    {
+      "ci95_high": 0.2731697475910187,
+      "ci95_low": 0.24249820560216903,
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "mean": 0.2599870626628399,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "std": 0.018123046936399042,
+      "values_by_seed": {
+        "11": 0.27093212902545927,
+        "17": 0.2608165375888348,
+        "23": 0.28140522092580794,
+        "29": 0.22738873660564424,
+        "31": 0.2593926891684532
+      }
+    },
+    {
+      "ci95_high": 112.14979280471803,
+      "ci95_low": 95.14071449279785,
+      "dataset": "isaac",
+      "lower_is_better": false,
+      "mean": 105.32584661483766,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "std": 10.335424834976298,
+      "values_by_seed": {
+        "11": 106.00120410919189,
+        "17": 85.31061534881592,
+        "23": 111.48622207641601,
+        "29": 109.88586320877076,
+        "31": 113.94532833099365
+      }
+    },
+    {
+      "ci95_high": 7.55824241578579,
+      "ci95_low": 7.135891242424647,
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "mean": 7.331340508858363,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "policy_sensitivity",
+      "metric_label": "Sensitivity",
+      "std": 0.2372030103763554,
+      "values_by_seed": {
+        "11": 7.220031436284383,
+        "17": 7.009680951635043,
+        "23": 7.397096475958824,
+        "29": 7.298468962311745,
+        "31": 7.731424718101819
+      }
+    },
+    {
+      "ci95_high": 0.0,
+      "ci95_low": 0.0,
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "mean": 0.0,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "std": 0.0,
+      "values_by_seed": {
+        "11": 0.0,
+        "17": 0.0,
+        "23": 0.0,
+        "29": 0.0,
+        "31": 0.0
+      }
+    },
+    {
+      "ci95_high": 0.45823775241493375,
+      "ci95_low": 0.3558528487937226,
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "mean": 0.4061575752243824,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "std": 0.060005472141157236,
+      "values_by_seed": {
+        "11": 0.4283047882041199,
+        "17": 0.5027446971092001,
+        "23": 0.3546498825429485,
+        "29": 0.3321031910738482,
+        "31": 0.4129853171917953
+      }
+    },
+    {
+      "ci95_high": 128.6844229484762,
+      "ci95_low": 109.85483945888063,
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "mean": 117.42486503598039,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "std": 11.234300947947435,
+      "values_by_seed": {
+        "11": 110.89366652711897,
+        "17": 118.09973594812263,
+        "23": 108.50040683120349,
+        "29": 110.68985855243864,
+        "31": 138.94065732101825
+      }
+    },
+    {
+      "ci95_high": 0.22378319072131658,
+      "ci95_low": 0.17363518864755145,
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "mean": 0.1946832350990055,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "std": 0.028999956958489226,
+      "values_by_seed": {
+        "11": 0.16450022236375542,
+        "17": 0.18423744301505213,
+        "23": 0.18445312584869797,
+        "29": 0.19022215029779305,
+        "31": 0.250003233969729
+      }
+    },
+    {
+      "ci95_high": -394.9991815024128,
+      "ci95_low": -803.217634661986,
+      "dataset": "mujoco",
+      "lower_is_better": false,
+      "mean": -599.1084080821994,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "std": 236.1136075801719,
+      "values_by_seed": {
+        "11": -754.4359269161803,
+        "17": -929.2031658336888,
+        "23": -329.31338844411783,
+        "29": -333.7795714068182,
+        "31": -648.8099878101918
+      }
+    },
+    {
+      "ci95_high": 0.030000000000000006,
+      "ci95_low": 0.0,
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "mean": 0.01,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "std": 0.02,
+      "values_by_seed": {
+        "11": 0.05,
+        "17": 0.0,
+        "23": 0.0,
+        "29": 0.0,
+        "31": 0.0
+      }
+    },
+    {
+      "ci95_high": 0.5456911892714758,
+      "ci95_low": 0.41528264503555884,
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "mean": 0.4706555486188647,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "std": 0.07913525999881757,
+      "values_by_seed": {
+        "11": 0.6206477259644942,
+        "17": 0.3986888959305907,
+        "23": 0.4535945838132164,
+        "29": 0.41291818465067986,
+        "31": 0.46742835273534233
+      }
+    },
+    {
+      "ci95_high": 230.92008983919808,
+      "ci95_low": 113.54027857168487,
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "mean": 159.71812097178932,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "std": 71.344712000527,
+      "values_by_seed": {
+        "11": 154.46723121623933,
+        "17": 104.39929565750245,
+        "23": 117.75669766563082,
+        "29": 298.57797410741625,
+        "31": 123.38940621215777
+      }
+    },
+    {
+      "ci95_high": 0.48742870293122575,
+      "ci95_low": 0.2165890522093433,
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "mean": 0.32178284627909104,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "std": 0.16716794594363493,
+      "values_by_seed": {
+        "11": 0.2785255320320079,
+        "17": 0.220672500454376,
+        "23": 0.19458240952011088,
+        "29": 0.6506686124063963,
+        "31": 0.264465176982564
+      }
+    },
+    {
+      "ci95_high": -442.453116452148,
+      "ci95_low": -830.2434398980362,
+      "dataset": "mujoco",
+      "lower_is_better": false,
+      "mean": -627.2375490628192,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "std": 222.34992822434666,
+      "values_by_seed": {
+        "11": -1001.6293512319556,
+        "17": -319.4915678605511,
+        "23": -621.9016636144348,
+        "29": -524.4274821798792,
+        "31": -668.7376804272754
+      }
+    },
+    {
+      "ci95_high": 0.0,
+      "ci95_low": 0.0,
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "mean": 0.0,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "std": 0.0,
+      "values_by_seed": {
+        "11": 0.0,
+        "17": 0.0,
+        "23": 0.0,
+        "29": 0.0,
+        "31": 0.0
+      }
+    },
+    {
+      "ci95_high": 0.44681119626772103,
+      "ci95_low": 0.37162244793656496,
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "mean": 0.40630550533722953,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "std": 0.04284369149298388,
+      "values_by_seed": {
+        "11": 0.39287465337360644,
+        "17": 0.3884389875191802,
+        "23": 0.4749586505944213,
+        "29": 0.42804622671658754,
+        "31": 0.3472090084823523
+      }
+    },
+    {
+      "ci95_high": 121.41766538832394,
+      "ci95_low": 97.29631299349997,
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "mean": 111.61469917605409,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "std": 14.597083270411611,
+      "values_by_seed": {
+        "11": 117.31489335575752,
+        "17": 121.14031513708399,
+        "23": 123.74640165584711,
+        "29": 83.43163879003542,
+        "31": 112.44024694154648
+      }
+    },
+    {
+      "ci95_high": 0.2578049388209436,
+      "ci95_low": 0.19222469461002895,
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "mean": 0.2260268808986023,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "std": 0.036930085471398436,
+      "values_by_seed": {
+        "11": 0.28215786030419326,
+        "17": 0.21185461955115564,
+        "23": 0.24156965783211043,
+        "29": 0.16923306522229292,
+        "31": 0.22531920158325933
+      }
+    },
+    {
+      "ci95_high": -285.61392232854774,
+      "ci95_low": -627.1262186559177,
+      "dataset": "mujoco",
+      "lower_is_better": false,
+      "mean": -456.3700704922327,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "std": 195.02994995718083,
+      "values_by_seed": {
+        "11": -260.36308319269364,
+        "17": -405.0662407578796,
+        "23": -730.6795798142033,
+        "29": -634.602846446651,
+        "31": -251.13860224973592
+      }
+    }
+  ],
+  "paired_delta_rows": [
+    {
+      "ci95_high": -0.04,
+      "ci95_low": -0.37,
+      "ci_excludes_zero": true,
+      "comparison": "LCP-style soft penalty - SC-PPO 3.8 PID",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": -0.1,
+        "17": -0.1,
+        "23": -0.1,
+        "29": -0.55,
+        "31": 0.0
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": -0.17,
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "scppo",
+      "std_delta": 0.19390719429665318
+    },
+    {
+      "ci95_high": -0.008713503777980825,
+      "ci95_low": -0.2090264803171158,
+      "ci_excludes_zero": true,
+      "comparison": "LCP-style soft penalty - SC-PPO 3.8 PID",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": -0.2014508217573166,
+        "17": -0.027389694750308946,
+        "23": -0.22854666411876678,
+        "29": -0.18513742983341214,
+        "31": 0.06175766587257381
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": -0.11615338891744613,
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "scppo",
+      "std_delta": 0.11331198972689716
+    },
+    {
+      "ci95_high": 18.640609588623043,
+      "ci95_low": -86.9473777770996,
+      "ci_excludes_zero": false,
+      "comparison": "LCP-style soft penalty - SC-PPO 3.8 PID",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": -16.615156555175787,
+        "17": 4.620819091796875,
+        "23": -14.881267547607422,
+        "29": -140.91418380737304,
+        "31": 39.6702953338623
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": -25.623898696899413,
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "scppo",
+      "std_delta": 61.10071378975002
+    },
+    {
+      "ci95_high": 0.0028652881085872496,
+      "ci95_low": -0.17045812278985975,
+      "ci_excludes_zero": false,
+      "comparison": "LCP-style soft penalty - SC-PPO 3.8 PID",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": -0.04557191729545593,
+        "17": -0.013438549637794478,
+        "23": -0.020492834597826,
+        "29": -0.27043498158454893,
+        "31": 0.02444563582539555
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": -0.06509852945804595,
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "scppo",
+      "std_delta": 0.10509131859458991
+    },
+    {
+      "ci95_high": 36.84973440170289,
+      "ci95_low": 1.262838287353509,
+      "ci_excludes_zero": true,
+      "comparison": "LCP-style soft penalty - SC-PPO 3.8 PID",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": 16.74378290176392,
+        "17": 16.539771461486808,
+        "23": 22.83712329864501,
+        "29": 50.25370206832886,
+        "31": -11.020901107788092
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": false,
+      "mean_delta": 19.0706957244873,
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "scppo",
+      "std_delta": 19.51353459595285
+    },
+    {
+      "ci95_high": -1.6581892048815887,
+      "ci95_low": -1.8192637423177558,
+      "ci_excludes_zero": true,
+      "comparison": "LCP-style soft penalty - SC-PPO 3.8 PID",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": -1.6134561749796075,
+        "17": -1.7962301872670647,
+        "23": -1.6543473122020564,
+        "29": -1.7645841163893543,
+        "31": -1.8696371103326481
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": -1.7396509802341462,
+      "metric": "policy_sensitivity",
+      "metric_label": "Sensitivity",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "scppo",
+      "std_delta": 0.09372417683602519
+    },
+    {
+      "ci95_high": -0.09,
+      "ci95_low": -0.21000000000000002,
+      "ci_excludes_zero": true,
+      "comparison": "LCP-style soft penalty - Revised heuristic",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": -0.15,
+        "17": -0.25,
+        "23": -0.05,
+        "29": -0.15,
+        "31": -0.15
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": -0.15,
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "heuristic",
+      "std_delta": 0.06324555320336758
+    },
+    {
+      "ci95_high": -0.13906026899814608,
+      "ci95_low": -0.30245569229125974,
+      "ci_excludes_zero": true,
+      "comparison": "LCP-style soft penalty - Revised heuristic",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": -0.15013214796781543,
+        "17": -0.3569164544343948,
+        "23": -0.2913969501852989,
+        "29": -0.16068616807460784,
+        "31": -0.11717544049024586
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": -0.2152614322304726,
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "heuristic",
+      "std_delta": 0.09241634845821989
+    },
+    {
+      "ci95_high": 22.953587112426757,
+      "ci95_low": -13.198123703002935,
+      "ci_excludes_zero": false,
+      "comparison": "LCP-style soft penalty - Revised heuristic",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": -15.23071823120118,
+        "17": -12.016181182861331,
+        "23": -11.496819686889651,
+        "29": 8.2262580871582,
+        "31": 40.59079856872559
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": 2.0146675109863255,
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "preferred_by_mean": "Revised heuristic",
+      "second_method_id": "heuristic",
+      "std_delta": 20.99299919322973
+    },
+    {
+      "ci95_high": -0.011782120168209082,
+      "ci95_low": -0.0812327980995178,
+      "ci_excludes_zero": true,
+      "comparison": "LCP-style soft penalty - Revised heuristic",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": -0.09415288046002385,
+        "17": -0.05591027289628983,
+        "23": -0.08097397834062575,
+        "29": -0.022697402536869055,
+        "31": 0.0149202600121498
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": -0.04776285484433174,
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "heuristic",
+      "std_delta": 0.03969595296478617
+    },
+    {
+      "ci95_high": 25.38845724105835,
+      "ci95_low": 2.3069666671753,
+      "ci_excludes_zero": true,
+      "comparison": "LCP-style soft penalty - Revised heuristic",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": 7.361160087585461,
+        "17": 34.33638935089111,
+        "23": 12.476387023925781,
+        "29": 16.57195806503296,
+        "31": -5.274323463439941
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": false,
+      "mean_delta": 13.094314212799073,
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "heuristic",
+      "std_delta": 12.914933242185018
+    },
+    {
+      "ci95_high": -5.225309237837791,
+      "ci95_low": -5.691105389247339,
+      "ci_excludes_zero": true,
+      "comparison": "LCP-style soft penalty - Revised heuristic",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": -5.210465367635091,
+        "17": -5.154078949739536,
+        "23": -5.545425330847501,
+        "29": -5.397457554439704,
+        "31": -5.899878749251366
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": -5.44146119038264,
+      "metric": "policy_sensitivity",
+      "metric_label": "Sensitivity",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "heuristic",
+      "std_delta": 0.26789518215967434
+    },
+    {
+      "ci95_high": 0.22000000000000003,
+      "ci95_low": -0.12999999999999998,
+      "ci_excludes_zero": false,
+      "comparison": "SC-PPO 3.8 PID - Revised heuristic",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": -0.04999999999999999,
+        "17": -0.15,
+        "23": 0.05,
+        "29": 0.4,
+        "31": -0.15
+      },
+      "first_method_id": "scppo",
+      "lower_is_better": true,
+      "mean_delta": 0.02000000000000001,
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "preferred_by_mean": "Revised heuristic",
+      "second_method_id": "heuristic",
+      "std_delta": 0.2039607805437114
+    },
+    {
+      "ci95_high": 0.01773791700601577,
+      "ci95_low": -0.22861242473125457,
+      "ci_excludes_zero": false,
+      "comparison": "SC-PPO 3.8 PID - Revised heuristic",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": 0.05131867378950117,
+        "17": -0.32952675968408585,
+        "23": -0.06285028606653209,
+        "29": 0.0244512617588043,
+        "31": -0.17893310636281967
+      },
+      "first_method_id": "scppo",
+      "lower_is_better": true,
+      "mean_delta": -0.09910804331302643,
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "preferred_by_mean": "SC-PPO 3.8 PID",
+      "second_method_id": "heuristic",
+      "std_delta": 0.14048099486664628
+    },
+    {
+      "ci95_high": 89.94757312393168,
+      "ci95_low": -9.028422927856449,
+      "ci_excludes_zero": false,
+      "comparison": "SC-PPO 3.8 PID - Revised heuristic",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": 1.3844383239746065,
+        "17": -16.637000274658206,
+        "23": 3.3844478607177706,
+        "29": 149.14044189453125,
+        "31": 0.9205032348632898
+      },
+      "first_method_id": "scppo",
+      "lower_is_better": true,
+      "mean_delta": 27.63856620788574,
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "preferred_by_mean": "Revised heuristic",
+      "second_method_id": "heuristic",
+      "std_delta": 61.17912709330987
+    },
+    {
+      "ci95_high": 0.13464124351739884,
+      "ci95_low": -0.05211918741464614,
+      "ci_excludes_zero": false,
+      "comparison": "SC-PPO 3.8 PID - Revised heuristic",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": -0.04858096316456792,
+        "17": -0.04247172325849535,
+        "23": -0.06048114374279975,
+        "29": 0.2477375790476799,
+        "31": -0.009525375813245751
+      },
+      "first_method_id": "scppo",
+      "lower_is_better": true,
+      "mean_delta": 0.017335674613714224,
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "preferred_by_mean": "Revised heuristic",
+      "second_method_id": "heuristic",
+      "std_delta": 0.11643361953680445
+    },
+    {
+      "ci95_high": 8.15658569335938,
+      "ci95_low": -20.941146003246303,
+      "ci_excludes_zero": false,
+      "comparison": "SC-PPO 3.8 PID - Revised heuristic",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": -9.382622814178461,
+        "17": 17.796617889404303,
+        "23": -10.36073627471923,
+        "29": -33.681744003295904,
+        "31": 5.74657764434815
+      },
+      "first_method_id": "scppo",
+      "lower_is_better": false,
+      "mean_delta": -5.976381511688229,
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "preferred_by_mean": "Revised heuristic",
+      "second_method_id": "heuristic",
+      "std_delta": 17.3262542356317
+    },
+    {
+      "ci95_high": -3.508517869661252,
+      "ci95_low": -3.895763063629468,
+      "ci_excludes_zero": true,
+      "comparison": "SC-PPO 3.8 PID - Revised heuristic",
+      "dataset": "isaac",
+      "deltas_by_seed": {
+        "11": -3.597009192655484,
+        "17": -3.357848762472471,
+        "23": -3.891078018645445,
+        "29": -3.6328734380503493,
+        "31": -4.030241638918717
+      },
+      "first_method_id": "scppo",
+      "lower_is_better": true,
+      "mean_delta": -3.7018102101484933,
+      "metric": "policy_sensitivity",
+      "metric_label": "Sensitivity",
+      "preferred_by_mean": "SC-PPO 3.8 PID",
+      "second_method_id": "heuristic",
+      "std_delta": 0.23568390527974367
+    },
+    {
+      "ci95_high": 0.0,
+      "ci95_low": -0.030000000000000006,
+      "ci_excludes_zero": false,
+      "comparison": "LCP-style soft penalty - SC-PPO 3.8 PID",
+      "dataset": "mujoco",
+      "deltas_by_seed": {
+        "11": -0.05,
+        "17": 0.0,
+        "23": 0.0,
+        "29": 0.0,
+        "31": 0.0
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": -0.01,
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "scppo",
+      "std_delta": 0.02
+    },
+    {
+      "ci95_high": 0.03010748327643299,
+      "ci95_low": -0.14245736848030036,
+      "ci_excludes_zero": false,
+      "comparison": "LCP-style soft penalty - SC-PPO 3.8 PID",
+      "dataset": "mujoco",
+      "deltas_by_seed": {
+        "11": -0.19234293776037437,
+        "17": 0.10405580117860941,
+        "23": -0.09894470127026789,
+        "29": -0.08081499357683164,
+        "31": -0.054443035543547014
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": -0.0644979733944823,
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "scppo",
+      "std_delta": 0.0962378655423307
+    },
+    {
+      "ci95_high": 9.849418392906799,
+      "ci95_low": -118.33733204903854,
+      "ci_excludes_zero": false,
+      "comparison": "LCP-style soft penalty - SC-PPO 3.8 PID",
+      "dataset": "mujoco",
+      "deltas_by_seed": {
+        "11": -43.57356468912036,
+        "17": 13.700440290620179,
+        "23": -9.256290834427332,
+        "29": -187.88811555497762,
+        "31": 15.551251108860484
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": -42.29325593580893,
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "scppo",
+      "std_delta": 75.85805746719011
+    },
+    {
+      "ci95_high": -0.017123502161563935,
+      "ci95_low": -0.301098795933095,
+      "ci_excludes_zero": true,
+      "comparison": "LCP-style soft penalty - SC-PPO 3.8 PID",
+      "dataset": "mujoco",
+      "deltas_by_seed": {
+        "11": -0.1140253096682525,
+        "17": -0.036435057439323876,
+        "23": -0.010129283671412914,
+        "29": -0.46044646210860324,
+        "31": -0.014461943012834988
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": -0.1270996111800855,
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "scppo",
+      "std_delta": 0.17081008371676126
+    },
+    {
+      "ci95_high": 254.04226194904913,
+      "ci95_low": -303.32376522640254,
+      "ci_excludes_zero": false,
+      "comparison": "LCP-style soft penalty - SC-PPO 3.8 PID",
+      "dataset": "mujoco",
+      "deltas_by_seed": {
+        "11": 247.19342431577536,
+        "17": -609.7115979731377,
+        "23": 292.588275170317,
+        "29": 190.64791077306103,
+        "31": 19.927692617083608
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": false,
+      "mean_delta": 28.129140980619855,
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "scppo",
+      "std_delta": 332.03861716634503
+    },
+    {
+      "ci95_high": 0.0,
+      "ci95_low": 0.0,
+      "ci_excludes_zero": false,
+      "comparison": "LCP-style soft penalty - Revised heuristic",
+      "dataset": "mujoco",
+      "deltas_by_seed": {
+        "11": 0.0,
+        "17": 0.0,
+        "23": 0.0,
+        "29": 0.0,
+        "31": 0.0
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": 0.0,
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "preferred_by_mean": "tie",
+      "second_method_id": "heuristic",
+      "std_delta": 0.0
+    },
+    {
+      "ci95_high": 0.07911883428588785,
+      "ci95_low": -0.07941469451158217,
+      "ci_excludes_zero": false,
+      "comparison": "LCP-style soft penalty - Revised heuristic",
+      "dataset": "mujoco",
+      "deltas_by_seed": {
+        "11": 0.03543013483051344,
+        "17": 0.1143057095900199,
+        "23": -0.12030876805147284,
+        "29": -0.09594303564273932,
+        "31": 0.06577630870944301
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": -0.00014793011284716106,
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "heuristic",
+      "std_delta": 0.09200735712783177
+    },
+    {
+      "ci95_high": 20.895336218957723,
+      "ci95_low": -9.27500449910514,
+      "ci_excludes_zero": false,
+      "comparison": "LCP-style soft penalty - Revised heuristic",
+      "dataset": "mujoco",
+      "deltas_by_seed": {
+        "11": -6.421226828638552,
+        "17": -3.0405791889613596,
+        "23": -15.245994824643617,
+        "29": 27.258219762403215,
+        "31": 26.500410379471774
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": 5.8101658599262915,
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "preferred_by_mean": "Revised heuristic",
+      "second_method_id": "heuristic",
+      "std_delta": 17.660180023311494
+    },
+    {
+      "ci95_high": 0.01274581167756722,
+      "ci95_low": -0.07782007214584517,
+      "ci_excludes_zero": false,
+      "comparison": "LCP-style soft penalty - Revised heuristic",
+      "dataset": "mujoco",
+      "deltas_by_seed": {
+        "11": -0.11765763794043785,
+        "17": -0.027617176536103516,
+        "23": -0.05711653198341246,
+        "29": 0.020989085075500125,
+        "31": 0.024684032386469684
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": true,
+      "mean_delta": -0.0313436457995968,
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "preferred_by_mean": "LCP-style soft penalty",
+      "second_method_id": "heuristic",
+      "std_delta": 0.05292645636819378
+    },
+    {
+      "ci95_high": 202.16980108532053,
+      "ci95_low": -486.8181846318095,
+      "ci_excludes_zero": false,
+      "comparison": "LCP-style soft penalty - Revised heuristic",
+      "dataset": "mujoco",
+      "deltas_by_seed": {
+        "11": -494.07284372348664,
+        "17": -524.1369250758091,
+        "23": 401.36619137008546,
+        "29": 300.8232750398328,
+        "31": -397.6713855604559
+      },
+      "first_method_id": "lcp",
+      "lower_is_better": false,
+      "mean_delta": -142.73833758996668,
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "preferred_by_mean": "Revised heuristic",
+      "second_method_id": "heuristic",
+      "std_delta": 406.617343289091
+    },
+    {
+      "ci95_high": 0.030000000000000006,
+      "ci95_low": 0.0,
+      "ci_excludes_zero": false,
+      "comparison": "SC-PPO 3.8 PID - Revised heuristic",
+      "dataset": "mujoco",
+      "deltas_by_seed": {
+        "11": 0.05,
+        "17": 0.0,
+        "23": 0.0,
+        "29": 0.0,
+        "31": 0.0
+      },
+      "first_method_id": "scppo",
+      "lower_is_better": true,
+      "mean_delta": 0.01,
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "preferred_by_mean": "Revised heuristic",
+      "second_method_id": "heuristic",
+      "std_delta": 0.02
+    },
+    {
+      "ci95_high": 0.15768210399194915,
+      "ci95_low": -0.012546861856562952,
+      "ci_excludes_zero": false,
+      "comparison": "SC-PPO 3.8 PID - Revised heuristic",
+      "dataset": "mujoco",
+      "deltas_by_seed": {
+        "11": 0.2277730725908878,
+        "17": 0.010249908411410491,
+        "23": -0.02136406678120495,
+        "29": -0.015128042065907676,
+        "31": 0.12021934425299002
+      },
+      "first_method_id": "scppo",
+      "lower_is_better": true,
+      "mean_delta": 0.06435004328163514,
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "preferred_by_mean": "Revised heuristic",
+      "second_method_id": "heuristic",
+      "std_delta": 0.09635244118027644
+    },
+    {
+      "ci95_high": 133.17006486660856,
+      "ci95_low": -6.902457533796872,
+      "ci_excludes_zero": false,
+      "comparison": "SC-PPO 3.8 PID - Revised heuristic",
+      "dataset": "mujoco",
+      "deltas_by_seed": {
+        "11": 37.15233786048181,
+        "17": -16.74101947958154,
+        "23": -5.9897039902162845,
+        "29": 215.14633531738082,
+        "31": 10.94915927061129
+      },
+      "first_method_id": "scppo",
+      "lower_is_better": true,
+      "mean_delta": 48.10342179573522,
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "preferred_by_mean": "Revised heuristic",
+      "second_method_id": "heuristic",
+      "std_delta": 85.48048694590543
+    },
+    {
+      "ci95_high": 0.29238848067175016,
+      "ci95_low": -0.020974296288111028,
+      "ci_excludes_zero": false,
+      "comparison": "SC-PPO 3.8 PID - Revised heuristic",
+      "dataset": "mujoco",
+      "deltas_by_seed": {
+        "11": -0.003632328272185348,
+        "17": 0.00881788090322036,
+        "23": -0.04698724831199955,
+        "29": 0.48143554718410336,
+        "31": 0.03914597539930467
+      },
+      "first_method_id": "scppo",
+      "lower_is_better": true,
+      "mean_delta": 0.0957559653804887,
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "preferred_by_mean": "Revised heuristic",
+      "second_method_id": "heuristic",
+      "std_delta": 0.19481546103372135
+    },
+    {
+      "ci95_high": 104.69624676608183,
+      "ci95_low": -506.52399321911145,
+      "ci_excludes_zero": false,
+      "comparison": "SC-PPO 3.8 PID - Revised heuristic",
+      "dataset": "mujoco",
+      "deltas_by_seed": {
+        "11": -741.2662680392621,
+        "17": 85.57467289732853,
+        "23": 108.77791619976847,
+        "29": 110.1753642667718,
+        "31": -417.5990781775395
+      },
+      "first_method_id": "scppo",
+      "lower_is_better": false,
+      "mean_delta": -170.86747857058657,
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "preferred_by_mean": "Revised heuristic",
+      "second_method_id": "heuristic",
+      "std_delta": 349.0502727825323
+    }
+  ],
+  "protocol": {
+    "bootstrap_iterations": 20000,
+    "interpretation": "Descriptive bootstrap + IQM uncertainty audit, not NHST.",
+    "random_seed": 20260529,
+    "seeds": [
+      11,
+      17,
+      23,
+      29,
+      31
+    ]
+  },
+  "rank_stability_rows": [
+    {
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "most_frequent_winner": "LCP-style soft penalty",
+      "winner_frequencies": {
+        "LCP-style soft penalty": 0.999825,
+        "Revised heuristic": 0.0,
+        "SC-PPO 3.8 PID": 0.000175
+      }
+    },
+    {
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "most_frequent_winner": "LCP-style soft penalty",
+      "winner_frequencies": {
+        "LCP-style soft penalty": 0.98685,
+        "Revised heuristic": 0.0,
+        "SC-PPO 3.8 PID": 0.01315
+      }
+    },
+    {
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "most_frequent_winner": "Revised heuristic",
+      "winner_frequencies": {
+        "LCP-style soft penalty": 0.3892,
+        "Revised heuristic": 0.47955,
+        "SC-PPO 3.8 PID": 0.13125
+      }
+    },
+    {
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "most_frequent_winner": "LCP-style soft penalty",
+      "winner_frequencies": {
+        "LCP-style soft penalty": 0.95685,
+        "Revised heuristic": 0.0018,
+        "SC-PPO 3.8 PID": 0.04135
+      }
+    },
+    {
+      "dataset": "isaac",
+      "lower_is_better": false,
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "most_frequent_winner": "LCP-style soft penalty",
+      "winner_frequencies": {
+        "LCP-style soft penalty": 0.9903,
+        "Revised heuristic": 0.0048,
+        "SC-PPO 3.8 PID": 0.0049
+      }
+    },
+    {
+      "dataset": "isaac",
+      "lower_is_better": true,
+      "metric": "policy_sensitivity",
+      "metric_label": "Sensitivity",
+      "most_frequent_winner": "LCP-style soft penalty",
+      "winner_frequencies": {
+        "LCP-style soft penalty": 1.0,
+        "Revised heuristic": 0.0,
+        "SC-PPO 3.8 PID": 0.0
+      }
+    },
+    {
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "metric": "fall_rate",
+      "metric_label": "Fall",
+      "most_frequent_winner": "LCP-style soft penalty / Revised heuristic",
+      "winner_frequencies": {
+        "LCP-style soft penalty": 0.44527499999997955,
+        "Revised heuristic": 0.44527499999997955,
+        "SC-PPO 3.8 PID": 0.10944999999999389
+      }
+    },
+    {
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "metric": "velocity_tracking_error_mean",
+      "metric_label": "Vel. err",
+      "most_frequent_winner": "LCP-style soft penalty",
+      "winner_frequencies": {
+        "LCP-style soft penalty": 0.5152,
+        "Revised heuristic": 0.4752,
+        "SC-PPO 3.8 PID": 0.0096
+      }
+    },
+    {
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "metric": "joint_acceleration_l2_mean",
+      "metric_label": "Jnt acc",
+      "most_frequent_winner": "Revised heuristic",
+      "winner_frequencies": {
+        "LCP-style soft penalty": 0.251,
+        "Revised heuristic": 0.6853,
+        "SC-PPO 3.8 PID": 0.0637
+      }
+    },
+    {
+      "dataset": "mujoco",
+      "lower_is_better": true,
+      "metric": "action_jitter_l2_mean",
+      "metric_label": "Jitter",
+      "most_frequent_winner": "LCP-style soft penalty",
+      "winner_frequencies": {
+        "LCP-style soft penalty": 0.91055,
+        "Revised heuristic": 0.08945,
+        "SC-PPO 3.8 PID": 0.0
+      }
+    },
+    {
+      "dataset": "mujoco",
+      "lower_is_better": false,
+      "metric": "episode_return_mean",
+      "metric_label": "Return",
+      "most_frequent_winner": "Revised heuristic",
+      "winner_frequencies": {
+        "LCP-style soft penalty": 0.2587,
+        "Revised heuristic": 0.7014,
+        "SC-PPO 3.8 PID": 0.0399
+      }
+    }
+  ],
+  "reliability_rows": [
+    {
+      "changed_seed_count": 1,
+      "changed_seed_rate": 0.2,
+      "checkpoint_classification": "near_final",
+      "isaac_fall_delta": 0.0,
+      "isaac_jitter_delta": 0.007431825697422023,
+      "isaac_joint_acc_delta": 1.0041648864746093,
+      "method": "LCP-style soft penalty",
+      "method_id": "lcp",
+      "mujoco_fall_delta": 0.0,
+      "mujoco_jitter_delta": 0.007568063567997968,
+      "mujoco_joint_acc_delta": -0.16966724257332827,
+      "selected_equals_final_seed_count": 4,
+      "selected_equals_final_seed_rate": 0.8,
+      "selected_task_valid_seed_count": 5,
+      "selected_task_valid_seed_rate": 1.0,
+      "selected_zero_fall_seed_count": 5,
+      "selected_zero_fall_seed_rate": 1.0
+    },
+    {
+      "changed_seed_count": 2,
+      "changed_seed_rate": 0.4,
+      "checkpoint_classification": "dynamic_selection_sensitive",
+      "isaac_fall_delta": 0.0,
+      "isaac_jitter_delta": 0.014109941571950918,
+      "isaac_joint_acc_delta": 8.931995391845703,
+      "method": "SC-PPO 3.8 PID",
+      "method_id": "scppo",
+      "mujoco_fall_delta": -0.01,
+      "mujoco_jitter_delta": 0.015594502644216962,
+      "mujoco_joint_acc_delta": 8.689474234911767,
+      "selected_equals_final_seed_count": 3,
+      "selected_equals_final_seed_rate": 0.6,
+      "selected_task_valid_seed_count": 5,
+      "selected_task_valid_seed_rate": 1.0,
+      "selected_zero_fall_seed_count": 1,
+      "selected_zero_fall_seed_rate": 0.2
+    },
+    {
+      "changed_seed_count": 3,
+      "changed_seed_rate": 0.6,
+      "checkpoint_classification": "task_selection_sensitive",
+      "isaac_fall_delta": 0.05,
+      "isaac_jitter_delta": 0.008748832643032079,
+      "isaac_joint_acc_delta": 2.463467178344726,
+      "method": "Revised heuristic",
+      "method_id": "heuristic",
+      "mujoco_fall_delta": 0.0,
+      "mujoco_jitter_delta": -0.0007790143767115954,
+      "mujoco_joint_acc_delta": 0.2485785115539983,
+      "selected_equals_final_seed_count": 2,
+      "selected_equals_final_seed_rate": 0.4,
+      "selected_task_valid_seed_count": 5,
+      "selected_task_valid_seed_rate": 1.0,
+      "selected_zero_fall_seed_count": 0,
+      "selected_zero_fall_seed_rate": 0.0
+    }
+  ],
+  "source_artifacts": [
+    "artifacts/analysis/checkpoint_robustness/summary.json",
+    "artifacts/analysis/rough_terrain_extended_seeds/comparison_summary.json",
+    "artifacts/analysis/rough_terrain_lcp_soft_jacobian_formal/comparison_summary.json",
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/checkpoint_sweep_summary.json",
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed11/metrics_selected.json",
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/checkpoint_sweep_summary.json",
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed17/metrics_selected.json",
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/checkpoint_sweep_summary.json",
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed23/metrics_selected.json",
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed29/checkpoint_sweep_summary.json",
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed29/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed29/metrics_selected.json",
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed31/checkpoint_sweep_summary.json",
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed31/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "artifacts/methods/heuristic_smoothing_formal_protocol_revision_long_budget/heuristic_smoothing_action_rate_0050_formal_protocol_revision_long_budget_rough_terrain_seed31/metrics_selected.json",
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed11/checkpoint_sweep_summary.json",
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed11/metrics_checkpoint_300.json",
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed17/checkpoint_sweep_summary.json",
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed17/metrics_checkpoint_400.json",
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed23/checkpoint_sweep_summary.json",
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed23/metrics_checkpoint_400.json",
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed29/checkpoint_sweep_summary.json",
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed29/metrics_checkpoint_400.json",
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed29/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed31/checkpoint_sweep_summary.json",
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed31/metrics_checkpoint_400.json",
+    "artifacts/methods/lcp_soft_jacobian_penalty_diagnostic/lcp_soft_jacobian_penalty_diagnostic_seed31/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/checkpoint_sweep_summary.json",
+    "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed11/metrics_selected.json",
+    "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/checkpoint_sweep_summary.json",
+    "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed17/metrics_selected.json",
+    "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/checkpoint_sweep_summary.json",
+    "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed23/metrics_selected.json",
+    "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed29/checkpoint_sweep_summary.json",
+    "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed29/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed29/metrics_selected.json",
+    "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed31/checkpoint_sweep_summary.json",
+    "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed31/metrics_mujoco_isaac_mainline_20ep_20s_noise01.json",
+    "artifacts/methods/sc_ppo_pid_probe/sc_ppo_threshold_38_lambda_05_quantile_090_pid_lower_bound_clamp_rough_terrain_iter400_seed31/metrics_selected.json"
+  ]
+}

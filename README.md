@@ -111,6 +111,12 @@ check, but routine submission builds should stay under `.local`.
 Generated PDFs and LaTeX auxiliary files are intentionally ignored by git. Do
 not commit compiled submission packages.
 
+## Demo
+
+For a lightweight standalone project demo, see [demo/README.md](demo/README.md).
+It is an offline presentation package that runs without Isaac Gym, MuJoCo, or
+the rest of the repository.
+
 ## Quick start
 
 ### 1. Bootstrap the local dependency layout
